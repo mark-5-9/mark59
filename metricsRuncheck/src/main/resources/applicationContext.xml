@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+		
+	<context:annotation-config />
+	
+<!-- https://stackoverflow.com/questions/34189756/warning-about-ssl-connection-when-connecting-to-mysql-database -->
+<!-- https://stackoverflow.com/questions/50379839/connnection-java-mysql-public-key-retrieval-is-not-allowed -->
+<!--  		 db properties can be set from command line (eg -h myMySqlServer -p 3309    ) -->		
+
+<!-- 	<bean id="dataSource" -->
+<!-- 		class="org.apache.commons.dbcp.BasicDataSource"> -->
+<!-- 		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" /> -->
+<!-- 		<property name="url" value="jdbc:mysql://#{systemProperties.dbhost}:#{systemProperties.dbport}/pvmetrics?allowPublicKeyRetrieval=true&amp;useSSL=false" />  -->
+<!-- 		<property name="username" value="#{systemProperties.dbusername}" /> -->
+<!-- 		<property name="password" value="#{systemProperties.dbpassword}" /> -->
+<!-- 	</bean> -->
+		
+	 <bean id="graphMappingDAO" class="com.mark59.metrics.data.graphMapping.dao.GraphMappingDAOjdbcTemplateImpl" >
+	 </bean>
+  	
+ 	 <bean id="transactionDAO" 	class="com.mark59.metrics.data.transaction.dao.TransactionDAOjdbcTemplateImpl" >
+	 </bean>	
+ 
+ 	 <bean id="runDAO" class="com.mark59.metrics.data.run.dao.RunDAOjdbcTemplateImpl" >
+	 </bean>	 
+  
+ 	 <bean id="applicationDAO" class="com.mark59.metrics.data.application.dao.ApplicationDAOjdbcTemplateImpl" >
+	 </bean>	
+  
+	 <bean id="slaDao" class="com.mark59.metrics.data.sla.dao.SlaDAOjdbcImpl" >
+	 </bean>
+	 
+	 <bean id="metricSlaDAO" class="com.mark59.metrics.data.metricSla.dao.MetricSlaDAOjdbcImpl" >
+	 </bean>
+
+	 <bean id="eventMappingDAO" class="com.mark59.metrics.data.eventMapping.dao.EventMappingDAOjdbcTemplateImpl" >
+	 </bean>
+	 
+	 <bean id="testTransactionsDAO" class="com.mark59.metrics.data.testTransactions.dao.TestTransactionsDAOjdbcTemplateImpl" >
+	 </bean>
+	 
+ </beans>

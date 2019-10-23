@@ -1,0 +1,83 @@
+body {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+}
+
+.sidebar {
+  margin: 0;
+  padding: 0;
+  width: 180px;
+  background-color: #f1f1f1;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+ 
+}
+
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 14px;
+  text-decoration: none;
+  font-size: 14px;  
+}
+ 
+.sidebar a.active {
+  background-color: maroon;
+  color: white;
+}
+
+.sidebar a:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+
+div.content {
+  margin-left: 190px;
+  padding: 20px;
+  margin-bottom: 20px;  
+}
+
+@media screen and (max-width: 700px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .sidebar a {float: left;}
+  div.content {margin-left: 0;}
+}
+
+@media screen and (max-width: 400px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+  
+}
+
+.canterbury {
+	font-family: "Canterbury", Verdana, Tahoma;
+	font-size: 40px; text-align: center;
+	color: maroon;
+	padding: 10px;
+	border-bottom: solid 1px maroon;
+
+}
+
+h1 {
+  color: black;
+  font-family: arial, verdana, helvetica;
+  text-align: left;
+  font-size: 20px;
+}
+
+ 
+  table.metricsTable  { width: 100%; border-collapse: collapse; }
+  table.metricsTable th { font-size: 14px; color: white;   background-color: maroon; border: 1px solid #f1f1f1; padding: 4px; text-align: left; }
+  table.metricsTable td { font-size: 12px; color: #000000; background-color: white;  border: 1px solid #f1f1f1; padding: 4px; }
+  table.metricsTable tr:nth-child(even)  td {background-color: white;} 
+  table.metricsTable tr:nth-child(odd) td {background-color: #f1f1f1;} 
+  .textarea { width: 35px; height: 15px; min-height: 10px; font-family: Arial, sans-serif; font-size: 12px; color: #444; padding: 5px;}
+  
+

@@ -1,0 +1,9 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,Hostname,IdleTime,Connect
+1563781629775,18,CPU_localhost,,PASS,ServerUtil_localhost 2-1,CPU_UTIL,true,,0,0,1,2,,0,MyHostnm,0,0
+1563781709751,4,CPU_localhost,,PASS,ServerUtil_localhost 2-1,CPU_UTIL,true,,0,0,1,1,,0,MyHostnm,0,0
+1564010624672,40,CPU_localhostcsv,,PASS,ServerUtil_localhost 2-1,CPU_UTIL,true,,0,0,1,2,null,0,,0,0
+1564960947544,32,CPU_usingmin00,0,,,CPU_UTIL,true,,0,0,0,0,,0,,0,0
+1564960947544,32,CPU_xmlmin,0,,,CPU_UTIL,true,,0,0,0,0,,0,,0,0
+1513135423296,81,IDLE_CPU_SERVER01,200,PASS,tgServer1 2-1,CPU_UTIL,true,,0,0,1,2,,0,,0,0
+1513135482142,82,IDLE_CPU_SERVER01,200,PASS,tgServer1 2-1,CPU_UTIL,true,,0,0,1,2,,0,,0,0
+1513135542115,82,IDLE_CPU_SERVER01,200,PASS,tgServer1 2-1,CPU_UTIL,true,,0,0,1,2,,0,,0,0
