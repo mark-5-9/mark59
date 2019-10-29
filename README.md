@@ -6,7 +6,7 @@
 
 		<dependency>
 			<groupId>com.mark59</groupId>
-			<artifactId>mark59-selenium-sample-dsl</artifactId>
+			<artifactId>mark59-selenium-implementation</artifactId>
 			<version>1.0-beta-5</version>
 		</dependency>
 
