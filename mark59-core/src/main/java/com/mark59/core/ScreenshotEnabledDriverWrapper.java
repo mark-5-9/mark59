@@ -76,7 +76,7 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 	 * @return this
 	 */
 	public ScreenshotEnabledDriverWrapper<T> takeScreenshot(String imageName ) {
-		if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + " : taking screenshot with (partial) imageName = " + imageName);
+		if (LOG.isTraceEnabled()) LOG.trace(Thread.currentThread().getName() + " : taking screenshot with (partial) imageName = " + imageName);
 
 		ScreenshotLoggingHelper.writeScreenshotLog(new File(ScreenshotLoggingHelper.buildFullyQualifiedImageName(imageName)), takeScreenshot());
 		return this;
@@ -85,8 +85,7 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 	/**
 	 * Stores screenshot in memory, ready to be written to file later.
 	 * 
-	 * If you want to immediately write a screenshot to file, use takeScreenshot
-	 * instead.
+	 * If you want to immediately write a screenshot to file, use takeScreenshot instead.
 	 * 
 	 * @param imageName filename to use for the screenshot
 	 * @return this
@@ -105,8 +104,7 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 	 * @return this
 	 */
 	public ScreenshotEnabledDriverWrapper<T> writeBufferedArtifacts() {
-		LOG.info(MessageFormat.format("Writing {0} buffered data to disk for thread {1}",
-				bufferedArtifacts.size(), Thread.currentThread().getName()));
+		LOG.info(MessageFormat.format("Writing {0} buffered data to disk for thread {1}", bufferedArtifacts.size(), Thread.currentThread().getName()));
 
 		for (Entry<String, byte[]> bufferedArtifact : bufferedArtifacts.entrySet()) {
 			ScreenshotLoggingHelper.writeScreenshotLog(new File(bufferedArtifact.getKey()) , bufferedArtifact.getValue());

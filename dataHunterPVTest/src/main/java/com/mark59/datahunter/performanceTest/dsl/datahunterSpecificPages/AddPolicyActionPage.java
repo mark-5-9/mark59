@@ -19,7 +19,6 @@ package com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-import com.mark59.seleniumDSL.core._GenericPage;
 import com.mark59.seleniumDSL.pageElements.DropdownList;
 import com.mark59.seleniumDSL.pageElements.InputTextElement;
 import com.mark59.seleniumDSL.pageElements.Link;

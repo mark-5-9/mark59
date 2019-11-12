@@ -25,16 +25,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 
 /**
- * Useful class that implements a number of commonly used interactions with Selenium WebElement objects, with a particular
- * focus on 'wait' conditions 
+ * Useful class that implements a number of commonly used interactions with Selenium WebElement objects
  *
- * @author Philip Webb
  * @author Michael Cohen
- * Written: Australian Spring 2019
+ * @author Philip Webb
+ * Written: Australian Winter 2019  
  */
 public class Elemental {
 
@@ -44,28 +42,22 @@ public class Elemental {
 	protected By by;
 	protected Duration timeout;
 	protected Duration pollingFrequency;
-	protected boolean waitCondionsDebugMode;
 
 	
 	public Elemental(WebDriver driver, By by, Duration timeout, Duration pollingFrequency) {
-		this(driver, by, timeout, pollingFrequency, false); 
-	}
-
-	public Elemental(WebDriver driver, By by, Duration timeout, Duration pollingFrequency, boolean waitCondionsDebugMode) {
 		this.driver = driver;
 		this.by = by;
 		this.timeout = timeout;
 		this.pollingFrequency = pollingFrequency;
-		this.waitCondionsDebugMode = waitCondionsDebugMode;
 	}
 
 	
 	public void waitUntilCondition(ExpectedCondition<?> condition) {
 		
-		if (!waitCondionsDebugMode) {
+		if (!LOG.isDebugEnabled() ) {			
 			FluentWaitFactory.getFluentWait(driver, timeout, pollingFrequency).until(condition);
 		} else {
-			runWaitUntilConditonsDebugMode(condition);  
+			runUsingFluentWaitInDebugMode(condition);  
 		}
 	}
 	
@@ -118,10 +110,10 @@ public class Elemental {
 	
 	protected WebElement waitUntilConditionReturnsWebElement(ExpectedCondition<WebElement> condition) {
 		
-		if (!waitCondionsDebugMode) {
+		if (!LOG.isDebugEnabled()) {	
 			return FluentWaitFactory.getFluentWait(driver, timeout, pollingFrequency).until(condition);
 		} else {
-			return runWaitUntilConditonsDebugMode(condition);  
+			return runUsingFluentWaitInDebugMode(condition);  
 		}
 
 	}
@@ -133,18 +125,36 @@ public class Elemental {
 	
 	
 	
-	private WebElement runWaitUntilConditonsDebugMode(ExpectedCondition<?> condition) {
+	/**
+	 * Intended to be used for debugging. Approximately simulates the standard fluent wait obtained from the {@link FluentWaitFactory}, providing debug messaging.
+	 * 
+	 * <p>It invokes a 'debug' fluent wait, which has no 'ignoring' conditions attached.  Therefore on any failure the fluent wait will throw an exception and 
+	 * return. The precise reason of the failure of the failure can then be reported, as opposed to the standard fluent wait method (most exception conditions
+	 * get "ignored", so you are not able to see the reason(s) for re-polling until the duration is exceeded and timeout exception and stack trace printed). 
+	 * 
+	 * <p>Re-tries are controlled directly via a sleep call, instead of by the polling frequency used in the standard fluent wait method.  To avoid excessive re-try output,
+	 * the sleep between re-tries is set to the polling frequency plus one second.  For example, if the polling frequency has been set to 200ms, the re-try wait will be 1200ms. 
+	 *  
+	 * <p>It divides the total time allowed (duration), by the sleep wait time to calculate the total number of retries that will be attempted, so the call gets roughly
+	 * as much time to succeed as it would if not in debug mode.
+	 * 
+	 * @see  FluentWaitFactory#getFluentWaitDebugMode(WebDriver, Duration, Duration) 
+	 * @param condition
+	 * @return WebElement or null
+	 */
+	protected WebElement runUsingFluentWaitInDebugMode(ExpectedCondition<?> condition) {
 		
-		int webdriverTimeOutInSeconds = new Long( pollingFrequency.getSeconds() ).intValue() + 1;          //will generally get set to 1 
-		int numberOfAttempts = new Long( timeout.getSeconds() / webdriverTimeOutInSeconds ).intValue();  
+		long debugPollingFrequency = pollingFrequency.toMillis() + 1000L;                                                //will generally get set to a bit over 1 seconds 
+		int numberOfAttempts = new Long( timeout.getSeconds() * 1000L / debugPollingFrequency ).intValue();  
 		
 		for (int i = 1; i <= numberOfAttempts; i++ ) {
 			try {
+			
 				if (i>1){ 
-					LOG.debug( "re-attempt (try #" + i + " of " + numberOfAttempts + ") timeout : " + webdriverTimeOutInSeconds + "s" );
-				}	
-				WebDriverWait webDriverWait = new WebDriverWait(driver, webdriverTimeOutInSeconds);
-				Object returnedFromWaitForCondition =   webDriverWait.until(condition);
+					LOG.debug(" re-attempt (try #" + i + " of " + numberOfAttempts + "), retrying every " + debugPollingFrequency + "ms."   );
+				}
+				
+				Object returnedFromWaitForCondition = FluentWaitFactory.getFluentWaitDebugMode(driver,Duration.ofSeconds(0), Duration.ofSeconds(0)).until(condition);
 				
 				if (returnedFromWaitForCondition instanceof WebElement) {
 					return (WebElement) returnedFromWaitForCondition;
@@ -152,7 +162,8 @@ public class Elemental {
 				return null;
 
 			} catch (Exception e) {
-				LOG.debug(" condition for " + condition.getClass() + " not met : " + e.getMessage() );
+				LOG.debug(" condition for " + condition.getClass() + " not met : " + e.getMessage().replaceAll("\\R+", " ") );
+				SafeSleep.sleep(debugPollingFrequency);    // on failure, force a wait for re-tries 
 			}
 		}  
 		throw new RuntimeException("** Exhausted all attempts - forcing a failure. ");

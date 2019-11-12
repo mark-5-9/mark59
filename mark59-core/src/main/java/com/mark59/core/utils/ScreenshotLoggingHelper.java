@@ -103,7 +103,7 @@ public class ScreenshotLoggingHelper {
 											fileNameEnding, 
 											extension);
 
-		if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + " : fullyQualifiedImageName = " + fullyQualifiedImageName);
+		if (LOG.isTraceEnabled()) LOG.trace(Thread.currentThread().getName() + " : fullyQualifiedImageName = " + fullyQualifiedImageName);
 		
 		// increment counter ready for next image
 		StaticCounter.incrementCount(SCREENSHOT_COUNTER);

@@ -107,4 +107,28 @@ public class FluentWaitFactory {
 		return getFluentWait(driver, DEFAULT_TIMEOUT, DEFAULT_POLLING);
 	}
 
+	
+	/**
+	 * Returns a new FluentWait object witch does NOT ignore exceptions. Intended for use when debugging.   
+	 * The standard {@link #getFluentWait(WebDriver)} method in this class ignores
+	 * a set of exceptions, which has the effect that you can't tell what actually caused an action to fail - you just get a 
+	 * timeout exceptions at the end of the polling .  This method will fail on any exception, so it allows the 
+	 * failures to be thrown and captured. Note that timeout and polling are expected to generally be passed as zero (no exceptions are going
+	 * to be ignored, so re-polling is not going to happen) 
+	 *     
+	 * @see Elemental#runUsingFluentWaitInDebugMode(org.openqa.selenium.support.ui.ExpectedCondition)
+	 * 
+	 * @param driver
+	 * @param timeout
+	 * @param pollingFrequency
+	 * @return a fluent wait
+	 */
+	public static FluentWait<WebDriver> getFluentWaitDebugMode(WebDriver driver, Duration timeout, Duration pollingFrequency) {
+		return new FluentWait<WebDriver>(driver).withTimeout(timeout).pollingEvery(pollingFrequency);
+
+		
+	}
+	
+
+
 }

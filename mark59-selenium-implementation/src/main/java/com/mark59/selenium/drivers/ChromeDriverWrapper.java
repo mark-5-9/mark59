@@ -67,7 +67,7 @@ public class ChromeDriverWrapper extends SeleniumDriverWrapper {
 
 	
 	public void writeDriverLogs(String textFileName) {
-		if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + " : writing driver log, (partial) name " + textFileName );		
+		if (LOG.isTraceEnabled()) LOG.trace(Thread.currentThread().getName() + " : writing driver log, (partial) name " + textFileName );		
 				
 		String compoundLog = this.getDriverLogs();
 		

@@ -64,7 +64,7 @@
 
 <br>
 <br>
-		<p>Version: Beta5. "Early Release"  Please see our Release Notes at https://github.com/iagcl/mark59</p>  
+		<p>Version: 2.0.0  -  For User Guides and More: https://mark59.com</p>  
 </body>
 
 

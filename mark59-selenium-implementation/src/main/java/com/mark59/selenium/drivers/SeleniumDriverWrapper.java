@@ -97,7 +97,7 @@ public abstract class SeleniumDriverWrapper extends ScreenshotEnabledDriverWrapp
 
 	
 	public void writePageSource(String htmlFileName) {
-		if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + " : writing html source, (partial) filename " + htmlFileName );		
+		if (LOG.isTraceEnabled()) LOG.trace(Thread.currentThread().getName() + " : writing html source, (partial) filename " + htmlFileName );		
 		
 		String sourceWithUrlComment = getCurrentUrlAndtHtmlPageSource(this.getDriverPackage());		
 		ScreenshotLoggingHelper.writeScreenshotLog(new File(ScreenshotLoggingHelper.buildFullyQualifiedImageName(htmlFileName, "html")), sourceWithUrlComment.getBytes());
