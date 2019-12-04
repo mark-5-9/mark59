@@ -64,7 +64,7 @@
 
 <br>
 <br>
-		<p>Version: 2.0.0  -  For User Guides and More: https://mark59.com</p>  
+		<p>Version: 2.1.0  -  For User Guides and More: https://mark59.com</p>  
 </body>
 
 
