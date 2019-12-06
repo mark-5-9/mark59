@@ -4,5 +4,5 @@
 
 ## Version 
 
-<p>Central Repository versioning at 2.0<br>
-All other projects at 2.0.0
+<p>Central Repository versioning at 2.1<br>
+All other projects at 2.1.1
