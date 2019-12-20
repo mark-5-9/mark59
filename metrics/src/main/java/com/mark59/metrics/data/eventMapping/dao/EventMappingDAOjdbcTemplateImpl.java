@@ -40,6 +40,12 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 	private DataSource dataSource;
 
 	
+	private String orderingByMatchingProcess = 
+			" (select if ( locate('%', MATCH_WHEN_LIKE)>0,1,0 )), " +    //  free wildcard_exists?" + 
+			" length(replace( MATCH_WHEN_LIKE, '%', '' )) desc, "   +    //  num_of_chars_exclude_wildcards  
+			" length(TARGET_NAME_LB) + length(TARGET_NAME_RB) desc ";   
+	
+	
 	@Override
 	public void insertData(EventMapping eventMapping) {
 		String sql = "INSERT INTO eventmapping "
@@ -127,15 +133,12 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 		return  eventMappingList;
 	}
 	
-		private String getEventsMappingListSelectionSQL(String selectionCol, String selectionValue){	
+	private String getEventsMappingListSelectionSQL(String selectionCol, String selectionValue){	
 		String eventsMappingListSelectionSQL               = "select TXN_TYPE, METRIC_SOURCE, MATCH_WHEN_LIKE, TARGET_NAME_LB, TARGET_NAME_RB, IS_PERCENTAGE, IS_INVERTED_PERCENTAGE, PERFORMANCE_TOOL, COMMENT from pvmetrics.eventmapping ";
-		String eventsMappingListSelectionSQLwithMatchLike  = "   where " + selectionCol + " like '" + selectionValue + "' order by TXN_TYPE asc, MATCH_WHEN_LIKE asc  ";  
-		String eventsMappingListSelectionSQLnoMatchLike    = "   order by TXN_TYPE asc, MATCH_WHEN_LIKE asc "; 		
 		if (!selectionValue.isEmpty()  ) {			
-			eventsMappingListSelectionSQL = eventsMappingListSelectionSQL + eventsMappingListSelectionSQLwithMatchLike;
-		} else {
-			eventsMappingListSelectionSQL = eventsMappingListSelectionSQL + eventsMappingListSelectionSQLnoMatchLike;
-		}
+			eventsMappingListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
+		} 
+		eventsMappingListSelectionSQL += " order by METRIC_SOURCE, " + orderingByMatchingProcess;
 //		System.out.println("EventMappingDAOjdbcTemplateImpl.runsListSelectionSQL: " + runsListSelectionSQL); 
 		return  eventsMappingListSelectionSQL;
 	}
@@ -157,7 +160,6 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 	
 		}
 		
-//		String sql = "SELECT count(*) col FROM dual where '" + eventType + "'" + " = '" + matchWhenLikeSplit[0] + "' and '" + eventName + "' like  '" +  matchWhenLikeSplit[1] + "'"; 		
 		String sql = "SELECT count(*) col FROM dual where '" + eventType + "'" + " = '" + matchWhenLikeSplit[1] + "' and '" + eventName + "' like  '" +  eventMapping.getMatchWhenLike() + "'"; 		
 		matchCount = new Integer(jdbcTemplate.queryForObject(sql, String.class));
 		
@@ -169,15 +171,27 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 	}
 
 
+	/**
+	 *   See if the passed transaction id / metric source type (eg 'Jmeter_DATAPONT') matches to an event on the event mapping table  
+	 *   (if it does, it will be the mapped data type that will used for SLA checking with this transaction).
+	 *   
+	 *   <p>Selection is based on a "best-guess" algorithm as to what a user was attempting to match against when multiple rows 
+	 *   match the passed transaction id / metric source:
+	 *   <ul>
+	 *   <li>any rows with no percent symbol (no free wild-cards) take precedence
+	 *   <li>next is the length of the match (minus the number of free wild-cards - high to low)
+	 *   <li>then next is the total length boundary characters (longest to shortest)   
+	 *   </ul>	    
+	 **/
 	@Override
 	public EventMapping findAnEventForTxnIdAndSource(String txnId, String metricSource) {
-
-		String sql = "SELECT * FROM pvmetrics.eventmapping where '" + txnId + "'" + " like MATCH_WHEN_LIKE and METRIC_SOURCE = '" + metricSource + "' "
-				+ "order by TARGET_NAME_LB, TARGET_NAME_RB,  MATCH_WHEN_LIKE"; 		
-
-		// no formal reasoning for the ordering, except that if there are multiple matches, the user probably meant to match against the entry with boundaries,
-		// to give a more precise name
 			
+		String sql = "SELECT  * FROM pvmetrics.eventmapping" + 
+					"  where '" + txnId + "'" + " like MATCH_WHEN_LIKE " +
+					"    and  METRIC_SOURCE =  '" + metricSource + "' "  + 
+					"  order by " + orderingByMatchingProcess;
+		
+		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 		
@@ -191,6 +205,10 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 			return eventMapping; 
 		}
 	}
+	
+	
+
+	
 	
 	
 	private EventMapping populateFromResultSet(Map<String, Object> row) {

@@ -26,7 +26,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta http-equiv="X-UA-Compatible" content="IE=9" />  
-<title>Mark59 - Trend Analysis</title>
+<title>3D Trend Analysis - Mark59</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <script type="text/javascript" src="javascript/asyncTrending.js"></script>
 <script type="text/javascript" src="visgraph3d/dist/vis.js"></script>

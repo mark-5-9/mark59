@@ -282,7 +282,7 @@ public class JmeterRun extends PerformanceTest  {
 			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstants.THOUSAND, 3, BigDecimal.ROUND_HALF_UP)  );			
 		} else {
 			try {
-				testTransaction.setTxnResult( determineDatapointValue(txnResultMsBigD, sampleLineDataType));		
+				testTransaction.setTxnResult( determineDatapointValue(txnResultMsBigD, testTransaction.getTxnType()));		
 			} catch (Exception e) {
 				invalidDatapointMessageAndFail(jmeterFileLine, e);
 			}
@@ -410,7 +410,7 @@ public class JmeterRun extends PerformanceTest  {
 		testTransaction.setTxnId(csvDataLineFields[fieldPoslabel]);
 		
 		String sampleLineDataType =  AppConstants.MAPPED_DATA_TYPES.TRANSACTION.name();   // most commonly the data type will be a TRANSACTION (dt='')
-		if ( ! StringUtils.isBlank(csvDataLineFields[fieldPosdataType])){ 
+		if ( ! StringUtils.isBlank(csvDataLineFields[fieldPosdataType])){                 // blank means its a TRANSACTION 
 			sampleLineDataType = csvDataLineFields[fieldPosdataType];
 		}
 		
@@ -428,7 +428,7 @@ public class JmeterRun extends PerformanceTest  {
 			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstants.THOUSAND, 3, BigDecimal.ROUND_HALF_UP)  );			
 		} else {
 			try {
-				testTransaction.setTxnResult( determineDatapointValue(txnResultMsBigD, sampleLineDataType));
+				testTransaction.setTxnResult( determineDatapointValue(txnResultMsBigD, testTransaction.getTxnType()));
 			} catch (Exception e) {
 				invalidDatapointMessageAndFail(csvDataLine, e);
 			}

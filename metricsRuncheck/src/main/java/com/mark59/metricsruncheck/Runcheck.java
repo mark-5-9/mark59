@@ -314,7 +314,7 @@ public class Runcheck  implements CommandLineRunner
 	public static void main(String[] args) throws IOException {
 		try {
 
-			System.out.println("Starting runcheck ..");
+			System.out.println("Starting runcheck .. (v2.1.1) ");
 
 			parseArguments(args);
 			
