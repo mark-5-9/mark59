@@ -126,7 +126,7 @@ public class Elemental {
 	
 	
 	/**
-	 * Intended to be used for debugging. Approximately simulates the standard fluent wait obtained from the {@link FluentWaitFactory}, providing debug messaging.
+	 * Intended to be used for debugging. Approximately simulates the standard fluent wait obtained from the {@link FluentWaitFactory}, but also provides debug messaging.
 	 * 
 	 * <p>It invokes a 'debug' fluent wait, which has no 'ignoring' conditions attached.  Therefore on any failure the fluent wait will throw an exception and 
 	 * return. The precise reason of the failure of the failure can then be reported, as opposed to the standard fluent wait method (most exception conditions

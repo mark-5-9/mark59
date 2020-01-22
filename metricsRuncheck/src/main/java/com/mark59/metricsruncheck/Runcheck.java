@@ -30,7 +30,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
@@ -38,18 +38,30 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Bean;
 
 import com.mark59.metrics.application.AppConstants;
+import com.mark59.metrics.data.application.dao.ApplicationDAO;
+import com.mark59.metrics.data.application.dao.ApplicationDAOjdbcTemplateImpl;
 import com.mark59.metrics.data.beans.Sla;
 import com.mark59.metrics.data.eventMapping.dao.EventMappingDAO;
+import com.mark59.metrics.data.eventMapping.dao.EventMappingDAOjdbcTemplateImpl;
+import com.mark59.metrics.data.graphMapping.dao.GraphMappingDAO;
+import com.mark59.metrics.data.graphMapping.dao.GraphMappingDAOjdbcTemplateImpl;
 import com.mark59.metrics.data.metricSla.dao.MetricSlaDAO;
+import com.mark59.metrics.data.metricSla.dao.MetricSlaDAOjdbcImpl;
 import com.mark59.metrics.data.run.dao.RunDAO;
+import com.mark59.metrics.data.run.dao.RunDAOjdbcTemplateImpl;
 import com.mark59.metrics.data.sla.dao.SlaDAO;
+import com.mark59.metrics.data.sla.dao.SlaDAOjdbcImpl;
 import com.mark59.metrics.data.testTransactions.dao.TestTransactionsDAO;
+import com.mark59.metrics.data.testTransactions.dao.TestTransactionsDAOjdbcTemplateImpl;
 import com.mark59.metrics.data.transaction.dao.TransactionDAO;
+import com.mark59.metrics.data.transaction.dao.TransactionDAOjdbcTemplateImpl;
 import com.mark59.metrics.metricSla.MetricSlaChecker;
 import com.mark59.metrics.metricSla.MetricSlaResult;
+import com.mark59.metrics.services.SlaService;
+import com.mark59.metrics.services.SlaServiceImpl;
 import com.mark59.metrics.sla.SlaChecker;
 import com.mark59.metrics.sla.SlaTransactionResult;
 import com.mark59.metrics.sla.SlaUtilities;
@@ -62,7 +74,6 @@ import com.mark59.metricsruncheck.run.PerformanceTest;
  * Written: Australian Winter 2019  
  */
 
-@ImportResource("springXML/database.xml")
 @SpringBootApplication
 public class Runcheck  implements CommandLineRunner 
 {
@@ -89,7 +100,7 @@ public class Runcheck  implements CommandLineRunner
 	EventMappingDAO eventMappingDAO; 	
 	
 	@Autowired
-	private ApplicationContext context;
+	ApplicationContext context;
 
 
 	private static String argTool;
@@ -100,6 +111,50 @@ public class Runcheck  implements CommandLineRunner
 	private static String argCaptureperiod;
 	private static String argTimeZone;
 
+    @Bean
+    public ApplicationDAO applicationDAO() {
+        return new ApplicationDAOjdbcTemplateImpl();
+    }
+    
+    @Bean
+    public RunDAO runDAO() {
+        return new RunDAOjdbcTemplateImpl();
+    }
+    
+    @Bean
+    public TransactionDAO transactionDAO() {
+        return new TransactionDAOjdbcTemplateImpl();
+    }
+    
+    @Bean
+    public SlaDAO slaDAO() {
+        return new SlaDAOjdbcImpl();
+    }
+    
+    @Bean
+    public MetricSlaDAO metricSlaDAO() {
+        return new MetricSlaDAOjdbcImpl();
+    }
+
+    @Bean
+    public SlaService slaService() {
+        return new SlaServiceImpl();
+    }
+
+    @Bean
+    public GraphMappingDAO graphMappingDAO() {
+        return new GraphMappingDAOjdbcTemplateImpl();
+    }
+
+    @Bean
+    public EventMappingDAO eventMappingDAO() {
+        return new EventMappingDAOjdbcTemplateImpl();
+    }
+
+    @Bean
+    public TestTransactionsDAO testTransactionsDAO() {
+        return new TestTransactionsDAOjdbcTemplateImpl();
+    }
 	
 	
 	private static void parseArguments(String[] args) {
@@ -314,15 +369,15 @@ public class Runcheck  implements CommandLineRunner
 	public static void main(String[] args) throws IOException {
 		try {
 
-			System.out.println("Starting runcheck .. (v2.1.1) ");
-
+			System.out.println("Starting runcheck .. (v2.2.0) ");
+			
 			parseArguments(args);
 			
 			SpringApplication application = new SpringApplication(Runcheck.class);
 			application.setWebApplicationType(WebApplicationType.NONE);
 			application.setBannerMode(Banner.Mode.OFF);
 			application.run(args);
-
+			
 			System.out.println("runcheck completed.");
 
 		} catch (Exception e) {

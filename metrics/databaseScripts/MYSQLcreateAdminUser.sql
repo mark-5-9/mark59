@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+--  you need need to be connected to the database using the 'root' user to execute
 
 DROP USER IF EXISTS 'admin'@'localhost';
 DROP USER IF EXISTS 'admin'@'%';

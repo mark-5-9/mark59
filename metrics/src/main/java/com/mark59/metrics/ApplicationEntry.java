@@ -18,20 +18,28 @@ package com.mark59.metrics;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ImportResource;
-
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
  * @author Philip Webb
  * Written: Australian Winter 2019  
  */
-
 @SpringBootApplication
-@ImportResource("springXML/database.xml")
-public class ApplicationEntry {
+public class ApplicationEntry extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ApplicationEntry.class, args);
 	}
 
+
+    /**
+     *   Required for Application Server (Tomcat) deployment 
+     */
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(ApplicationEntry.class);
+    }
+
+	
 }

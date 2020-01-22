@@ -17,12 +17,12 @@
 package com.mark59.datahunter.controller;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.mark59.datahunter.application.Utils;
 
 /**
  * @author Philip Webb
@@ -51,7 +51,7 @@ public class HomeController {
 		
 		String application = request.getParameter("application");
 		
-		if (!StringUtils.isEmpty(application)){
+		if ( ! Utils.isEmpty(application)){
 			model.addAttribute("urlAppReqParm", "?application=" + application );
 			model.addAttribute("urlUseReqParmName", "&pUseOrLookup=");			
 		} else { 	

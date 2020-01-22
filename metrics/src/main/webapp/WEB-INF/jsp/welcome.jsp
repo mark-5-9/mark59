@@ -51,7 +51,7 @@
 	
 		<br>
 		<br>
-		<p>Version: 2.1.1.   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+		<p>Version: 2.2.0.   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 	</div>
 </body>

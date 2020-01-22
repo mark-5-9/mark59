@@ -31,5 +31,9 @@ public class Utils  {
 			httpSession.setMaxInactiveInterval(intervalinSecs);
 		}
 	}
-		
+
+	public static boolean isEmpty(final String s) {
+		return s == null || s.trim().isEmpty();
+	}
+	
 }

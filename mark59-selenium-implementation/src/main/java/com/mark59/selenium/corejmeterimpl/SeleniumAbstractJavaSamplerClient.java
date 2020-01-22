@@ -214,12 +214,17 @@ public abstract class SeleniumAbstractJavaSamplerClient  extends AbstractJavaSam
 		e.printStackTrace();
 		LOG.error("ERROR : " + this.getClass() + ".  Exception " +  e.getClass().getName() +  " thrown",  e);
 
-		seleniumDriverWrapper.documentExceptionState(new Exception(e));
-
+		try {
+			seleniumDriverWrapper.documentExceptionState(new Exception(e));
+		} catch (Exception ex) {
+			LOG.error("ERROR : " + this.getClass() + ".  An exception occured during scriptExceptionHandling (documentExceptionState) " +  ex.getClass().getName() +  " thrown",  e);
+			ex.printStackTrace();
+		}	
+		
 		try {
 			userActionsOnScriptFailure(context, jm, driver); 
 		} catch (Exception errorHandlingException) {
-			LOG.error("ERROR : " + this.getClass() + ".  An exception occured during scriptExceptionHandling " +  errorHandlingException.getClass().getName() +  " thrown",  errorHandlingException);
+			LOG.error("ERROR : " + this.getClass() + ".  An exception occured during scriptExceptionHandling (userActionsOnScriptFailure) " +  errorHandlingException.getClass().getName() +  " thrown",  errorHandlingException);
 			errorHandlingException.printStackTrace();
 		}
 		

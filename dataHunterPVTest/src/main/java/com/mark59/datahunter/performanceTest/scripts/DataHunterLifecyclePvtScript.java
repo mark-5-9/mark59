@@ -30,7 +30,6 @@ import org.openqa.selenium.WebDriver;
 import com.mark59.core.Outcome;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
-import com.mark59.datahunter.functionalTest.dsl.pageElements.DropdownList;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.AddPolicyActionPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.AddPolicyPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.CountPoliciesActionPage;
@@ -57,6 +56,14 @@ import com.mark59.seleniumDSL.pageElements.HtmlTableRow;
  * This selenium test uses a style of DSL which we suggest would be suitable for most performance tests.<br><br>
  * For simple html pages (insignificant client-side javascript or ajax), a DSL as used in the functionalTest packages may suffice
  * (as per the DropdownList class in the 'See Also' below) 
+ * <br><br>
+ * Note 1: the  waitUntilClickable(..) methods are not necessary here.  The simplicity of the pages don't require it.  It is included in 
+ * this example to show usage
+ * <br><br>
+ * Note 2: the  thenSleep(); methods are not necessary here. The simplicity of the pages don't require it.  It is included in 
+ * this example to show usage 
+ * 
+ * 
  * @see DropdownList
  * @see SeleniumAbstractJavaSamplerClient
  * 
@@ -115,8 +122,10 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		DeleteMultiplePoliciesPage deleteMultiplePoliciesPage = new DeleteMultiplePoliciesPage(driver); 
 		deleteMultiplePoliciesPage.lifecycle().type(lifecycle);
 
+		DeleteMultiplePoliciesActionPage deleteMultiplePoliciesActionPage = new DeleteMultiplePoliciesActionPage(driver);
+		
 		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
-		deleteMultiplePoliciesPage.submit().submit();
+		deleteMultiplePoliciesPage.submit().submit().waitUntilClickable( deleteMultiplePoliciesActionPage.backLink() );   // ** note 1
 		checkSqlOk(new DeleteMultiplePoliciesActionPage(driver));
 		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
 	
@@ -131,17 +140,18 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 			addPolicyPage.otherdata().type(user);		
 			addPolicyPage.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
 			//jm.writeScreenshot("add_policy_" + policy.getIdentifier());
+
+			AddPolicyActionPage addPolicyActionPage = new AddPolicyActionPage(driver);			
 			
 			jm.startTransaction("DH-lifecycle-0200-addPolicy");
-			addPolicyPage.submit().submit();	
-			AddPolicyActionPage addPolicyActionPage = new AddPolicyActionPage(driver);			
+			addPolicyPage.submit().submit().waitUntilClickable( addPolicyActionPage.backLink() );   // ** note 1;	
 			checkSqlOk(addPolicyActionPage);
 			jm.endTransaction("DH-lifecycle-0200-addPolicy");
 			
-			addPolicyActionPage.backLink().click().waitUntilClickable( addPolicyPage.submit() );  // waitUntilClickable(..) isn't necessary here, just to show usage
+			addPolicyActionPage.backLink().click().waitUntilClickable( addPolicyPage.submit() ).thenSleep();;    // ** note 1 & note 2
 		} 
 	
-//		dummy transaction just to test transaction failure behavior 		
+//		dummy transaction just to test transaction failure behavior
 		jm.startTransaction("DH-lifecycle-0299-sometimes-I-fail");
 		int randomNum_1_to_100 = ThreadLocalRandom.current().nextInt(1, 101);
 		if ( randomNum_1_to_100 >= forceTxnFailPercent ) {
@@ -152,7 +162,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		
 		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_URL_PATH + "?application=" + application);
 		CountPoliciesPage countPoliciesPage = new CountPoliciesPage(driver); 
-		countPoliciesPage.useability().selectByVisibleText(TestConstants.UNUSED).thenSleep();   // thenSleep() isn't necessary here, just to show usage
+		countPoliciesPage.useability().selectByVisibleText(TestConstants.UNUSED).thenSleep();   // ** note 2
 
 		jm.startTransaction("DH-lifecycle-0300-countUnusedPolicies");
 		countPoliciesPage.submit().submit();

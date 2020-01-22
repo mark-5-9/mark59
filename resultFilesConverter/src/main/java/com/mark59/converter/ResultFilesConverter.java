@@ -903,7 +903,7 @@ public class ResultFilesConverter {
 	
     public static void main( String[] args ) throws IOException, SAXException, ParserConfigurationException
     {
-        System.out.println( "Result Files Converter starting .. (v2.1.1) " );
+        System.out.println( "Result Files Converter starting .. (v2.2.0) " );
 
 //        for a quick and dirty test ...
 //        args = new String[]{"-i", "C:/Jmeter_Results/myapp", "-f", "myapp_TestResults_converted.csv", "-m", "SplitByDataType", "-e", "No", "-x", "True" };

@@ -24,11 +24,11 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.mark59.datahunter.application.AppConstants;
+import com.mark59.datahunter.application.Utils;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.model.AsyncMessageaAnalyzerResult;
 import com.mark59.datahunter.model.CountPoliciesBreakdown;
@@ -54,7 +54,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		.append( " FROM policies WHERE application = '").append( policySelect.getApplication())
 		.append( "' AND identifier = '").append( policySelect.getIdentifier()  ).append("' ");
 		
-		if (! StringUtils.isEmpty(policySelect.getLifecycle())) {   								//so only if lifecycle is entered (it is part of the full policy key)
+		if (! Utils.isEmpty(policySelect.getLifecycle())) {   								//so only if lifecycle is entered (it is part of the full policy key)
 			builder.append( " AND lifecycle = '").append(policySelect.getLifecycle()).append("' ");
 		}	
 		return builder.toString();
@@ -69,7 +69,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 				.append( " FROM policies WHERE application = '").append( policySelect.getApplication()).append( "' ")
 				.append(lifecycleAndUseabiltySelector(policySelect));
 		
-		if (StringUtils.isEmpty(policySelect.getSelectOrder())) {   						 			//default ordering: most recently created first on the list 
+		if (Utils.isEmpty(policySelect.getSelectOrder())) {   						 			//default ordering: most recently created first on the list 
 			builder.append(" ORDER BY created desc");
 		} else if (AppConstants.SELECT_UNORDERED.equals(policySelect.getSelectOrder())){      			//eg when just selecting count(*)      
 			builder.append("");			
@@ -105,10 +105,10 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		builder.append("select application, identifier, useability,  min(epochtime) as starttm, max(epochtime) as endtm, max(epochtime) - min(epochtime) as differencetm from policies where ")
 			.append(applicationSelectorDependingOnOperator(policySelect));
 
-		if ( ! StringUtils.isEmpty(policySelect.getIdentifier())){  
+		if ( ! Utils.isEmpty(policySelect.getIdentifier())){  
 			builder.append( " AND identifier = '").append(policySelect.getIdentifier()).append("' ");
 		} 
-		if ( ! StringUtils.isEmpty(policySelect.getUseability())){  
+		if ( ! Utils.isEmpty(policySelect.getUseability())){  
 			builder.append( " AND useability = '").append(policySelect.getUseability()).append("' ");
 		} 		
 		builder.append( " group by application, identifier, useability having count(*) > 1 order by application desc, identifier desc");
@@ -142,11 +142,11 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	
 	private String lifecycleAndUseabiltySelector(PolicySelectionCriteria policySelect) {
 		StringBuilder builder = new StringBuilder();
-		if ( StringUtils.isEmpty(policySelect.getLifecycle()) &&  StringUtils.isEmpty(policySelect.getUseability()) ){  
+		if ( Utils.isEmpty(policySelect.getLifecycle()) && Utils.isEmpty(policySelect.getUseability()) ){  
 			// do nothing, sql done
-		} else if (StringUtils.isEmpty(policySelect.getUseability())) {   								//so only lifecycle has a value
+		} else if (Utils.isEmpty(policySelect.getUseability())) {   								//so only lifecycle has a value
 			builder.append( " AND lifecycle = '").append(policySelect.getLifecycle()).append("' ");
-		} else if (StringUtils.isEmpty(policySelect.getLifecycle())) {   								//so only usability has a value
+		} else if (Utils.isEmpty(policySelect.getLifecycle())) {   								//so only usability has a value
 			builder.append(" AND useability = '").append(policySelect.getUseability()).append("' ");
 		} else {																						//so both have a value set 
 			builder.append(" AND lifecycle = '").append(policySelect.getLifecycle())
@@ -276,15 +276,15 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		
 		builder.append(" WHERE application = '").append(updateUse.getApplication()).append("' ");
 		
-		if (! StringUtils.isEmpty(updateUse.getLifecycle())) {   		 	
+		if (! Utils.isEmpty(updateUse.getLifecycle())) {   		 	
 			builder.append(" and lifecycle = '").append(updateUse.getLifecycle()).append( "' ");
 		}		
 		
-		if (! StringUtils.isEmpty(updateUse.getIdentifier())) {   		 	
+		if (! Utils.isEmpty(updateUse.getIdentifier())) {   		 	
 			builder.append(" and identifier = '").append(updateUse.getIdentifier()).append( "' ");
 		}		
 		
-		if (! StringUtils.isEmpty(updateUse.getUseability())) {   		 	
+		if (! Utils.isEmpty(updateUse.getUseability())) {   		 	
 			builder.append(" and useability = '").append(updateUse.getUseability()).append( "' ");
 		}
 		return builder.toString(); 

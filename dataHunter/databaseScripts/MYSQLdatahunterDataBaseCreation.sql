@@ -33,3 +33,13 @@ CREATE TABLE `policies` (
   PRIMARY KEY (`application`,`identifier`,`lifecycle`),
   KEY `application` (`application`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `reference`;
+CREATE TABLE `reference` (
+  `application` varchar(64) NOT NULL,
+  `property`	varchar(128) NOT NULL,
+  `value` 		varchar(128) NOT NULL,
+  `description` varchar(512) DEFAULT NULL,
+  PRIMARY KEY (`application`,`property`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  

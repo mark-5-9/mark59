@@ -57,7 +57,7 @@ public class NewRelicServerMetricsDriver implements ServerMetricsDriverInterface
 	@Override
 	public void init(NewRelicServerMetricsDriverConfig config) {
 		
-		this.newRelicApiUrl = config.getNewRelicApiUrl();    // "http://api.newrelic.com/v2/applications/";
+		this.newRelicApiUrl = config.getNewRelicApiUrl();    // "http[s]://api.newrelic.com/v2/applications/";
 		this.newRelicApiAppId = config.getNewRelicApiAppId();   
 		this.newRelicXapiKey = config.getNewRelicXapiKey();
 		this.proxyServer = config.getProxyServer();
@@ -219,7 +219,7 @@ public class NewRelicServerMetricsDriver implements ServerMetricsDriverInterface
 		System.out.println("> NewRelicServerMetricsDriver");
 		NewRelicServerMetricsDriver newRelicServerMetricsDriver = new NewRelicServerMetricsDriver();
 		NewRelicServerMetricsDriverConfig nrsmc = new NewRelicServerMetricsDriverConfig( 
-				"http://api.newrelic.com/v2/applications/", "--appid--", "--XapiKey---", "--proxy--", "--proxyport--");
+				"https://api.newrelic.com/v2/applications/", "--appid--", "--XapiKey---", "--proxy--", "--proxyport--");
 		newRelicServerMetricsDriver.init(nrsmc);
 		Map<String, Long> metrics = newRelicServerMetricsDriver.getCpuMetrics();
 		System.out.println("- cpu -------------------------" );

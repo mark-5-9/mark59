@@ -13,12 +13,13 @@ REM   See the License for the specific language governing permissions and
 REM   limitations under the License.
 REM 
 REM   -------------------------------------------------------------------------------------------------------------------------------------------------
-REM   |  Exectute DataHunterSeleniumApiTestPlan in non-gui mode 
+REM   |  Execute DataHunterSeleniumApiTestPlan in non-gui mode 
 REM   | 
 REM   |  Sample Usage.
 REM   |  ------------
 REM   |  Assumes you have placed your mark59 repo at C:\gitrepo\mark59,  
-REM   |                          your target Jmeter instance is at C:\apache-jmeter, 
+REM   |                          your target Jmeter instance is at C:\apache-jmeter,
+REM   |                          you have deployed artifacts to the Jmeter instance (see DataHunterDeployFromMavenTargetToJmeterInstance.bat) 
 REM   |                          Java is on your %path% 
 REM   | 
 REM   |  -  open up a Dos command prompt an cd to this projects root:
