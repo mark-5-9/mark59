@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="232" it="0" lt="36" ct="0" ts="1552881646177" s="true" lb="webmarshal-002_WebQuoteBuy_Example_Page" rc="200" rm="OK" tn="PROXY-webmarshal 1-1" dt="text" by="1358194" sby="1309" ng="1" na="1">
+  <httpSample t="36" it="0" lt="36" ct="0" ts="1552881646177" s="true" lb="https://someDomain/WebQuoteAndBuy/" rc="200" rm="OK" tn="PROXY-webmarshal 1-1" dt="text" by="1718" sby="187" ng="1" na="1"/>
+  <httpSample t="34" it="0" lt="34" ct="0" ts="1552881646214" s="true" lb="https://someDomain/WebQuoteAndBuy/styles.d41d8cd98f00b204e980.bundle.css" rc="200" rm="OK" tn="PROXY-webmarshal 1-1" dt="text" by="402" sby="225" ng="1" na="1"/>
+  <httpSample t="45" it="0" lt="45" ct="0" ts="1552881646214" s="true" lb="https://someDomain/WebQuoteAndBuy/inline.0d4139f8c339812ec1bf.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-1" dt="text" by="2044" sby="224" ng="1" na="1"/>
+  <httpSample t="95" it="0" lt="39" ct="0" ts="1552881646214" s="true" lb="https://someDomain/WebQuoteAndBuy/polyfills.6e285f7b34314e4d803f.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-1" dt="text" by="92813" sby="227" ng="1" na="1"/>
+  <httpSample t="195" it="0" lt="39" ct="0" ts="1552881646214" s="true" lb="https://someDomain/WebQuoteAndBuy/vendor.06b9c6c7554c8bfeeeb7.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-1" dt="text" by="733979" sby="224" ng="1" na="1"/>
+  <httpSample t="162" it="0" lt="34" ct="0" ts="1552881646214" s="true" lb="https://someDomain/WebQuoteAndBuy/main.8117bf36097712e245d4.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-1" dt="text" by="527238" sby="222" ng="1" na="1"/>
+</httpSample>
+<httpSample t="232" it="0" lt="34" ct="0" ts="1552881649208" s="true" lb="webmarshal-002_WebQuoteBuy_Example_Page" rc="200" rm="OK" tn="PROXY-webmarshal 1-2" dt="text" by="1358194" sby="1309" ng="2" na="2">
+  <httpSample t="34" it="0" lt="34" ct="0" ts="1552881649208" s="true" lb="https://someDomain/WebQuoteAndBuy/" rc="200" rm="OK" tn="PROXY-webmarshal 1-2" dt="text" by="1718" sby="187" ng="2" na="2"/>
+  <httpSample t="33" it="0" lt="33" ct="0" ts="1552881649242" s="true" lb="https://someDomain/WebQuoteAndBuy/styles.d41d8cd98f00b204e980.bundle.css" rc="200" rm="OK" tn="PROXY-webmarshal 1-2" dt="text" by="402" sby="225" ng="2" na="2"/>
+  <httpSample t="39" it="0" lt="39" ct="0" ts="1552881649242" s="true" lb="https://someDomain/WebQuoteAndBuy/inline.0d4139f8c339812ec1bf.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-2" dt="text" by="2044" sby="224" ng="2" na="2"/>
+  <httpSample t="96" it="0" lt="38" ct="0" ts="1552881649242" s="true" lb="https://someDomain/WebQuoteAndBuy/polyfills.6e285f7b34314e4d803f.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-2" dt="text" by="92813" sby="227" ng="2" na="2"/>
+  <httpSample t="197" it="0" lt="38" ct="0" ts="1552881649243" s="true" lb="https://someDomain/WebQuoteAndBuy/vendor.06b9c6c7554c8bfeeeb7.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-2" dt="text" by="733979" sby="224" ng="2" na="2"/>
+  <httpSample t="174" it="0" lt="48" ct="0" ts="1552881649242" s="true" lb="https://someDomain/WebQuoteAndBuy/main.8117bf36097712e245d4.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-2" dt="text" by="527238" sby="222" ng="2" na="2"/>
+</httpSample>
+<httpSample t="253" it="0" lt="35" ct="0" ts="1552881652060" s="true" lb="webmarshal-002_WebQuoteBuy_Example_Page" rc="200" rm="OK" tn="PROXY-webmarshal 1-3" dt="text" by="1358194" sby="1309" ng="3" na="3">
+  <httpSample t="35" it="0" lt="35" ct="0" ts="1552881652060" s="true" lb="https://someDomain/WebQuoteAndBuy/" rc="200" rm="OK" tn="PROXY-webmarshal 1-3" dt="text" by="1718" sby="187" ng="3" na="3"/>
+  <httpSample t="37" it="0" lt="37" ct="0" ts="1552881652095" s="true" lb="https://someDomain/WebQuoteAndBuy/styles.d41d8cd98f00b204e980.bundle.css" rc="200" rm="OK" tn="PROXY-webmarshal 1-3" dt="text" by="402" sby="225" ng="3" na="3"/>
+  <httpSample t="36" it="0" lt="36" ct="0" ts="1552881652095" s="true" lb="https://someDomain/WebQuoteAndBuy/inline.0d4139f8c339812ec1bf.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-3" dt="text" by="2044" sby="224" ng="3" na="3"/>
+  <httpSample t="68" it="0" lt="36" ct="0" ts="1552881652095" s="true" lb="https://someDomain/WebQuoteAndBuy/polyfills.6e285f7b34314e4d803f.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-3" dt="text" by="92813" sby="227" ng="3" na="3"/>
+  <httpSample t="218" it="0" lt="48" ct="0" ts="1552881652095" s="true" lb="https://someDomain/WebQuoteAndBuy/vendor.06b9c6c7554c8bfeeeb7.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-3" dt="text" by="733979" sby="224" ng="3" na="3"/>
+  <httpSample t="120" it="0" lt="35" ct="0" ts="1552881652095" s="true" lb="https://someDomain/WebQuoteAndBuy/main.8117bf36097712e245d4.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal 1-3" dt="text" by="527238" sby="222" ng="3" na="3"/>
+</httpSample>
+</testResults>

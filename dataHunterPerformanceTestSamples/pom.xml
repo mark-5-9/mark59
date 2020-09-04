@@ -1,0 +1,119 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>com.mark59</groupId>
+	<artifactId>dataHunterPerformanceTestSamples</artifactId>
+	<version>3.0.0</version>
+	<packaging>jar</packaging>
+	
+	<name>dataHunterPerformanceTestSamples</name>
+
+	<properties>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.mark59</groupId>
+			<artifactId>mark59-selenium-sample-dsl</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
+<!-- 	Not actually required for this project as it is already included as a dependency of mark59-selenium-sample-dsl (above). 
+		adding it anyway as an example for use in  projects not referring the sample DSL project, so they will require it -->
+		<dependency>
+			<groupId>com.mark59</groupId>
+			<artifactId>mark59-selenium-implementation</artifactId>
+			<version>3.0</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.jmeter/ApacheJMeter_core -->
+		<dependency>
+			<groupId>org.apache.jmeter</groupId>
+			<artifactId>ApacheJMeter_java</artifactId>
+			<version>5.3</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.4</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+
+		<!-- Maven Jar Plugin and Dependency Plugin -->
+		<!-- phase/goals: clean package -->
+		<!-- The plugins work in conjunction here to produce an output Jar and a directory of its dependencies -->
+		<!-- (both to be copied to lib/ext of target Jmeter instance) -->
+		
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-jar-plugin</artifactId> -->
+<!-- 				<version>3.1.1</version> -->
+<!-- 				<configuration> -->
+<!-- 					<archive> -->
+<!-- 						<manifest> -->
+<!-- 							<addClasspath>true</addClasspath> -->
+<!-- 							<classpathPrefix>./${project.artifactId}-dependencies</classpathPrefix> -->
+<!-- 						</manifest> -->
+<!-- 					</archive> -->
+<!-- 				</configuration> -->
+<!-- 			</plugin> -->
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-dependency-plugin</artifactId> -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<phase>prepare-package</phase> -->
+<!-- 						<goals> -->
+<!-- 							<goal>copy-dependencies</goal> -->
+<!-- 						</goals> -->
+<!-- 						<configuration> -->
+<!-- 							<outputDirectory>${project.build.directory}/${project.artifactId}-dependencies</outputDirectory> -->
+<!-- 							<excludeGroupIds>org.apache.jmeter</excludeGroupIds> -->
+<!-- 						</configuration> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 			</plugin> -->
+
+
+			<!-- Maven Assembly Plugin   (alternative to Maven Jar Plugin and Dependency Plugin usage above) -->
+			<!-- phase/goals:  clean package  -->
+			<!-- Wraps all the project classes and their dependencies into an single Jar (to be copied to lib/ext of target Jmeter instance)  -->
+			<!-- Note that this is not a general solution. May not work for projects with complex dependency trees (version issues), JCE providers (like bouncy castle)  -->
+			<!-- In those projects use the Maven Jar and Dependency Plugins as described above  -->								
+		
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<appendAssemblyId>false</appendAssemblyId>
+					<descriptorRefs><descriptorRef>jar-with-dependencies</descriptorRef></descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals><goal>single</goal></goals>
+					</execution>
+				</executions>
+			</plugin>				
+
+		</plugins>
+		<finalName>${project.artifactId}</finalName>
+	</build>
+	
+</project>

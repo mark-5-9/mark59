@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="695" it="0" lt="181" ct="5" ts="1553146812688" s="true" lb="webmarshal-111_WebQuoteBuy_Example_Page" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-1" dt="text" by="1358194" sby="1309" ng="1" na="2">
+  <httpSample t="181" it="0" lt="181" ct="5" ts="1553146812688" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-1" dt="text" by="1718" sby="187" ng="1" na="2"/>
+  <httpSample t="189" it="0" lt="189" ct="4" ts="1553146812870" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/styles.d41d8cd98f00b204e980.bundle.css" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-1" dt="text" by="402" sby="225" ng="1" na="2"/>
+  <httpSample t="217" it="0" lt="217" ct="4" ts="1553146812870" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/inline.0d4139f8c339812ec1bf.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-1" dt="text" by="2044" sby="224" ng="1" na="2"/>
+  <httpSample t="255" it="0" lt="199" ct="4" ts="1553146812870" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/polyfills.6e285f7b34314e4d803f.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-1" dt="text" by="92813" sby="227" ng="1" na="2"/>
+  <httpSample t="513" it="0" lt="213" ct="4" ts="1553146812870" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/vendor.06b9c6c7554c8bfeeeb7.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-1" dt="text" by="733979" sby="224" ng="1" na="2"/>
+  <httpSample t="168" it="0" lt="34" ct="0" ts="1553146812870" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/main.8117bf36097712e245d4.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-1" dt="text" by="527238" sby="222" ng="1" na="2"/>
+</httpSample>
+<httpSample t="551" it="0" lt="189" ct="5" ts="1553146818688" s="true" lb="webmarshal-111_WebQuoteBuy_Example_Page" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-2" dt="text" by="1358194" sby="1309" ng="2" na="4">
+  <httpSample t="189" it="0" lt="189" ct="5" ts="1553146818688" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-2" dt="text" by="1718" sby="187" ng="2" na="4"/>
+  <httpSample t="186" it="0" lt="186" ct="5" ts="1553146818878" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/styles.d41d8cd98f00b204e980.bundle.css" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-2" dt="text" by="402" sby="225" ng="2" na="4"/>
+  <httpSample t="182" it="0" lt="182" ct="4" ts="1553146818878" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/inline.0d4139f8c339812ec1bf.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-2" dt="text" by="2044" sby="224" ng="2" na="4"/>
+  <httpSample t="90" it="0" lt="33" ct="0" ts="1553146818878" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/polyfills.6e285f7b34314e4d803f.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-2" dt="text" by="92813" sby="227" ng="2" na="4"/>
+  <httpSample t="361" it="0" lt="197" ct="5" ts="1553146818878" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/vendor.06b9c6c7554c8bfeeeb7.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-2" dt="text" by="733979" sby="224" ng="2" na="4"/>
+  <httpSample t="322" it="0" lt="186" ct="4" ts="1553146818878" s="true" lb="https://some.random.doman-with-a-longish.name/ami/kss-assets/examples/WebQuoteAndBuy/main.8117bf36097712e245d4.bundle.js" rc="200" rm="OK" tn="PROXY-webmarshal-WebQuoteBuy_Example_Page 2-2" dt="text" by="527238" sby="222" ng="2" na="4"/>
+</httpSample>
+<sample t="9449" it="0" lt="0" ct="0" ts="1513135416019" s="true" lb="jrServer1" rc="200" rm="PASS" tn="tgServer1 2-1" dt="" by="0" sby="0" ng="1" na="2">
+  <sample t="81" it="0" lt="0" ct="0" ts="1513135423296" s="true" lb="IDLE_CPU_SERVER01" rc="200" rm="PASS" tn="tgServer1 2-1" dt="CPU_UTIL" by="0" sby="0" ng="1" na="2"/>
+  <sample t="0" it="0" lt="0" ct="0" ts="1513135425465" s="true" lb="Memory_SERVER01_pinned_percent" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+  <sample t="31" it="0" lt="0" ct="0" ts="1513135425465" s="true" lb="Memory_SERVER01_numperm_percent" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+  <sample t="3" it="0" lt="0" ct="0" ts="1513135425465" s="true" lb="Memory_SERVER01_pgsp_aggregate_util" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+</sample>
+<sample t="8299" it="0" lt="0" ct="0" ts="1513135476016" s="true" lb="jrServer1" rc="200" rm="PASS" tn="tgServer1 2-1" dt="" by="0" sby="0" ng="1" na="2">
+  <sample t="82" it="0" lt="0" ct="0" ts="1513135482142" s="true" lb="IDLE_CPU_SERVER01" rc="200" rm="PASS" tn="tgServer1 2-1" dt="CPU_UTIL" by="0" sby="0" ng="1" na="2"/>
+  <sample t="0" it="0" lt="0" ct="0" ts="1513135484315" s="true" lb="Memory_SERVER01_pinned_percent" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+  <sample t="31" it="0" lt="0" ct="0" ts="1513135484315" s="true" lb="Memory_SERVER01_numperm_percent" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+  <sample t="3" it="0" lt="0" ct="0" ts="1513135484315" s="true" lb="Memory_SERVER01_pgsp_aggregate_util" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+</sample>
+<sample t="101829" it="0" lt="0" ct="0" ts="1513135416023" s="true" lb="jrScript1" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="2">
+  <sample t="871" it="0" lt="0" ct="0" ts="1513135421532" s="true" lb="My_App_010_HomePage" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="2"/>
+  <sample t="1446" it="0" lt="0" ct="0" ts="1513135424847" s="true" lb="My_App_020_Login" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="2"/>
+  <sample t="95" it="0" lt="0" ct="0" ts="1513135432396" s="true" lb="My_App_030_ClickCreateQuoteMenuItem" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="2"/>
+  <sample t="8105" it="0" lt="0" ct="0" ts="1513135451314" s="false" lb="My_App_040_AddressSearch" rc="0" rm="NASTY FAILURE" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="2"/>
+  <sample t="4856" it="0" lt="0" ct="0" ts="1513135507287" s="true" lb="My_App_050_GetQuote" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="2"/>
+</sample>
+<sample t="8269" it="0" lt="0" ct="0" ts="1513135536015" s="true" lb="jrServer1" rc="200" rm="PASS" tn="tgServer1 2-1" dt="" by="0" sby="0" ng="1" na="2">
+  <sample t="82" it="0" lt="0" ct="0" ts="1513135542115" s="true" lb="IDLE_CPU_SERVER01" rc="200" rm="PASS" tn="tgServer1 2-1" dt="CPU_UTIL" by="0" sby="0" ng="1" na="2"/>
+  <sample t="0" it="0" lt="0" ct="0" ts="1513135544284" s="true" lb="Memory_SERVER01_pinned_percent" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+  <sample t="31" it="0" lt="0" ct="0" ts="1513135544284" s="true" lb="Memory_SERVER01_numperm_percent" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+  <sample t="3" it="0" lt="0" ct="0" ts="1513135544284" s="true" lb="Memory_SERVER01_pgsp_aggregate_util" rc="200" rm="PASS" tn="tgServer1 2-1" dt="MEMORY" by="0" sby="0" ng="1" na="2"/>
+</sample>
+<sample t="98063" it="0" lt="0" ct="0" ts="1513135518928" s="true" lb="jrScript1" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1">
+  <sample t="815" it="0" lt="0" ct="0" ts="1513135522637" s="true" lb="My_App_010_HomePage" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+  <sample t="1311" it="0" lt="0" ct="0" ts="1513135525933" s="true" lb="My_App_020_Login" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+  <sample t="97" it="0" lt="0" ct="0" ts="1513135533341" s="true" lb="My_App_030_ClickCreateQuoteMenuItem" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+  <sample t="8045" it="0" lt="0" ct="0" ts="1513135551423" s="true" lb="My_App_040_AddressSearch" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+  <sample t="4168" it="0" lt="0" ct="0" ts="1513135607127" s="true" lb="My_App_050_GetQuote" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+</sample>
+<sample t="98040" it="0" lt="0" ct="0" ts="1513135617912" s="true" lb="jrScript1" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1">
+  <sample t="791" it="0" lt="0" ct="0" ts="1513135621659" s="true" lb="My_App_010_HomePage" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+  <sample t="1371" it="0" lt="0" ct="0" ts="1513135624877" s="true" lb="My_App_020_Login" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+  <sample t="88" it="0" lt="0" ct="0" ts="1513135632343" s="true" lb="My_App_030_ClickCreateQuoteMenuItem" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+  <sample t="8041" it="0" lt="0" ct="0" ts="1513135650354" s="true" lb="My_App_040_AddressSearch" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+  <sample t="4273" it="0" lt="0" ct="0" ts="1513135705963" s="true" lb="My_App_050_GetQuote" rc="200" rm="PASS" tn="jrScript1 1-1" dt="" by="0" sby="0" ng="1" na="1"/>
+</sample>
+
+</testResults>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<sample t="1" it="0" lt="0" ct="0" ts="1542312685847" s="true" lb="My_Best_App_010_ScanFile" rc="200" rm="OK" tn="My_Best_App 20-1" dt="DATAPOINT" by="0" sby="0" ng="1" na="42"/>
+<sample t="1" it="0" lt="0" ct="0" ts="1542312685845" s="true" lb="My_Second_App_010_ScanFile" rc="200" rm="OK" tn="My_Second_App 16-1" dt="DATAPOINT" by="0" sby="0" ng="1" na="42"/>
+<sample t="1" it="0" lt="0" ct="0" ts="1542312686057" s="true" lb="email_type_one_010_SendEmail" rc="200" rm="Message successfully sent!&#xa;" tn="email_type_one 7-1" dt="DATAPOINT" by="79899" sby="0" ng="1" na="42"/>
+<sample t="1" it="0" lt="0" ct="0" ts="1542312686107" s="true" lb="email_type_two_010_SendEmail" rc="200" rm="Message successfully sent!&#xa;" tn="email_type_two 2-1" dt="DATAPOINT" by="446424" sby="0" ng="1" na="42"/>
+<sample t="1" it="0" lt="0" ct="0" ts="1542312686109" s="false" lb="email_type_three_010_SendEmail" rc="500" rm="Could not connect to SMTP host: smtphosthy.myorg.corp, port: 25, response: 421" tn="email_type_three 5-1" dt="DATAPOINT" by="3368323" sby="0" ng="1" na="30"/>
+</testResults>

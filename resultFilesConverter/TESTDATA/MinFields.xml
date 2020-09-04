@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<sample t="3395" ts="1564960945898" s="true" lb="jr_localhost" dt="PARENT">
+  <sample t="32" ts="1564960947544" s="true" lb="CPU_xmlmin" dt="CPU_UTIL"/>
+</sample>
+<sample t="6388" ts="1564960951000" s="true" lb="DataHunterLifecycle" dt="PARENT">
+  <sample t="104" ts="1564960952117" s="true" lb="DH-lifecycle-xmlmin-deleteMultiplePolicies" dt=""/>
+  <sample t="296" ts="1564960952661" s="true" lb="DH-lifecycle-xmlmin-addPolicy" dt=""/>
+</sample>
+</testResults>

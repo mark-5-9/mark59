@@ -1,0 +1,144 @@
+/*
+  Copyright 2019 Insurance Australia Group Limited
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  
+  ########################################################################
+  
+  Attribution(s)
+  --------------  
+  The contents contained in this file use elements from the the vis.js product 
+  (https://visjs.org/)
+  
+  The original contents did not contain an copyright note, however the vis product
+  is dual licensed under both the Apache 2.0 license and the MIT License
+  (https://github.com/almende/vis)    
+    
+*/
+
+body
+{
+	font: 13px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+}
+ 
+h1
+{
+	font-size: 180%;
+	font-weight: bold;
+
+	margin: 1em 0 1em 0;
+}
+
+h2 
+{ 
+  font-size: 140%; 
+  color: white;
+  background-color: #4d004d;
+  padding: 5px;
+}
+
+h3
+{ 
+  font-size: 100%;
+  color: white;
+  background-color: maroon;
+  padding: 5px;  
+}
+
+
+hr
+{
+	border: none 0;
+	border-top: 1px solid #7F8FB1;
+	height: 1px;
+}
+ 
+pre.code
+{
+	display: block;
+	padding: 8px;
+	border: 1px dashed #ccc;
+}
+
+table
+{
+  border-collapse: collapse;
+}
+
+th, td
+{
+  font: 12px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+  text-align: left;
+  vertical-align: top;
+  /*border: 1px solid #888;*/
+  padding: 4px;
+}
+
+th 
+{
+  font-weight: bold;
+}
+
+
+th.maxwidth{
+   	max-width: 600px;
+   	white-space: nowrap;
+}
+
+
+textarea {
+  width: 500px;
+  height: 200px;
+  border: 1px solid #888;
+}
+
+input[type=text] {
+  border: 1px solid #888;
+}
+
+#datasourceText, #googlespreadsheetText {
+  width: 500px; 
+  
+}
+
+.info {
+  color: gray;
+}
+
+a {
+  color: gray;
+}
+a:hover {
+  color: red;
+}
+
+
+#graphdiv {
+  flex: 1;   /* will fill whole space left if no flex value are set to other children*/
+  /* background: gold; */   
+  overflow: auto;	
+	
+/*  width: 100%;
+    height: 900px;
+    height: 600px;    <- original */
+}
+
+	.maroontitle { font-size: 18px;	 color: maroon;	 font: bold;	 background-color: white;	 border: thick;}
+	.textarea { width: 35px; height: 15px; min-height: 10px; font-family: Arial, sans-serif; font-size: 12px;  color: #444; padding: 5px;}
+	.textred { color: red; max-width: 600px; white-space: nowrap;}
+	.customButton { font-size: 16px; color:maroon;}
+	th { position: relative;}
+	#top, #bot { position: absolute; }
+	#top { top: 0; }
+	#bot { bottom: 0; }
+	.smallborder {  border:0px;  outline:0px;  }
