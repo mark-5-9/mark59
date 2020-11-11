@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="5" it="0" lt="5" ct="2" ts="1563779252640" s="true" lb="dataHunter_add_policy" rc="200" rm="" tn="TG_Store_Policy 1-1" dt="text" by="2980" sby="313" ng="1" na="1"/>
+<httpSample t="5" it="0" lt="5" ct="2" ts="1563779252640" s="true" lb="IGNORE_DUMMY_TRANSACIONS" rc="200" rm="" tn="TG_Store_Policy 1-1" dt="text" by="2980" sby="313" ng="1" na="1"/>
+<httpSample t="4" it="0" lt="4" ct="0" ts="1563779255026" s="true" lb="dataHunter_use_next_policy" rc="200" rm="" tn="TG_Store_Policy 1-76" dt="text" by="3909" sby="257" ng="120" na="120"/>
+<httpSample t="7" it="0" lt="7" ct="0" ts="1563779255025" s="true" lb="dataHunter_use_next_policy" rc="200" rm="" tn="TG_Store_Policy 1-11" dt="text" by="3909" sby="257" ng="121" na="121"/>
+<httpSample t="8" it="0" lt="0" ct="0" ts="1563779255035" s="false" lb="dataHunter_use_next_policy" rc="Non HTTP response code: org.apache.http.ConnectionClosedException" rm="Non HTTP response message: Connection is closed" tn="TG_Store_Policy 1-26" dt="text" by="1863" sby="0" ng="121" na="121"/>
+<httpSample t="19" it="0" lt="0" ct="1" ts="1563779255080" s="false" lb="dataHunter_add_policy" rc="Non HTTP response code: java.io.InterruptedIOException" rm="Non HTTP response message: Connection has been shut down" tn="TG_Store_Policy 1-92" dt="text" by="1903" sby="0" ng="116" na="116"/>
+
+</testResults>

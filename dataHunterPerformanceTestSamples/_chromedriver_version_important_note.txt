@@ -1,0 +1,24 @@
+
+Warning:  An out-of-date release of ChromeDriver is shipped with Mark59 !
+-------------------------------------------------------------------------
+
+Release 2.44 of the Linux and Windows ChromeDrivers are included in the Mark59 'dataHunterPerformanceTestSamples' project.
+
+This was the last release where a check was NOT included to verify ChromeDriver was compatible with the version of Chrome 
+it is driving.  This version has been used to enable the immediate execution of the Selenium tests against dataHunter in the
+dataHunterPerformanceTestSamples project, particularly when running the start-up DEMO from the mark59-web-server-metrics
+application.  
+
+It saves having to ensure the ChromeDriver is compatible with the version of Chrome or Chromium on the machine running the DEMO.
+Google and the ChromeDriver development team are currently updating every month or two, and the current ChromeDriver releases
+only work on one version of Chrome.  
+
+Obviously this is really just a bit of a trick, that works mainly due to the fact that dataHunter (the system under test) is
+quite a simple application.  Presumably one day a Chrome release will break the 2.44 ChromeDriver, but anyway it works 
+for now.
+
+So, it is VERY IMPORTANT to update/use a current version of ChromeDriver (the most current version compatible with the Chrome/
+Chromium browser you are using), before doing any serious work with Selenium.
+                         
+The ChromeDriver download site:  https://chromedriver.chromium.org/downloads
+                          

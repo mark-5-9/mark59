@@ -1,0 +1,4 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,Latency,Hostname,IdleTime,Connect
+1564721294931,78312,Myapp Travel B2C,200,PASS,Myapp Travel B2C 1-2,PARENT,true,,0,0,2,2,0,SERVER66,0,0
+1564721294935,2333,Myapp_TravelB2C_0000_landingPage,200,PASS,Myapp Travel B2C 1-2,,true,,0,0,2,2,0,SERVER66,0,0
+1564721298269,129,Myapp_TravelB2C_0001_TravelPlan,200,PASS,Myapp Travel B2C 1-2,,true,,0,0,2,2,0,SERVER66,0,0

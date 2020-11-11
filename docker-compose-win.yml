@@ -1,0 +1,41 @@
+#
+#   In Powershell, cd to mark59 root folder (the folder containing this file), then run command: 
+#
+#   docker-compose -f docker-compose-win.yml up 
+#
+version: "3"
+services:
+  jenkins:
+    image: mark59/jenkins
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ".:/var/mark59"
+      - "//c/apache-jmeter:/var/apache-jmeter"
+      - "//c/Mark59_Runs:/var/Mark59_Runs"
+  datahunter:
+    image: mark59/datahunter
+    expose:
+      - "8081"
+    ports:
+      - "8081:8081"
+    volumes:
+      - ".:/var/mark59"
+  metrics:
+    image: mark59/metrics
+    expose:
+      - "8083"
+    ports:
+      - "8083:8083"
+    volumes:
+      - ".:/var/mark59"
+  mark59servermetricsweb:
+    image: mark59/mark59-server-metrics-web
+    expose:
+      - "8085"
+    ports:
+      - "8085:8085"
+    volumes:
+      - ".:/var/mark59"      

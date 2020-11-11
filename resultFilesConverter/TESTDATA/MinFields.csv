@@ -1,0 +1,5 @@
+timeStamp,elapsed,label,dataType,success
+1564960945898,3395,jr_localhost,PARENT,true
+1564960947544,32,CPU_usingmin00,CPU_UTIL,true
+1564960951000,6388,DataHunterLifecycle,PARENT,true
+1564960952117,104,DH-lifecycle-min-deleteMultiplePolicies,,true

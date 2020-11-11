@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE xml>
+<!-- "DOCTYPE xml" just for eclipse warnings" https://stackoverflow.com/questions/4551783/no-grammar-constraints-dtd-or-xml-schema-detected-for-the-document -->
+<!-- log4j.xml (as txt file) included for junit testing only.  (Please refer to the mark59 core class Log4jConfigurationHelper for user tests)  -->
+
+<Configuration status="INFO">
+
+  <Appenders>
+	<Console name="Console" target="SYSTEM_OUT">
+		<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+	</Console>
+  </Appenders>
+
+  <Loggers>
+    <Root level="info">
+       <AppenderRef ref="Console" />    
+    </Root>
+  </Loggers>
+
+</Configuration>
