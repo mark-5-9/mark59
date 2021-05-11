@@ -26,50 +26,46 @@ import java.util.List;
 public class CommandDriverResponse {
 
 	private List<String> rawCommandResponseLines;
+	private List<ParsedMetric> parsedMetrics;	
 	private String commandLog;	
 	private boolean commandFailure;
-
-	
 	
 	public List<String> getRawCommandResponseLines() {
 		return rawCommandResponseLines;
 	}
 
-
-
 	public void setRawCommandResponseLines(List<String> rawCommandResponseLines) {
 		this.rawCommandResponseLines = rawCommandResponseLines;
 	}
 
+	public List<ParsedMetric> getParsedMetrics() {
+		return parsedMetrics;
+	}
 
+	public void setParsedMetrics(List<ParsedMetric> parsedMetrics) {
+		this.parsedMetrics = parsedMetrics;
+	}
 
 	public String getCommandLog() {
 		return commandLog;
 	}
 
-
-
 	public void setCommandLog(String commandLog) {
 		this.commandLog = commandLog;
 	}
-
-
 
 	public boolean isCommandFailure() {
 		return commandFailure;
 	}
 
-
-
 	public void setCommandFailure(boolean commandFailure) {
 		this.commandFailure = commandFailure;
 	}
 
-
-
 	@Override
     public String toString() {
         return   "[rawCommandResponseLines= "  + rawCommandResponseLines
+        		+ ", parsedMetrics="+ parsedMetrics   
         		+ ", commandLog="+ commandLog   
         		+ ", commandFailure="+ commandFailure   
         		+ "]";

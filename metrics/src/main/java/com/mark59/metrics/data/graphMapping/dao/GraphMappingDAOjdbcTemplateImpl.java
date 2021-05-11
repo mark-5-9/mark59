@@ -171,6 +171,18 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 		for (Map<String, Object> row : rows) {
 			BarRange slaRange = new BarRange();
 			slaRange.setTxnId((String)row.get("TXN_ID"));
+			
+//			if ( row.get("BAR_MIN").getClass().toString().contains("BigDecimal")  ){
+//				slaRange.setBarMin((BigDecimal)row.get("BAR_MIN"));	
+//			} else { // assume Double
+//				slaRange.setBarMin(new BigDecimal((Double)row.get("BAR_MIN")));	   
+//			}	
+//			if ( row.get("BAR_MAX").getClass().toString().contains("BigDecimal")  ){
+//				slaRange.setBarMax((BigDecimal)row.get("BAR_MAX"));	
+//			} else { // assume Double
+//				slaRange.setBarMax(new BigDecimal((Double)row.get("BAR_MAX")));	   
+//			}	
+
 			slaRange.setBarMin((BigDecimal)row.get("BAR_MIN"));		
 			slaRange.setBarMax((BigDecimal)row.get("BAR_MAX"));				
 			trxnIdsSlaRanges.add(slaRange);

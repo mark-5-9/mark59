@@ -76,7 +76,7 @@
      <td><img src="images/${app.slaTransactionResultIcon}.png" style="width:15px;height:15px;"/></td>    
      <td><img src="images/${app.slaMetricsResultIcon}.png" style="width:15px;height:15px;"/></td>    
      <td>${app.comment}</td>
-     <td><a href="editApplication?applicationId=${app.application}" title="Edit"><img src="images/edit.png"/></a></td>
+     <td><a href="editApplication?applicationId=${app.application}&reqAppListSelector=${map.reqAppListSelector}" title="Edit"><img src="images/edit.png"/></a></td>
      <td>
        	<c:if test = "${app.active == 'N'}">
      		<a href="deleteApplication?applicationId=${app.application}" onclick="return confirm('Are you sure (application=${app.application})?');" title="Delete"><img src="images/delete.png"/></a>

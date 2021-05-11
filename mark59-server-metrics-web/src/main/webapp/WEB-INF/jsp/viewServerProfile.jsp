@@ -56,28 +56,58 @@ table
 
    <table>
      
-    <tr><td>Server Profile</td>	  <td>:</td><td id='serverProfile'>${map.serverProfileEditingForm.serverProfile.serverProfileName}</td></tr>
-    <tr><td>Server</td>			  <td>:</td><td>${map.serverProfileEditingForm.serverProfile.server}</td></tr>
-    <tr><td>Operating System</td> <td>:</td><td>${map.serverProfileEditingForm.serverProfile.operatingSystem}</td></tr>
-    <tr><td>Alt Server Id</td>	  <td>:</td><td>${map.serverProfileEditingForm.serverProfile.alternativeServerId}</td></tr>
-    <tr><td>Username</td>		  <td>:</td><td>${map.serverProfileEditingForm.serverProfile.username}</td></tr>
-    <tr><td>Connection Port</td>  <td>:</td><td>${map.serverProfileEditingForm.serverProfile.connectionPort}</td></tr>
-    <tr><td>Connection Timeout</td><td>:</td><td>${map.serverProfileEditingForm.serverProfile.connectionTimeout}</td><tr>
-    <tr><td>Comment			  </td><td>:</td><td>${map.serverProfileEditingForm.serverProfile.comment}</td><tr>
+     <tr><td>Server Profile</td>	<td>:</td><td id='serverProfile'>${map.serverProfileEditingForm.serverProfile.serverProfileName}</td></tr>
+     <tr><td>Command(s)Executor</td><td>:</td><td>${map.serverProfileEditingForm.serverProfile.executor}</td></tr>
+     
+     <c:set var="commandexecutor" value="${serverProfileEditingForm.serverProfile.executor}" />
 
+     <c:if test="${!commandexecutor.equals('GROOVY_SCRIPT')}">
+	     <tr><td>Server</td>		    <td>:</td><td>${map.serverProfileEditingForm.serverProfile.server}</td></tr>
+	     <tr><td>Alt Server Id</td>	    <td>:</td><td>${map.serverProfileEditingForm.serverProfile.alternativeServerId}</td></tr>
+	     <tr><td>Username</td>		    <td>:</td><td>${map.serverProfileEditingForm.serverProfile.username}</td></tr>
+	     <tr><td>Connection Port</td>   <td>:</td><td>${map.serverProfileEditingForm.serverProfile.connectionPort}</td></tr>
+	     <tr><td>Connection Timeout</td><td>:</td><td>${map.serverProfileEditingForm.serverProfile.connectionTimeout}</td><tr>
+     </c:if> 
+      
+     <tr><td>Comment</td>           <td>:</td><td>${map.serverProfileEditingForm.serverProfile.comment}</td><tr>
      <tr><td><br></td><td></td><td></td></tr>
-     <tr> 
-      <td>Selected Commands</td><td>:</td>
-      <td>
- 		<table><tr>    
-        <c:forEach items="${serverProfileEditingForm.commandSelectors}" var="commandSelector"  varStatus="status"   >
-            <c:if test="${commandSelector.commandChecked}">
-    	       <td><a href="editCommand?&reqCommandName=${commandSelector.commandName}">${commandSelector.commandName}</a>&nbsp;</td>
-    	    </c:if>   
-        </c:forEach>
-        </tr></table> 
-      <td> 
-     </tr> 
+
+     <c:if test="${!commandexecutor.equals('GROOVY_SCRIPT')}">
+	     <tr> 
+	      <td>Selected Commands</td><td>:</td>
+	      <td>
+	 		<table><tr>    
+	        <c:forEach items="${serverProfileEditingForm.commandSelectors}" var="commandSelector"  varStatus="status"   >
+	            <c:if test="${commandSelector.commandChecked}">
+	    	       <td><a href="editCommand?&reqCommandName=${commandSelector.commandName}">${commandSelector.commandName}</a>&nbsp;</td>
+	    	    </c:if>   
+	        </c:forEach>
+	        </tr></table> 
+	      <td> 
+	     </tr> 
+     </c:if>  
+ 
+     <c:if test="${commandexecutor.equals('GROOVY_SCRIPT')}">
+	     <tr> 
+	      <td>Command</td><td>:</td>
+		  <td><a href="editCommand?&reqCommandName=${serverProfileEditingForm.selectedScriptCommandName}">${serverProfileEditingForm.selectedScriptCommandName}</a></td>
+	     </tr> 
+	     <tr><td><br></td><td></td></tr>
+	    
+	     <tr> 
+	      <td>Parameters</td><td>:</td>
+	      <td>
+	 		<table>    
+	        <c:forEach items="${serverProfileEditingForm.commandParameters}" var="commandParameter"  varStatus="status" >
+	     		<tr id="commandParameters${status.index}" >
+	    		   <td>${commandParameter.paramName}&nbsp;&nbsp;</td>
+	    		   <td>${commandParameter.paramValue}</td>
+	     		</tr>
+	        </c:forEach>
+	        </table> 
+	      </td> 
+	     </tr> 
+   	 </c:if>    
      <tr><td><br></td><td></td></tr>
 
  
@@ -102,8 +132,8 @@ table
 	<tr><td colspan="3"><td><br></tr>
     <tr>
       <td colspan="3">
-        <a href="serverProfileList?reqOperatingSystem=${map.reqOperatingSystem}">Servers Profiles</a>&nbsp;&nbsp;
-        <a href="editServerProfile?&reqServerProfileName=${map.serverProfileEditingForm.serverProfile.serverProfileName}&reqOperatingSystem=${map.reqOperatingSystem}">Edit Server Profile</a>&nbsp;&nbsp;
+        <a href="serverProfileList?reqExecutor=${map.reqExecutor}">Servers Profiles</a>&nbsp;&nbsp;
+        <a href="editServerProfile?&reqServerProfileName=${map.serverProfileEditingForm.serverProfile.serverProfileName}&reqExecutor=${map.reqExecutor}">Edit Server Profile</a>&nbsp;&nbsp;
     	<a id="apiLInk"	href="see_buildApiLink_JS" target="_blank" >API Link</a>         
       </td>
     </tr>

@@ -157,15 +157,26 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		
 	
 	@Override
-	public void deleteAllForApplication(String applicationn) {
-		String sql = "delete from TESTTRANSACTIONS where APPLICATION='" + applicationn + "'";
-//		System.out.println("TestTransactionsDAOjdbcTemplateImpl.deleteAllForApplication: performing " + sql );
+	public void deleteAllForApplication(String application) {
+		String sql = "delete from TESTTRANSACTIONS where APPLICATION='" + application + "'";
+//		System.out.println("TestTransactionsDAOjdbcTemplateImpl.deleteAllForApplication : " + sql );
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sql);
 	}
 
 		
 
+	@Override
+	public void updateRunTime(String application, String originalRunTime, String newRunTime) {
+		String sql = "update TESTTRANSACTIONS "
+					+ " set RUN_TIME='" + newRunTime + "'"  
+					+ " where RUN_TIME='" + originalRunTime + "'"  
+					+ "   and APPLICATION='" + application + "'";
+//		System.out.println("TestTransactionsDAOjdbcTemplateImpl.updateRunTime : " + sql );
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate.update(sql);
+	}
+	
 	
 	@Override
 	public List<TestTransaction> getUniqueListOfSystemMetricNamesByType(String application) {
@@ -173,8 +184,10 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		
 		String sql = "select distinct TXN_ID, TXN_TYPE  from TESTTRANSACTIONS "
 					+ "where APPLICATION = '"  + application + "' "
-					+ "and TXN_TYPE <> 'TRANSACTION' ";
-				
+					+ "  and TXN_TYPE <> 'TRANSACTION' "
+					+   "and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";					
+
+//		System.out.println("TestTransactionsDAOjdbcTemplateImpl.getUniqueListOfSystemMetricNamesByType : " + sql );				
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 		for (Map<String, Object> row : rows) {
@@ -191,32 +204,41 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 
 	@Override
 	public Long getEarliestTimestamp(String applicationn) {
-		String sql = "select min(TXN_EPOCH_TIME) from TESTTRANSACTIONS where APPLICATION = '" + applicationn + "' ";
+		String sql = "select min(TXN_EPOCH_TIME) from TESTTRANSACTIONS "
+				+ " where APPLICATION = '" + applicationn + "' "
+				+ "  and     RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";
+
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 	    String earliestTimestamp = (String) jdbcTemplate.queryForObject(sql, String.class);
 	    
 	    if ( ! StringUtils.isNumeric(earliestTimestamp)) {
-	    	throw new RuntimeException(" A valid date range for the test was not found (possible empty datasest?).  Aborting run." + "(found run start time of " + earliestTimestamp + ")" );
+	    	throw new RuntimeException(" A valid date range for the test was not found (possibly no transactions in output dataset?)."
+	    			+ "  Aborting run." + "(found run start time of " + earliestTimestamp + ")" );
 	    }
 	    return Long.valueOf(earliestTimestamp);
 	}
 	
 	@Override
 	public Long getLatestTimestamp(String applicationn) {
-		String sql = "select max(TXN_EPOCH_TIME) from TESTTRANSACTIONS where APPLICATION = '" + applicationn + "' ";
+		String sql = "select max(TXN_EPOCH_TIME) from TESTTRANSACTIONS "
+				+ " where APPLICATION = '" + applicationn + "' "
+				+ "  and     RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";
+		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 	    String latestTimestamp = (String) jdbcTemplate.queryForObject(sql, String.class);
 
 	    if ( ! StringUtils.isNumeric(latestTimestamp)) {
-	    	throw new RuntimeException(" A valid date range for the test was not found (possible empty datasest?).  Aborting run." + "(found run end time of " + latestTimestamp + ")" );
+	    	throw new RuntimeException(" A valid date range for the test was not found (possibly no transactions in output dataset?)."
+	    			+ "  Aborting run." + "(found run end time of " + latestTimestamp + ")" );
 	    }
 	    return Long.valueOf (latestTimestamp);
 	}
 
 	/* 
-	 * Extracts all data for an application data type (transaction or data sample)
-	 * IMPORTANT NOTE: It is assumed this assumes there is only ONE result set per application stored on TESTTRANSACTIONS. 
-	 *                 Would need to be changed to allow for multiple test results per application to be stored
+	 * Extracts all data for an application data type (transaction or data sample).
+	 * 
+	 * NOTE: When this method is called currently assumed the run being processed will have a  
+	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 
 	 */
 	@Override
 	public List<Transaction> extractTransactionResponsesSummary(String application, String txnType) {
@@ -229,17 +251,21 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		
 		List<Transaction> transactions = new ArrayList<Transaction> ();     
 		long startLoadms = System.currentTimeMillis(); 
-		System.out.println("extractTransactionResponsesSummary sql: starts at " + new Date(startLoadms));
+		System.out.println("Collation of test transactional data starts at " + new Date(startLoadms));
 		
 		String dbDependentStdDevAnd90th = null;
+		String dbDependent95th = null;
+		String dbDependent99th = null;
 		if (Mark59Constants.MYSQL.equals(currentDatabaseProfile)){ 
-			dbDependentStdDevAnd90th = 
-					" std(TXN_RESULT) txnStdDeviation, " +
-					" SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(90/100 * COUNT(*) ) ), ',', -1) as txn90th, " ;
+			dbDependentStdDevAnd90th = " std(TXN_RESULT) txnStdDeviation, " +
+					          " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(90/100 * COUNT(*) ) ), ',', -1) as txn90th, " ;
+			dbDependent95th = " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(95/100 * COUNT(*) ) ), ',', -1) as txn95th, " ;
+			dbDependent99th = " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(99/100 * COUNT(*) ) ), ',', -1) as txn99th, " ;			
 		} else {
-			dbDependentStdDevAnd90th = 
-					" STDDEV_POP (TXN_RESULT) txnStdDeviation, " +
-					" PERCENTILE_DISC(0.9) WITHIN GROUP (ORDER BY TXN_RESULT ) as txn90th, " ;
+			dbDependentStdDevAnd90th = 	" STDDEV_POP (TXN_RESULT) txnStdDeviation,"
+				              + " PERCENTILE_DISC(0.90) WITHIN GROUP (ORDER BY TXN_RESULT ) as txn90th, " ;
+			dbDependent95th = 	" PERCENTILE_DISC(0.95) WITHIN GROUP (ORDER BY TXN_RESULT ) as txn95th, " ;
+			dbDependent99th = 	" PERCENTILE_DISC(0.99) WITHIN GROUP (ORDER BY TXN_RESULT ) as txn99th, " ;
 		}
 		
 		String sql = 
@@ -249,6 +275,8 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				"       sum(txnMaximum) txnMaximum, " + 
 				"       sum(txnStdDeviation) txnStdDeviation, " + 
 				"       sum(txn90th) txn90th, " + 
+				"       sum(txn95th) txn95th, " + 
+				"       sum(txn99th) txn99th, " + 
 				"       sum(txnPass) txnPass," + 
 				"       sum(txnFail) txnFail, " + 
 				"       sum(txnStop) txnStop "+ 
@@ -258,11 +286,14 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 					 " avg(TXN_RESULT) txnAverage, " +
 					 " max(TXN_RESULT) txnMaximum, " +
 					 dbDependentStdDevAnd90th +
+					 dbDependent95th +
+					 dbDependent99th +
 					 " sum(case when TXN_PASSED = 'Y'  then 1 else 0 end) txnPass, " +
 					 " 0 txnFail, " +
 					 " 0 txnStop " +				
 					 " from TESTTRANSACTIONS " +					 
 					 " where APPLICATION = '" + application + "' " +
+					 "   and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' " +
 			   		 "   and TXN_TYPE = '" + txnType + "' " +
 			   		 "   and TXN_PASSED = 'Y' " + 		   		
 			   		 " group by APPLICATION, RUN_TIME,TXN_ID" +
@@ -275,11 +306,14 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 			   		 " 0 txnMaximum, " + 
 			   		 " 0 txnStdDeviation, " + 
 			   		 " 0 txn90th, " + 
+			   		 " 0 txn95th, " + 
+			   		 " 0 txn99th, " + 
 			   		 " 0 txnPass, " + 
 					 " sum(case when TXN_PASSED = 'N'  then 1 else 0 end) txnFail, " +
 					 " sum(case when TXN_PASSED = '" + AppConstantsMetrics.TXN_STOPPPED_STATUS +  "' then 1 else 0 end) txnStop " +	
 			   		 " from TESTTRANSACTIONS " + 
 					 " where APPLICATION = '" + application + "' " +
+					 "   and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' " +			   		 
 			   		 "   and TXN_TYPE = '" + txnType + "' " +
 			   		 "   and TXN_PASSED != 'Y' " + 		   		
 			   		 " group by APPLICATION, RUN_TIME,TXN_ID" +
@@ -302,7 +336,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 			transaction.setApplication(application);
 			transaction.setRunTime((String)row.get("RUN_TIME"));
 			transaction.setTxnId((String)row.get("TXN_ID"));
-			transaction.setTxnType(Mark59Constants.DatabaseDatatypes.TRANSACTION.name());			
+			transaction.setTxnType(Mark59Constants.DatabaseTxnTypes.TRANSACTION.name());			
 			transaction.setTxnMinimum((BigDecimal)row.get("txnMinimum"));
 			transaction.setTxnAverage((BigDecimal)row.get("txnAverage"));
 			transaction.setTxnMaximum((BigDecimal)row.get("txnMaximum"));
@@ -315,8 +349,12 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 
 			if (Mark59Constants.MYSQL.equals(currentDatabaseProfile)){ 
 				transaction.setTxn90th(new BigDecimal((Double)row.get("txn90th")));
+				transaction.setTxn95th(new BigDecimal((Double)row.get("txn95th")));
+				transaction.setTxn99th(new BigDecimal((Double)row.get("txn99th")));
 			} else {
 				transaction.setTxn90th((BigDecimal)row.get("txn90th"));
+				transaction.setTxn95th((BigDecimal)row.get("txn95th"));
+				transaction.setTxn99th((BigDecimal)row.get("txn99th"));
 			}
 			
 			transaction.setTxnPass(Long.valueOf( ((BigDecimal)row.get("txnPass")).longValue() ));
@@ -330,7 +368,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		}
 		
 		long endLoadms = System.currentTimeMillis(); 
-		System.out.println("extractTransactionResponsesSummary sql: completed " + new Date(endLoadms) +  ".   took " + (endLoadms -startLoadms)/1000 + " secs" );		
+		System.out.println("Collation of test transactional data completed " + new Date(endLoadms) +  ". Took " + (endLoadms -startLoadms)/1000 + " secs\n" );		
 		return transactions;
 	}
 
@@ -346,9 +384,13 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	
 
 	/*
-	 * be to publicly implemented if multiple results per application to be held in future
+	 * used to finds and computes 'metric' transactions for the run being processed.
+	 * At the point this method is all called it is assumed the run being processed will have  
+	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 
 	 */
 	private Transaction extractEventSummaryStats(Run run, String txnType, String dataSampleLablel, EventMapping eventMapping) {
+		
+//		System.out.println("extractEventSummaryStats txnType: " + txnType + "\n  lablel:" + dataSampleLablel + "\n  eventMapping: " + eventMapping  );
 		
 		String sql = "select TXN_RESULT from TESTTRANSACTIONS "
 				+ " where APPLICATION = '" + run.getApplication() + "' "
@@ -445,7 +487,9 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		metricTransaction.setTxn90th(new BigDecimal(-1.0));
 		if (eventMapping.getIsPercentage().equals("Y")){
 			metricTransaction.setTxn90th(new BigDecimal(percentSpendAtBottleneckThresholdStr));
-		}		
+		}
+		metricTransaction.setTxn95th(new BigDecimal(-1.0));
+		metricTransaction.setTxn99th(new BigDecimal(-1.0));
 		metricTransaction.setTxnPass(count);
 		metricTransaction.setTxnFail(Long.valueOf(-1).longValue() );
 		metricTransaction.setTxnStop(Long.valueOf(-1).longValue() );
@@ -455,7 +499,6 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		metricTransaction.setTxnSum(totalOfValues);		
 
 		return metricTransaction;
-
 	}
 
 

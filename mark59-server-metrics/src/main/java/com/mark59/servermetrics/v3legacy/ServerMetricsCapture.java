@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mark59.servermetrics;
+package com.mark59.servermetrics.v3legacy;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,7 +91,7 @@ public class ServerMetricsCapture extends AbstractJavaSamplerClient {
 		staticMap.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");	
 		
 		staticMap.put("______________"       , "");			
-		staticMap.put("build information: ", "mark59-server-metrics V2.X LEGACY - USE ALTERNATIVES ");			
+		staticMap.put("build information: ", "mark59-server-metrics V2.X LEGACY - USE WEB API OR EXCEL");			
 		
 		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}

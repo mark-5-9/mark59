@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Policies BreakDown</title>
+<title>Items BreakDown Action</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -34,7 +34,7 @@
 </head>
 <body>
   <br><br>
-  <b>Policies Breakdowns Table</b>  &nbsp; &nbsp; &nbsp; (see the sql statement below for selection criteria) &nbsp; &nbsp; &nbsp;&nbsp;( ${model.rowsAffected} rows )
+  <b>Items Breakdowns Table</b>  &nbsp; &nbsp; &nbsp; (see the sql statement below for selection criteria) &nbsp; &nbsp; &nbsp;&nbsp;( ${model.rowsAffected} rows )
   <br><br>
 
 

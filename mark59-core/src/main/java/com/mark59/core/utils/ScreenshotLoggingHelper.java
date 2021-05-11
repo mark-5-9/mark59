@@ -54,17 +54,15 @@ public class ScreenshotLoggingHelper {
 		try {
 			directory = PropertiesReader.getInstance().getProperty(PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY);
 		} catch (IOException e) {
-			LOG.info("Failed to obtain screenshot directory from config");
+			LOG.info("Failed to obtain screenshot directory from config (property " + PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY + " not set");
 			return;
 		}
 		
 		if (directory != null ) {
-		
 			directory += File.separator + LocalDate.now();
 			screenshotDirectory = new File(directory).toPath();
 			LOG.info( "Clearing any existing data from Screenshots Directory " + screenshotDirectory);
 			FileUtils.deleteDirectory(screenshotDirectory.toFile());
-		
 		} else {
 			LOG.warn("   As no screenshot directory has been set, attempts to write screenshots or performance logs will fail." );
 		}
@@ -114,9 +112,6 @@ public class ScreenshotLoggingHelper {
 	}
 	
 	
-	
-	
-	
 	/**
 	 * Save the byte[] to the specified file name, creating the parent directory if  missing (ie initial directory creation)
 	 * 
@@ -125,11 +120,10 @@ public class ScreenshotLoggingHelper {
 	 */
 	public static void writeScreenshotLog(File screenshotLogFilename, byte[] screenshotLogFileData) {
 		
-		System.out.println("        ScreenshotLog at " + screenshotLogFilename.getParent());
-		
 		new File(screenshotLogFilename.getParent()).mkdirs();
 
 		LOG.info(MessageFormat.format("Writing image to disk: {0}", screenshotLogFilename));
+		System.out.println("[" + Thread.currentThread().getName() + "]  Writing image to disk:" + screenshotLogFilename);
 
 		if (screenshotLogFileData == null ) {
 			screenshotLogFileData = "(null)".getBytes();
@@ -140,11 +134,8 @@ public class ScreenshotLoggingHelper {
 
 		} catch (IOException e) {
 			LOG.error("Caught " + e.getClass().getName() + " with message: " + e.getMessage());
-			
 		}
-
 	}
-
 	
 	
 	public static String getScreenshotDirectory() {
@@ -153,9 +144,7 @@ public class ScreenshotLoggingHelper {
 		return screenshotDirectory.toString();
 	}
 
-	
-	
-		
+			
 	public static synchronized ScreenshotLoggingHelper initialiseDirectory(PropertiesReader pr) throws IOException {
 		if(instance == null) {
 			instance = new ScreenshotLoggingHelper(pr);

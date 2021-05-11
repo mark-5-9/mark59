@@ -121,7 +121,7 @@ public class JmeterFunctionsTest {
 
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage(
-				"could not add new SampleResult to transactionMap as it already contains a key matching the supplied value : "
+				"Error -  a transaction using the passed transaction name appears to be currently in use (running) in this script : "
 						+ transactionLabel);
 
 		t.startTransaction(transactionLabel);

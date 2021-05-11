@@ -67,8 +67,10 @@ public class RunsController {
 		run = runDAO.findRun(reqApp, runTime);
 		model.addAttribute("run", run);
 		
-		List<String> baselineRunYesNo = populateBaselineActiveYesNoDropdown();	
 		Map<String, Object> map = new HashMap<String, Object>(); 
+		List<String> isRunIgnoredYesNo = populateIsRunIgnoredYesNoDropdown();	
+		map.put("isRunIgnoredYesNo",isRunIgnoredYesNo);	
+		List<String> baselineRunYesNo = populateBaselineActiveYesNoDropdown();	
 		map.put("baselineRunYesNo",baselineRunYesNo);
 		map.put("reqApp",reqApp);			
 		model.addAttribute("map", map);
@@ -100,6 +102,12 @@ public class RunsController {
 		return applicationList;
 	}		
 	
+	private List<String> populateIsRunIgnoredYesNoDropdown( ) {
+		List<String> isTxnIgnoredYesNo =  new ArrayList<String>();
+		isTxnIgnoredYesNo.add("N");
+		isTxnIgnoredYesNo.add("Y");
+		return isTxnIgnoredYesNo;
+	}		
 	
 	private List<String> populateBaselineActiveYesNoDropdown( ) {
 		List<String> activeYesNo =  new ArrayList<String>();

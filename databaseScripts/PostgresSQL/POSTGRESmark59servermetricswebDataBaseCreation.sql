@@ -19,26 +19,28 @@ DROP TABLE IF EXISTS  COMMANDPARSERLINKS;
 
 
 CREATE TABLE IF NOT EXISTS SERVERPROFILES  (
-   SERVER_PROFILE_NAME  varchar(64) NOT NULL,
-   SERVER  varchar(64) NOT NULL,
-   ALTERNATE_SERVER_ID  varchar(64) DEFAULT '',
-   USERNAME  varchar(64) DEFAULT '',
-   PASSWORD  varchar(64) DEFAULT '',
-   PASSWORD_CIPHER  varchar(64) DEFAULT '',
-   OPERATING_SYSTEM  varchar(8) NOT NULL,
-   CONNECTION_PORT  varchar(8) DEFAULT '',
-   CONNECTION_TIMEOUT  varchar(8) DEFAULT '',
-   COMMENT  varchar(128) DEFAULT NULL,
+   SERVER_PROFILE_NAME  varchar(64)   NOT NULL,
+   EXECUTOR             varchar(32)   NOT NULL,
+   SERVER               varchar(64)   DEFAULT '',
+   ALTERNATE_SERVER_ID  varchar(64)   DEFAULT '',
+   USERNAME             varchar(64)   DEFAULT '',
+   PASSWORD             varchar(64)   DEFAULT '',
+   PASSWORD_CIPHER      varchar(64)   DEFAULT '',
+   CONNECTION_PORT      varchar(8)    DEFAULT '',
+   CONNECTION_TIMEOUT   varchar(8)    DEFAULT '',
+   COMMENT              varchar(128)  DEFAULT NULL,
+   PARAMETERS           varchar(2000) DEFAULT NULL,
   PRIMARY KEY ( SERVER_PROFILE_NAME )
 ); 
 
 
 CREATE TABLE IF NOT EXISTS COMMANDS  (
-   COMMAND_NAME  varchar(64) NOT NULL,
-   EXECUTOR  varchar(32) NOT NULL,
-   COMMAND  varchar(4096) NOT NULL,
-   IGNORE_STDERR  varchar(1) DEFAULT NULL,
-   COMMENT  varchar(128) DEFAULT NULL,
+   COMMAND_NAME   varchar(64)   NOT NULL,
+   EXECUTOR       varchar(32)   NOT NULL,
+   COMMAND        varchar(8192) NOT NULL,
+   IGNORE_STDERR  varchar(1)    DEFAULT NULL,
+   COMMENT        varchar(128)  DEFAULT NULL,
+   PARAM_NAMES    varchar(1000) DEFAULT NULL,   
   PRIMARY KEY ( COMMAND_NAME )
 ); 
 
@@ -68,18 +70,20 @@ CREATE TABLE IF NOT EXISTS COMMANDPARSERLINKS  (
 ); 
 
 
-INSERT INTO SERVERPROFILES VALUES ('DemoLINUX-DataHunterSeleniumDeployAndExecute','localhost','','','','','LINUX','22','60000','');
-INSERT INTO SERVERPROFILES VALUES ('DemoLINUX-DataHunterSeleniumGenJmeterReport','localhost','','','','','LINUX','22','60000','Reports generated at   ~/Mark59_Runs/Jmeter_Reports/DataHunter/   <br>(open each index.html)   ');
-INSERT INTO SERVERPROFILES VALUES ('DemoLINUX-DataHunterSeleniumRunCheck','localhost','','','','','LINUX','22','60000','Loads Trend Analysis (H2 database).  See:<br>http://localhost:8083/metrics/trending?reqApp=DataHunter');
-INSERT INTO SERVERPROFILES VALUES ('DemoWIN-DataHunterSeleniumDeployAndExecute','localhost','','','','','WINDOWS','','','');
-INSERT INTO SERVERPROFILES VALUES ('DemoWIN-DataHunterSeleniumGenJmeterReport','localhost','','','','','WINDOWS','','','Hint - in browser open this URL and go to each index.html:  file:///C:/Mark59_Runs/Jmeter_Reports/DataHunter/');
-INSERT INTO SERVERPROFILES VALUES ('DemoWIN-DataHunterSeleniumRunCheck','localhost','','','','','WINDOWS','','','Loads Trend Analysis (H2 database).  See:<br>http://localhost:8083/metrics/trending?reqApp=DataHunter');
-INSERT INTO SERVERPROFILES VALUES ('localhost_LINUX','localhost','','','','','LINUX','22','60000','');
-INSERT INTO SERVERPROFILES VALUES ('localhost_WINDOWS','localhost','','','','','WINDOWS','','','');
-INSERT INTO SERVERPROFILES VALUES ('localhost_WINDOWS_HOSTID','localhost','HOSTID','','','','WINDOWS','','','HOSTID will be subed <br> with computername  ');
-INSERT INTO SERVERPROFILES VALUES ('remoteLinuxServer','LinuxServerName','','userid','encryptMe','','LINUX','22','60000','');
-INSERT INTO SERVERPROFILES VALUES ('remoteUnixVM','UnixVMName','','userid','encryptMe','','UNIX','22','60000','');
-INSERT INTO SERVERPROFILES VALUES ('remoteWinServer','WinServerName','','userid','encryptMe','','WINDOWS','','','');
+INSERT INTO SERVERPROFILES VALUES ('DemoLINUX-DataHunterSeleniumDeployAndExecute','SSH_LINIX_UNIX','localhost','','','','','22','60000','','');
+INSERT INTO SERVERPROFILES VALUES ('DemoLINUX-DataHunterSeleniumGenJmeterReport','SSH_LINIX_UNIX','localhost','','','','','22','60000','Reports generated at   ~/Mark59_Runs/Jmeter_Reports/DataHunter/   <br>(open each index.html)   ','');
+INSERT INTO SERVERPROFILES VALUES ('DemoLINUX-DataHunterSeleniumRunCheck','SSH_LINIX_UNIX','localhost','','','','','22','60000','Loads Trend Analysis (H2 database).  See:<br>http://localhost:8080/metrics/trending?reqApp=DataHunter','');
+INSERT INTO SERVERPROFILES VALUES ('DemoWIN-DataHunterSeleniumDeployAndExecute','WMIC_WINDOWS','localhost','','','','','','','','');
+INSERT INTO SERVERPROFILES VALUES ('DemoWIN-DataHunterSeleniumGenJmeterReport','WMIC_WINDOWS','localhost','','','','','','','Hint - in browser open this URL and go to each index.html:  file:///C:/Mark59_Runs/Jmeter_Reports/DataHunter/','');
+INSERT INTO SERVERPROFILES VALUES ('DemoWIN-DataHunterSeleniumRunCheck','WMIC_WINDOWS','localhost','','','','','','','Loads Trend Analysis (H2 database).  See:<br>http://localhost:8080/metrics/trending?reqApp=DataHunter','');
+INSERT INTO SERVERPROFILES VALUES ('localhost_LINUX','SSH_LINIX_UNIX','localhost','','','','','22','60000','','');
+INSERT INTO SERVERPROFILES VALUES ('localhost_WINDOWS','WMIC_WINDOWS','localhost','','','','','','','','');
+INSERT INTO SERVERPROFILES VALUES ('localhost_WINDOWS_HOSTID','WMIC_WINDOWS','localhost','HOSTID','','','','','','HOSTID will be subed <br> with computername  ','');
+INSERT INTO SERVERPROFILES VALUES ('remoteLinuxServer','SSH_LINIX_UNIX','LinuxServerName','','userid','encryptMe','','22','60000','','');
+INSERT INTO SERVERPROFILES VALUES ('remoteUnixVM','SSH_LINIX_UNIX','UnixVMName','','userid','encryptMe','','22','60000','','');
+INSERT INTO SERVERPROFILES VALUES ('remoteWinServer','WMIC_WINDOWS','WinServerName','','userid','encryptMe','','','','','');
+INSERT INTO SERVERPROFILES VALUES ('SimpleScriptSampleRunner', 'GROOVY_SCRIPT', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'runs a supplied, basic groovy script sample', '{"parm1":"11","parm2":"55.7","parm3":"333"}');
+INSERT INTO SERVERPROFILES VALUES ('NewRelicTestProfile', 'GROOVY_SCRIPT', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'supplied sample New Relic API groovy script', '{"proxyPort":"","newRelicXapiKey":"","proxyServer":"","newRelicApiAppId":""}');    
 
 
 INSERT INTO COMMANDS VALUES ('DataHunterSeleniumDeployAndExecute','WMIC_WINDOWS','process call create ''cmd.exe /c 
@@ -111,7 +115,7 @@ INSERT INTO COMMANDS VALUES ('DataHunterSeleniumDeployAndExecute','WMIC_WINDOWS'
 
  PAUSE
 ''
-','N','refer DeployDataHunterTestArtifactsToJmeter.bat and DataHunterExecuteJmeterTest.bat in dataHunterPerformanceTestSamples ');
+','N','refer DeployDataHunterTestArtifactsToJmeter.bat and DataHunterExecuteJmeterTest.bat in dataHunterPerformanceTestSamples ','');
 INSERT INTO COMMANDS VALUES ('DataHunterSeleniumDeployAndExecute_LINUX','SSH_LINIX_UNIX','echo This script runs the JMeter deploy in the background, then opens a terminal for JMeter execution.
 echo starting from $PWD;
 
@@ -131,12 +135,12 @@ echo starting from $PWD;
 
 } || { # catch 
     echo Deploy was unsuccessful! 
-}','Y','refer bin/TestRunLINUX-DataHunter-Selenium-DeployAndExecute.sh');
+}','Y','refer bin/TestRunLINUX-DataHunter-Selenium-DeployAndExecute.sh','');
 INSERT INTO COMMANDS VALUES ('DataHunterSeleniumGenJmeterReport','WMIC_WINDOWS','process call create ''cmd.exe /c 
  cd /D %SERVER_METRICS_WEB_BASE_DIR% & 
  cd../resultFilesConverter & 
  CreateDataHunterJmeterReports.bat''
-','N','');
+','N','','');
 INSERT INTO COMMANDS VALUES ('DataHunterSeleniumGenJmeterReport_LINUX','SSH_LINIX_UNIX','echo This script creates a set of JMeter reports from a DataHunter test run.
 echo starting from $PWD;
 
@@ -148,7 +152,7 @@ echo starting from $PWD;
 } || { # catch 
     echo attempt to generate JMeter Reports has failed! 
 }
-','Y','refer bin/TestRunLINUX-DataHunter-Selenium-GenJmeterReport.sh');
+','Y','refer bin/TestRunLINUX-DataHunter-Selenium-GenJmeterReport.sh','');
 INSERT INTO COMMANDS VALUES ('DataHunterSeleniumRunCheck','WMIC_WINDOWS','process call create ''cmd.exe /c 
  echo Load DataHunter Test Results into  Mark59 Metrics (Trend Analysis) h2 database. & 
  cd /D  %SERVER_METRICS_WEB_BASE_DIR% & 
@@ -157,7 +161,7 @@ INSERT INTO COMMANDS VALUES ('DataHunterSeleniumRunCheck','WMIC_WINDOWS','proces
  java -jar ./target/metricsRuncheck.jar -a DataHunter -i C:\Mark59_Runs\Jmeter_Results\DataHunter -d h2 &
  PAUSE
 ''
-','N','');
+','N','','');
 INSERT INTO COMMANDS VALUES ('DataHunterSeleniumRunCheck_LINUX','SSH_LINIX_UNIX','echo This script runs metricsRuncheck,to load results from a DataHunter test run into the Metrics Trend Analysis Graph.
 echo starting from $PWD;
 
@@ -169,12 +173,12 @@ echo starting from $PWD;
 } || { # catch 
     echo attempt to execute metricsRuncheck has failed! 
 }
-','Y','refer bin/TestRunLINUX-DataHunter-Selenium-metricsRunCheck.sh');
-INSERT INTO COMMANDS VALUES ('FreePhysicalMemory','WMIC_WINDOWS','OS get FreePhysicalMemory','N','');
-INSERT INTO COMMANDS VALUES ('FreeVirtualMemory','WMIC_WINDOWS','OS get FreeVirtualMemory','N','');
-INSERT INTO COMMANDS VALUES ('LINUX_free_m_1_1','SSH_LINIX_UNIX','free -m 1 1','N','linux memory');
-INSERT INTO COMMANDS VALUES ('LINUX_mpstat_1_1','SSH_LINIX_UNIX','mpstat 1 1','N','');
-INSERT INTO COMMANDS VALUES ('UNIX_lparstat_5_1','SSH_LINIX_UNIX','lparstat 5 1','N','');
+','Y','refer bin/TestRunLINUX-DataHunter-Selenium-metricsRunCheck.sh','');
+INSERT INTO COMMANDS VALUES ('FreePhysicalMemory','WMIC_WINDOWS','OS get FreePhysicalMemory','N','','');
+INSERT INTO COMMANDS VALUES ('FreeVirtualMemory','WMIC_WINDOWS','OS get FreeVirtualMemory','N','','');
+INSERT INTO COMMANDS VALUES ('LINUX_free_m_1_1','SSH_LINIX_UNIX','free -m 1 1','N','linux memory','');
+INSERT INTO COMMANDS VALUES ('LINUX_mpstat_1_1','SSH_LINIX_UNIX','mpstat 1 1','N','','');
+INSERT INTO COMMANDS VALUES ('UNIX_lparstat_5_1','SSH_LINIX_UNIX','lparstat 5 1','N','','');
 INSERT INTO COMMANDS VALUES ('UNIX_Memory_Script','SSH_LINIX_UNIX','vmstat=$(vmstat -v); 
 let total_pages=$(print "$vmstat" | grep ''memory pages'' | awk ''{print $1}''); 
 let pinned_pages=$(print "$vmstat" | grep ''pinned pages'' | awk ''{print $1}''); 
@@ -186,7 +190,8 @@ let pgsp_num=$(print "$pgsp_utils" | wc -l | tr -d '' '');
 let pgsp_util_sum=0; 
 for pgsp_util in $pgsp_utils; do let pgsp_util_sum=$(( $pgsp_util_sum + $pgsp_util )); done; 
 pgsp_aggregate_util=$(( $pgsp_util_sum / $pgsp_num )); 
-print "${pinned_percent},${numperm_percent},${pgsp_aggregate_util}"','N','');
+print "${pinned_percent},${numperm_percent},${pgsp_aggregate_util}"','N','','');
+
 INSERT INTO COMMANDS VALUES ('UNIX_VM_Memory','SSH_LINIX_UNIX','vmstat=$(vmstat -v); 
 let total_pages=$(print "$vmstat" | grep ''memory pages'' | awk ''{print $1}''); 
 let pinned_pages=$(print "$vmstat" | grep ''pinned pages'' | awk ''{print $1}''); 
@@ -198,8 +203,124 @@ let pgsp_num=$(print "$pgsp_utils" | wc -l | tr -d '' '');
 let pgsp_util_sum=0; 
 for pgsp_util in $pgsp_utils; do let pgsp_util_sum=$(( $pgsp_util_sum + $pgsp_util )); done; 
 pgsp_aggregate_util=$(( $pgsp_util_sum / $pgsp_num )); 
-print "${pinned_percent},${numperm_percent},${pgsp_aggregate_util}"','N','');
-INSERT INTO COMMANDS VALUES ('WinCpuCmd','WMIC_WINDOWS','cpu get loadpercentage','N','');
+print "${pinned_percent},${numperm_percent},${pgsp_aggregate_util}"','N','','');
+
+INSERT INTO COMMANDS VALUES ('WinCpuCmd','WMIC_WINDOWS','cpu get loadpercentage','N','','');
+
+INSERT INTO COMMANDS VALUES ('SimpleScriptSampleCmd', 'GROOVY_SCRIPT', 
+'import java.util.ArrayList;
+import java.util.List;
+import com.mark59.servermetricsweb.data.beans.ServerProfile;
+import com.mark59.servermetricsweb.pojos.ParsedMetric;
+import com.mark59.servermetricsweb.pojos.ScriptResponse;
+
+ScriptResponse scriptResponse = new ScriptResponse();
+List<ParsedMetric> parsedMetrics = new ArrayList<ParsedMetric>();
+
+String commandLogDebug = "running script " + serverProfile.getServerProfileName() + "<br>" +  serverProfile.getComment();
+commandLogDebug += "<br>passed parms : parm1=" + parm1 + ", parm2=" + parm2 + ", parm3=" + parm3
+
+Number aNumber = 123;
+parsedMetrics.add(new ParsedMetric("a_memory_txn", aNumber, "MEMORY"));
+parsedMetrics.add(new ParsedMetric("a_cpu_util_txn", 33.3,  "CPU_UTIL"));
+parsedMetrics.add(new ParsedMetric("some_datapoint", 66.6,  "DATAPOINT"));
+
+scriptResponse.setCommandLog(commandLogDebug);
+scriptResponse.setParsedMetrics(parsedMetrics);
+return scriptResponse;', 'N', 'supplied basic groovy script sample', '["parm1","parm2","parm3"]');
+
+INSERT INTO COMMANDS VALUES ('NewRelicSampleCmd', 'GROOVY_SCRIPT',
+'import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import com.mark59.servermetricsweb.pojos.ParsedMetric;
+import com.mark59.servermetricsweb.pojos.ScriptResponse;
+
+ScriptResponse scriptResponse = new ScriptResponse(); 
+List<ParsedMetric> parsedMetrics = new ArrayList<ParsedMetric>();
+
+String newRelicApiUrl = "https://api.newrelic.com/v2/applications/";
+
+String url = newRelicApiUrl + newRelicApiAppId + "/instances.json"; 
+String debugJsonResponses =  "running profile " + serverProfile.serverProfileName + ", init req : " + url ;
+JSONObject jsonResponse = null;
+Proxy proxy = StringUtils.isNotBlank(proxyServer + proxyPort) ? new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyServer , new Integer(proxyPort))) : null;
+
+try {
+	HttpURLConnection conn = proxy != null ? (HttpURLConnection)new URL(url).openConnection(proxy) : (HttpURLConnection)new URL(url).openConnection();
+	conn.setRequestMethod("GET");
+	conn.addRequestProperty("X-Api-Key", newRelicXapiKey);
+	conn.setRequestProperty("Content-Type", "application/json");
+	conn.setRequestProperty("Accept", "application/json");
+	if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+		throw new Exception("rc:" + conn.getResponseCode() + "from " + url);
+	}
+	String isStr = null;
+	Scanner s = new Scanner(conn.getInputStream());
+	isStr = s.hasNext() ? s.next() : "";
+	jsonResponse = new JSONObject(isStr);
+	debugJsonResponses =  debugJsonResponses + "<br>init res.: " + jsonResponse.toString();
+
+	ZonedDateTime utcTimeNow = ZonedDateTime.now(ZoneOffset.UTC);
+	String toHour 	= String.format("%02d", utcTimeNow.getHour());
+	String toMinute	= String.format("%02d", utcTimeNow.getMinute());
+	ZonedDateTime utcMinus1Min = utcTimeNow.minusMinutes(1);
+	String fromHour	= String.format("%02d", utcMinus1Min.getHour());
+	String fromMinute = String.format("%02d", utcMinus1Min.getMinute());
+	String fromDate = utcMinus1Min.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+	String toDate 	= utcTimeNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));		
+	String urlDateRangeParmStr = "&from=" + fromDate + "T" + fromHour + "%3A" + fromMinute + "%3A00%2B00%3A00" + "&to=" + toDate + "T" + toHour + "%3A" + toMinute + "%3A00%2B00%3A00";
+
+	JSONArray application_instances = jsonResponse.getJSONArray("application_instances");
+
+	for (int i = 0; i < application_instances.length(); i++) {
+		JSONObject application_instance = (JSONObject) application_instances.get(i);
+		Integer instanceId = (Integer) application_instance.get("id");
+		String instanceName = ((String)application_instance.get("application_name")).replace(":","_");
+		url = newRelicApiUrl + newRelicApiAppId  + "/instances/" + instanceId + "/metrics/data.json?names%5B%5D=Memory%2FHeap%2FFree&names%5B%5D=CPU%2FUser%2FUtilization" + urlDateRangeParmStr;
+		debugJsonResponses =  debugJsonResponses + "<br><br>req." + i + ": " + url ; 
+		
+		conn = proxy != null ? (HttpURLConnection)new URL(url).openConnection(proxy) : (HttpURLConnection)new URL(url).openConnection();
+		conn.setRequestMethod("GET");
+		conn. addRequestProperty("X-Api-Key", newRelicXapiKey);
+		conn.setRequestProperty("Content-Type", "application/json");
+		conn.setRequestProperty("Accept", "application/json");
+		if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+			throw new Exception("rc:" + conn.getResponseCode() + "from " + url);
+		}
+		isStr = null;
+		s = new Scanner(conn.getInputStream());
+		isStr = s.hasNext() ? s.next() : "";
+		jsonResponse = new JSONObject(isStr);
+		debugJsonResponses =  debugJsonResponses + "<br>res." + i + ": " + jsonResponse.toString(); 
+	
+		Number totalUusedMbMemory = -1.0;
+		totalUusedMbMemory =  (Number)((JSONObject)((JSONObject)jsonResponse.getJSONObject("metric_data").getJSONArray("metrics").get(0)).getJSONArray("timeslices").get(0)).getJSONObject("values").get("total_used_mb") ;
+		parsedMetrics.add(new ParsedMetric("MEMORY_" + newRelicApiAppId + "_" + instanceId + "_" + instanceName, totalUusedMbMemory,  "MEMORY"));
+		
+		Number percentCpuUserUtilization = -1.0;
+		percentCpuUserUtilization = (Number)((JSONObject)((JSONObject)jsonResponse.getJSONObject("metric_data").getJSONArray("metrics").get(1)).getJSONArray("timeslices").get(0)).getJSONObject("values").get("percent");
+		parsedMetrics.add(new ParsedMetric("CPU_" + newRelicApiAppId + "_" + instanceId + "_" + instanceName, percentCpuUserUtilization, "CPU_UTIL"));
+
+	}
+} catch (Exception e) {
+	debugJsonResponses =  debugJsonResponses + "<br>\n ERROR :  Exception last url: " + url + ", response of  : " + jsonResponse + ", message: "+ e.getMessage(); 
+}
+scriptResponse.setCommandLog(debugJsonResponses);
+scriptResponse.setParsedMetrics(parsedMetrics);
+
+return scriptResponse;', 'N', 'NewRelic Supplied Sample', '["newRelicApiAppId","newRelicXapiKey","proxyServer","proxyPort"]'); 
+
 
 
 INSERT INTO COMMANDRESPONSEPARSERS VALUES ('LINUX_Memory_freeG','MEMORY','freeG','import org.apache.commons.lang3.StringUtils;
@@ -370,6 +491,8 @@ INSERT INTO SERVERCOMMANDLINKS VALUES ('remoteUnixVM','UNIX_Memory_Script');
 INSERT INTO SERVERCOMMANDLINKS VALUES ('remoteWinServer','FreePhysicalMemory');
 INSERT INTO SERVERCOMMANDLINKS VALUES ('remoteWinServer','FreeVirtualMemory');
 INSERT INTO SERVERCOMMANDLINKS VALUES ('remoteWinServer','WinCpuCmd');
+INSERT INTO SERVERCOMMANDLINKS VALUES ('SimpleScriptSampleRunner', 'SimpleScriptSampleCmd');
+INSERT INTO SERVERCOMMANDLINKS VALUES ('NewRelicTestProfile', 'NewRelicSampleCmd'); 
 
 
 INSERT INTO COMMANDPARSERLINKS VALUES ('DataHunterSeleniumDeployAndExecute','Return1');

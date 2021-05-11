@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.3">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.1">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DataHunter Selenium Using Downloaded Excel Profiles File" enabled="true">
-      <stringProp name="TestPlan.comments">** BEFORE YOU RUN **   Download the Excel Server Profiles Exel file ( http://localhost:8085/mark59-server-metrics-web/serverProfileList -&gt; Dowload.. ), and place it in the apache-jmeter/bin directory ! </stringProp>
+      <stringProp name="TestPlan.comments">                                                                                                                                       ** BEFORE YOU RUN **
+
+Download the Server Profiles Excel file using the Server Metrics Web application ( http://localhost:8085/mark59-server-metrics-web/serverProfileList -&gt; Download.. ), and copy it into the apache-jmeter/bin directory.  Or alternatively just copy across the mark59serverprofiles.xlsx sheet supplied in the root of the dataHunterPerformanceTestSamples project into the apache-jmeter/bin directory.
+
+Finally, the &apos;Quick Start&apos; instructions should of been completed.   This ensures the required jars dataHunterPerformanceTestSamples.jar and mark59-server-metrics.jar are in apache-jmeter/lib/ext, and mark59.properties and a chromdriver.exe are in the apache-jmeter/bin directory (or manually copy all these files over ). 
+</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
@@ -24,30 +29,14 @@
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <stringProp name="TestPlan.comments">** BEFORE YOU RUN **   Download the Excel Server Profiles Exel file ( http://localhost:8085/mark59-server-metrics-web/serverProfileList -&gt; Dowload.. ), and place it in the apache-jmeter/bin directory ! </stringProp>
+        <stringProp name="TestPlan.comments">                                                                                                                                        ** BEFORE YOU RUN **
+
+Download the Server Profiles Excel file using the Server Metrics Web application ( http://localhost:8085/mark59-server-metrics-web/serverProfileList -&gt; Download.. ), and copy it into the apache-jmeter/bin directory.  Or alternatively just copy across the mark59serverprofiles.xlsx sheet supplied in the root of the dataHunterPerformanceTestSamples project into the apache-jmeter/bin directory.
+
+Finally, the &apos;Quick Start&apos; instructions should of been completed.   This ensures the required jars dataHunterPerformanceTestSamples.jar and mark59-server-metrics.jar are in apache-jmeter/lib/ext, and mark59.properties and a chromdriver.exe are in the apache-jmeter/bin directory (or manually copy all these files over ). 
+</stringProp>
       </SetupThreadGroup>
       <hashTree>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="mark59propsAlternativeOrOverrideValues" enabled="false">
-          <stringProp name="cacheKey">true</stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="script">Properties systemProperties = System.getProperties();
-systemProperties.setProperty(&quot;mark59.selenium.driver.path.chrome&quot; , &quot;./chromedriver.exe&quot;);
-systemProperties.setProperty(&quot;mark59.screenshot.directory&quot;        , &quot;C:/temp/jmeter_test_logs_testplan_override/&quot;);
-systemProperties.setProperty(&quot;mark59.server.profiles.excel.file.path&quot; , &quot;./mark59serverprofiles.xlsx&quot;);
- 
-OUT.println (&quot;DataHunter Selenium Test Plan:  Mark59 properties directly set here : &quot;);
-OUT.println (&quot;mark59.selenium.driver.path.chrome     : &quot; + systemProperties.getProperty(&quot;mark59.selenium.driver.path.chrome&quot;));
-OUT.println (&quot;mark59.screenshot.directory            : &quot; + systemProperties.getProperty(&quot;mark59.screenshot.directory&quot;));
-OUT.println (&quot;mark59.server.profiles.excel.file.path : &quot; + systemProperties.getProperty(&quot;mark59.server.profiles.excel.file.path&quot;));
-
-SampleResult.setIgnore();
-
-OUT.println (&quot;------------------------------------------------------------&quot;);</stringProp>
-          <stringProp name="scriptLanguage">groovy</stringProp>
-          <stringProp name="TestPlan.comments">Windows example of using system properties to override mark59.properties setting  (by default this script should be disabled)</stringProp>
-        </JSR223Sampler>
-        <hashTree/>
         <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="setOperatingSystemProperty" enabled="true">
           <stringProp name="cacheKey">true</stringProp>
           <stringProp name="filename"></stringProp>
@@ -61,14 +50,13 @@ if ( OS_NAME_LC.indexOf(&quot;win&quot;) &gt;= 0 ) {
 	os = &quot;WINDOWS&quot;; 
 } 
 
-JMeterUtils.setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_&quot; + os);
+JMeterUtils.setProperty(&quot;localhost_OS_HOSTID&quot;, &quot;LOCALHOST_&quot; + os + &quot;_HOSTID&quot; );
 
 SampleResult.setIgnore();
  
-OUT.println(&quot;OS property has been set to : &quot; + os );
-log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
+OUT.println(&quot;localhost_OS_HOSTID property has been set to : &quot; + &quot;localhost_&quot; + os + &quot;_HOSTID&quot; );
+log.info   (&quot;localhost_OS_HOSTID property has been set to : &quot; + &quot;localhost_&quot; + os + &quot;_HOSTID&quot; );</stringProp>
           <stringProp name="scriptLanguage">groovy</stringProp>
-          <stringProp name="TestPlan.comments">Windows example of using system properties to override mark59.properties setting  (by default this script should be disabled)</stringProp>
         </JSR223Sampler>
         <hashTree/>
       </hashTree>
@@ -87,11 +75,6 @@ log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
           <elementProp name="mark59ServerMetricsWebUrl" elementType="Argument">
             <stringProp name="Argument.name">mark59ServerMetricsWebUrl</stringProp>
             <stringProp name="Argument.value">${__P(Mark59ServerMetricsWebUrl,http://localhost:8085/mark59-server-metrics-web)}</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="metricsWebRestrictToIP" elementType="Argument">
-            <stringProp name="Argument.name">metricsWebRestrictToIP</stringProp>
-            <stringProp name="Argument.value">${__P(MetricsWebRestrictToIP,)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -294,6 +277,11 @@ return 0;</stringProp>
                 <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="EMULATE_NETWORK_CONDITIONS" elementType="Argument">
+                <stringProp name="Argument.name">EMULATE_NETWORK_CONDITIONS</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
                 <stringProp name="Argument.value"></stringProp>
@@ -301,7 +289,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.0</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.2</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -472,6 +460,11 @@ return 0;</stringProp>
                 <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="EMULATE_NETWORK_CONDITIONS" elementType="Argument">
+                <stringProp name="Argument.name">EMULATE_NETWORK_CONDITIONS</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
                 <stringProp name="Argument.value"></stringProp>
@@ -479,7 +472,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.0</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.2</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -500,7 +493,7 @@ return 0;</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
         <stringProp name="ThreadGroup.delay">5</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <stringProp name="TestPlan.comments">this captures metrics for machine running the this test plan using the downloaded excel spreadsheet</stringProp>
+        <stringProp name="TestPlan.comments">this captures metrics for machine(s) running the this test plan using the downloaded excel spreadsheet</stringProp>
       </ThreadGroup>
       <hashTree>
         <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
@@ -512,13 +505,13 @@ return 0;</stringProp>
           <intProp name="calcMode">0</intProp>
         </ConstantThroughputTimer>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="JR_ServerMetricsViaExcel" enabled="true">
-          <stringProp name="TestPlan.comments">localhost_via_excel</stringProp>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_excel" enabled="true">
+          <stringProp name="TestPlan.comments">will run the &apos;localhost_WINDOWS_HOSTID&apos;  or &apos; &apos;localhost_LINUX_HOSTID&apos;  proflle ( see &apos;setOperatingSystemProperty&apos; in the setUp Thread Group)   </stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
                 <stringProp name="Argument.name">SERVER_PROFILE_NAME</stringProp>
-                <stringProp name="Argument.value">${__property(LOCALHOST_OS)}</stringProp>
+                <stringProp name="Argument.value">${__property(localhost_OS_HOSTID)}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: ____________________" elementType="Argument">
@@ -543,95 +536,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information: " elementType="Argument">
                 <stringProp name="Argument.name">build information: </stringProp>
-                <stringProp name="Argument.value">mark59-server-metrics version 3.0.1</stringProp>
+                <stringProp name="Argument.value">mark59-server-metrics version 3.2.0</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
           <stringProp name="classname">com.mark59.servermetrics.ServerMetricsCaptureViaExcel</stringProp>
-        </JavaSampler>
-        <hashTree/>
-      </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost_web" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-          <intProp name="LoopController.loops">-1</intProp>
-        </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">10</stringProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
-        <stringProp name="ThreadGroup.delay">10</stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <stringProp name="TestPlan.comments">this actually captures metrics for whatever server runs mark59-server-metrics-web ! </stringProp>
-      </ThreadGroup>
-      <hashTree>
-        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
-          <doubleProp>
-            <name>throughput</name>
-            <value>2.0</value>
-            <savedValue>0.0</savedValue>
-          </doubleProp>
-          <intProp name="calcMode">0</intProp>
-        </ConstantThroughputTimer>
-        <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_web" enabled="true">
-          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="MARK59_SERVER_METRICS_WEB_URL" elementType="Argument">
-                <stringProp name="Argument.name">MARK59_SERVER_METRICS_WEB_URL</stringProp>
-                <stringProp name="Argument.value">${mark59ServerMetricsWebUrl}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
-                <stringProp name="Argument.name">SERVER_PROFILE_NAME</stringProp>
-                <stringProp name="Argument.value">${__property(LOCALHOST_OS)}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="______________________ miscellaneous: ____________________" elementType="Argument">
-                <stringProp name="Argument.name">______________________ miscellaneous: ____________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
-                <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
-                <stringProp name="Argument.value">${metricsWebRestrictToIP}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="______________________ notes: _________________________________" elementType="Argument">
-                <stringProp name="Argument.name">______________________ notes: _________________________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="__" elementType="Argument">
-                <stringProp name="Argument.name">__</stringProp>
-                <stringProp name="Argument.value">- please replace the default url with your actual.</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="_" elementType="Argument">
-                <stringProp name="Argument.name">_</stringProp>
-                <stringProp name="Argument.value">          : server profile of &apos;localhost&apos; only reports metrics of the mark59-server-metrics-web machine!</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="-" elementType="Argument">
-                <stringProp name="Argument.name">-</stringProp>
-                <stringProp name="Argument.value">          : - use actual machine name or (better) &apos;..viaExcel&apos; &apos;localhost_HOSTID&apos; entry instead (see Mark59 User Guide)</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="." elementType="Argument">
-                <stringProp name="Argument.name">.</stringProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="build information: " elementType="Argument">
-                <stringProp name="Argument.name">build information: </stringProp>
-                <stringProp name="Argument.value">mark59-server-metrics version 3.0.1</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-          <stringProp name="classname">com.mark59.servermetrics.ServerMetricsCaptureViaWeb</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>

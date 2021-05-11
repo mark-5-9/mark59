@@ -39,6 +39,8 @@ public interface TestTransactionsDAO
 	
 	public void deleteAllForApplication(String application);	
 	
+	public void updateRunTime(String application, String originalRunTime, String newRunTime);
+
 	public List<TestTransaction> getUniqueListOfSystemMetricNamesByType(String application);	
 	
 //	public List<String> getTransactionIds(Run run, String txnType);
@@ -52,5 +54,6 @@ public interface TestTransactionsDAO
 	public Transaction extractEventSummaryStats(String application, String txnType, String dataSampleLablel, EventMapping EventMapping);
 
 	public int filterByTime(Run run, DateRangeBean filteredDateRangeBean);
+
 	
 }

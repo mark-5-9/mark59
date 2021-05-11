@@ -43,18 +43,6 @@
 	    var element = document.getElementById('application');
 	    element.value = requestApp;
 	}	
-
-	//TODO: use this idea to set links when default set?
-	function changeHrefLinks() {
-		alert("start of linkjs");
-	    var x = document.getElementsByName("editLink");
-	    var i;
-	    for (i = 0; i < x.length; i++) {
-	        // if (x[i].type == "checkbox") {
-	            x[i].href = "editSla?txnId=THEQUICKBROXFOX";
-	        // }
-	    }
-	}
 	
 </script>
 </head>
@@ -88,11 +76,14 @@
     <th>Transaction</th>
     <th>Application<br><form:select id='application' path="map" items="${map.applications}"  onChange="resendSlaListURL()" /></th>
     <th>Txn Ignored<br>on Graphs</th>    
-    <th>90th Res Time</th>
+    <th>90th Res<br>Time</th>
+    <th>95th Res<br>Time</th>
+    <th>99th Res<br>Time</th>
     <th>Txn Pass Count</th>
     <th>Txn Pass<br>Count Variance %</th>    
     <th>Txn Fail Count</th>
     <th>Txn Fail %</th>
+    <th>Xtra<br>num</th>
     <th>Reference</th>
     <th>Comment</th>
    </tr>
@@ -105,10 +96,13 @@
      <td>${sla.application}</td>
      <td>${sla.isTxnIgnored }</td>     
      <td>${sla.sla90thResponse}</td>
+     <td>${sla.sla95thResponse}</td>
+     <td>${sla.sla99thResponse}</td>
      <td>${sla.slaPassCount}</td>
      <td>${sla.slaPassCountVariancePercent}</td>
      <td>${sla.slaFailCount}</td>     
      <td>${sla.slaFailPercent}</td>
+     <td>${sla.xtraNum}</td>     
      <td>${sla.slaRefUrl}</td>
      <td>${sla.comment}</td>     
     </tr>

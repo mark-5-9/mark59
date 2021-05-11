@@ -45,12 +45,15 @@ public class SlaExtractor implements ResultSetExtractor<Sla> {
 	  }	  
 	  sla.setIsTxnIgnored(resultSet.getString(3)) ;	  	  
 	  sla.setSla90thResponse(resultSet.getBigDecimal(4));
-	  sla.setSlaPassCount(resultSet.getLong(5));
-	  sla.setSlaPassCountVariancePercent(resultSet.getBigDecimal(6));
-	  sla.setSlaFailCount(resultSet.getLong(7));
-	  sla.setSlaFailPercent(resultSet.getBigDecimal(8));
-	  sla.setSlaRefUrl(resultSet.getString(9));
-	  sla.setComment(resultSet.getString(10));
+	  sla.setSla95thResponse(resultSet.getBigDecimal(5));
+	  sla.setSla99thResponse(resultSet.getBigDecimal(6));
+	  sla.setSlaPassCount(resultSet.getLong(7));
+	  sla.setSlaPassCountVariancePercent(resultSet.getBigDecimal(8));
+	  sla.setSlaFailCount(resultSet.getLong(9));
+	  sla.setSlaFailPercent(resultSet.getBigDecimal(10));
+	  sla.setXtraNum(resultSet.getBigDecimal(11));	  
+	  sla.setSlaRefUrl(resultSet.getString(12));
+	  sla.setComment(resultSet.getString(13));
  
 	  return sla;
 	 }

@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Mark59 - Sla Reference List</title>
+<title>Mark59 - Transactional SLAs (View)</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
@@ -36,18 +36,21 @@
 
 <div class="content">
 
-<h1>Sla Reference List</h1>
+<h1>Transaction SLA Reference (View)</h1>
 
   <table class="metricsTable">
    <tr>
     <th>Transaction</th>
     <th>Application</th>
     <th>Txn Ignored<br>on Graphs</th>        
-    <th>90th Res Time</th>
+    <th>90th Res<br>Time</th>
+    <th>95th Res<br>Time</th>
+    <th>99th Res<br>Time</th>
     <th>Txn Pass Count</th>
     <th>Txn Pass<br>Count<br>Variance %</th>    
     <th>Txn Fail Count</th>
     <th>Txn Fail %</th>
+    <th>Xtra<br>num</th>    
     <th>Reference</th>
     <th>Comment</th>    
    </tr>
@@ -57,10 +60,13 @@
      <td>${sla.application}</td>
      <td>${sla.isTxnIgnored }</td>       
      <td>${sla.sla90thResponse}</td>
+     <td>${sla.sla95thResponse}</td>
+     <td>${sla.sla99thResponse}</td>
      <td>${sla.slaPassCount}</td>
      <td>${sla.slaPassCountVariancePercent}</td>     
      <td>${sla.slaFailCount}</td>
      <td>${sla.slaFailPercent}</td>
+     <td>${sla.xtraNum}</td>        
      <td>${sla.slaRefUrl}</td>
      <td>${sla.comment}</td>        
     </tr>

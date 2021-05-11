@@ -68,15 +68,22 @@
      <tr>
       <td>Value Derivation:</td>
       <td colspan=2 style="font-size: 12px" ><br>
-      		<b>predefined:</b> Minimum, Maximum, Average, StdDeviation, 90th, Pass, Fail, Stop, First, Last, Sum  <br>
-          	<b>available within sql:</b> TXN_MINIMUM, TXN_AVERAGE, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_PASS, TXN_FAIL, TXN_STOP<br>
-          	<b>sample sql computation: </b>COALESCE( 100*TXN_FAIL/(TXN_PASS+TXN_FAIL) , -1)
+      		<b>predefined:</b> Minimum, Maximum, Average, StdDeviation, 90th, 95th, 99th, Pass, Fail, Stop, First, Last, Sum  <br>
+          	<b>available within sql:</b> TXN_MINIMUM, TXN_AVERAGE, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_95TH, TXN_99TH, TXN_PASS, TXN_FAIL, TXN_STOP<br>
+          	<b>sample sql computation:</b><span style="font-family:'Courier New'">&nbsp;&nbsp;COALESCE( 100*TXN_FAIL/(TXN_PASS+TXN_FAIL) , -1)</span><br>
+          	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For testing purposes, a sql computation could be validated manually using sql such as:<br>
+          	<span style="font-family:'Courier New'"> 
+          	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT TXN_ID, COALESCE( 100*TXN_FAIL/(TXN_PASS+TXN_FAIL) , -1)<br> 
+   			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM transaction where APPLICATION = 'DataHunter'<br> 
+   			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND RUN_TIME = (SELECT MAX(RUN_TIME) FROM transaction where APPLICATION = 'DataHunter')<br> 
+   			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AND TXN_TYPE = 'TRANSACTION'</span><br>  
+          	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All values returned need to be numeric (no nulls). Please refer to the Mark59 User Guide for an advanced usage example.<br>    			
       </td>          
      </tr>
  
      <tr>
       <td></td>
-      <td colspan=2 ><form:input path="valueDerivation"  size="64"  maxlength="64"  /></td>
+      <td><form:textarea path="valueDerivation"  style="width:100%;height:150px" maxlength="2000" />      
      </tr>
      
      <tr>
@@ -93,7 +100,7 @@
      
      <tr>
       <td>Range Bar Sql :</td>
-      <td><form:textarea path="barRangeSql"  style="width:100%;height:150px" value="xxxx" maxlength="2000"  />
+      <td><form:textarea path="barRangeSql"  style="width:100%;height:150px" maxlength="2000" />
       </td>
      </tr> 
      
@@ -104,13 +111,13 @@
      </tr>       
      <tr>
       <td>Range Bar Legend :</td>
-      <td><form:input path="barRangeLegend" value="${map.graphMapping.barRangeLegend}"  size="64"  maxlength="64"  />
+      <td><form:input path="barRangeLegend"  size="64"  maxlength="64" />
       </td>
      </tr> 
          
      <tr>
       <td>Comment :</td>
-      <td><form:input path="comment"  size="100" maxlength="126"  /></td>
+      <td><form:input path="comment"  size="100" maxlength="126" /></td>
       <td></td>     
      </tr>
 

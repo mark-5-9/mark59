@@ -25,7 +25,7 @@
 
 <html>
 <head>
-<title>Add a Policy</title>
+<title>Add Item</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -40,7 +40,7 @@
   
  <br><br><br>
  
- <b>Add Policy</b> 
+ <b>Add Item</b> 
 
   <br><br><br> 
 

@@ -74,21 +74,33 @@
      </tr>
      <tr>
       <td>90th percentile  :</td>
-      <td><form:input path="sla90thResponse"  value="-1"  /></td>     
+      <td><form:input path="sla90thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
      </tr>
      <tr>
+      <td>95th percentile  :</td>
+      <td><form:input path="sla95thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
+     </tr> 
+     <tr>
+      <td>99th percentile  :</td>
+      <td><form:input path="sla99thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
+     </tr>    
+     <tr>
       <td>Pass count variance % :</td>
-      <td><form:input path="slaPassCountVariancePercent"  value="10.0" /></td>     
+      <td><form:input path="slaPassCountVariancePercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="10.0" /></td>     
      </tr>     
      <tr>
       <td>Fail count :</td>
-      <td><form:input path="slaFailCount"  value="-1" /></td>     
+      <td><form:input path="slaFailCount" type="text" pattern="-?\d*" value="-1"/></td>     
      </tr>
      <tr>
       <td>Fail percent :</td>
-      <td><form:input path="slaFailPercent"  value="2.0" /></td>     
+      <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="2.0" /></td>     
      </tr>  
- 
+     <tr>
+      <td>Xtra num :</td>
+      <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
+     </tr>
+      
      <tr>
       <td><br><br><b>SLA REFERENCE</b><br><br></td>
       <td style="font-size: 12px"><br><br>If entered, will be applied to new or all Application SLAs (for transactions that exist on the baseline), as selected.<br><br></td>     
@@ -107,21 +119,7 @@
       <td> </td>
       <td><br><input id=submit type="submit" value="Load" /></td>
      </tr>
-
-<!--      <tr> -->
-<!--       <td> </td> -->
-<%--       <td> <form:label path="baselineExistsMsg" /></td> --%>
-<!--      </tr> -->
-     
-     
-<!--      <tr> -->
-<!--       <td> </td> -->
-<%--       <td> ${baselineExistsMsg}</td> --%>
-<!--      </tr> -->
-     
-     
-     
-     
+      
      <tr>
       <td colspan="2"><a href="slaList?reqApp=${reqApp}">Cancel</a></td>
      </tr>

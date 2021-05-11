@@ -34,6 +34,8 @@ public class Transaction {
 	BigDecimal	txnMaximum;
 	BigDecimal	txnStdDeviation;
 	BigDecimal	txn90th;
+	BigDecimal	txn95th;
+	BigDecimal	txn99th;
 	Long		txnPass;
 	Long		txnFail;
 	Long		txnStop;
@@ -96,6 +98,18 @@ public class Transaction {
 	public void setTxn90th(BigDecimal txn90th) {
 		this.txn90th = txn90th.setScale(3, RoundingMode.HALF_UP);
 	}
+	public BigDecimal getTxn95th() {
+		return txn95th;
+	}
+	public void setTxn95th(BigDecimal txn95th) {
+		this.txn95th = txn95th;
+	}
+	public BigDecimal getTxn99th() {
+		return txn99th;
+	}
+	public void setTxn99th(BigDecimal txn99th) {
+		this.txn99th = txn99th;
+	}
 	public Long getTxnPass() {
 		return txnPass;
 	}
@@ -144,6 +158,8 @@ public class Transaction {
 				+ ", txnAverage="+txnAverage
 				+ ", txnMaximum="+txnMaximum
 				+ ", txn90th="+txn90th
+				+ ", txn95th="+txn95th
+				+ ", txn99th="+txn99th
 				+ ", txnPass="+txnPass
 				+ ", txnFail="+txnFail
 				+ ", txnStop="+txnStop

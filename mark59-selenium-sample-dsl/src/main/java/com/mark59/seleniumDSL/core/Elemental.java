@@ -70,8 +70,7 @@ public class Elemental {
 	protected List<WebElement> waitForAndFindElements() {
 		return waitUntilConditionReturnsWebElements(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
 	}
-	
-	
+		
 	
 	protected Elemental click() {
 		waitForAndFindElement().click();
@@ -101,13 +100,16 @@ public class Elemental {
 	}
 	
 	
-
 	protected Elemental waitUntilTextPresentInElement(Elemental elemental, String expectedText) {
 		waitUntilCondition(ExpectedConditions.textToBePresentInElementLocated(elemental.getBy() , expectedText));
 		return this;
 	}
 
-
+	
+	protected void waitUntilTextPresentInTitle(String expectedText) {
+		waitUntilCondition(ExpectedConditions.titleIs(expectedText));  
+	}
+	
 	
 	protected WebElement waitUntilConditionReturnsWebElement(ExpectedCondition<WebElement> condition) {
 		

@@ -59,11 +59,11 @@ public class PerformanceTest {
 		
 		run.setApplication(application);
 		run.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED );
+		run.setIsRunIgnored("N");
 		run.setBaselineRun("N");
 		run.setRunReference(runReferenceArg);
 		run.setComment("");
 	}
-
 
 
 	protected Run calculateAndSetRunTimesUsingEpochStartAndEnd(Run run, DateRangeBean dateRangeBean) {
@@ -108,14 +108,13 @@ public class PerformanceTest {
 	
 
 	protected List<Transaction> storeTransactionSummaries(Run run) {
-		transactionSummariesThisRun = testTransactionsDAO.extractTransactionResponsesSummary(run.getApplication(), Mark59Constants.DatabaseDatatypes.TRANSACTION.name() );  
+		transactionSummariesThisRun = testTransactionsDAO.extractTransactionResponsesSummary(run.getApplication(), Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() );  
       	for (Transaction transaction : transactionSummariesThisRun) {  // insert a row for each transaction captured 
       		transaction.setRunTime(run.getRunTime());
       		transactionDAO.insert(transaction);
       	}		
 		return transactionSummariesThisRun;
 	}
-	
 	
 	
 	protected DateRangeBean applyTimingRangeFilters(String excludestart, String captureperiod, DateRangeBean dateRangeBean) {
@@ -128,8 +127,6 @@ public class PerformanceTest {
 		}
 
 		if ( excludestartMsecs != 0  || !captureperiod.equalsIgnoreCase(AppConstantsMetrics.ALL) ){
-			
-			
 			System.out.println();
 			System.out.println( " Transaction results will be filtered by time for this run"  );
 			System.out.print( " - only transactions " + excludestart + " mins from the start of the test ");
@@ -155,7 +152,6 @@ public class PerformanceTest {
 
 			run.setPeriod(run.getPeriod() + " filter x:c ["  + excludestart + ":" + captureperiod + "]" );
 			runDAO.updateRun(run);
-			
 		}
 		return filteredDateRangeBean;
 	}
@@ -168,7 +164,5 @@ public class PerformanceTest {
 	public List<Transaction> getTransactionSummariesThisRun() {
 		return transactionSummariesThisRun;
 	}
-
-
 	
 }

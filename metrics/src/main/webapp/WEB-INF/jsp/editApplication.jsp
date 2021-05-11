@@ -42,7 +42,7 @@
 <p>&nbsp;</p>
 
 
-   <form:form method="post" action="updateApplication" modelAttribute="application">
+   <form:form method="post" action="updateApplication?reqAppListSelector=${map.reqAppListSelector}" modelAttribute="application">
     <table style="width:100%;">
      <tr>
       <td>Application:</td>

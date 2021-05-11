@@ -30,7 +30,7 @@
 <script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
-<body onload="enableOrdisableCreateCipherBtn('serverProfile.'); loadCommandListForSelected('serverProfile.')"> 
+<body onload="enableOrdisableCreateCipherBtn('serverProfile.');"> 
 
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
@@ -41,85 +41,122 @@
   <p>&nbsp;</p> 
   
   <div>
-    <form:form method="post" action="updateServerProfile?reqOperatingSystem=${map.reqOperatingSystem}" modelAttribute="serverProfileEditingForm" >
+    <form:form method="post" action="updateServerProfile?reqExecutor=${map.reqExecutor}" modelAttribute="serverProfileEditingForm" >
 
     <table>
 
-     <tr><td>Server&nbsp;Profile&nbsp;:</td><td>${map.serverProfileEditingForm.serverProfile.serverProfileName}</td><td></td></tr>
-
-     <tr>
-      <td>Server&nbsp;:</td>
-      <td><form:input path="serverProfile.server" size="64" maxlength="64"  height="20" /></td><td></td>
-     </tr>
-     <tr>
-     <tr>
-      <td>Alternative&nbsp;Server&nbsp;Id&nbsp;:</td>
-      <td><form:input path="serverProfile.alternativeServerId" size="64" maxlength="64"  height="20"  /></td>
-      <td style="font-size: 10px">for a '<b>localhost</b>' server, entering '<b>HOSTID</b>' here means txnIds<br>will use the id of the server running this application</td>
-     </tr>
+     <tr><td>Server&nbsp;Profile&nbsp;:</td><td>${map.serverProfileEditingForm.serverProfile.serverProfileName}</td></tr>
      
+     <tr><td>Command(s)&nbsp;Executor&nbsp;:</td><td>${map.serverProfileEditingForm.serverProfile.executor}</td></tr>
+     
+     <c:set var="commandexecutor" value="${serverProfileEditingForm.serverProfile.executor}" />
+     
+     <c:if test="${!commandexecutor.equals('GROOVY_SCRIPT')}">
+	     <tr>
+	      <td>Server&nbsp;:</td>
+	      <td><form:input path="serverProfile.server" size="64" maxlength="64"  height="20" /></td>
+	     </tr>
+	     <tr>
+	      <tr><td><br></td>
+	      <td><span style="white-space: nowrap; font-size: 10px">for a '<b>localhost</b>' server, entering '<b>HOSTID</b>' here means txnIds will use the id of the server running this application</span></td>
+	     </tr>     
+	     <tr>
+	      <td>Alternative&nbsp;Server&nbsp;Id&nbsp;:</td>
+	      <td><form:input path="serverProfile.alternativeServerId" size="64" maxlength="64"  height="20" /></td>
+	     </tr>
+	     <tr>
+	      <td>Username&nbsp;:</td>
+	      <td><form:input path="serverProfile.username" size="64" maxlength="64"  height="20" /></td>
+	     </tr>
+	     <tr>
+	      <td>Password&nbsp;:</td>
+	      <td><form:input path="serverProfile.password" size="64" maxlength="64"  height="20"  onkeyup="enableOrdisableCreateCipherBtn('serverProfile.')"/>&nbsp;&nbsp;
+	   	       <button type="button" id="createCipherBtn" onclick="createCipher('serverProfile.')">Create Cipher</button></td>
+	     </tr>
+	     <tr>
+	      <td>Password&nbsp;Cipher&nbsp;:</td>
+	      <td><form:input path="serverProfile.passwordCipher" size="64" maxlength="64"  height="20" /></td>
+	     </tr>
+	     <tr>
+	      <td>Connection&nbsp;Port&nbsp;:</td>
+	      <td><form:input path="serverProfile.connectionPort" size="10"  height="20"  type="number" min="0" max="2147483647"  /></td>
+	     </tr>
+	     <tr>
+	      <td>Connection&nbsp;Timeout&nbsp;:</td>
+	      <td><form:input path="serverProfile.connectionTimeout" size="10" height="20"  type="number" min="0" max="2147483647"  /></td>
+	     </tr>  
+     </c:if> 
+      
      <tr>
-      <td>Username&nbsp;:</td>
-      <td><form:input path="serverProfile.username" size="64" maxlength="64"  height="20" /></td><td></td>
-     </tr>
-     <tr>
-      <td>Password&nbsp;:</td>
-      <td><form:input path="serverProfile.password" size="64" maxlength="64"  height="20"  onkeyup="enableOrdisableCreateCipherBtn('serverProfile.')" /></td>
-   	  <td><button type="button" id="createCipherBtn" onclick="createCipher('serverProfile.')">Create Cipher</button></td>
-     </tr>
-     <tr>
-      <td>Password&nbsp;Cipher&nbsp;:</td>
-      <td><form:input path="serverProfile.passwordCipher" size="64" maxlength="64"  height="20" /></td><td></td>
-     </tr>
-     <tr>
-      <td>Operating&nbsp;System&nbsp;:</td>
-      <td><form:select path="serverProfile.operatingSystem"  items="${map.operatingSystems}" value="${map.serverProfile.operatingSystem}" onchange="populateOsDefaults('serverProfile.')" /></td><td></td>
-     </tr>
-     <tr>
-      <td>Connection&nbsp;Port&nbsp;:</td>
-      <td><form:input path="serverProfile.connectionPort" size="10"  height="20"  type="number" min="0" max="2147483647"  /></td><td></td>
-     </tr>
-     <tr>
-      <td>Connection&nbsp;Timeout&nbsp;:</td>
-      <td><form:input path="serverProfile.connectionTimeout" size="10" height="20"  type="number" min="0" max="2147483647"  /></td><td></td>
-     </tr>   
-    <tr>
       <td>Comment&nbsp;:</td>
-      <td colspan="2"><form:input path="serverProfile.comment"  size="100" maxlength="128"  height="20"  /></td>
+      <td><form:input path="serverProfile.comment"  size="100" maxlength="128"  height="20"  /></td>
      </tr>     
-     
-     <tr><td><br></td><td></td><td></td></tr>
-     <tr> 
-      <td>Commands</td>
-      <td colspan="2">
- 		<table>    
-        <c:forEach items="${serverProfileEditingForm.commandSelectors}" var="commandSelector"  varStatus="status"   >
+              
+     <tr><td><br></td><td></td></tr>
+
+     <c:if test="${!commandexecutor.equals('GROOVY_SCRIPT')}">
+       <tr> 
+         <td>Commands</td>
+         <td>
+ 		  <table>    
+          <c:forEach items="${serverProfileEditingForm.commandSelectors}" var="commandSelector"  varStatus="status"   >
      		<tr id="commandSelectors${status.index}">
-     		   <td><form:checkbox path="commandSelectors[${status.index}].commandChecked" /></td>     		   
-     		   <td><a href="editCommand?&reqCommandName=${commandSelector.commandName}">${commandSelector.commandName}</a></td>
-    		   <td><form:hidden path="commandSelectors[${status.index}].commandName" /></td>
-    		   <td style="font-size: 10px">&nbsp;&nbsp;(${commandSelector.executor})</td>
-    		   <td><form:hidden path="commandSelectors[${status.index}].executor" /></td>      		   
+     		   <c:set var="thisrowexecutor" value="${commandSelector.executor}" />
+     		   <c:if test="${commandexecutor.equals(thisrowexecutor)}">  
+	     		   <td><form:checkbox path="commandSelectors[${status.index}].commandChecked" /></td>     		   
+	     		   <td><a href="editCommand?&reqCommandName=${commandSelector.commandName}">${commandSelector.commandName}</a></td>
+	    		   <td><form:hidden path="commandSelectors[${status.index}].commandName" /></td>
+	    		   <td style="font-size: 10px">&nbsp;&nbsp;(${commandSelector.executor})</td>
+	    		   <td><form:hidden path="commandSelectors[${status.index}].executor" /></td>   
+	    	   </c:if>       		   
      		</tr>
-        </c:forEach>
-        </table> 
-      <td> 
-     </tr> 
-     <tr><td><br></td><td></td><td></td></tr>
-         
+          </c:forEach>
+          </table> 
+         <td>          
+       </tr> 
+     </c:if>  
+
+     <c:if test="${commandexecutor.equals('GROOVY_SCRIPT')}">
+	   <tr> 
+	     <td>Command</td>
+		 <td><form:select path="selectedScriptCommandName"  items="${serverProfileEditingForm.commandNames}" 
+		 					value="${serverProfileEditingForm.selectedScriptCommandName}" onChange="resubmitToRefreshParm()" /></td>
+	   </tr> 
+       <tr><td><br></td><td></td></tr>
+	   <tr> 
+	     <td>Parameters</td>
+	     <td>
+	 	 <table>    
+	        <c:forEach items="${serverProfileEditingForm.commandParameters}" var="commandParameter"  varStatus="status" >
+	     		<tr id="commandParameters${status.index}">
+	    		   <td>${commandParameter.paramName}</td>
+	    		   <td><form:hidden path="commandParameters[${status.index}].paramName" /></td> 
+	     		   <td><form:input path="commandParameters[${status.index}].paramValue"  size="100" height="20"  /></td>     
+	     		</tr>
+	        </c:forEach>
+	        </table> 
+	      </td> 
+	   </tr> 
+   	 </c:if>
+   	     
+     <tr><td><br></td><td></td></tr>
+                   
      <tr>
       <td></td>
-      <td><input type="submit" value="Save" /></td><td></td>
+      <td><input type="submit" value="Save" /></td>
      </tr>
 
      <tr>
-      <td colspan="3"><a href="serverProfileList?reqOperatingSystem=${map.reqOperatingSystem}">Cancel</a></td>
+      <td colspan="2"><a href="serverProfileList?reqExecutor=${map.reqExecutor}">Cancel</a></td>
      </tr>
 
     </table>
      
+    <form:hidden path="serverProfile.executor" />
     <form:hidden path="serverProfile.serverProfileName" />
-     
+    <form:hidden path="selectedScriptCommandNameChanged" />
+	<form:hidden path="commandNames" />    
+
    </form:form>
   </div>
 

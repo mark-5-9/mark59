@@ -32,8 +32,9 @@ import org.springframework.web.servlet.ModelAndView;
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
+import com.mark59.datahunter.model.AsyncMessageaAnalyzerRequest;
 import com.mark59.datahunter.model.AsyncMessageaAnalyzerResult;
-import com.mark59.datahunter.model.PolicySelectionCriteria;
+import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
 
 /**
  * @author Philip Webb
@@ -47,30 +48,57 @@ public class AsyncMessageaAnalyzerController {
 		
 
 	@RequestMapping("/async_message_analyzer")
-	public String asyncMessageaAnalyzerUrl(@RequestParam(required=false) String reqApplication, PolicySelectionCriteria policySelectionCriteria, Model model) { 
-//		System.out.println("/async_message_analyzer");
+	public String asyncMessageaAnalyzerUrl(@RequestParam(required=false) String application, AsyncMessageaAnalyzerRequest asyncMessageaAnalyzerRequest, Model model) { 
 		List<String> applicationOperators = new ArrayList<String>(DataHunterConstants.APPLICATION_OPERATORS);
 		model.addAttribute("applicationOperators",applicationOperators);
 		List<String> usabilityList = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
 		usabilityList.add(0,"UNPAIRED");		
 		usabilityList.add(1,"");		
-		model.addAttribute("Useabilities",usabilityList);		
+		model.addAttribute("Useabilities",usabilityList);	
+		
+		List<String> usabilityListTo = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		usabilityListTo.add(0,"");
+		model.addAttribute("usabilityListTo",usabilityListTo);
+		
 		return "/async_message_analyzer";
 	}
 	
 		
 	@RequestMapping("/async_message_analyzer_action")
-	public ModelAndView asyncMessageaAnalyzerUrlAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model, HttpServletRequest httpServletRequest) {
-//		System.out.println("asyncMessageaAnalyzerUrlAction PolicySelectionCriteria="  + policySelectionCriteria );
+	public ModelAndView asyncMessageaAnalyzerUrlAction(@ModelAttribute AsyncMessageaAnalyzerRequest asyncMessageaAnalyzerRequest, Model model, HttpServletRequest httpServletRequest) {
 		
-		String sql = policiesDAO.constructAsyncMessageaAnalyzerSql(policySelectionCriteria);
+		String analyzerSql = policiesDAO.constructAsyncMessageaAnalyzerSql(asyncMessageaAnalyzerRequest);
 		List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList = new ArrayList<AsyncMessageaAnalyzerResult>();
-		asyncMessageaAnalyzerResultList = policiesDAO.runAsyncMessageaAnalyzerSql(sql);
+		asyncMessageaAnalyzerResultList = policiesDAO.runAsyncMessageaAnalyzerSql(analyzerSql);
+
+		if ( ! DataHunterUtils.isEmpty(asyncMessageaAnalyzerRequest.getToUseability())){
+			
+			UpdateUseStateAndEpochTime updateUse = new UpdateUseStateAndEpochTime();
+			updateUse.setUseability(asyncMessageaAnalyzerRequest.getUseability() );
+			updateUse.setToUseability(asyncMessageaAnalyzerRequest.getToUseability());
+			
+			for (AsyncMessageaAnalyzerResult asyncMessageaAnalyzerResult : asyncMessageaAnalyzerResultList) {
+				updateUse.setApplication(asyncMessageaAnalyzerResult.getApplication());
+				updateUse.setIdentifier(asyncMessageaAnalyzerResult.getIdentifier());
+				// lifecycle updated for all rows of the given id and so left blank (lifecycle is the part of the key that changes for each async event) 
+				updateUse.setLifecycle(""); 
+				String sql = policiesDAO.constructUpdatePoliciesUseStateSql(updateUse);
+				try {
+					policiesDAO.runDatabaseUpdateSql(sql);
+				} catch (Exception e) {
+					model.addAttribute("sql", sql);
+					model.addAttribute("sqlResult", "FAIL");
+					model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );
+					return new ModelAndView("/async_message_analyzer_action", "model", model);	
+				}
+				asyncMessageaAnalyzerResult.setUseability(asyncMessageaAnalyzerRequest.getToUseability());
+			} 
+		}
 		
 		model.addAttribute("asyncMessageaAnalyzerResultList", asyncMessageaAnalyzerResultList);		
 		int rowsAffected = asyncMessageaAnalyzerResultList.size();
 
-		model.addAttribute("sql", sql);
+		model.addAttribute("sql", analyzerSql);
 		model.addAttribute("sqlResult", "PASS");
 		model.addAttribute("rowsAffected", rowsAffected);	
 

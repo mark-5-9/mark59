@@ -16,6 +16,7 @@
 
 package com.mark59.metrics.data.metricSla.dao;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,9 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 		String sql = "INSERT INTO METRICSLA "
 				+ "(APPLICATION, METRIC_NAME, METRIC_TXN_TYPE, VALUE_DERIVATION, SLA_MIN, SLA_MAX, IS_ACTIVE, COMMENT) VALUES (?,?,?,?,?,?,?,?)";
 
+		metricSla = nullsToDefaultValues(metricSla);		
+		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
 		jdbcTemplate.update(sql,
 				new Object[] { metricSla.getApplication(),metricSla.getMetricName(),metricSla.getMetricTxnType(),metricSla.getValueDerivation(), 
 						metricSla.getSlaMin(), metricSla.getSlaMax(), metricSla.getIsActive(), metricSla.getComment() });
@@ -83,7 +85,9 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 			insertData(metricSla);
 			
 		} else {  // update values for an existing transaction
-				
+			
+			metricSla = nullsToDefaultValues(metricSla);				
+			
 			String sql = "UPDATE METRICSLA SET SLA_MIN = " + metricSla.getSlaMin()   + ", "
 										+ "SLA_MAX= "      + metricSla.getSlaMax()   + ", "
 										+ "IS_ACTIVE= '"   + metricSla.getIsActive() + "', "
@@ -166,5 +170,17 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 		return  applications;
 	}
 
+	/*
+	 *   To prevent null exceptions during SLA processing
+	 */
+	private MetricSla nullsToDefaultValues(MetricSla metricSla) {
+		if (metricSla.getSlaMin() == null) {
+			metricSla.setSlaMin(new BigDecimal(0.0));
+		}
+		if (metricSla.getSlaMax() == null) {
+			metricSla.setSlaMax(new BigDecimal(0.0));
+		}
+		return metricSla;
+	}
 
 }

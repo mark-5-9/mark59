@@ -57,14 +57,15 @@ import com.mark59.servermetricsweb.data.servercommandlinks.dao.ServerCommandLink
 import com.mark59.servermetricsweb.data.serverprofiles.dao.ServerProfilesDAO;
 import com.mark59.servermetricsweb.data.serverprofiles.dao.ServerProfilesDAOexcelWorkbookImpl;
 import com.mark59.servermetricsweb.pojos.ParsedCommandResponse;
+import com.mark59.servermetricsweb.pojos.ParsedMetric;
 import com.mark59.servermetricsweb.pojos.WebServerMetricsResponsePojo;
 import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb;
 import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
-import com.mark59.servermetricsweb.utils.TargetServerCommandProcessor;
+import com.mark59.servermetricsweb.utils.ServerProfileRunner;
 
 
 /**
- * This is the initiating class for server metrics capture using a (already downloaded) server metrics excel spreadsheet.
+ * This is the initiating class for server metrics capture using a (previously downloaded) server metrics excel spreadsheet.
  * The location of the spreadsheet containing the server profile details is generally expected to set set via
  * the property 'mark59.server.profiles.excel.file.path' (in Mark59.properties).  An path override is also available
  * on the Java Request parameter list.    
@@ -72,7 +73,7 @@ import com.mark59.servermetricsweb.utils.TargetServerCommandProcessor;
  * <p>Using details provided on the spreadsheet, calls a functions which controls and executed commands on the target servers, 
  * and returns the formatted response.
  * 
- * @see TargetServerCommandProcessor
+ * @see ServerProfileRunner
  * 
  * @author Philip Webb
  * Written: Australian Autumn 2020 
@@ -174,7 +175,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
         	CommandParserLinksDAO commandParserLinksDAO 		= new CommandParserLinksDAOexcelWorkbookImpl(commandparserlinksSheet);
         	CommandResponseParsersDAO commandResponseParsersDAO = new CommandResponseParsersDAOexcelWorkbookImpl(commandresponseparsersSheet);
 	        	
-			response = TargetServerCommandProcessor.serverResponse(parmServerProfileName, testModeNo, serverProfilesDAO,
+			response = ServerProfileRunner.commandsResponse(parmServerProfileName, testModeNo, serverProfilesDAO,
 													serverCommandLinksDAO, commandsDAO, commandParserLinksDAO, commandResponseParsersDAO);
 	 		workbook.close();
 
@@ -184,26 +185,19 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 			if ( response.getFailMsg().startsWith(AppConstantsServerMetricsWeb.SERVER_PROFILE_NOT_FOUND)){
 				throw new RuntimeException("Error : " + response.getFailMsg());
 			}
-	
 
 			for (ParsedCommandResponse parsedCommandResponse : response.getParsedCommandResponses()) {
 				
-				if (Mark59Utils.resovesToTrue(parsedCommandResponse.getTxnPassed())){
-					jm.userDatatypeEntry(
-							parsedCommandResponse.getCandidateTxnId(), 
-							(long)Math.round(Double.parseDouble(parsedCommandResponse.getParsedCommandResponse())),
-							JMeterFileDatatypes.valueOf(parsedCommandResponse.getMetricTxnType()));
-				} else {
-					String metricFailsMsg = "Warning : Server Metrics (via Excel)  has recorded a failed metric response for txn : "
-								+ parsedCommandResponse.getCandidateTxnId(); 
-					LOG.warn(metricFailsMsg);
-					System.out.println(metricFailsMsg);
-					if (LOG.isDebugEnabled()){
-						LOG.debug("command response : " + parsedCommandResponse.getCommandResponse());
-						LOG.debug("parsed response : "  + parsedCommandResponse.getParsedCommandResponse());
-					}
-				};
-				
+				for (ParsedMetric parsedMetric  : parsedCommandResponse.getParsedMetrics()) {
+					
+					if (parsedMetric.getSuccess()) {
+						jm.userDatatypeEntry(parsedMetric.getLabel(), parsedMetric.getResult().longValue(), JMeterFileDatatypes.valueOf(parsedMetric.getDataType()));
+					} else {
+						String metricFailsMsg = "Warning : Failed metric response (via Excel) for txn : " + parsedMetric.getLabel() + " (at: " + System.currentTimeMillis() + ")"  ; 
+						System.out.println(metricFailsMsg);
+						LOG.warn(metricFailsMsg +  "\n     command response : " + parsedCommandResponse.getCommandResponse() + "\n   api response msg  : " +  response.getFailMsg());
+					};
+				}
 			}
 			
 		} catch (Exception | AssertionError e) {
@@ -219,7 +213,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 			}
 			LOG.debug("        last response from server was  \n" + response );
 		} finally {
-			jm.tearDown();
+			jm.tearDown();	
 		}
 
 		return jm.getMainResult();
@@ -230,13 +224,20 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 	public static void main(String[] args) { 
 		Log4jConfigurationHelper.init(Level.INFO);
 		//copy of test case..		 
-		ServerMetricsCaptureViaExcel thistest = new ServerMetricsCaptureViaExcel();
+		ServerMetricsCaptureViaExcel ostest = new ServerMetricsCaptureViaExcel();
 		additionalTestParametersMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH,
 				"./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + ServerMetricsWebUtils.obtainOperatingSystemForLocalhost());	
-		JavaSamplerContext context = new JavaSamplerContext( thistest.getDefaultParameters()  );
-		thistest.setupTest(context);
-		thistest.runTest(context);
-	}
+		JavaSamplerContext context = new JavaSamplerContext( ostest.getDefaultParameters()  );
+		ostest.setupTest(context);
+		ostest.runTest(context);
 
+		ServerMetricsCaptureViaExcel groovyscripttest = new ServerMetricsCaptureViaExcel();
+		additionalTestParametersMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH,
+				"./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
+		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "SimpleScriptSampleRunner");	
+		JavaSamplerContext groovyscriptcontext = new JavaSamplerContext( groovyscripttest.getDefaultParameters()  );
+		groovyscripttest.setupTest(groovyscriptcontext);
+		groovyscripttest.runTest(groovyscriptcontext);
+	}
 }

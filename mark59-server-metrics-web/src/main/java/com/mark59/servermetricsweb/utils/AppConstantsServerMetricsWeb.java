@@ -17,7 +17,6 @@
 package com.mark59.servermetricsweb.utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,32 +25,38 @@ import java.util.List;
  */
 public class AppConstantsServerMetricsWeb {
 	
-	public static final String MARK59_SERVER_METRICS_VERSION = "3.0.1";	
+	public static final String MARK59_SERVER_METRICS_VERSION = "3.2.0";	
 	
 	public static final String MARK59_SERVER_PROFILES_EXCEL_FILE = "mark59serverprofiles.xlsx";  
 
 	public static final String SERVER_PROFILE_NOT_FOUND  = "SERVER_PROFILE_NOT_FOUND";	
 
-	public static final String UNKNOWN  	= "UNKNOWN";     
-	public static final String WINDOWS 		= "WINDOWS";  
-	public static final String LINUX    	= "LINUX"; 
-	public static final String UNIX			= "UNIX";  
-	public static final List<String>  OPERATING_SYSTEM_LIST =	Arrays.asList(WINDOWS, LINUX, UNIX);  
+//	public static final String UNKNOWN  	= "UNKNOWN";     
+//	public static final String WINDOWS 		= "WINDOWS";  
+//	public static final String LINUX    	= "LINUX"; 
+//	public static final String UNIX			= "UNIX";  
+//	public static final String SCRIPT		= "SCRIPT";  
+//	public static final List<String>  OPERATING_SYSTEM_LIST =	Arrays.asList(WINDOWS, LINUX, UNIX, SCRIPT);  
 	
 	public static final String SERVER_METRICS_WEB_BASE_DIR 	= "SERVER_METRICS_WEB_BASE_DIR"; 
 	
 	
-	public static enum CommandExecutorDatatypes {
+	public static enum OS {
+		WINDOWS("WINDOWS"), LINUX("LINUX"), UNIX("UNIX"), UNKNOWN("UNKNOWN");
 
-		WMIC_WINDOWS("WMIC_WINDOWS"), SSH_LINIX_UNIX("SSH_LINIX_UNIX");
+		private String osName;
+		OS(String osName) {	this.osName = osName;}
+		public String getOsName() {return osName;}
+	}
+	
+	
+	public static enum CommandExecutorDatatypes {
+		WMIC_WINDOWS("WMIC_WINDOWS"), SSH_LINIX_UNIX("SSH_LINIX_UNIX"), GROOVY_SCRIPT("GROOVY_SCRIPT");
 
 		private String executorText;
-		CommandExecutorDatatypes(String executorText) {
-			this.executorText = executorText;
-		}
-		public String getExecutorText() {
-			return executorText;
-		}
+		CommandExecutorDatatypes(String executorText) {this.executorText = executorText;}
+		public String getExecutorText() {return executorText;}
+		
 		public static List<String> listOfCommandExecutorDatatypes(){
 			List<String> listOfCommandExecutorDatatypes = new ArrayList<String>();
 			for (CommandExecutorDatatypes commandExecutorDatatypes : (CommandExecutorDatatypes.values())) {
@@ -59,7 +64,6 @@ public class AppConstantsServerMetricsWeb {
 			}
 			return listOfCommandExecutorDatatypes;
 		}
-		
 	}
 	
 	

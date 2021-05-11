@@ -68,7 +68,16 @@ public class SlaChecker {
 			
 			slaTransactionResult.setTxn90thResponse(transaction.getTxn90th());
 			slaTransactionResult.setSla90thResponse(transactionSla.getSla90thResponse());
-			slaTransactionResult.setPassed90thResponse(check90thResponse(transaction.getTxnId(), transaction.getTxn90th(), transactionSla.getSla90thResponse())); 
+			slaTransactionResult.setPassed90thResponse(checkPercentileResponse(transaction.getTxnId(), transaction.getTxn90th(), transactionSla.getSla90thResponse())); 
+			
+			slaTransactionResult.setTxn95thResponse(transaction.getTxn95th());
+			slaTransactionResult.setSla95thResponse(transactionSla.getSla95thResponse());
+			slaTransactionResult.setPassed95thResponse(checkPercentileResponse(transaction.getTxnId(), transaction.getTxn95th(), transactionSla.getSla95thResponse())); 			
+			
+			slaTransactionResult.setTxn99thResponse(transaction.getTxn99th());
+			slaTransactionResult.setSla99thResponse(transactionSla.getSla99thResponse());
+			slaTransactionResult.setPassed99thResponse(checkPercentileResponse(transaction.getTxnId(), transaction.getTxn99th(), transactionSla.getSla99thResponse())); 			
+
 			
 			slaTransactionResult.setTxnFailurePercent(calculateTxnFailurePercent(transaction));
 			slaTransactionResult.setSlaFailurePercent(transactionSla.getSlaFailPercent());
@@ -85,12 +94,16 @@ public class SlaChecker {
 //    		System.out.println( "  SlaChecker: Warning  - no SLA exists for reported transaction " +  " " + transaction.getTxnId() );
 			slaTransactionResult.setFoundSLAforTxnId(false);
 			slaTransactionResult.setPassed90thResponse(true); 
+			slaTransactionResult.setPassed95thResponse(true); 
+			slaTransactionResult.setPassed99thResponse(true); 
 			slaTransactionResult.setPassedFailPercent(true); 
 			slaTransactionResult.setPassedPassCount(true); 
 		}
 		
 		slaTransactionResult.setPassedAllSlas(false);
-		if ( slaTransactionResult.isPassed90thResponse() && 
+		if ( slaTransactionResult.isPassed90thResponse() &&
+			 slaTransactionResult.isPassed95thResponse() && 
+			 slaTransactionResult.isPassed99thResponse() && 
 			 slaTransactionResult.isPassedFailPercent() && 
 			 slaTransactionResult.isPassedPassCount() ){
 			slaTransactionResult.setPassedAllSlas(true);
@@ -99,19 +112,20 @@ public class SlaChecker {
 	}	
 
 	
-	private Boolean check90thResponse(String txnId, BigDecimal txn90thResponse, BigDecimal sla90thResponse) {
+	private Boolean checkPercentileResponse(String txnId, BigDecimal txnPercentileResponse, BigDecimal slaForPercentileResponse) {
 		boolean passThisSla = true;
-		if ( sla90thResponse != null  ){
-			if ( sla90thResponse.doubleValue() > -0.001) {
-				if ( txn90thResponse.doubleValue() > sla90thResponse.doubleValue() ){
-// 		    		System.out.println( "    " + txnId + " has failed it's 90th Percentile Response Time SLA as recorded on the SLA database ! "  );
-//	 	    		System.out.println( "                      response was " + txn90thResponse + " secs, SLA of " + sla90thResponse);
+		if ( slaForPercentileResponse != null  ){
+			if ( slaForPercentileResponse.doubleValue() > -0.001) {
+				if ( txnPercentileResponse.doubleValue() > slaForPercentileResponse.doubleValue() ){
+// 		    		System.out.println( "    " + txnId + " has failed a  Percentile Response Time SLA as recorded on the SLA database ! "  );
+//	 	    		System.out.println( "                      response was " + txnPercentileResponse + " secs, SLA of " + slaForPercentileResponse);
 		    		passThisSla = false;
 				}
 			}	
 		}
 		return passThisSla;
 	}
+
 
 	
 	private double calculateTxnFailurePercent(Transaction transaction) {
@@ -145,7 +159,7 @@ public class SlaChecker {
 		double minTxnPassCount = 0;
 		double maxTxnPassCount = 0;		
 		
-		if ( slaPassCount > -1 ) {   	// note that 0 can be set as a Pass Count (implies that if this txn exists, an SAL failure will occure)   
+		if ( slaPassCount > -1 ) {   	// note that 0 can be set as a Pass Count (implies that if this txn exists, an SLA failure will occur)   
 			
 			// now check for the minimum and maximum allowed transaction counts
 			
@@ -163,12 +177,4 @@ public class SlaChecker {
 		return passThisSla;
 	}
 	
-
-	
-	
-	
-	
-	
-	
-
 }

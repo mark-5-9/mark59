@@ -16,7 +16,6 @@
 
 package com.mark59.servermetricsweb.forms;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.mark59.servermetricsweb.data.beans.ServerProfile;
@@ -30,7 +29,12 @@ public class ServerProfileEditingForm {
 
 	ServerProfile serverProfile;
 	List<CommandSelector> commandSelectors;
-
+	String selectedExecutorChanged;
+	List<String> commandNames;
+	String selectedScriptCommandName;
+	String selectedScriptCommandNameChanged;
+	List<CommandParameter> commandParameters;
+	
 	public ServerProfile getServerProfile() {
 		return serverProfile;
 	}
@@ -47,10 +51,55 @@ public class ServerProfileEditingForm {
 		this.commandSelectors = commandSelectors;
 	}
 
-	@Override
+	public String getSelectedExecutorChanged() {
+		return selectedExecutorChanged;
+	}
+
+	public void setSelectedExecutorChanged(String selectedExecutorChanged) {
+		this.selectedExecutorChanged = selectedExecutorChanged;
+	}
+
+	public List<String> getCommandNames() {
+		return commandNames;
+	}
+
+	public void setCommandNames(List<String> commandNames) {
+		this.commandNames = commandNames;
+	}
+
+	public String getSelectedScriptCommandName() {
+		return selectedScriptCommandName;
+	}
+
+	public void setSelectedScriptCommandName(String selectedScriptCommandName) {
+		this.selectedScriptCommandName = selectedScriptCommandName;
+	}
+
+	public String getSelectedScriptCommandNameChanged() {
+		return selectedScriptCommandNameChanged;
+	}
+
+	public void setSelectedScriptCommandNameChanged(String selectedScriptCommandNameChanged) {
+		this.selectedScriptCommandNameChanged = selectedScriptCommandNameChanged;
+	}
+
+	public List<CommandParameter> getCommandParameters() {
+		return commandParameters;
+	}
+
+	public void setCommandParameters(List<CommandParameter> commandParameters) {
+		this.commandParameters = commandParameters;
+	}
+
+	@Override 
     public String toString() {
         return   "[serverProfileName ="+ serverProfile.getServerProfileName() + 
-        		", commandSelectors = "+ Arrays.toString(commandSelectors.toArray()) + 
+        		", selectedExecutorChanged = "+ selectedExecutorChanged +         		
+        		", commandSelectors = "+ commandSelectors + 
+        		", commandNames = "+ commandNames + 
+        		", selectedScriptCommandName = "+ selectedScriptCommandName + 
+        		", selectedScriptCommandNameChanged = "+ selectedScriptCommandNameChanged + 
+        		", commandParameters = "+ commandParameters + 
         		"]";
 	}
 		

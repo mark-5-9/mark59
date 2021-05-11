@@ -76,7 +76,7 @@ public class MetricSlaController {
 	@RequestMapping("/registerMetricSla")
 	public String registerMetricSla(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr, @ModelAttribute MetricSla metricSla, Model model) { 
 		List<String> derivations = populateDerivationsDropdown();
-		List<String>metricTypes = Mark59Constants.DatabaseDatatypes.listOfMetricDatabaseDatatypes();
+		List<String>metricTypes = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();
 		List<String> isActiveYesNo = populateIsActiveYesNoDropdown();
 		
 		model.addAttribute("derivations",derivations);		
@@ -110,7 +110,7 @@ public class MetricSlaController {
 		model.addAttribute("metricSla", metricSla);
 		
 		List<String> derivations = populateDerivationsDropdown();
-		List<String>metricTypes = Mark59Constants.DatabaseDatatypes.listOfMetricDatabaseDatatypes();
+		List<String>metricTypes = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();
 		List<String> isActiveYesNo = populateIsActiveYesNoDropdown();
 		
 		Map<String, Object> map = new HashMap<String, Object>(); 
@@ -132,7 +132,7 @@ public class MetricSlaController {
 		model.addAttribute("metricSla", metricSla);
 		
 		List<String> derivations = populateDerivationsDropdown();
-		List<String>metricTypes = Mark59Constants.DatabaseDatatypes.listOfMetricDatabaseDatatypes();
+		List<String>metricTypes = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();
 		List<String> isActiveYesNo = populateIsActiveYesNoDropdown();
 		
 		Map<String, Object> map = new HashMap<String, Object>(); 

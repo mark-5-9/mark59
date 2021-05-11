@@ -37,19 +37,20 @@ public class TransactionExtractor implements ResultSetExtractor<Transaction> {
 	  transaction.setApplication(resultSet.getString(1));
 	  transaction.setRunTime(resultSet.getString(2));
 	  transaction.setTxnId(resultSet.getString(3));
-//	  transaction.setTxnName(resultSet.getString(4));
-	  transaction.setTxnType(resultSet.getString(5));
+	  transaction.setTxnType(resultSet.getString(4));
 	  transaction.setTxnMinimum(resultSet.getBigDecimal(5));
 	  transaction.setTxnAverage(resultSet.getBigDecimal(6));
 	  transaction.setTxnMaximum(resultSet.getBigDecimal(7));
 	  transaction.setTxnStdDeviation(resultSet.getBigDecimal(8));
 	  transaction.setTxn90th(resultSet.getBigDecimal(9));
-	  transaction.setTxnPass(resultSet.getLong(10));
-	  transaction.setTxnFail(resultSet.getLong(11));
-	  transaction.setTxnStop(resultSet.getLong(12));
-	  transaction.setTxnFirst(resultSet.getBigDecimal(13));
-	  transaction.setTxnLast(resultSet.getBigDecimal(14));
-	  transaction.setTxnSum(resultSet.getBigDecimal(15));
+	  transaction.setTxn95th(resultSet.getBigDecimal(10));
+	  transaction.setTxn99th(resultSet.getBigDecimal(11));
+	  transaction.setTxnPass(resultSet.getLong(12));
+	  transaction.setTxnFail(resultSet.getLong(13));
+	  transaction.setTxnStop(resultSet.getLong(14));
+	  transaction.setTxnFirst(resultSet.getBigDecimal(15));
+	  transaction.setTxnLast(resultSet.getBigDecimal(16));
+	  transaction.setTxnSum(resultSet.getBigDecimal(17));
 	  
 	  return transaction;
 	 }

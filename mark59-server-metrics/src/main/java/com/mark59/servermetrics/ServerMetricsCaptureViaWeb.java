@@ -34,9 +34,9 @@ import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.AbstractThreadGroup;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mark59.core.JmeterFunctionsImpl;
@@ -44,10 +44,11 @@ import com.mark59.core.interfaces.JmeterFunctions;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
-import com.mark59.servermetrics.utils.AppConstantsServerMetrics;
 import com.mark59.core.utils.Mark59Utils;
+import com.mark59.servermetrics.utils.AppConstantsServerMetrics;
 import com.mark59.servermetricsweb.controller.ServerMetricRestController;
 import com.mark59.servermetricsweb.pojos.ParsedCommandResponse;
+import com.mark59.servermetricsweb.pojos.ParsedMetric;
 import com.mark59.servermetricsweb.pojos.WebServerMetricsResponsePojo;
 import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb;
 import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
@@ -90,7 +91,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 		staticMap.put("______________________ notes: _________________________________", "");	
 		staticMap.put("__","- please replace the default url with your actual.");	
 		staticMap.put("_", "- server profile of 'localhost' only reports metrics of the mark59-server-metrics-web machine!");	
-		staticMap.put("-", "   use actual machine name or (better) '..viaExcel' 'localhost..' entry instead (see Mark59 User Guide)");	
+		staticMap.put("-", "   use actual machine name or (better) via Excel 'localhost..' entry instead (see Mark59 User Guide)");	
 		staticMap.put(".", "");		
 		staticMap.put("build information: ", "mark59-server-metrics version " + AppConstantsServerMetrics.MARK59_SERVER_METRICS_VERSION);			
 		
@@ -167,22 +168,19 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 			if ( response.getFailMsg().startsWith(AppConstantsServerMetricsWeb.SERVER_PROFILE_NOT_FOUND)){
 				throw new RuntimeException("Error : " + response.getFailMsg());
 			}
-	
 
 			for (ParsedCommandResponse parsedCommandResponse : response.getParsedCommandResponses()) {
 				
-				if (Mark59Utils.resovesToTrue(parsedCommandResponse.getTxnPassed())){
-					jm.userDatatypeEntry(
-							parsedCommandResponse.getCandidateTxnId(), 
-							(long)Math.round(Double.parseDouble(parsedCommandResponse.getParsedCommandResponse())),
-							JMeterFileDatatypes.valueOf(parsedCommandResponse.getMetricTxnType()));
-				} else {
-					String metricFailsMsg = "Warning : Server Metrics Web has recorded a failed metric response for txn : " + parsedCommandResponse.getCandidateTxnId() +
-							" (at: " + System.currentTimeMillis() + ")"  ; 
-					System.out.println(metricFailsMsg);
-					LOG.warn(metricFailsMsg +  "\n     command response : " + parsedCommandResponse.getCommandResponse() + "\n    parsed response : " + parsedCommandResponse.getParsedCommandResponse());
-				};
-				
+				for (ParsedMetric parsedMetric  : parsedCommandResponse.getParsedMetrics()) {
+					
+					if (parsedMetric.getSuccess()) {
+						jm.userDatatypeEntry(parsedMetric.getLabel(), parsedMetric.getResult().longValue(), JMeterFileDatatypes.valueOf(parsedMetric.getDataType()));
+					} else {
+						String metricFailsMsg = "Warning : Failed metric response for txn : " + parsedMetric.getLabel() + " (at: " + System.currentTimeMillis() + ")"  ; 
+						System.out.println(metricFailsMsg);
+						LOG.warn(metricFailsMsg +  "\n     command response : " + parsedCommandResponse.getCommandResponse() + "\n   api response msg  : " +  response.getFailMsg());
+					};
+				}
 			}
 			
 		} catch (Exception | AssertionError e) {
@@ -209,14 +207,23 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 	
 	
 	public static void main(String[] args) {
-		// expects server metrics web to be running on url and have profile(s) localhost_WINDOWS / localhost_LINUX
+		// expects server metrics web to be running on url and have profile(s) localhost_WINDOWS / localhost_LINUX ( or properly set SCRIPT profile)
 		Log4jConfigurationHelper.init(Level.INFO);
-		ServerMetricsCaptureViaWeb thistest = new ServerMetricsCaptureViaWeb();
+		ServerMetricsCaptureViaWeb ostest = new ServerMetricsCaptureViaWeb();
 		additionalTestParametersMap.put(MARK59_SERVER_METRICS_WEB_URL, "http://localhost:8085/mark59-server-metrics-web");	
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + ServerMetricsWebUtils.obtainOperatingSystemForLocalhost());			
-		JavaSamplerContext context = new JavaSamplerContext( thistest.getDefaultParameters()  );
-		thistest.setupTest(context);
-		thistest.runTest(context);
+		JavaSamplerContext context = new JavaSamplerContext( ostest.getDefaultParameters()  );
+		ostest.setupTest(context);
+		ostest.runTest(context);
+		
+		ServerMetricsCaptureViaWeb groovyscripttest = new ServerMetricsCaptureViaWeb();
+		additionalTestParametersMap.put(MARK59_SERVER_METRICS_WEB_URL, "http://localhost:8085/mark59-server-metrics-web");	
+//		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "NewRelicTestProfile");			
+		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "SimpleScriptSampleRunner");			
+		JavaSamplerContext groovyscriptcontext = new JavaSamplerContext( groovyscripttest.getDefaultParameters()  );
+		groovyscripttest.setupTest(groovyscriptcontext);
+		groovyscripttest.runTest(groovyscriptcontext);	
 	}
+		
 
 }

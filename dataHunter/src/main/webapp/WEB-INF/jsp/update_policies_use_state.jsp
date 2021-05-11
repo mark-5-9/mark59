@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Update Policy Use State</title>
+<title>Update Items Use State</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -37,10 +37,10 @@
   
  <br><br><br>
  
- <b>Update Policy Use State and EpochTime Selection Criteria</b> 
+ <b>Update Items Use State and EpochTime Selection Criteria</b> 
 
  <br><br><br> 
- Change the Use State for the a policy identifier, or for Multiple policies in an Application (if an identifier not entered).
+ Change the Use State for an item, or for multiple items in an Application (when an identifier is not entered).
  <br>
  Epoch time can optionally be updated  
  <br> <br> <br> <br>

@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Print Selected Policies</title>
+<title>Print Selected Policies Action</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -34,7 +34,7 @@
 </head>
 <body>
   <br><br>
-  <b>Printing Policies With  :</b>  &nbsp; &nbsp; &nbsp; Application = ${policySelectionCriteria.application}, Lifecycle = ${policySelectionCriteria.lifecycle}, Useability = ${policySelectionCriteria.useability}
+  <b>Printing Items With  :</b>  &nbsp; &nbsp; &nbsp; Application = ${policySelectionCriteria.application}, Lifecycle = ${policySelectionCriteria.lifecycle}, Useability = ${policySelectionCriteria.useability}
   &nbsp; &nbsp;( ${model.rowsAffected} rows )
   <br><br>
 

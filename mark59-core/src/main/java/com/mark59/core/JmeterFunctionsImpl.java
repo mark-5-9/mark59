@@ -30,14 +30,16 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import com.mark59.core.interfaces.JmeterFunctions;
+import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 
 
 
 /**
- * Implements the JmeterFunctions interface, with methods that can be called throughout the lifecycle of the test in order to handle behavior around transaction recording and timing.
+ * Implements the JmeterFunctions interface, with methods that can be called throughout the life cycle of the test in order to handle 
+ * behavior around transaction recording and timing.
  * 
- * <p>For example, typical usage from a scripting perspective is to time an event(s).  For example:
+ * <p>Typical usage from a scripting perspective is to time a transaction.  For example:
  * <pre><code>
  * jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
  * deleteMultiplePoliciesPage.submit().submit();
@@ -46,8 +48,8 @@ import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
  * 
  * <p>where '<code>jm</code>' is this class, or an extension of this class (eg SeleniumAbstractJavaSamplerClient)
  * 
- * <p>The class works by holding transaction results in a map ('tansactionMap') of SampleResult (subResults of a 'main' SampleResult).  At the end of the 
- * script ({@link #tearDown()} the tansactionMap is processed and the results output.  
+ * <p>The class works by creating JMeter 'sub-results', one per recored transaction, which are attached to a main SampleResult.  
+ * At the end of the script the sub-results ({@link #tearDown()} are printed (at LOG info level).  
  * 
  * 
  * @author Philip Webb    
@@ -74,24 +76,19 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	/**
 	 * Called upon completion of the test run.
 	 * 
-	 * <p>
-	 * Traverses the transactionMap, looking for any transactions that had been
-	 * started but not completed.<br>
-	 * If incomplete transactions are encountered then they are ended and flagged as
-	 * "failed".<br>
-	 * If a test execution contains one or more failed transactions, the entire script
-	 * run is flagged as a failed test.
-	 * </p>
+	 * <p>Traverses the internal created transactionMap, looking for any transactions that had been
+	 * started but not completed. If incomplete transactions are encountered then they are ended and flagged as
+	 * "failed".</p>
+	 * 
+	 * <p>If a test execution contains one or more failed transactions, the entire script
+	 * run is flagged as a failed test.</p>
+	 * 
+	 * <p>Once any outstanding transactions are completed, the SampleResult object is
+	 * finalised (its status is set as PASS or FAIL).</p>
 	 * 
 	 * <p>
-	 * Once any outstanding transactions are completed, the SampleResult object is
-	 * finalised, ready for return.
-	 * </p>
-	 * 
-	 * <p>
-	 * this.tearDown() is called as part of the framework, so an end user ought not
-	 * need to call teardown themselves unless they're using a custom implementation
-	 * of AbstractJmeterTestRunner.runTest(JavaSamplerContext)
+	 * this.tearDown() is called as part of the framework, so an end user should not need to call this method
+	 * themselves unless they're using a custom implementation of AbstractJmeterTestRunner.runTest(JavaSamplerContext)
 	 * </p>
 	 */
 	@Override
@@ -142,77 +139,66 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	
 
 	/**
-	 * Adds a new SampleResult to transactionMap and starts the timer.
+	 * Starts timing a transaction.  Note cannot start a transaction using the same name as one already running 
+	 * in a script (controlled using an internally created transactionMap holding a key of running transaction names)
+	 * and starts timing the transaction. 
 	 * 
-	 * @param transactionLabel label for the transaction
-	 * 
-	 * @throws IllegalArgumentException if the transactionLabel supplied is an illegal value (null or empty) or already in use.
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @throws IllegalArgumentException if the transaction name supplied is an illegal value (null or empty) or already in use.
 	 */
 	@Override
 	public void startTransaction(String transactionLabel) {
-		if (StringUtils.isBlank(transactionLabel))
+		if (StringUtils.isBlank(transactionLabel)) {
 			throw new IllegalArgumentException("transactionLabel cannot be null or empty");
-
-		if (transactionMap.containsKey(transactionLabel))
-			throw new IllegalArgumentException(
-					"could not add new SampleResult to transactionMap as it already contains a key matching the supplied value : "
-							+ transactionLabel);
-
+		}
+		if (transactionMap.containsKey(transactionLabel)) {
+			throw new IllegalArgumentException("Error -  a transaction using the passed transaction name appears to be currently"
+					+ " in use (running) in this script : " + transactionLabel);
+		}
 		SampleResult sampleResult = new SampleResult();
 		sampleResult.setSampleLabel(transactionLabel);
-
 		transactionMap.put(transactionLabel, sampleResult);
-
 		sampleResult.sampleStart();
 	}
 
 	
 	/**
-	 * Ends an existing SampleResult, stopping the timer.
+	 * Ends an existing transaction (SampleResult), stopping the running timer.
 	 * 
-	 * <p>
-	 * Elapsed time is recorded in milliseconds.<br>
-	 * Once a transaction is ended it is added to the main SampleResult object that
-	 * will ultimately be returned upon test completion.<br>
-	 * Upon adding the ended transaction to the main SampleResult object, it is
-	 * removed from the transactionMap, freeing the label to be re-used if desired.
-	 * </p>
+	 * <p>When the transaction is added to the main result (with a status of a 'passed')</p>
+	 * <p>Elapsed time is recorded in milliseconds, the standard for JMeter</p>
+	 * <p>Once a transaction is ended it is added to the main SampleResult object that will ultimately be returned upon script completion.<br>
+	 * <p>Once the transaction is ended, an internal key entry for the transaction ('label' in JMeter terminology) is cleared, freeing the
+	 *  transaction name to be re-used if desired.</p>
 	 * 
 	 * @param transactionLabel label for the transaction
-	 * 
-	 * @throws IllegalArgumentException if the transactionLabel supplied is an
-	 *                                  illegal value (null or empty)
-	 * @throws NoSuchElementException   if the transactionLabel doesn't exist in the
-	 *                                  transactionMap
+	 * @throws IllegalArgumentException if the transactionLabel supplied is an illegal value (null or empty)
+	 * @throws NoSuchElementException   if the transactionLabel doesn't exist in the  transactionMap
+	 * @return the JMeter subresult for this transaction - which includes the transaction time (getTime)	 * 
 	 */
 	@Override
-	public void endTransaction(String transactionLabel) {
-		endTransaction(transactionLabel, Outcome.PASS);
+	public SampleResult endTransaction(String transactionLabel) {
+		return endTransaction(transactionLabel, Outcome.PASS);
 	}
 	
 	
 	/**
-	 * Ends an existing SampleResult, stopping the timer.
+	 * Ends an existing transaction (SampleResult), stopping the running timer.
 	 * 
 	 * <p>When the transaction is added to the main result, it will be given a success state based on the Outcome passed in</p>
-	 * 
-	 * <p>
-	 * Elapsed time is recorded in milliseconds.<br>
-	 * Once a transaction is ended it is added to the main SampleResult object that
-	 * will ultimately be returned upon test completion.<br>
-	 * Upon adding the ended transaction to the main SampleResult object, it is
-	 * removed from the transactionMap, freeing the label to be re-used if desired.
-	 * </p>
+	 * <p>Elapsed time is recorded in milliseconds, the standard for JMeter</p>
+	 * <p>Once a transaction is ended it is added to the main SampleResult object that will ultimately be returned upon test completion.<br>
+	 * <p>Once the transaction is ended, an internal key entry for the transaction ('label' in JMeter terminology) is cleared, freeing the
+	 *  transaction name to be re-used if desired.</p>
 	 * 
 	 * @param transactionLabel label for the transaction
 	 * @param result the success or failure state of the transaction
 	 * 
-	 * @throws IllegalArgumentException if the transactionLabel supplied is an
-	 *                                  illegal value (null or empty)
-	 * @throws NoSuchElementException   if the transactionLabel doesn't exist in the
-	 *                                  transactionMap
+	 * @throws IllegalArgumentException if the transactionLabel supplied is an illegal value (null or empty)
+	 * @throws NoSuchElementException   if the transactionLabel doesn't exist in the  transactionMap
+	 * @return the JMeter subresult for this transaction - which includes the transaction time (getTime)
 	 */
-	public void endTransaction(String transactionLabel, Outcome result) {
+	public SampleResult endTransaction(String transactionLabel, Outcome result) {
 		if (StringUtils.isBlank(transactionLabel))
 			throw new IllegalArgumentException("transactionLabel cannot be null or empty");
 
@@ -230,13 +216,16 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		mainResult.addSubResult(subResult, false);   // prevents strange indexed named transactions (from Jmeter 5.0)		
 
 		transactionMap.remove(transactionLabel);
+		return subResult;
 	}
 	
 	/**
-	 * Adds a new SubResult to the main result, bypassing the transactionMap used by the timing methods: this.startTransaction(String); this.endTransaction(String).
+	 * Adds a new SubResult to the main result, bypassing the transactionMap used by the timing methods: 
+	 * this.startTransaction(String); this.endTransaction(String).
 	 * 
 	 * <p>The new SubResult must be given both a transactionLabel and a transactionTime<br>
-	 * transactionTime is expected to be in milliseconds, as per the timing methods, but not enforced, so you can do with it as you will within the constraints of a single long</p>
+	 * transactionTime is expected to be in milliseconds, as per the timing methods, but not enforced,
+	 *  so you can do with it as you will within the constraints of a single long</p>
 	 * 
 	 * @param transactionLabel label for the transaction
 	 * @param transactionTime time taken for the transaction. Expects Milliseconds, but doesn't enforce.
@@ -249,12 +238,14 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	}
 	
 	/**
-	 * Adds a new SubResult to the main result, bypassing the transactionMap used by the timing methods: this.startTransaction(String); this.endTransaction(String).
+	 * Adds a new SubResult to the main result, bypassing the transactionMap used by the timing methods: 
+	 * this.startTransaction(String); this.endTransaction(String).
 	 * 
 	 * <p>When the transaction is added to the main result, it will be given a success state based on the Outcome passed in</p>
 	 * 
 	 * <p>The new SubResult must be given both a transactionLabel and a transactionTime<br>
-	 * transactionTime is expected to be in milliseconds, as per the timing methods, but not enforced, so you can do with it as you will within the constraints of a single long</p>
+	 * transactionTime is expected to be in milliseconds, as per the timing methods, but not enforced,
+	 *  so you can do with it as you will within the constraints of a single long</p>
 	 * 
 	 * @param transactionLabel label for the transaction
 	 * @param transactionTime time taken for the transaction. Expects Milliseconds, but doesn't enforce.
@@ -269,6 +260,16 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 
 
 	
+	/**
+	 * Similar to this.{@link #userDataPoint(String, long)}, but instead of just being able to create a JMeter sub-result of
+	 * data type DATAPOINT, you can specify the type from the list of allowed types used by Mark59 as defined by
+	 * {@link Mark59Constants.JMeterFileDatatypes} 
+	 *  
+	 * <p>For example 
+	 * <pre><code>
+	 * jm.userDatatypeEntry("MyServersCPUUtilizationPercent", 40L, Mark59Constants.JMeterFileDatatypes.CPU_UTIL );	
+	 * </code></pre>
+	 */ 
 	@Override
 	public void userDatatypeEntry(String dataPointName, long dataPointValue,  JMeterFileDatatypes outputDatatype) {
 		if (LOG.isDebugEnabled()) LOG.debug(" userDatatypeEntry Name:Value [ " + dataPointName + ":" + dataPointValue + ":" +  outputDatatype.getDatatypeText() + "]");
@@ -277,13 +278,11 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	
 	
 	/**
-	 * Adds a new SubResult to the main result reflecting a non-timing related metric.
+	 * Adds a new SubResult to the main result reflecting a non-timing related metric - a 'DATAPOINT'.
+	 * <p>A DATAPOINT must be given both a dataPointName and a dataPointValue, the value being
+	 *  any arbitrary long value.</p>
 	 * 
-	 * <p>The new SubResult must be given both a dataPointName and a dataPointValue.</p>
-	 * 
-	 * <p>dataPoint value is a non-timing value, used to record any arbitrary long value.</p>
-	 * 
-	 * @param dataPointName label for the datapoint
+	 * @param dataPointName label for the DATAPOINT
 	 * @param dataPointValue an arbitrary non-timing metric
 	 * 
 	 * @throws IllegalArgumentException if the dataPointName is null or empty
@@ -310,20 +309,23 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		
 	}			
 	
+	/**
+	 *  Return results from running the test.  Specifically for the Mark59 implementation,
+	 *  it can be used to access the transaction results in a running script by 
+	 *  getting the subResults list.
+	 */
 	@Override
 	public SampleResult getMainResult() {
 		return mainResult;
 	}
 	
 	/**
-	 * Fetches the SampleResult from the transactionMap that matches the supplied
-	 * label.
+	 * Fetches the SampleResult from the transactionMap that matches the supplied label.
+	 * The transactionMap is primarily intended as an internal key tracking mechanism to prevent multiple 
+	 * transactions with the same name being started and running concurrently within the one script  
 	 * 
-	 * <p>
-	 * If it fails to find a SampleResult it either means no such label had been
-	 * added to the transactionMap, or the SampleResult has already been finalised
-	 * and added to the main result.
-	 * </p>
+	 * <p>If it fails to find a SampleResult it either means no such label had been added to the transactionMap, 
+	 * or the SampleResult has already been finalized and added to the main result.</p>
 	 * 
 	 * @param label the transaction label for the SampleResult to locate.
 	 * @return SampleResult belonging to the supplied label.
@@ -348,20 +350,27 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 
 	
 	private void logThreadTransactionResults() {
-		SampleResult[] sampleResut = mainResult.getSubResults();
-		LOG.info(Thread.currentThread().getName() + " sub resuts list : " + sampleResut.length);
-		LOG.info(String.format("%-40s%-10s%-60s%-20s%-20s%n", "Thread", "#", "txn name", "Resp Message", "resp time"));
+		SampleResult[] sampleResult = mainResult.getSubResults();
+		LOG.info("");
+		LOG.info(Thread.currentThread().getName() + " result  (" + mainResult.getResponseMessage() + ")"   ) ; 
+		LOG.info(String.format("%-40s%-10s%-60s%-20s%-20s", "Thread", "#", "txn name", "Resp Message", "resp time"));
 
-		for (int i = 0; i < sampleResut.length; i++) {
-			SampleResult subSR = sampleResut[i];
-			LOG.info(String.format("%-40s%-10s%-60s%-20s%-20s%n", threadName, i, subSR.getSampleLabel(),
-					subSR.getResponseMessage(), subSR.getTime()));
+		for (int i = 0; i < sampleResult.length; i++) {
+			SampleResult subSR = sampleResult[i];
+			
+			if (StringUtils.isBlank(subSR.getDataType())) {
+				LOG.info(String.format("%-40s%-10s%-60s%-20s%-20s", threadName, i, subSR.getSampleLabel(),
+						subSR.getResponseMessage(), subSR.getTime()));				
+			} else {
+				LOG.info(String.format("%-40s%-10s%-60s%-20s%-20s", threadName, i, subSR.getSampleLabel(),
+						subSR.getResponseMessage() + " (" + subSR.getDataType() + ")" , subSR.getTime()));
+			}
 		}
+		LOG.info("");
 	}
 
 	/**
 	 * Called to set the main result of a test to a failed state, regardless of the state of the sub results attached to the main result.
-	 * 
 	 * <p>Normally, a main result would only fail if at least one of it's sub results was a fail.</p>
 	 */
 	@Override

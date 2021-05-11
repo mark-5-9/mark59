@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Delete a Policy</title>
+<title>Delete an Item Action</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -37,7 +37,7 @@
   
  <br><br><br>
  
- <b>Delete Policy</b> 
+ <b>Delete Item</b> 
  <br><br>
   
  <table >

@@ -17,6 +17,7 @@
 package com.mark59.servermetricsweb.data.servercommandlinks.dao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -123,13 +124,16 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 	
 	
 	@Override
-	public void updateServerCommandLinksForServerProfileName(String serverProfileName, List<String> commandNames) {  //getServerProfileName(), commandNames
+	public void updateServerCommandLinksForServerProfileName(String serverProfileName, List<String> commandNames) {  
 		deleteServerCommandLinksForServerProfile(serverProfileName);
-		for (String commandName : commandNames) {
-			ServerCommandLink serverCommandLink = new ServerCommandLink();
-			serverCommandLink.setServerProfileName(serverProfileName);
-			serverCommandLink.setCommandName(commandName);
-			insertServerCommandLink(serverCommandLink);
+		if (commandNames != null) {
+			commandNames.removeAll(Arrays.asList("", null));  // don't update with blanks (like the empty selector option) 
+			for (String commandName : commandNames) {
+				ServerCommandLink serverCommandLink = new ServerCommandLink();
+				serverCommandLink.setServerProfileName(serverProfileName);
+				serverCommandLink.setCommandName(commandName);
+				insertServerCommandLink(serverCommandLink);
+			}
 		}
 	}	
 

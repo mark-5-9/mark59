@@ -31,8 +31,7 @@ import com.mark59.metrics.data.transaction.dao.TransactionDAO;
 
 /**
  * Originally written as a servlet using Goggle Graphics.  The underlying graphic software being used has since been changed to Vis.
- * 
- * See comments on the @createCsvData method for the details.
+ * See comments on the {@link #createDataPoints} method for details.
  * 
  * @author Philip Webb
  * Written: Australian Winter 2019  

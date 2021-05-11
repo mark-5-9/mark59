@@ -32,17 +32,14 @@ public class _GenericPage {
 	public _GenericPage(WebDriver driver) {
 		this.driver = driver;
 	}
-
 	
 	public String getPageSource(){
 		return driver.getPageSource();
 	}
-	
 
 	public String getVisibleTextOnPage(){
 		return driver.findElement(By.tagName("body")).getText();  
 	}
-	
 	
 	public boolean doesPageContainText(String text){
 		String pageText = driver.findElement(By.tagName("body")).getText();
@@ -54,5 +51,8 @@ public class _GenericPage {
 		return pageSource.contains(string);
 	}	
 	
+	public String getPageTitle(){
+		return driver.getTitle() ;  
+	}
 	
 }

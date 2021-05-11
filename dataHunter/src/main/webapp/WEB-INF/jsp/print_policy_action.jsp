@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Display Policy</title>
+<title>Display Item Action</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -37,7 +37,7 @@
   
  <br><br><br>
  
- <b>Policy</b> 
+ <b>Item</b> 
  <br><br>
   
  <table >

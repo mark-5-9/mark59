@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mark59.servermetrics.newrelic;
+package com.mark59.servermetrics.v3legacy;
 
 /**
  * @author Philip Webb

@@ -1,61 +1,36 @@
 package com.mark59.servermetricsweb.pojos;
 
+import java.util.List;
+
 public class ParsedCommandResponse {
 	
-	String commandName;
-	String scriptName;
-	String metricTxnType;
-	String metricNameSuffix;
-	String candidateTxnId;
-	String commandResponse;
-	String parsedCommandResponse;
-	String txnPassed;
+	private String commandName;
+	private String scriptName;
+	private String commandResponse;
+//	private String defaultDataType;
+//	private String defaultLabelSuffix;
+	private List<ParsedMetric> parsedMetrics;
 
-	
+
 	public ParsedCommandResponse() {
 	}
-
 	
 	public String getCommandName() {
 		return commandName;
 	}
-
+	
 	public void setCommandName(String commandName) {
 		this.commandName = commandName;
 	}
-
+	
 	public String getScriptName() {
 		return scriptName;
 	}
-
+	
 	public void setScriptName(String scriptName) {
 		this.scriptName = scriptName;
 	}
-
-	public String getMetricTxnType() {
-		return metricTxnType;
-	}
-
-	public void setMetricTxnType(String metricTxnType) {
-		this.metricTxnType = metricTxnType;
-	}
-
-	public String getMetricNameSuffix() {
-		return metricNameSuffix;
-	}
-
-	public void setMetricNameSuffix(String metricNameSuffix) {
-		this.metricNameSuffix = metricNameSuffix;
-	}
 	
-	public String getCandidateTxnId() {
-		return candidateTxnId;
-	}
-
-	public void setCandidateTxnId(String candidateTxnId) {
-		this.candidateTxnId = candidateTxnId;
-	}
-
 	public String getCommandResponse() {
 		return commandResponse;
 	}
@@ -64,35 +39,39 @@ public class ParsedCommandResponse {
 		this.commandResponse = commandResponse;
 	}
 
-	public String getParsedCommandResponse() {
-		return parsedCommandResponse;
+//	public String getDefaultDataType() {
+//		return defaultDataType;
+//	}
+//
+//	public void setDefaultDataType(String defaultDataType) {
+//		this.defaultDataType = defaultDataType;
+//	}
+
+//	public String getDefaultLabelSuffix() {
+//		return defaultLabelSuffix;
+//	}
+//
+//	public void setDefaultLabelSuffix(String defaultLabelSuffix) {
+//		this.defaultLabelSuffix = defaultLabelSuffix;
+//	}
+
+	public List<ParsedMetric> getParsedMetrics() {
+		return parsedMetrics;
 	}
 
-	public void setParsedCommandResponse(String parsedCommandResponse) {
-		this.parsedCommandResponse = parsedCommandResponse;
+	public void setParsedMetrics(List<ParsedMetric> parsedMetrics) {
+		this.parsedMetrics = parsedMetrics;
 	}
-
-	public String getTxnPassed() {
-		return txnPassed;
-	}
-
-	public void setTxnPassed(String txnPassed) {
-		this.txnPassed = txnPassed;
-	}
-
 
 	@Override
     public String toString() {
         return   "[commandName" + commandName
          	   + ", scriptName="+ scriptName   
-         	   + ", metricTxnType="+ metricTxnType   
-         	   + ", metricNameSuffix="+ metricNameSuffix   
-         	   + ", candidateTxnId="+ candidateTxnId   
+//         	   + ", defaultDataType="+ defaultDataType   
+//         	   + ", defaultLabelSuffix="+ defaultLabelSuffix   
          	   + ", commandResponse="+ commandResponse   
-         	   + ", parsedCommandResponse="+ parsedCommandResponse   
-         	   + ", txnPassed="+ txnPassed   
+         	   + ", parsedMetrics="+ parsedMetrics  
         	   + "]";
 	}
-
 
 }

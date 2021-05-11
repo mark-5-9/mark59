@@ -56,6 +56,7 @@ public class CommandsDAOexcelWorkbookImpl implements CommandsDAO
             	command.setCommand		(ServerMetricsWebUtils.cellValue(commandRow.getCell(2)));
             	command.setIngoreStderr	(ServerMetricsWebUtils.cellValue(commandRow.getCell(3)));
             	command.setComment		(ServerMetricsWebUtils.cellValue(commandRow.getCell(4)));
+            	command.setParamNames(deserializeJsonToList(ServerMetricsWebUtils.cellValue(commandRow.getCell(5))));
             }
         }   
 		return  command;

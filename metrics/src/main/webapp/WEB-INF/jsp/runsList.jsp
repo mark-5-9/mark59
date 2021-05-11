@@ -61,6 +61,7 @@
     <th></th>   
     <th>Application<br><form:select id='application' path="map" items="${map.applications}" onchange="resendRunsListURL()" /></th>
     <th>Run Start </th>
+    <th>Run Ignored<br>on Graphs</th>   
     <th>Reference</th>
     <th>Run Period</th> 
     <th>Duration (min)</th>    
@@ -73,6 +74,7 @@
      <td><a href="deleteRun?reqApp=${runs.application}&runTime=${runs.runTime}" onclick="return confirm('Are you sure (runtime=${runs.runTime})?');" title="Delete"><img src="images/delete.png"/></a></td>  
      <td>${runs.application}</td>
      <td>${runs.runTime}</td>
+     <td>${runs.isRunIgnored }</td> 
      <td>${runs.runReference}</td>     
      <td class="tdnowrap">${runs.period}</td>
      <td>${runs.duration}</td>     
@@ -83,7 +85,5 @@
   </table>
 
 </div>
-
-
 </body>
 </html>

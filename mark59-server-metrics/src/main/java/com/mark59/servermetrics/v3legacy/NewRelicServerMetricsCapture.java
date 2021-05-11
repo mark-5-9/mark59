@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mark59.servermetrics;
+package com.mark59.servermetrics.v3legacy;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,13 +36,12 @@ import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 import com.mark59.core.utils.Mark59Utils;
-import com.mark59.servermetrics.newrelic.NewRelicServerMetricsDriver;
-import com.mark59.servermetrics.newrelic.NewRelicServerMetricsDriverConfig;
 
 /**
  * @author Philip Webb
  * Written: Australian Winter 2019  
  */
+@Deprecated
 public class NewRelicServerMetricsCapture extends AbstractJavaSamplerClient { 
 
 	private static final Logger LOG = Logger.getLogger(NewRelicServerMetricsCapture.class);
@@ -63,17 +62,23 @@ public class NewRelicServerMetricsCapture extends AbstractJavaSamplerClient {
 	private static final Map<String,String> defaultArgumentsMap; 	
 	static {
 		Map<String,String> staticMap = new LinkedHashMap<String,String>();
+		staticMap.put("__________________________________________________", "");	
+		staticMap.put("_  THIS JAVA REQUEST IS LEGACY  - DO NOT USE            __", "");	
+		staticMap.put("_________________________________________________", "");			
 		staticMap.put("______________________ general settings: ________________________", "");	
 		staticMap.put(MONITOR_CPU,				Mark59Constants.TRUE);
 		staticMap.put(MONITOR_MEMORY, 			Mark59Constants.TRUE);
-		staticMap.put("______________________ new relic configuration settings : ________", "");		
+		staticMap.put("______________________ new relic configuration settings : ________",
+	 											"THIS IS LEGACY AND WILL BE REMOVED IN FUTURE RELEASE.");
 		staticMap.put(NEW_RELIC_API_URL,		"https://api.newrelic.com/v2/applications/" );
 		staticMap.put(NEW_RELIC_API_APP_ID, 	"");
 		staticMap.put(NEW_RELIC_XAPIKEY,		"");
 		staticMap.put(PROXY_SERVER, 			"");
 		staticMap.put(PROXY_PORT, 				"");	
 		staticMap.put("______________________ miscellaneous: ____________________________", "");				
-		staticMap.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");			
+		staticMap.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");
+		staticMap.put("______________"       , "");			
+		staticMap.put("build information: ", "mark59-server-metrics V2.X LEGACY - USE SUPPLIED ALTERNATIVE ");			
 		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}
 	
@@ -158,13 +163,13 @@ public class NewRelicServerMetricsCapture extends AbstractJavaSamplerClient {
 		additionalTestParametersMap.put(MONITOR_CPU,    		Mark59Constants.TRUE);
 		additionalTestParametersMap.put(MONITOR_MEMORY, 		Mark59Constants.TRUE);	
 		additionalTestParametersMap.put("______________________ new relic configuration settings _______________________", "");		
-//----		
-//		additionalTestParametersMap.put(NEW_RELIC_API_APP_ID, 	"newrelicappid");
-//		additionalTestParametersMap.put(NEW_RELIC_XAPIKEY, 		"newrelicxapikey");
-//		additionalTestParametersMap.put(PROXY_SERVER, 			"proxyurl");	
-//		additionalTestParametersMap.put(PROXY_PORT, 			"proxyport");		
+
+	//---- fill in values ...		
+		additionalTestParametersMap.put(NEW_RELIC_API_APP_ID, 	"newrelicappid");
+		additionalTestParametersMap.put(NEW_RELIC_XAPIKEY, 		"newrelicxapikey");
+		additionalTestParametersMap.put(PROXY_SERVER, 			"proxyurl");	
+		additionalTestParametersMap.put(PROXY_PORT, 			"proxyport");		
 	
-		
 		NewRelicServerMetricsCapture thistest = new NewRelicServerMetricsCapture();
 		JavaSamplerContext context = new JavaSamplerContext( thistest.getDefaultParameters()  );
 		thistest.setupTest(context);

@@ -52,11 +52,11 @@
       
      <tr>
       <td>Sla Minimum Value:</td>
-      <td><form:input path="slaMin" value="${map.metricSla.slaMin}" /></td>
+      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.metricSla.slaMin}" /></td>
      </tr>  
      <tr>
       <td>Sla Maximum Value:</td>
-      <td><form:input path="slaMax" value="${map.metricSla.slaMax}" /> </td>
+      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.metricSla.slaMax}" /> </td>
      </tr> 
      <tr>
       <td>Is Active :</td>

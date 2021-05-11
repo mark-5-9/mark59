@@ -48,15 +48,22 @@
       <td>RUN:  <br><br></td><td class=long> Application <b> ${run.application}</b> ,  Run Time <b> ${run.runTime} </b><br><br> </td>
      </tr>
      <tr>
+      <td>Ignore Run<br> on Graphs?&nbsp;&nbsp;&nbsp;</td>
+      <td><form:select path="isRunIgnored" items="${map.isRunIgnoredYesNo}" /></td>
+     </tr> 
+     <tr><td><br></td><td></td></tr>    
+     <tr>
+      <td>Baseline?</td>
+      <td><form:select path="baselineRun" items="${map.baselineRunYesNo}"  />
+      </td>
+     </tr> 
+	 <tr><td><br></td><td></td></tr>
+     <tr>
       <td>Reference: </td>
       <td><form:input path="runReference" size="100" maxlength="126"   />
       </td>
-     </tr>        
-     <tr>
-      <td>Baseline? </td>
-      <td><form:select path="baselineRun" items="${map.baselineRunYesNo}"  />
-      </td>
-     </tr>     
+     </tr>
+  	 <tr><td><br></td><td></td></tr>
      <tr>
       <td>Comment:</td>
       <td><form:input  path="comment" size="100"  maxlength="126"   /> 

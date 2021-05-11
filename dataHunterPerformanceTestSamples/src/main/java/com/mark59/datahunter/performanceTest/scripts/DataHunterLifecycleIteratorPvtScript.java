@@ -90,13 +90,15 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST");
 		jmeterAdditionalParameters.put("FORCE_TXN_FAIL_PERCENT", 	"20");
 		jmeterAdditionalParameters.put("USER", 	user);
-		jmeterAdditionalParameters.put("DRIVER", "CHROME");
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, "CHROME");
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.HEADLESS_MODE, String.valueOf(false));
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_DIMENSIONS, "900,900");		
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PAGE_LOAD_STRATEGY, PageLoadStrategy.NORMAL.toString());
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, "");
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, "");
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, 	String.valueOf(false));
 		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, "");			
 		return jmeterAdditionalParameters;			
 	}
 	
@@ -129,12 +131,12 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		jm.endTransaction("DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl");	
 		
 		DeleteMultiplePoliciesPage deleteMultiplePoliciesPage = new DeleteMultiplePoliciesPage(driver); 
-		assertTrue("check init get url failed!", deleteMultiplePoliciesPage.doesPageContainText("Delete Multiple Policies Matching Selection Criteria" ));		
+		assertTrue("check init get url failed!", "Delete Multiple Items".equals(deleteMultiplePoliciesPage.getPageTitle()));		
 		deleteMultiplePoliciesPage.lifecycle().type(lifecycle);
 
 		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
 		deleteMultiplePoliciesPage.submit().submit();
-		checkSqlOk(new DeleteMultiplePoliciesActionPage(driver));
+		waitActionPageCheckSqlOk(new DeleteMultiplePoliciesActionPage(driver));
 		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
 	}
 	
@@ -145,32 +147,25 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 	@Override
 	protected void iterateSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,  WebDriver driver) {
 
-//		add a set of policies 		
+//		add one policy 		
 		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + "?application=" + application);
+		SafeSleep.sleep(1000);
 		AddPolicyPage addPolicyPage = new AddPolicyPage(driver);
 		
-		for (int i = 1; i <= 5; i++) {
-			addPolicyPage.identifier().type("TESTID" + i);
-			addPolicyPage.lifecycle().type(lifecycle);
-			addPolicyPage.useability().selectByVisibleText(TestConstants.UNUSED) ;
-			addPolicyPage.otherdata().type(user);		
-			addPolicyPage.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
-			//jm.writeScreenshot("add_policy_" + policy.getIdentifier());
-			
-			jm.startTransaction("DH-lifecycle-0200-addPolicy");
-			addPolicyPage.submit().submit();	
-			AddPolicyActionPage addPolicyActionPage = new AddPolicyActionPage(driver);			
-			checkSqlOk(addPolicyActionPage);
-			jm.endTransaction("DH-lifecycle-0200-addPolicy");
-			
-			addPolicyActionPage.backLink().click().waitUntilClickable( addPolicyPage.submit() );  // waitUntilClickable(..) isn't necessary here, just to show usage
-		} 
+		addPolicyPage.identifier().type("TESTID_ITER");
+		addPolicyPage.lifecycle().type(lifecycle);
+		addPolicyPage.useability().selectByVisibleText(TestConstants.UNUSED) ;
+		addPolicyPage.otherdata().type(user);		
+		addPolicyPage.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
+		//jm.writeScreenshot("add_policy_" + policy.getIdentifier());
 		
-		if (Thread.currentThread().getName().equals("THREAD NAME I WANT TO SIMULATE A FAILURE ON")){  // e.g. "main" for single thread test
-			System.out.println("SIMULATING FAILURE ON THREAD " + Thread.currentThread().getName());
-			throw new RuntimeException(" -- simulate failure on " + Thread.currentThread().getName() +" -- ");
-		}
-	
+		jm.startTransaction("DH-lifecycle-0200-addPolicy");
+		addPolicyPage.submit().submit();	
+		AddPolicyActionPage addPolicyActionPage = new AddPolicyActionPage(driver);			
+		waitActionPageCheckSqlOk(addPolicyActionPage);
+		jm.endTransaction("DH-lifecycle-0200-addPolicy");
+		
+		
 //		dummy transaction just to test transaction failure behavior 		
 		jm.startTransaction("DH-lifecycle-0299-sometimes-I-fail");
 		int randomNum_1_to_100 = ThreadLocalRandom.current().nextInt(1, 101);
@@ -187,7 +182,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		jm.startTransaction("DH-lifecycle-0300-countUnusedPolicies");
 		countPoliciesPage.submit().submit();
 		CountPoliciesActionPage countPoliciesActionPage = new CountPoliciesActionPage(driver);	
-		checkSqlOk(countPoliciesActionPage);
+		waitActionPageCheckSqlOk(countPoliciesActionPage);
 		jm.endTransaction("DH-lifecycle-0300-countUnusedPolicies");
 		
 		Long countPolicies = Long.valueOf( countPoliciesActionPage.rowsAffected().getText());
@@ -203,7 +198,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		jm.startTransaction("DH-lifecycle-0400-countUnusedPoliciesCurrentThread");		
 		countPoliciesBreakdownPage.submit().submit();
 		CountPoliciesBreakdownActionPage countPoliciesBreakdownActionPage = new CountPoliciesBreakdownActionPage(driver);	
-		checkSqlOk(countPoliciesBreakdownActionPage);		
+		waitActionPageCheckSqlOk(countPoliciesBreakdownActionPage);		
 		jm.endTransaction("DH-lifecycle-0400-countUnusedPoliciesCurrentThread");				
 		
 		// direct access to required row-column table element by computing the id:
@@ -221,7 +216,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		jm.startTransaction("DH-lifecycle-0500-useNextPolicy");		
 		nextPolicyPage.submit().submit();
 		NextPolicyActionPage nextPolicyActionPage = new NextPolicyActionPage(driver);		
-		checkSqlOk(nextPolicyActionPage);			
+		waitActionPageCheckSqlOk(nextPolicyActionPage);			
 		jm.endTransaction("DH-lifecycle-0500-useNextPolicy");	
 		
 		if (LOG.isDebugEnabled() ) {LOG.debug("useNextPolicy: " + application + "-" + lifecycle + " : " + nextPolicyActionPage.identifier() );	}
@@ -234,7 +229,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		deleteMultiplePoliciesPage.lifecycle().type(lifecycle);
 		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
 		deleteMultiplePoliciesPage.submit().submit();
-		checkSqlOk(new DeleteMultiplePoliciesActionPage(driver));
+		waitActionPageCheckSqlOk(new DeleteMultiplePoliciesActionPage(driver));
 		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
 		
 //		jm.writeBufferedArtifacts();
@@ -242,7 +237,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 
 	
 	/**
-	 *  Finalize here just does another data clean-up (typically could be an application logoff)
+	 *  Finalize here just does another data clean-up (typically this method could be used for application logoff)
 	 */
 	@Override
 	protected void finalizeSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,	WebDriver driver) {
@@ -251,7 +246,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		deleteMultiplePoliciesPage.lifecycle().type(lifecycle);
 		jm.startTransaction("DH-lifecycle-9999-finalize-deleteMultiplePolicies");		
 		deleteMultiplePoliciesPage.submit().submit();
-		checkSqlOk(new DeleteMultiplePoliciesActionPage(driver));
+		waitActionPageCheckSqlOk(new DeleteMultiplePoliciesActionPage(driver));
 		jm.endTransaction("DH-lifecycle-9999-finalize-deleteMultiplePolicies");	
 	}
 
@@ -271,7 +266,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 	}
 	
 
-	private void checkSqlOk(_GenericDatatHunterActionPage _genericDatatHunterActionPage) {
+	private void waitActionPageCheckSqlOk(_GenericDatatHunterActionPage _genericDatatHunterActionPage) {
 		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();
 		if ( !"PASS".equals(sqlResultText) ) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ") : " + _genericDatatHunterActionPage.formatResultsMessage(_genericDatatHunterActionPage.getClass().getName()));   

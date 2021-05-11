@@ -30,6 +30,7 @@ public class CommandEditingForm {
 
 	Command command;
 	List<ScriptSelector> scriptSelectors;
+	String paramNamesTextboxFormat;
 
 	
 	public CommandEditingForm() {
@@ -51,13 +52,23 @@ public class CommandEditingForm {
 		this.scriptSelectors = scriptSelectors;
 	}
 
+	public String getParamNamesTextboxFormat() {
+		return paramNamesTextboxFormat;
+	}
+
+	public void setParamNamesTextboxFormat(String paramNamesTextboxFormat) {
+		this.paramNamesTextboxFormat = paramNamesTextboxFormat;
+	}
+
 	@Override
     public String toString() {
         return   "[commandName="+ command.getCommand() + 
         		", executor="+ command.getExecutor() + 
         		", command="+ command.getCommand() + 
         		", comment="+ command.getComment() + 
+        		", command.parmNames="+ command.getParamNames() + 
         		", scriptSelectors = "+ Arrays.toString(scriptSelectors.toArray()) + 
+        		", paramNamesTextboxFormat = " + paramNamesTextboxFormat + 
         		"]";
 	}
 		

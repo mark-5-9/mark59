@@ -29,10 +29,13 @@ public class Sla {
 	String		txnIdURLencoded;
 	String		isTxnIgnored;	
 	BigDecimal	sla90thResponse;
-	long		slaPassCount;
+	BigDecimal	sla95thResponse;
+	BigDecimal	sla99thResponse;
+	Long		slaPassCount;
 	BigDecimal	slaPassCountVariancePercent;
-	long		slaFailCount;
+	Long		slaFailCount;
 	BigDecimal	slaFailPercent;
+	BigDecimal	xtraNum;	
 	String		slaRefUrl;
 	String 		comment;	
 	String		slaOriginalTxnId;
@@ -49,13 +52,16 @@ public class Sla {
 		this.txnIdURLencoded  = copy.txnIdURLencoded;
 		this.isTxnIgnored = copy.isTxnIgnored;
 		this.sla90thResponse = copy.sla90thResponse;
-		this.slaFailCount = copy.slaFailCount;
-		this.slaFailPercent = copy.slaFailPercent;
-		this.slaOriginalTxnId = copy.slaOriginalTxnId;
+		this.sla95thResponse = copy.sla95thResponse;
+		this.sla99thResponse = copy.sla99thResponse;
 		this.slaPassCount = copy.slaPassCount;
 		this.slaPassCountVariancePercent = copy.slaPassCountVariancePercent;
+		this.slaFailCount = copy.slaFailCount;
+		this.slaFailPercent = copy.slaFailPercent;
+		this.xtraNum = copy.xtraNum;
 		this.slaRefUrl = copy.slaRefUrl;
 		this.comment = copy.comment;
+		this.slaOriginalTxnId = copy.slaOriginalTxnId;
 	}
 
 
@@ -92,10 +98,22 @@ public class Sla {
 	public void setSla90thResponse(BigDecimal sla90thResponse) {
 		this.sla90thResponse = sla90thResponse;
 	}
-	public long getSlaPassCount() {
+	public BigDecimal getSla95thResponse() {
+		return sla95thResponse;
+	}
+	public void setSla95thResponse(BigDecimal sla95thResponse) {
+		this.sla95thResponse = sla95thResponse;
+	}
+	public BigDecimal getSla99thResponse() {
+		return sla99thResponse;
+	}
+	public void setSla99thResponse(BigDecimal sla99thResponse) {
+		this.sla99thResponse = sla99thResponse;
+	}
+	public Long getSlaPassCount() {
 		return slaPassCount;
 	}
-	public void setSlaPassCount(long slaPassCount) {
+	public void setSlaPassCount(Long slaPassCount) {
 		this.slaPassCount = slaPassCount;
 	}
 	public BigDecimal getSlaPassCountVariancePercent() {
@@ -104,10 +122,10 @@ public class Sla {
 	public void setSlaPassCountVariancePercent(BigDecimal slaPassCountVariancePercent) {
 		this.slaPassCountVariancePercent = slaPassCountVariancePercent;
 	}	
-	public long getSlaFailCount() {
+	public Long getSlaFailCount() {
 		return slaFailCount;
 	}
-	public void setSlaFailCount(long slaFailCount) {
+	public void setSlaFailCount(Long slaFailCount) {
 		this.slaFailCount = slaFailCount;
 	}
 	public BigDecimal getSlaFailPercent() {
@@ -115,6 +133,12 @@ public class Sla {
 	}
 	public void setSlaFailPercent(BigDecimal slaFailPercent) {
 		this.slaFailPercent = slaFailPercent;
+	}
+	public BigDecimal getXtraNum() {
+		return xtraNum;
+	}
+	public void setXtraNum(BigDecimal xtraNum) {
+		this.xtraNum = xtraNum;
 	}
 	public String getSlaRefUrl() {
 		return slaRefUrl;
@@ -134,7 +158,5 @@ public class Sla {
 	public void setSlaOriginalTxnId(String slaOriginalTxnId) {
 		this.slaOriginalTxnId = slaOriginalTxnId;
 	}
-
-	
 
 }

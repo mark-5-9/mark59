@@ -32,6 +32,14 @@ public class SlaTransactionResult {
 	private BigDecimal txn90thResponse;
 	private BigDecimal sla90thResponse;
 	
+	private boolean passed95thResponse;
+	private BigDecimal txn95thResponse;
+	private BigDecimal sla95thResponse;
+	
+	private boolean passed99thResponse;
+	private BigDecimal txn99thResponse;
+	private BigDecimal sla99thResponse;	
+	
 	private boolean passedFailPercent;
 	private double txnFailurePercent;
 	private BigDecimal slaFailurePercent;
@@ -86,6 +94,42 @@ public class SlaTransactionResult {
 	public void setSla90thResponse(BigDecimal sla90thResponse) {
 		this.sla90thResponse = sla90thResponse;
 	}
+	public boolean isPassed95thResponse() {
+		return passed95thResponse;
+	}
+	public void setPassed95thResponse(boolean passed95thResponse) {
+		this.passed95thResponse = passed95thResponse;
+	}
+	public BigDecimal getTxn95thResponse() {
+		return txn95thResponse;
+	}
+	public void setTxn95thResponse(BigDecimal txn95thResponse) {
+		this.txn95thResponse = txn95thResponse;
+	}
+	public BigDecimal getSla95thResponse() {
+		return sla95thResponse;
+	}
+	public void setSla95thResponse(BigDecimal sla95thResponse) {
+		this.sla95thResponse = sla95thResponse;
+	}
+	public boolean isPassed99thResponse() {
+		return passed99thResponse;
+	}
+	public void setPassed99thResponse(boolean passed99thResponse) {
+		this.passed99thResponse = passed99thResponse;
+	}
+	public BigDecimal getTxn99thResponse() {
+		return txn99thResponse;
+	}
+	public void setTxn99thResponse(BigDecimal txn99thResponse) {
+		this.txn99thResponse = txn99thResponse;
+	}
+	public BigDecimal getSla99thResponse() {
+		return sla99thResponse;
+	}
+	public void setSla99thResponse(BigDecimal sla99thResponse) {
+		this.sla99thResponse = sla99thResponse;
+	}
 	public double getTxnFailurePercent() {
 		return txnFailurePercent;
 	}
@@ -123,8 +167,5 @@ public class SlaTransactionResult {
 	public void setSlaPassCountVariancePercent(BigDecimal slaPassCountVariancePercent) {
 		this.slaPassCountVariancePercent = slaPassCountVariancePercent;
 	}
-
-
-	
 
 }

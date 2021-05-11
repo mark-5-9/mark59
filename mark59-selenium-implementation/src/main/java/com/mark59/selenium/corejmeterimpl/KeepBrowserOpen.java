@@ -30,7 +30,7 @@ package com.mark59.selenium.corejmeterimpl;
  *  
  * @see com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient#runSeleniumTest(KeepBrowserOpen)
  * @author Philip Webb
- * Written: Australian Winter 2019   *  
+ * Written: Australian Winter 2019    
  */
 public enum KeepBrowserOpen {
 	NEVER,

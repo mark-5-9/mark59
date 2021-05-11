@@ -17,7 +17,7 @@
   
   Attribution(s)
   --------------  
-  The contents contained in this file use elements from the the vis.js product 
+  The contents contained in this file are based on the vis.js product 
   (https://visjs.org/)
 
   Original Commentary and License agreements:
@@ -34690,6 +34690,9 @@ Graph3d.DEFAULTS = {
 // Class Graph3d
 // -----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
+//  Mark59 customizations occurs mainly in this function
+//-----------------------------------------------------------------------------
 
 /**
  * Graph3d displays data in 3d.
@@ -34898,7 +34901,7 @@ Graph3d.prototype._initializeRanges = function () {
   this.yRange = dg.yRange;
   this.zRange = dg.zRange;
   
-  //Customization:  occasionally the z axis draws below 0 - as we have no negative data force to 0 when this occurs.  
+  //Mark59 Customization:  occasionally the z axis draws below 0 - as we have no negative data force to 0 when this occurs.  
   // You also need to add the zRange.max = 1, for the case where all points are 0 , -1, otherwise nothing will plot! 
   if ( this.zRange.min < 0 ){
 	  this.zRange.min = 0;
@@ -35120,7 +35123,7 @@ Graph3d.prototype._setSize = function (width, height) {
 Graph3d.prototype._resizeCanvas = function () {
   this.frame.canvas.style.width = '100%';
   
-// Customization: to fit better on our laptops and desktops 
+// Mark59 Customization: to fit better on our laptops and desktops 
   
 //  this.frame.canvas.style.height = '98%';   
 
@@ -35250,7 +35253,7 @@ Graph3d.prototype.setOptions = function (options) {
   this.setData(this.dataGroup.getDataTable());
   this.animationStart();
   
-  //Customization: adding the custom options to the Graph3d object
+  //Mark59 Customization: adding the custom options to the Graph3d object
   this.displayPointText = options.displayPointText
   this.displayBarRanges = options.displayBarRanges
   
@@ -35302,7 +35305,7 @@ Graph3d.prototype.setPointDrawingMethod = function () {
       break;
     case Graph3d.STYLE.GRID:
       
-      //Customization: now entry point for Comparative Tool Customization 
+      //Mark59 Customization: now entry point for Comparative Tool Customization 
       //method = Graph3d.prototype._redrawGridGraphPoint;
     	
       method = Graph3d.prototype._redrawComparisonToolGridGraphPoint;
@@ -35336,7 +35339,7 @@ Graph3d.prototype.redraw = function () {
 
   this._redrawInfo();
   
-//  Customization: legend no longer correct, so dont show  
+//  Mark59 Customization: legend no longer correct, so dont show  
 //  this._redrawLegend();
 };
 
@@ -35559,7 +35562,7 @@ Graph3d.prototype._redrawInfo = function () {
   ctx.fillStyle = 'gray';
   ctx.textAlign = 'left';
   
-  //Cusomization : text from top -> middle (TODO: why?)
+  //Mark59 Cusomization : text from top -> middle (TODO: why?)
   ctx.textBaseline = 'middle';
 
   var x = this.margin;
@@ -35668,8 +35671,8 @@ Graph3d.prototype.drawAxisLabelY = function (ctx, point3d, text, armAngle, yMarg
 
 
 
-/** Customization: print vertically.  
- * The trick is to rotate the graph 90 degrees around where the lable will print, print, then rotate back to the original
+/** Mark59 Customization: print vertically.  
+ * The trick is to rotate the graph 90 degrees around where the label will print, print, then rotate back to the original
  */
 Graph3d.prototype.rotate = function (ctx, point2d, text) {
 
@@ -35784,7 +35787,7 @@ Graph3d.prototype._redrawAxis = function () {
       yText = armVector.x > 0 ? yRange.min : yRange.max;
       point3d = new Point3d(x, yText, zRange.min);
       
-      //Cusomization: use the run names array on the x axis (orig was just to use the value:  '  ' + this.xValueLabel(x) + '  ')  
+      //CMark59 Cusomization: use the run names array on the x axis (orig was just to use the value:  '  ' + this.xValueLabel(x) + '  ')  
       var _labelXtext = 'Only a Single Run Available';
 	  if (this.xAxisNames[x] !== undefined) {
 		  _labelXtext =  " " + this.xAxisNames[x]   
@@ -36433,7 +36436,7 @@ Graph3d.prototype._getColorsByHue = function (point, hue) {
 
 
 /**
- * Customization: Hue is added as a parmater to allow grid cloud to the same for a given y-axis (transcation).  
+ * Mark59 Customization: Hue is added as a parameter to allow grid cloud to the same for a given y-axis (transcation).  
  * 
  * @param {CanvasRenderingContext2D} ctx
  * @param {Object} from
@@ -36452,7 +36455,7 @@ Graph3d.prototype._drawGridLineComparisonTool = function (ctx, from, to, hue) {
 
 
 /**
- * Draw single datapoint for graph style 'Comarison Tool' (Customization).
+ * Mark59 Customizatin: Draw single datapoint for graph style 'Comarison Tool'.
  * 
  * z axis values set to -1 mean the datapoint does not exist (ie, a transaction did not occur for a run), so
  * grid lines and points are not drawn, and a gap is drawn on the x-y grid plain where the point would of been.         
@@ -36566,7 +36569,7 @@ Graph3d.prototype._redrawDataGraph = function () {
   var ctx = this._getContext();
   var i;
   
-  // Customizaton:  we need to re-check if the "display and re-draw"  options have changed (ie user has ticked/unticked the box)  
+  // Mark59 Customizaton:  we need to re-check if the "display and re-draw"  options have changed (ie user has ticked/unticked the box)  
   this.displayPointText = document.getElementById("displayPointText1").checked != false;
   this.displayBarRanges = document.getElementById("displayBarRanges1").checked != false;
 
@@ -36578,12 +36581,13 @@ Graph3d.prototype._redrawDataGraph = function () {
     var point = this.dataPoints[i];
 
     // Using call() ensures that the correct context is used
-    // Customizaton: ... but it does make following the flow less clear.   For the comparison tool the actual method invoked is  _redrawComparisonToolGridGraphPoint
+    // Mark59 Customizaton: ... but it does make following the flow less clear.   
+    // For the comparison tool the actual method invoked is  _redrawComparisonToolGridGraphPoint
     
     this._pointDrawingMethod.call(this, ctx, point);
   }
   
-  //Customization : draw the bar range legend in the bottom right.
+  //Mark59 Customization : draw the bar range legend in the bottom right.
   
   if (this.displayBarRanges && this.barRangeLegend ){  // (legend not empty string)   
 	  this.drawRangeBarLegend(this.barRangeLegend,  ctx);
@@ -36946,7 +36950,7 @@ Graph3d.prototype._dataPointFromXY = function (x, y) {
     }
   } else {
     // find the closest data point, using distance to the center of the point on 2d screen
-	// Customization :  ignore dataPoints with z=1, as these are missing poinst, so dont show a tooltip..  
+	// Mark59 Customization :  ignore dataPoints with z=1, as these are missing poinst, so dont show a tooltip..  
     for (i = 0; i < this.dataPoints.length; i++) {
       dataPoint = this.dataPoints[i];
       var point = dataPoint.screen;
@@ -37018,9 +37022,10 @@ Graph3d.prototype._showTooltip = function (dataPoint) {
     content.innerHTML = this.showTooltip(dataPoint.point);
   } else {
 
-	  // Customization : more descriptive text within the tooltip..   
-      // content.innerHTML = '<table>' + '<tr><td>' + this.xLabel + ':</td><td>' + dataPoint.point.x + '</td></tr>' + '<tr><td>' + this.yLabel + ':</td><td>' + dataPoint.point.y + '</td></tr>' + '<tr><td>' + this.zLabel + ':</td><td>' + dataPoint.point.z + '</td></tr>' + '</table>';
-	  
+	  // Mark59 Customization : more descriptive text within the tooltip..   
+      // content.innerHTML = '<table>' + '<tr><td>' + this.xLabel + ':</td><td>' + dataPoint.point.x + '</td></tr>' + '<tr><td>' + this.yLabel + ':</td><td>' + dataPoint.point.y +
+	  //                                 '</td></tr>' + '<tr><td>' + this.zLabel + ':</td><td>' + dataPoint.point.z + '</td></tr>' + '</table>';
+
 	  var txnNameToolTipColor = 'grey'; 
 	  if (dataPoint.point.x == 0){
 		  txnNameToolTipColor = 'black';
@@ -37031,10 +37036,9 @@ Graph3d.prototype._showTooltip = function (dataPoint) {
 	  
 	  content.innerHTML = 
       '<table>' + 
-        '<tr><td style="color:' + txnNameToolTipColor + '; colspan="2"><b><red>' + this.yAxisNames[dataPoint.point.y] + '</red></b></td></tr>' + 
+        '<tr><td colspan=2 style="color:' + txnNameToolTipColor + '"><b>' + this.yAxisNames[dataPoint.point.y] + '</b></td></tr>' + 
         '<tr><td>' + this.zLabel + ':</td><td>' + dataPoint.point.z + '</td></tr>' + 
-    	'<tr><td>' + this.labelRunDescriptions[dataPoint.point.x]  + '</td>' +
-    	    '<td>: ' + this.xAxisNames[dataPoint.point.x] + '</td></tr>' + 
+    	'<tr><td>' + this.labelRunDescriptions[dataPoint.point.x]  + '</td><td>' + this.xAxisNames[dataPoint.point.x].substring(0, 16) + '</td></tr>' + 
       '</table>';
   }
 

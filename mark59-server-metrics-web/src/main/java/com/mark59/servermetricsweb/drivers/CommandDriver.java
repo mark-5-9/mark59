@@ -33,8 +33,8 @@ import com.mark59.core.utils.Mark59Utils;
 import com.mark59.servermetricsweb.data.beans.Command;
 import com.mark59.servermetricsweb.data.beans.ServerProfile;
 import com.mark59.servermetricsweb.pojos.CommandDriverResponse;
-import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb;
 import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb.CommandExecutorDatatypes;
+import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb.OS;
 import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
 
 /**
@@ -53,7 +53,7 @@ public interface CommandDriver {
 		String reportedServerId = server;
 		if ( "localhost".equalsIgnoreCase(server) && HOSTID.equals(alternateServerId) ) {
 
-			if (AppConstantsServerMetricsWeb.WINDOWS.equals(ServerMetricsWebUtils.obtainOperatingSystemForLocalhost())){				
+			if (OS.WINDOWS.getOsName().equals(ServerMetricsWebUtils.obtainOperatingSystemForLocalhost())){				
 				reportedServerId = System.getenv("COMPUTERNAME");
 			} else { 
 				reportedServerId = System.getenv("HOSTNAME");
@@ -77,8 +77,10 @@ public interface CommandDriver {
 		CommandDriver driver = null; 
 		if (CommandExecutorDatatypes.WMIC_WINDOWS.getExecutorText().equals(commandExecutor)) {
 			driver = new CommandDriverWinWmicImpl(serverProfile);
-		} else {  
+		} else if (CommandExecutorDatatypes.SSH_LINIX_UNIX.getExecutorText().equals(commandExecutor)){  
 			driver = new CommandDriverNixSshImpl(serverProfile);
+		} else {  // GROOVY_SCRIPT
+			driver = new CommandDriverGroovyScriptImpl(serverProfile);
 		}
 		return driver;
 	}

@@ -43,25 +43,25 @@ public class ApplicationEntry  implements CommandLineRunner  {
 
 	
 	
-	//For a quick and dirty test set the args at the start of the main  (commented out lines below):
+	//For a quick and dirty test set the args at the start of the main  (examples in the commented out lines below):
 
 	public static void main(String[] args) throws IOException {
+  
+		System.out.println("Starting Runcheck .. (version "  + AppConstantsMetrics.MARK59_TRENDING_VERSION + ")"  );
+		
+//		args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","mysql", "-h","localhost", "-p", "3306", "-q", "?allowPublicKeyRetrieval=true&useSSL=false", "-t", "JMETER", "-r", "sample_run_01" };
+//		args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","pg",    "-h","localhost", "-t", "JMETER", "-q", "?sslmode=disable", "-r", "sample_run_pg01"  };
+//      args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","h2" }; //	h2mem h2tcpclient		
+//      args = new String[] { "-a", "UsingLRapp", "-i", "C:/Mark59_Runs/LR/UsingLRapp/An_Session1/An_Session1.mdb", "-d","h2", "-t","LOADRUNNER"};			
+		
+		// arguments are parsed before Spring Configuration, as the config uses values passed in the args.
+		Runcheck.parseArguments(args);
 
-			System.out.println("Starting Runcheck .. (version "  + AppConstantsMetrics.MARK59_TRENDING_VERSION + ")"  );
-			
-//			args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","mysql", "-h","localhost", "-p", "3306", "-q", "?allowPublicKeyRetrieval=true&useSSL=false", "-t", "JMETER", "-r", "sample_run_01"  };
-//			args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","pg",    "-h","localhost", "-t", "JMETER", "-q", "?sslmode=disable", "-r", "sample_run_pg01"  };
-//          args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","h2" }; //	h2mem h2tcpclient		
-//          args = new String[] { "-a", "UsingLRapp", "-i", "C:/Mark59_Runs/LR/UsingLRapp/An_Session1/An_Session1.mdb", "-d","h2", "-t","LOADRUNNER"};			
-			
-			// arguments are parsed before Spring Configuration, as the config uses values passed in the args.
-			Runcheck.parseArguments(args);
-
-			SpringApplication application = new SpringApplication(ApplicationEntry.class);
-			application.setWebApplicationType(WebApplicationType.NONE);
-			application.setBannerMode(Banner.Mode.OFF);
-			application.run(args);
-			
-			System.out.println("Runcheck completed.");		
+		SpringApplication application = new SpringApplication(ApplicationEntry.class);
+		application.setWebApplicationType(WebApplicationType.NONE);
+		application.setBannerMode(Banner.Mode.OFF);
+		application.run(args);
+		
+		System.out.println("\nRuncheck completed.");		
 	}
 }

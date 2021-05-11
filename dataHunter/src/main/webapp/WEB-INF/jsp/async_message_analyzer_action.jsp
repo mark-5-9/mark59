@@ -24,7 +24,7 @@
 
 <html>
 <head>
-<title>Async Message Analyzer</title>
+<title>Async Message Analyzer Action</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -38,8 +38,8 @@
   <br><br>
   <b>Asynchronous Message Analyzer Results Table</b>  &nbsp; &nbsp; &nbsp; 
   
-  &nbsp; &nbsp; &nbsp; ( for Apps that ${policySelectionCriteria.applicationStartsWithOrEquals} "${policySelectionCriteria.application}"  
-                                   Id: ${policySelectionCriteria.identifier}  &nbsp; Useability: ${policySelectionCriteria.useability} )  
+  &nbsp; &nbsp; &nbsp; ( for Apps that ${asyncMessageaAnalyzerRequest.applicationStartsWithOrEquals} "${asyncMessageaAnalyzerRequest.application}"  
+                                   Id: ${asyncMessageaAnalyzerRequest.identifier}  &nbsp; Useability: ${asyncMessageaAnalyzerRequest.useability} )  
   <br><br>
 
 
@@ -78,7 +78,7 @@
 
  <br><br>
  
-  <a href='async_message_analyzer?application=${policySelectionCriteria.application}'>Back</a>
+  <a href='async_message_analyzer?application=${asyncMessageaAnalyzerRequest.application}'>Back</a>
  
 </body>
 </html>

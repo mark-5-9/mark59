@@ -51,12 +51,14 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT ").append(policySelect.getSelectClause())
-		.append( " FROM POLICIES WHERE APPLICATION = '").append( policySelect.getApplication())
-		.append( "' AND IDENTIFIER = '").append( policySelect.getIdentifier()  ).append("' ");
+			.append( " FROM POLICIES WHERE APPLICATION = '").append( policySelect.getApplication())
+			.append( "' AND IDENTIFIER = '").append( policySelect.getIdentifier()  ).append("' ");
 		
-		if (! DataHunterUtils.isEmpty(policySelect.getLifecycle())) {   								//so only if lifecycle is entered (it is part of the full policy key)
+		if (DataHunterUtils.isEmpty(policySelect.getLifecycle())) {   								
+			builder.append( " AND LIFECYCLE = '' ");
+		} else {
 			builder.append( " AND LIFECYCLE = '").append(policySelect.getLifecycle()).append("' ");
-		}	
+		}
 		return builder.toString();
 	}
 	

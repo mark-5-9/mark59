@@ -30,8 +30,7 @@
 <script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
-<!-- <body onload="enableOrdisableCreateCipherBtn()">  -->
-<body> 
+<body onload="sizeToFitText('script');sizeToFitText('sampleCommandResponse');"> 
 
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
@@ -61,7 +60,7 @@
      
      <tr>
       <td width="9%">Script</td><td> </td>
-      <td width="90%"><form:textarea path="script"  style="width:100%;height:200px" maxlength="4000" /></td>
+      <td width="90%"><form:textarea path="script" maxlength="4000" /></td>
      </tr>
      <tr>
       <td width="9%">Comment</td><td> </td>
@@ -70,7 +69,7 @@
  
      <tr>
       <td width="9%">Sample&nbsp;Response</td><td> </td>
-      <td width="90%"><form:textarea path="sampleCommandResponse" style="width:100%;height:50px"  maxlength="1000" /></td>
+      <td width="90%"><form:textarea path="sampleCommandResponse" maxlength="1000" /></td>
      </tr>
  
      <tr>

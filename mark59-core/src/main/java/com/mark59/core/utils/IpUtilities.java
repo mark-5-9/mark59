@@ -40,6 +40,11 @@ public class IpUtilities {
 	
 	private static final Logger LOG = LogManager.getLogger(IpUtilities.class);
 	
+	/**
+	 * A comma delimited list of IP addresses where this script may run.
+	 * <p>Eg: If Restrict_To_Only_Run_On_IPs_List="111.222.333.04,111.222.333.05" then slave with IP 111.222.333.05 will run the script, 
+	 * but slave 111.222.333.06 won't   
+	 */
 	public static final String RESTRICT_TO_ONLY_RUN_ON_IPS_LIST = "Restrict_To_Only_Run_On_IPs_List";	
 
 	/**

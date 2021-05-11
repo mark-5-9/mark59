@@ -31,29 +31,21 @@ public interface JmeterFunctions {
 
 	/**
 	 * Start monitoring the transaction / Begin the timer
-	 * 
-	 * <p>
-	 * Adds a transaction with the supplied label name and commences the timer.
-	 * </p>
-	 * 
-	 * <p>
-	 * Should be paired with a call to this.endTransaction(String).
-	 * </p>
-	 * 
+	 * <p>Adds a transaction with the supplied label name and commences the timer. </p>
+	 * <p>Should be paired with a call to this.endTransaction(String).</p>
 	 * @param transactionID label for the transaction
 	 */
 	void startTransaction(String transactionID);
 
 	/**
 	 * Stop monitoring the transaction / End the timer
-	 * 
 	 * <p>Ends an existing transaction with the supplied label name, stopping the timer</p>
-	 * 
 	 * <p>Should be paired with a call to this.startTransaction(String).</p>
 	 * 
 	 * @param transactionID label for the transaction
+	 * @return SampleResult
 	 */
-	void endTransaction(String transactionID);
+	SampleResult endTransaction(String transactionID);
 
 	/**
 	 * Set a transactions for a given time.
@@ -67,9 +59,7 @@ public interface JmeterFunctions {
 	
 	/**
 	 * Set a transactions for a given time (in milliseconds).  The transaction status of success (or fail) is passed. 
-	 * 	
 	 * <p>This is independent of starting or stopping transactions, setting a specific value for the transaction duration.</p>
-	 * 
 	 * <p>Allows for setting whether the transaction was a success or failure</p>
 	 * 
 	 * @param transactionLabel label for the transaction
@@ -80,7 +70,6 @@ public interface JmeterFunctions {
 	
 	/**
 	 * Add a single datapoint.
-	 * 
 	 * <p>A datapoint reflects an arbitrary discrete value, other than time to complete a transaction.</p>
 	 * 
 	 * @param dataPointName label for the datapoint
@@ -102,7 +91,6 @@ public interface JmeterFunctions {
 	
 	/**
 	 * Behaviours to execute at the end of test, such as terminating transations that were started but not ended.
-	 * 
 	 * <p>Specific behaviours vary based on the particular implementation of Tester.</p>
 	 */
 	void tearDown();
@@ -114,7 +102,6 @@ public interface JmeterFunctions {
 	
 	/**
 	 * Return results from running the test
-	 * 
 	 * @return org.apache.jmeter.samplers.SampleResult
 	 */	
 	SampleResult getMainResult();

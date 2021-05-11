@@ -2,19 +2,39 @@
 
 <p>Available at the https://www.mark59.com website
 
-## Version 
+## Releases 
 
-<p>Maven Central Repository versioning at 3.0<br>
-Other projects at 3.0.1
+<p>Release 3.2.(.0) <br>
+  This was a major release 
+  <ul>
+    <li>Add Emulation Network Conditions (latency and byte rates)</li>
+    <li>Improve validatoin for SLA data entry</li>
+    <li>DataHunter sample includes a 'once only' run method (out-of-date driver warning)</li>	
+    <li>A Run can now be 'ignored' on trending graphic</li>	
+    <li>DataHunter 'policies' now named 'items' on pages</li>   
+    <li>Trending - show table by default</li>
+    <li>Include computation and graphics for 95 and 99th percentiles</li>	
+    <li>Groovy scripting for mark59-server-metrics-web (required db changes)</li>	
+    <li>Plugin dependenices updated to latest versions</li>	
+	<li>Dependenices update (inc SpringBoot 2.4.5, JMeter 5.4.1)</li>	
+    <li>Improve JavaDocs, fix typos etc</li>
+  </ul>  
 
-<p>Release 3.0.1<br>
+
+<p>Release to 3.1 <br>
+  <ul>
+    <li>minor release - please just use 3.2 </li>
+  </ul>  
+
+
+<p>Release to 3.0.(1) <br>
   <ul>
     <li>Default port for metrics (Trend Analysis) changed from 8080 to 8083</li>
     <li>Sample projects updated, docker-compose files added to allow for the Jenkins Docker Sample </li>
   </ul>  
 
 
-<p>Release 3.0<br>
+<p>Release 3.0.(.0) <br>
   This was a major release 
   <ul>
     <li>New project: mark59-server-metrics-web.   Significant upgrade of server metric capture in mark59.</li>
@@ -29,8 +49,8 @@ Other projects at 3.0.1
   </ul>  
 
 <p>Release 2.3 - Was just a 'dry run' for 3.0 Release 3.0  
-
-<p>Significant changes for latest release 2.2(.0)
+  
+<p>Significant changes release 2.2(.0)
   <ul>
     <li>Transactions reported instead of being lost if Chrome crashes during a Selenium test.</li>
     <li>"Functional" DataHunter selenium test and related DSL removed from the dataHunterPVTest project, and placed in its own project on the mark59-extras repo.</li>
@@ -43,7 +63,7 @@ Other projects at 3.0.1
 <p>** as a consequence of the H2 update, if you have an existing H2 store, you may get an error like " Unsupported type 17 .... Unable to read the page...".  Delete the H2 store to fix (will be called test.mv.db, ususally within the User or current directory folder) 
 
 
-<p>Release 2.1(.1)
+<p>Previous Release 2.1(.1)
   <ul>
     <li>Improve Event Selection Ordering<br>
     <li>Fix Transaction Type to a Metric Type Mapping

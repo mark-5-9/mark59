@@ -51,17 +51,18 @@ public class ServerProfilesDAOexcelWorkbookImpl implements ServerProfilesDAO {
             
 			if (serverProfileName != null && serverProfileName.equalsIgnoreCase(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(0)))){	
             	notFound=false;
-            	serverProfile =new ServerProfile();
+            	serverProfile = new ServerProfile();
             	serverProfile.setServerProfileName	(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(0)));
-            	serverProfile.setServer				(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(1)));
-            	serverProfile.setAlternativeServerId(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(2)));
-            	serverProfile.setUsername			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(3)));
-            	serverProfile.setPassword			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(4)));
-            	serverProfile.setPasswordCipher		(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(5)));
-            	serverProfile.setOperatingSystem	(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(6)));
+            	serverProfile.setExecutor			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(1)));
+            	serverProfile.setServer				(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(2)));
+            	serverProfile.setAlternativeServerId(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(3)));
+            	serverProfile.setUsername			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(4)));
+            	serverProfile.setPassword			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(5)));
+            	serverProfile.setPasswordCipher		(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(6)));
             	serverProfile.setConnectionPort		(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(7)));
             	serverProfile.setConnectionTimeout	(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(8)));
             	serverProfile.setComment			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(9)));
+            	serverProfile.setParameters(deserializeJsonToMap((ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(10)))));
             }
         }   
 		return  serverProfile;

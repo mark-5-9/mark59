@@ -233,7 +233,7 @@ public class TrendingController {
 
 			trendingForm.setChosenTxns(txnsToGraphId);			
 			
-			if ( Mark59Constants.DatabaseDatatypes.TRANSACTION.name().equals( graphMapping.getTxnType() )){
+			if ( Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals( graphMapping.getTxnType() )){
 				populateFailedTransactionalSlaLists(trendingForm.getApplication(), latestRunTime, txnsToGraphId, model);
 				populateIgnoredTransactionsList(trendingForm.getApplication(), model);	
 			} else {
@@ -372,7 +372,7 @@ public class TrendingController {
 		
 		List<Transaction> transactions = new ArrayList<Transaction>();
 		for (String txnId : trxnIds) {
-			transaction = transactionDAO.getTransaction(application, Mark59Constants.DatabaseDatatypes.TRANSACTION.name(), latestRunTime, txnId);
+			transaction = transactionDAO.getTransaction(application, Mark59Constants.DatabaseTxnTypes.TRANSACTION.name(), latestRunTime, txnId);
 			if (transaction != null) {
 				transactions.add(transaction);
 			}
@@ -382,6 +382,8 @@ public class TrendingController {
 		
 		List<String> trxnIdsWithAnyFailedSla = new ArrayList<String>();
 		List<String> trxnIdsWithFailedSla90thResponse = new ArrayList<String>();
+		List<String> trxnIdsWithFailedSla95thResponse = new ArrayList<String>();
+		List<String> trxnIdsWithFailedSla99thResponse = new ArrayList<String>();
 		List<String> trxnIdsWithFailedSlaFailPercent = new ArrayList<String>();
 		List<String> trxnIdsWithFailedSlaPassCount = new ArrayList<String>();		
 
@@ -392,6 +394,12 @@ public class TrendingController {
 			}
 			if ( !slaTransactionResult.isPassed90thResponse()){
 				trxnIdsWithFailedSla90thResponse.add(slaTransactionResult.getTxnId());
+			}
+			if ( !slaTransactionResult.isPassed95thResponse()){
+				trxnIdsWithFailedSla95thResponse.add(slaTransactionResult.getTxnId());
+			}
+			if ( !slaTransactionResult.isPassed99thResponse()){
+				trxnIdsWithFailedSla99thResponse.add(slaTransactionResult.getTxnId());
 			}
 			if ( !slaTransactionResult.isPassedFailPercent()){
 				trxnIdsWithFailedSlaFailPercent.add(slaTransactionResult.getTxnId());
@@ -409,6 +417,8 @@ public class TrendingController {
 		
 		model.addAttribute("trxnIdsWithAnyFailedSlaId", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithAnyFailedSla)  );
 		model.addAttribute("trxnIdsWithFailedSla90thResponseId", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSla90thResponse) );	
+		model.addAttribute("trxnIdsWithFailedSla95thResponseId", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSla95thResponse) );	
+		model.addAttribute("trxnIdsWithFailedSla99thResponseId", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSla99thResponse) );	
 		model.addAttribute("trxnIdsWithFailedSlaFailPercentId", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSlaFailPercent) );
 		model.addAttribute("trxnIdsWithFailedSlaPassCount", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSlaPassCount) );
 		model.addAttribute("missingTransactionsId", UtilsMetrics.stringListToCommaDelimString(missingTransactions) );				

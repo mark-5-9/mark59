@@ -46,7 +46,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		List<Command> commandList = new ArrayList<Command>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
-		String selectServerSQL   = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT "
+		String selectServerSQL   = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES "
 				+ "from COMMANDS where COMMAND_NAME = '" + commandName + "'"
 				+ " order by COMMAND_NAME asc;";
 		
@@ -63,6 +63,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		command.setCommand((String)row.get("COMMAND"));
 		command.setIngoreStderr((String)row.get("IGNORE_STDERR"));
 		command.setComment((String)row.get("COMMENT"));
+		command.setParamNames(deserializeJsonToList((String)row.get("PARAM_NAMES")));
 		commandList.add(command);
 		return  command;
 	}
@@ -88,6 +89,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 			command.setCommand((String)row.get("COMMAND"));
 			command.setIngoreStderr((String)row.get("IGNORE_STDERR"));			
 			command.setComment((String)row.get("COMMENT"));
+			command.setParamNames(deserializeJsonToList((String)row.get("PARAM_NAMES")));	
 			commandList.add(command);
 //			System.out.println("CommandsDAOjdbcTemplateImpl.findCommands  : " + command.toString()  ) ;		
 		}	
@@ -95,7 +97,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 	}
 	
 	private String getCommandListSelectionSQL(String selectionCol, String selectionValue){	
-		String commandListSelectionSQL = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT from COMMANDS ";
+		String commandListSelectionSQL = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES from COMMANDS ";
 		
 		if (!selectionValue.isEmpty()  ) {			
 			commandListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
@@ -109,8 +111,8 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 	@Override
 	public void insertCommand(Command command) {
 		
-		String sql = "INSERT INTO COMMANDS ( COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT ) " + 
-				      " VALUES (?,?,?,?,?)";
+		String sql = "INSERT INTO COMMANDS ( COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES ) " + 
+				      " VALUES (?,?,?,?,?,?)";
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -120,15 +122,17 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 						command.getExecutor(), 			
 						command.getCommand(), 			
 						command.getIngoreStderr(), 			
-						command.getComment() 			
+						command.getComment(), 			
+						serializeListToJson(command.getParamNames()) 			
 				});
 	}
 	
 	
 	@Override
 	public void updateCommand(Command command){
-
-		String sql = "UPDATE COMMANDS set EXECUTOR = ?, COMMAND = ?, IGNORE_STDERR = ?, COMMENT = ? "
+//		System.out.println(">> CommandsDAOjdbcTemplateImpl.updateCommand  : " + command.toString()  ) ;		
+		
+		String sql = "UPDATE COMMANDS set EXECUTOR = ?, COMMAND = ?, IGNORE_STDERR = ?, COMMENT = ?, PARAM_NAMES = ? "
 				+ "where COMMAND_NAME = ? ";
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -139,9 +143,9 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 						command.getCommand(), 			
 						command.getIngoreStderr(), 							
 						command.getComment(),
+						serializeListToJson(command.getParamNames()), 							
 						command.getCommandName() 							
 				});
-//		System.out.println("CommandsDAOjdbcTemplateImpl.findupdateCommand  : " + command.toString()  ) ;		
 	}	
 	
 	
@@ -162,4 +166,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		jdbcTemplate.update(sql);
 	}	
 
+	
+
+	
 }

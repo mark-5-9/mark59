@@ -75,26 +75,37 @@
 	}
 	
 	
-	function formatJSONkeyValues(json){
+	function formatJSONkeyValues(parsedCommandResponses){
 		var formatedMetric = 
-			'<table class="nb" width="100%"><tr><th>Transaction</th><th>Value</th><th>Pass/Fail</th></tr>'
+			'<table class="nb" width="100%"><tr><th>Transaction</th><th>Value</th><th>Pass/Fail</th><th></th><th></th></tr>'
 
-		for (var key in json) {
-		    if (json.hasOwnProperty(key)) {
-		    	
+		Object.entries(parsedCommandResponses).forEach(([key, parsedCommandResponse]) => {
+//		    alert('key=' + key + ' ,commandName=' + parsedCommandResponse.commandName + ' ,parsedMetrics=' + parsedCommandResponse.parsedMetrics )
+		    
+		    const parsedMetrics = parsedCommandResponse.parsedMetrics
+			
+			Object.entries(parsedMetrics).forEach(([key, metric]) => {
+//			    alert('key=' + key + ', label=' + metric.label + ', result=' + metric.result + ', success=' + metric.success + ", dt=" + metric.dataType )
+				
 		    	var passOrFail = "<font color='red'><b>Fail</b></font>"
-		    	if (json[key].txnPassed == 'Y'  ){
+		    	if (metric.success == true ){
 		    		passOrFail = "<font color='green'>Pass</font>"
 		    	}
-		    		
+		    	var dataType = ""
+		    	if (metric.dataType != null ){
+		    		dataType = metric.dataType
+		    	}				    
 		        formatedMetric = formatedMetric + 
 		        '<tr>' +
-		           '<td>' + json[key].candidateTxnId + '</td>' +
-		           '<td>' + json[key].parsedCommandResponse + '</td>' +		           
-		           '<td>' + passOrFail + '</td>' +		           
-		        '</tr>'   
-		    }
-		}
+		           '<td nowrap style="width:1%">' + metric.label + '&nbsp;&nbsp;</td>' +
+		           '<td nowrap style="width:1%">' + parseInt(metric.result) + '&nbsp;&nbsp;</td>' +		           
+		           '<td nowrap style="width:1%">' + passOrFail + '&nbsp;&nbsp;</td>' +		           
+		           '<td nowrap style="width:1%">' + dataType + '&nbsp;&nbsp;</td>' +		           
+		           '<td></td>' 		           
+		        '</tr>'  			    
+
+			});		
+		});		
 		return formatedMetric + '</table>';
 	}
 	
@@ -131,51 +142,52 @@
 	
 	
 	function populateOsDefaults(idprefix) {
-		selectedOS = document.getElementById(idprefix + 'operatingSystem').value;
-		if (selectedOS == 'WINDOWS') {
-			document.getElementById(idprefix + 'connectionPort').value = '';
-			document.getElementById(idprefix + 'connectionTimeout').value = ''
-		} else {
+		selectedExecutor = document.getElementById(idprefix + 'executor').value;
+		if (selectedExecutor == 'SSH_LINIX_UNIX') {
 			document.getElementById(idprefix + 'connectionPort').value = '22';
 			document.getElementById(idprefix + 'connectionTimeout').value = '60000'
+		} else {
+			document.getElementById(idprefix + 'connectionPort').value = '';
+			document.getElementById(idprefix + 'connectionTimeout').value = ''
 		}
-		loadCommandListForSelected(idprefix)
 	}
 		
 	
-	function loadCommandListForSelected(idprefix) {
-		selectedOS = document.getElementById(idprefix + 'operatingSystem').value;
-		var i=0;		
-		while ( document.getElementById('commandSelectors' + i + '.executor') ) {
-			
-			if (selectedOS == 'WINDOWS') {
-				if (document.getElementById('commandSelectors' + i + '.executor').value == "SSH_LINIX_UNIX" ){
-					document.getElementById('commandSelectors' + i + '.commandChecked1').checked = false;	
-					hideElement('commandSelectors' + i) ;	
-				} else {
-					showElement('commandSelectors' + i) ;
-				}
-			} else {  // LINUX or UNIX
-				if (document.getElementById('commandSelectors' + i + '.executor').value == "WMIC_WINDOWS" ){
-					document.getElementById('commandSelectors' + i + '.commandChecked1').checked = false;	
-					hideElement('commandSelectors' + i) ;	
-				} else {
-					showElement('commandSelectors' + i) ;
-				}				
-			};
-			i ++;
-		};
+	function visibilyForCommandExecutor(){
+		var executor = document.getElementById("command.executor").value;
+		var winOnlyPredefinedVars = document.getElementById("winOnlyPredefinedVars");
+		var groovyPredefinedVars  = document.getElementById("groovyPredefinedVars");
+		var paramNamesRow = document.getElementById("paramNamesRow");
+		var responseParsersRow = document.getElementById("responseParsersRow");
+
+		winOnlyPredefinedVars.style.display = 'none';
+		groovyPredefinedVars.style.display  = 'none';
+		paramNamesRow.style.display         = 'none';
+		responseParsersRow.style.display    = 'none';
+				
+		if (executor == "GROOVY_SCRIPT"){
+			groovyPredefinedVars.style.display  = 'block';
+			paramNamesRow.style.display = 'table-row';
+		} else if (executor == "WMIC_WINDOWS" || executor == "SSH_LINIX_UNIX"){
+			responseParsersRow.style.display    = 'table-row';
+			if (executor == "WMIC_WINDOWS" ) {
+				winOnlyPredefinedVars.style.display = 'block';
+			} 			
+		}
 	}
 	
 	
-	function displayWinOnlyPredefinedVars(){
-		var selectedExecutorValue = document.getElementById("command.executor").value;
-		var winOnlyPredefinedVars = document.getElementById("winOnlyPredefinedVars");
-		if (selectedExecutorValue == "WMIC_WINDOWS" ) {
-			winOnlyPredefinedVars.style.display = 'block';
-		} else {
-			winOnlyPredefinedVars.style.display = 'none';
-		}
+	function sizeToFitText(id){
+		var textarea = document.getElementById(id);
+		textarea.style.width = "100%";
+		textarea.style.height = "";
+		textarea.style.height = textarea.scrollHeight + "px";
+	}
+	
+
+	function resubmitToRefreshParm() {
+		document.getElementById("selectedScriptCommandNameChanged").value = 'true';
+		document.getElementById("serverProfileEditingForm").submit();
 	}
 	
 	

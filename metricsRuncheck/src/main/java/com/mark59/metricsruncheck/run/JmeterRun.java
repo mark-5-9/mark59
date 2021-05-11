@@ -62,12 +62,13 @@ public class JmeterRun extends PerformanceTest  {
 	private int fieldPossuccess;	
 
 	
-	public JmeterRun(ApplicationContext context, String application, String inputdirectory, String runReference, String excludestart, String captureperiod) {
+	public JmeterRun(ApplicationContext context, String application, String inputdirectory, String runReference, String excludestart, String captureperiod, String keeprawresults) {
 		
 		super(context,application, runReference);
 		
 		//clean up before  
-		testTransactionsDAO.deleteAllForApplication(run.getApplication());
+		testTransactionsDAO.deleteAllForRun(run);  // RUN_TIME_YET_TO_BE_CALCULATED
+		
 		loadTestTransactionAllDataFromJmeterFiles(run.getApplication(), inputdirectory);
 		
 		DateRangeBean dateRangeBean = getRunDateRangeUsingTestTransactionalData(run.getApplication());
@@ -82,11 +83,11 @@ public class JmeterRun extends PerformanceTest  {
 		
 		storeSystemMetricSummaries(run);
 		
-		//clean up after (leave commented out to keep the last load of an application on the testTransactions table)
-		//testTransactionsDAO.deleteAllForApplication(run.getApplication());				
-		
+		if (String.valueOf(true).equalsIgnoreCase(keeprawresults)) {
+			testTransactionsDAO.deleteAllForRun(run); // clean up in case of re-run (when the data already exists because this is a re-run)
+			testTransactionsDAO.updateRunTime(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED, run.getRunTime());
+		}
 	}
-
 
 
 	private void loadTestTransactionAllDataFromJmeterFiles(String application, String inputdirectory) {
@@ -179,7 +180,7 @@ public class JmeterRun extends PerformanceTest  {
 	    			potentialSampleResultWithNoSubResults = null;
 	    			lineCount = readLinesToSubResultEndTag(xmlReader, lineCount);
 	    			
-	    		} else { 
+	    		} else { // at a main (parent) result. Bypassed as parent results are not reported in Trend Analysis
 	    			isWithinASampleResult = true;
 	    			potentialSampleResultWithNoSubResults = jmeterFileLine;
 	    		}
@@ -275,9 +276,9 @@ public class JmeterRun extends PerformanceTest  {
 		TestTransaction testTransaction = new TestTransaction();
 		testTransaction.setTxnId(StringUtils.substringBetween(jmeterFileLine, " lb=\"", "\""));
 		
-		String sampleLineRawDbDataType = Mark59Utils.convertJMeterFileToDbDatatype(StringUtils.substringBetween(jmeterFileLine, " dt=\"", "\""));
+		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype(StringUtils.substringBetween(jmeterFileLine, " dt=\"", "\""));
 		
-		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.JMETER, sampleLineRawDbDataType));
+		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.JMETER, sampleLineRawDbTxnType));
 			
 		//		The response time ("t=") holds the value to be reported for all sample types. Note: 
 		//		- the taken to be milliseconds for all timed TRANSACTION samples in the Jmeter results file. The metrics (trend analysis) database 
@@ -287,7 +288,7 @@ public class JmeterRun extends PerformanceTest  {
 		
 		String txnResultMsStr = StringUtils.substringBetween(jmeterFileLine, " t=\"", "\"");
 		BigDecimal txnResultMsBigD = new BigDecimal(txnResultMsStr);
-		if ( Mark59Constants.DatabaseDatatypes.TRANSACTION.name().equals(testTransaction.getTxnType())) {
+		if ( Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals(testTransaction.getTxnType())) {
 			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP)  );			
 		} else {
 			try {
@@ -308,8 +309,11 @@ public class JmeterRun extends PerformanceTest  {
 	
 
 	/**
-	 * 	CSV files are treated in a similarly manner to XML.  The main difference is that results with sub-results are non easily detectable, so
-	 *  the dataType setting of "PARENT" is used to detect result lines produced by the mark59 framework which are (normally) expected to have sub-results. 
+	 * CSV files are treated in a similarly manner to XML.  The main difference is that due to the flat structure of CSV files, it is not  
+	 * obvious which line relate to a stand-alone result, a parent result, or sub-results in within a parent.
+	 * <p>In the Mark59 framework the data type field has been used and is set to "PARENT" for result lines which are (normally) expected 
+	 * to have sub-results. 
+	 * <p>PARENT transaction are not reported within Trend Analysis, so are bypassed here. 
 	 * 
 	 * @param inputCsvFileName
 	 * @param application
@@ -433,9 +437,9 @@ public class JmeterRun extends PerformanceTest  {
 
 		testTransaction.setTxnId(csvDataLineFields[fieldPoslabel]);
 		
-		String sampleLineRawDbDataType = Mark59Utils.convertJMeterFileToDbDatatype( csvDataLineFields[fieldPosdataType]  );
+		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype( csvDataLineFields[fieldPosdataType]  );
 		
-		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.JMETER, sampleLineRawDbDataType));
+		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.JMETER, sampleLineRawDbTxnType));
 				
 //		The response time ("elapsed" column) holds the value to be reported for all sample types. Note: 
 //			- the taken to be milliseconds for all timed TRANSACTION samples in the Jmeter results file. The metrics (trend analysis) database 
@@ -446,7 +450,7 @@ public class JmeterRun extends PerformanceTest  {
 		BigDecimal txnResultMsBigD = new BigDecimal(csvDataLineFields[fieldPoselapsed]);
 		testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP)  );			
 	
-		if ( Mark59Constants.DatabaseDatatypes.TRANSACTION.name().equals(testTransaction.getTxnType())) {
+		if ( Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals(testTransaction.getTxnType())) {
 			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP)  );			
 		} else {
 			try {
@@ -505,7 +509,7 @@ public class JmeterRun extends PerformanceTest  {
 			
 		} else {
 			
-			eventMappingTxnType = Mark59Constants.DatabaseDatatypes.TRANSACTION.name();   
+			eventMappingTxnType = Mark59Constants.DatabaseTxnTypes.TRANSACTION.name();   
 			
 			EventMapping eventMapping = eventMappingDAO.findAnEventForTxnIdAndSource(txnId, metricSource);
 			
@@ -528,7 +532,7 @@ public class JmeterRun extends PerformanceTest  {
 	 */
 	private BigDecimal validateAndDetermineMetricValue(BigDecimal txnResultMsBigD, String sampleLineDataType) throws Exception {
 		
-		for ( String metricDataType : Mark59Constants.DatabaseDatatypes.listOfMetricDatabaseDatatypes()) {
+		for ( String metricDataType : Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes()) {
 			
 			if (sampleLineDataType.startsWith(metricDataType)) {
 				BigDecimal valueMultiplier = new BigDecimal(1L);
@@ -549,10 +553,15 @@ public class JmeterRun extends PerformanceTest  {
 
 		
 	/**
-	 * Once all transaction and metrics data has been stored for the run, work out the start and end time for the run. 
-	 * Start/end times are taken lowest and highest transaction epoch time for the application (assumes data for only 1 run in table!) 
-	 * Note this is actually an approximation, as any time difference between the timestamp and the time to take the sample is not considered, 
-	 * nor is any running time before/after the first/last sample.      
+	 * Once all transaction and metrics data has been stored for the run, work out the start and end 
+	 * time for the run.  Start/end times are taken lowest and highest transaction epoch time for the
+	 * application run. 
+	 *  
+	 * The times are actually an approximation, as any time difference between the timestamp and the time
+	 * to take the sample is not considered, nor is any running time before/after the first/last sample.
+	 * 
+	 * NOTE: When this method is called currently assumed the run being processed will have a  
+	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 	  
 	 */
 	private DateRangeBean getRunDateRangeUsingTestTransactionalData(String application){
 		Long runStartTime = testTransactionsDAO.getEarliestTimestamp(application);
@@ -563,14 +572,15 @@ public class JmeterRun extends PerformanceTest  {
 	
 	private void storeSystemMetricSummaries(Run run) {
 
-		// TODO: really should be a List of a type called something like "metricTransactionKeys" 
+		// Creates a list of the names of metric transactions for the run, with their types (bit of an abuse of the 'TestTransaction' bean)  
 		List<TestTransaction> dataSampleTxnkeys = testTransactionsDAO.getUniqueListOfSystemMetricNamesByType(run.getApplication()); 
 		
 		for (TestTransaction dataSampleKey : dataSampleTxnkeys) {
 
 			EventMapping eventMapping = txnIdToEventMappingLookup.get(dataSampleKey.getTxnId());
-			assert(eventMapping != null);
-			
+			if (eventMapping == null) {
+				throw new RuntimeException("ERROR : No event mapping found for " + dataSampleKey.getTxnId());
+			};
 			Transaction eventTransaction = testTransactionsDAO.extractEventSummaryStats(run.getApplication(), dataSampleKey.getTxnType(), dataSampleKey.getTxnId(), eventMapping);
 			eventTransaction.setRunTime(run.getRunTime());
 			transactionDAO.insert(eventTransaction);

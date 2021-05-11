@@ -71,11 +71,11 @@
        
       <tr>
       <td>Sla Minimum Value:</td>
-      <td><form:input path="slaMin" value="${map.slaMin}" /></td>
+      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.slaMin}" /></td>
      </tr>  
      <tr>
       <td>Sla Maximum Value:</td>
-      <td><form:input path="slaMax" value="${map.slaMax}" /></td>
+      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.slaMax}" /></td>
      </tr>
      <tr>
       <td>Is Active :</td>

@@ -16,8 +16,10 @@
 
 package com.mark59.core.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -26,7 +28,7 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import com.mark59.core.utils.Mark59Constants.DatabaseDatatypes;
+import com.mark59.core.utils.Mark59Constants.DatabaseTxnTypes;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 
 /**
@@ -114,8 +116,8 @@ public class Mark59Utils {
 
 
 	/**
-	 * Maps JMeter file 'dt' (datatype) column to the DATA_TYPE values use in the Mark59 database tables
-	 *  <p><b>Mapping Summary  (JMmeter file type 'maps to'  database DATA_TYPE) :</b>
+	 * Maps JMeter file 'dt' (datatype) column to the TXN_TYPE values use in the Mark59 database tables
+	 *  <p><b>Mapping Summary  (JMeter file type 'maps to'  database TXN_TYPE) :</b>
 	 *  <table summary="">
   	 *	<tr><td>'' (blank)</td><td> --&gt; </td><td>TRANSACTION</td></tr>
   	 *	<tr><td>CPU_UTIL  </td><td> --&gt; </td><td>CPU_UTIL   </td></tr>
@@ -127,17 +129,17 @@ public class Mark59Utils {
 	 * @param jmeterFileDatatype on of the possible datatype (dt) values on the JMeter results file
 	 * @return DatabaseDatatypes (string value)
 	 */
-	public static String convertJMeterFileToDbDatatype(String jmeterFileDatatype) {
+	public static String convertJMeterFileDatatypeToDbTxntype(String jmeterFileDatatype) {
 		if ( JMeterFileDatatypes.TRANSACTION.getDatatypeText().equals(jmeterFileDatatype)){    //maps any blank to transaction
-			return DatabaseDatatypes.TRANSACTION.name();
+			return DatabaseTxnTypes.TRANSACTION.name();
 		} else if ( JMeterFileDatatypes.CPU_UTIL.getDatatypeText().equals(jmeterFileDatatype)){    
-			return DatabaseDatatypes.CPU_UTIL.name();
+			return DatabaseTxnTypes.CPU_UTIL.name();
 		} else if ( JMeterFileDatatypes.MEMORY.getDatatypeText().equals(jmeterFileDatatype)){   
-			return DatabaseDatatypes.MEMORY.name();
+			return DatabaseTxnTypes.MEMORY.name();
 		} else if ( JMeterFileDatatypes.DATAPOINT.getDatatypeText().equals(jmeterFileDatatype)){   
-			return DatabaseDatatypes.DATAPOINT.name();
+			return DatabaseTxnTypes.DATAPOINT.name();
 		} else {
-			return DatabaseDatatypes.TRANSACTION.name();   // just assume its a transaction (so a 'PARENT' would become a transaction on the db) 			
+			return DatabaseTxnTypes.TRANSACTION.name();   // just assume its a transaction (so a 'PARENT' would become a transaction on the db) 			
 		}
 	}	
 	
@@ -166,9 +168,9 @@ public class Mark59Utils {
 	 */
 	public static String constructCandidateTxnIdforMetric(String metricTxnType, String reportedServerId, String metricNameSuffix ) {
 		String txnIdPrefix = "";
-		if ( DatabaseDatatypes.CPU_UTIL.name().equals(metricTxnType)){  
+		if ( DatabaseTxnTypes.CPU_UTIL.name().equals(metricTxnType)){  
 			txnIdPrefix = "CPU_";	
-		} else if ( DatabaseDatatypes.MEMORY.name().equals(metricTxnType)){    
+		} else if ( DatabaseTxnTypes.MEMORY.name().equals(metricTxnType)){    
 			txnIdPrefix = "Memory_";
 		} 
 		
@@ -178,6 +180,19 @@ public class Mark59Utils {
 			candidateTxnId = candidateTxnId + "_" + metricNameSuffix;
 		}
 		return candidateTxnId;
-	}	
+	}
+	
+	
+	public static List<String> commaDelimStringToStringList(String commaDelimitedString) {
+		List<String> listOfStrings = new ArrayList<String>();
+		// when an empty string is passed to the split, it creates a empty first element ... not what we want .. 
+		if ( ! (commaDelimitedString == null || commaDelimitedString.isEmpty() )){
+			listOfStrings = Arrays.asList(commaDelimitedString.split("\\s*,\\s*"));
+		} 
+		return listOfStrings;
+	}
+	
+	
+	
 	
 }

@@ -67,24 +67,36 @@
      </tr>       
      <tr>
       <td>90thResponse:</td>
-      <td><form:input path="sla90thResponse" /></td>
+      <td><form:input path="sla90thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$"/></td>
      </tr>  
      <tr>
+      <td>95thResponse:</td>
+      <td><form:input path="sla95thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$"/></td>
+     </tr>
+     <tr>
+      <td>99thResponse:</td>
+      <td><form:input path="sla99thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$"/></td>
+     </tr> 
+     <tr>
       <td>Pass Count:</td>
-      <td><form:input path="slaPassCount"/></td>
+      <td><form:input path="slaPassCount" type="text" pattern="-?\d*" /></td>
      </tr>
       <tr>
       <td>Pass Count Variance %:</td>
-      <td><form:input path="slaPassCountVariancePercent" /></td>
+      <td><form:input path="slaPassCountVariancePercent" type="text" pattern="^-?\d*\.{0,1}\d+$"/></td>
      </tr>  
      <tr>
       <td>Fail Count:</td>
-      <td><form:input path="slaFailCount" /></td>
+      <td><form:input path="slaFailCount" type="text" pattern="-?\d*"/></td>
      </tr>  
      <tr>
       <td>Fail Percent:</td>
-      <td><form:input path="slaFailPercent" /></td>
-     </tr>       
+      <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"/></td>
+     </tr> 
+     <tr>
+      <td>Xtra num :</td>
+      <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$" /></td>     
+     </tr>      
      <tr>
       <td><br>Reference:</td>
       <td><br><form:textarea path="slaRefUrl" value="" maxlength="1000" style="width:100%;height:70px" /></td>

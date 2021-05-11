@@ -62,15 +62,15 @@
      <tr>
       <td>Value Derivation:</td>
       <td colspan=2 style="font-size: 12px" ><br>
-      		<b>predefined:</b> Minimum, Maximum, Average, StdDeviation, 90th, Pass, Fail, Stop, First, Last, Sum  <br>
-          	<b>available within sql:</b> TXN_MINIMUM, TXN_AVERAGE, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_PASS, TXN_FAIL, TXN_STOP<br>
+      		<b>predefined:</b> Minimum, Maximum, Average, StdDeviation, 90th, 95th, 99th, Pass, Fail, Stop, First, Last, Sum  <br>
+          	<b>available within sql:</b> TXN_MINIMUM, TXN_AVERAGE, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_95TH, TXN_99TH, TXN_PASS, TXN_FAIL, TXN_STOP<br>
           	<b>sample sql computation: </b>COALESCE( 100*TXN_FAIL/(TXN_PASS+TXN_FAIL) , -1)
       </td>          
      </tr>
           
      <tr>
       <td></td>
-      <td><form:input path="valueDerivation"  size="64"  maxlength="64"  />   </td>
+      <td><form:textarea path="valueDerivation" style="width:100%;height:150px" maxlength="2000" />         
      </tr>
       
      <tr>
@@ -86,7 +86,7 @@
      
      <tr>
       <td>Range Bar Sql :</td>
-      <td><form:textarea path="barRangeSql" class="textarea" style="width:100%;height:150px"   maxlength="2000" />    </td>
+      <td><form:textarea path="barRangeSql" style="width:100%;height:150px" maxlength="2000" />    </td>
      </tr> 
      
      <tr>

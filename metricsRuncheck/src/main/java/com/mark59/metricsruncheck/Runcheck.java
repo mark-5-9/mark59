@@ -92,11 +92,12 @@ public class Runcheck  implements CommandLineRunner
 
 
 	
-	private static String argTool;
 	private static String argApplication;
 	private static String argInput;
 	private static String argDatabasetype;
 	private static String argReference;
+	private static String argTool;
+	private static String argKeeprawresults;
 	private static String argExcludestart;
 	private static String argCaptureperiod;
 	private static String argTimeZone;
@@ -111,6 +112,7 @@ public class Runcheck  implements CommandLineRunner
 		options.addOption("d", "databasetype",			true, "Load data to a 'h2', 'pg' or 'mysql' database (defaults to 'h2')");			
 		options.addOption("r", "reference",		 		true, "A reference.  Usual purpose would be to identify this run (possibly by a link). Eg <a href='http://ciServer/job/myJob/001/HTML_Report'>run 001</a>");
 		options.addOption("t", "tool",      			true, "Performance Tool used to generate the results to be processed { JMETER (default) | LOADRUNNER }" );
+		options.addOption("k", "keeprawresults", 		true, "Keep Raw Test Resuts (JMeter only).  If 'true' will keep each JMeter transaction for each run in the database. This can use a large amount of storage and is not recommended (defaults to false).");
 		options.addOption("h", "dbserver",				true, "Server hosting the database where results will be held (defaults to localhost). \n"
 																+ "*******************************************\n"
 																+ "** NOTE: all db options applicable to MySQL or Postgres ONLY\n"  
@@ -143,6 +145,7 @@ public class Runcheck  implements CommandLineRunner
 		argDatabasetype 	= commandLine.getOptionValue("d", Mark59Constants.MYSQL);	
 		argReference 		= commandLine.getOptionValue("r", AppConstantsMetrics.NO_ARGUMENT_PASSED + " (a reference will be generated)" ); 	  		
 		argTool   			= commandLine.getOptionValue("t", AppConstantsMetrics.JMETER );
+		argKeeprawresults	= commandLine.getOptionValue("k", String.valueOf(false));
 		argExcludestart  	= commandLine.getOptionValue("x", "0");		
 		argCaptureperiod  	= commandLine.getOptionValue("c", AppConstantsMetrics.ALL );
 		argTimeZone  		= commandLine.getOptionValue("z", new GregorianCalendar().getTimeZone().getID() );				
@@ -161,6 +164,11 @@ public class Runcheck  implements CommandLineRunner
 			formatter.printHelp( "Runcheck", options );
 			printSampleUsage();
 			throw new RuntimeException("The tool (t) argument must be set to JMETER or LOADRUNNER ! (or not used, in which case JMETER is assumed)");  
+		}
+		if ( !String.valueOf(false).equalsIgnoreCase(argKeeprawresults)  &&  !String.valueOf(true).equalsIgnoreCase(argKeeprawresults)) {
+			formatter.printHelp( "Runcheck", options );
+			printSampleUsage();
+			throw new RuntimeException("The Keeprawresults (k) argument must be set to 'true' or 'false' ! (or not used, in which case 'false' is assumed)");  
 		}
 		if (!StringUtils.isNumeric(argExcludestart) ) {
 			formatter.printHelp( "Runcheck", options );
@@ -251,6 +259,7 @@ public class Runcheck  implements CommandLineRunner
 		System.out.println(" database       : " + argDatabasetype );
 		System.out.println(" reference      : " + argReference );
 		System.out.println(" tool           : " + argTool );		
+		System.out.println(" keeprawresults : " + argKeeprawresults );		
 		System.out.println(" dbserver       : " + dbserver );		
 		System.out.println(" dbPort         : " + dbPort );				
 		System.out.println(" dbSchema       : " + dbSchema );				
@@ -304,18 +313,30 @@ public class Runcheck  implements CommandLineRunner
 			System.out.println("***************************************************************************************" );
 			System.out.println();			
 		}
-		loadTestRun(argTool, argApplication, argInput, argReference, argExcludestart, argCaptureperiod, argTimeZone );
+		
+		if (String.valueOf(true).equalsIgnoreCase(argKeeprawresults)) {
+			System.out.println();			
+			System.out.println("***************************************************************************************" );
+			System.out.println("*   Setting 'keeprawresults' to 'true' may use a large amount of storage.             *" );
+			System.out.println("*   The data is not used within the Mark59 framework.  The option has been made       *" );
+			System.out.println("*   available for users who may wish to use it externally for data analysis/reporting *" );
+			System.out.println("*   of JMeter results.                                                                *" );
+			System.out.println("***************************************************************************************" );
+			System.out.println();			
+		}
+		
+		loadTestRun(argTool, argApplication, argInput, argReference, argExcludestart, argCaptureperiod, argTimeZone, argKeeprawresults );
 	};
 
 	
-	public void loadTestRun(String tool, String application, String input, String runReference, String excludestart, String captureperiod, String timeZone) throws IOException {
+	public void loadTestRun(String tool, String application, String input, String runReference, String excludestart, String captureperiod, String timeZone, String keeprawresults) throws IOException {
 
 		PerformanceTest performanceTest;
 		
 		if (AppConstantsMetrics.LOADRUNNER.equalsIgnoreCase(tool)){		
 			performanceTest = new LrRun(context, application, input, runReference, excludestart, captureperiod, timeZone );
 		} else {
-			performanceTest = new JmeterRun(context, application, input, runReference, excludestart, captureperiod);
+			performanceTest = new JmeterRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults);
 		}
 		
 		List<SlaTransactionResult> slaTransactionResults = new SlaChecker().listTransactionsWithFailedSlas(application, performanceTest.getTransactionSummariesThisRun(), slaDAO);;
@@ -327,7 +348,7 @@ public class Runcheck  implements CommandLineRunner
 		printSlasWitMissingTxnsInThisRun(slasWithMissingTxns);		
 		
 		if (slasWithMissingTxns.isEmpty()  && slaTransactionResults.isEmpty() ){
-			System.out.println( "Runcheck:  No transactionalSLA has been marked as failed, as recorded on the SLA Reference Database");
+			System.out.println( "Runcheck:  No transactional SLA has failed (as recorded on the SLA Reference Database)");
 		} 
 		
 		metricSlaResults = new MetricSlaChecker().listFailedMetricSLAs(application, runTime, null, metricSlaDAO, transactionDAO);
@@ -348,15 +369,25 @@ public class Runcheck  implements CommandLineRunner
 			if ( !slaTransactionResult.isPassedAllSlas()){
 				allPassed = false;
 			}
-			
+
 			if ( !slaTransactionResult.isPassed90thResponse()){
 	    		System.out.println( "Runcheck: SLA Failed Warning  : " + slaTransactionResult.getTxnId() + " has failed it's 90th Percentile Response Time SLA as recorded on the SLA database ! "  );
 	    		System.out.println( "                      response was " + slaTransactionResult.getTxn90thResponse() + " secs, SLA of " +  slaTransactionResult.getSla90thResponse());				
 				
 			}
+			if ( !slaTransactionResult.isPassed95thResponse()){
+	    		System.out.println( "Runcheck: SLA Failed Warning  : " + slaTransactionResult.getTxnId() + " has failed it's 95th Percentile Response Time SLA as recorded on the SLA database ! "  );
+	    		System.out.println( "                      response was " + slaTransactionResult.getTxn95thResponse() + " secs, SLA of " +  slaTransactionResult.getSla95thResponse());				
+				
+			}
+			if ( !slaTransactionResult.isPassed99thResponse()){
+	    		System.out.println( "Runcheck: SLA Failed Warning  : " + slaTransactionResult.getTxnId() + " has failed it's 99th Percentile Response Time SLA as recorded on the SLA database ! "  );
+	    		System.out.println( "                      response was " + slaTransactionResult.getTxn99thResponse() + " secs, SLA of " +  slaTransactionResult.getSla99thResponse());				
+				
+			}
 			if ( !slaTransactionResult.isPassedFailPercent()){
 	    		System.out.println( "Runcheck: SLA Failed : Error : " + slaTransactionResult.getTxnId() + " has failed it's % Error Rate SLA as recorded on the SLA database ! "  );
-	    		System.out.println( "                      % errort was " + new DecimalFormat("#.##").format(slaTransactionResult.getTxnFailurePercent()) + 
+	    		System.out.println( "                      % error was " + new DecimalFormat("#.##").format(slaTransactionResult.getTxnFailurePercent()) + 
 	    				" %, SLA of " +  slaTransactionResult.getSlaFailurePercent());				
 			}
 			if ( !slaTransactionResult.isPassedPassCount()){
@@ -375,7 +406,7 @@ public class Runcheck  implements CommandLineRunner
 			System.out.println( "Runcheck: " + metricSlaResult.getMessageText()); 
 		}
 		if (metricSlaResults.isEmpty()){
-			System.out.println( "Runcheck:  No metrics SLA has been marked as failed, as recorded on the SLA Metrics Reference Database");
+			System.out.println( "Runcheck:  No metric SLA has failed (as recorded on the SLA Metrics Reference Database)");
 		}
 	}
 
@@ -386,8 +417,5 @@ public class Runcheck  implements CommandLineRunner
 	public List<MetricSlaResult> getMetricSlaResults() {
 		return metricSlaResults;
 	}
-
-
-	
 	
 }

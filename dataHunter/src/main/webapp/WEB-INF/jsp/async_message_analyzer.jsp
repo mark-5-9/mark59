@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Async Message Analyzern</title>
+<title>Async Message Analyzer</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -43,7 +43,7 @@
 
   <div>
 
-   <form:form method="post" action="async_message_analyzer_action" modelAttribute="policySelectionCriteria" >
+   <form:form method="post" action="async_message_analyzer_action" modelAttribute="asyncMessageaAnalyzerRequest" >
     <table >
      <tr>
       <td>Application(s)</td>
@@ -63,6 +63,19 @@
    
      <tr>
       <td></td>
+      <td></td>
+      <td><br><span style="white-space: nowrap; font-size: 10px">leave dropdown unselected (blank) for no updates</span></td>
+     </tr>  
+   
+      <tr>
+      <td>Update <br>to Useability</td>
+      <td>:</td>
+      <td><form:select path="toUseability" items="${usabilityListTo}"   /></td>
+     </tr>
+     <tr>  
+
+     <tr>
+      <td></td>
       <td></td>      
       <td><br><br><input type="submit" value="submit"  id="submit"  /></td>
      </tr>
@@ -73,7 +86,7 @@
  </center>
   
  <br><br>
- <a href="/dataHunter?application=${policySelectionCriteria.application}">Home Page</a>
+ <a href="/dataHunter?application=${asyncMessageaAnalyzerRequest.application}">Home Page</a>
  
 </body>
 </html>

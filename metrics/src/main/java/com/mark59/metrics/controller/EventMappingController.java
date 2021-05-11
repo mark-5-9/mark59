@@ -184,7 +184,7 @@ public class EventMappingController {
 
 	private Map<String, Object> createMapOfDropdowns() {
 		Map<String, Object> map = new HashMap<String, Object>(); 
-		List<String>metricTypes		 = Mark59Constants.DatabaseDatatypes.listOfMetricDatabaseDatatypes();	
+		List<String>metricTypes		 = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();	
 		List<String>performanceTools = populatePerformanceToolsDropdown();		
 		List<String>metricSources	 = populateMetricSourceDropdown();
 		map.put("metricTypes",metricTypes);		

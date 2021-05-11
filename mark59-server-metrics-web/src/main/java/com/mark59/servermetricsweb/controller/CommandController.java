@@ -41,6 +41,7 @@ import com.mark59.servermetricsweb.data.commands.dao.CommandsDAO;
 import com.mark59.servermetricsweb.forms.CommandEditingForm;
 import com.mark59.servermetricsweb.forms.ScriptSelector;
 import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb;
+import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
 
 
 /**
@@ -70,6 +71,8 @@ public class CommandController {
 		Command command = new Command();
 		command.setExecutor(reqExecutor); 
 		commandEditingForm.setCommand(command);
+
+		commandEditingForm.setParamNamesTextboxFormat(""); 
 		commandEditingForm.setScriptSelectors(createListOfAllScriptSelectorsWithNothingSelected());
 		
 		Map<String, Object> map = createMapOfDropdowns();
@@ -80,10 +83,9 @@ public class CommandController {
 	}
 	
 
-	
-
 	@RequestMapping("/insertCommand")
-	public String insertCommand( @RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr,  
+	public String insertCommand( @RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr, 
+			@RequestParam(required=false) String fromAction,
 			@ModelAttribute CommandEditingForm commandEditingForm, Model model) {
 
 		Map<String, Object> map = createMapOfDropdowns();			
@@ -91,16 +93,22 @@ public class CommandController {
 		
 		Command command = commandEditingForm.getCommand();
 
-		if (StringUtils.isEmpty(command.getCommandName())) {
+		if (StringUtils.isEmpty(command.getCommandName()) || StringUtils.isEmpty(command.getExecutor())   ) {
 			map.put("commandEditingForm", commandEditingForm);		
-			map.put("reqErr", "You must enter a Command Name");			
 			model.addAttribute("map", map);	
+			if ("copy".equals(fromAction)) {
+				map.put("reqErr", "You must enter a Command Name");	
+				return "copyCommand";
+			}
+			map.put("reqErr", "You must enter a Command Name and select a Command Executor");			
 			return "registerCommand";
 		}
 
 		Command existingCommand  = commandsDAO.findCommand(command.getCommandName());
 		
 		if (existingCommand == null ){  //not trying to add something already there, so go ahead..
+			
+			command.setParamNames(ServerMetricsWebUtils.textboxFormatToList(commandEditingForm.getParamNamesTextboxFormat()));
 			commandsDAO.insertCommand(command);
 			List<String> scriptNames = createListOfSelectedScripts(commandEditingForm.getScriptSelectors());   
 			commandParserLinksDAO.updateCommandParserLinksForCommandName(commandEditingForm.getCommand().getCommandName(), scriptNames);
@@ -110,6 +118,9 @@ public class CommandController {
 			map.put("commandEditingForm", commandEditingForm);		
 			map.put("reqErr","Oh, a listing for a command named " + existingCommand.getCommandName() + " AlreadyExists");	
 			model.addAttribute("map", map);	
+			if ("copy".equals(fromAction)) {
+				return "copyCommand";
+			}			
 			return "registerCommand";
 		}
 	}
@@ -152,6 +163,8 @@ public class CommandController {
 		
 		Command command = commandsDAO.findCommand(reqCommandName);
 		commandEditingForm.setCommand(command);
+		commandEditingForm.setParamNamesTextboxFormat(ServerMetricsWebUtils.listToTextboxFormat(command.getParamNames()));
+		
 		CommandWithParserLinks commandWithParserLinks = commandAddParserLinks(command);
 		commandEditingForm.setScriptSelectors(createListOfAllScriptSelectors(commandWithParserLinks));
 		model.addAttribute("commandEditingForm", commandEditingForm);
@@ -170,7 +183,8 @@ public class CommandController {
 		
 		Command command = commandsDAO.findCommand(reqCommandName);
 		commandEditingForm.setCommand(command);
-		
+		commandEditingForm.setParamNamesTextboxFormat(ServerMetricsWebUtils.listToTextboxFormat(command.getParamNames()));
+
 		CommandWithParserLinks commandWithParserLinks = commandAddParserLinks(command);
 		commandEditingForm.setScriptSelectors(createListOfAllScriptSelectors(commandWithParserLinks));
 		model.addAttribute("commandEditingForm", commandEditingForm);
@@ -187,16 +201,18 @@ public class CommandController {
 	@RequestMapping("/updateCommand")
 	public String updateCommand(@RequestParam(required=false) String reqExecutor, @ModelAttribute CommandEditingForm commandEditingForm) {
 
-		commandsDAO.updateCommand(commandEditingForm.getCommand());
+		Command command = commandEditingForm.getCommand();
+		command.setParamNames(ServerMetricsWebUtils.textboxFormatToList(commandEditingForm.getParamNamesTextboxFormat()));
+		
+		commandsDAO.updateCommand(command);
 		List<String> scriptNames = createListOfSelectedScripts(commandEditingForm.getScriptSelectors());   
-		commandParserLinksDAO.updateCommandParserLinksForCommandName(commandEditingForm.getCommand().getCommandName(), scriptNames);
+		commandParserLinksDAO.updateCommandParserLinksForCommandName(command.getCommandName(), scriptNames);
 		
 		Map<String, Object> map = createMapOfDropdowns();			
 		map.put("reqExecutor", reqExecutor);
 		map.put("commandEditingForm", commandEditingForm);			
 		return "redirect:/commandList?reqExecutor=" + reqExecutor;	
 	}
-
 
 
 	@RequestMapping("/deleteCommand")
@@ -206,7 +222,6 @@ public class CommandController {
 		return "redirect:/commandList?reqExecutor=" + reqExecutor;
 	}
 	
-
 	
 	
 	private List<ScriptSelector> createListOfAllScriptSelectorsWithNothingSelected() {
@@ -269,7 +284,10 @@ public class CommandController {
 	
 	private Map<String, Object> createMapOfDropdowns() {
 		Map<String, Object> map = new HashMap<String, Object>(); 
-		map.put("commandExecutors",AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
+		List<String> listOfCommandExecutors = new ArrayList<String>();
+		listOfCommandExecutors.add("");
+		listOfCommandExecutors.addAll(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
+		map.put("commandExecutors",listOfCommandExecutors);		
 		map.put("ingoreStderrYesNo",populateYesNoDropdown());		
 		return map;
 	}

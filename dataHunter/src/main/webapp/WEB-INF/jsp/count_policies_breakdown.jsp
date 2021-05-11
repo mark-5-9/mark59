@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Policies BreakDown</title>
+<title>Items BreakDown</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -37,7 +37,7 @@
   
  <br><br><br>
  
- <b>Policy Breakdown for Application(s) Matching Criteria :</b> 
+ <b>Items Breakdown for Application(s) Matching Criteria :</b> 
 
   <br><br><br> 
 

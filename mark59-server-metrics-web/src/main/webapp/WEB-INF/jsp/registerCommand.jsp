@@ -30,7 +30,7 @@
 <script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
-<body onload="displayWinOnlyPredefinedVars()"> 
+<body onload="sizeToFitText('command.command');sizeToFitText('paramNamesTextboxFormat');visibilyForCommandExecutor();"> 
 
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
@@ -51,38 +51,49 @@
     
      <tr>
       <td>Command&nbsp;Name&nbsp;:</td>
-      <td><form:input path="command.commandName"  value=""  size="64" maxlength="64"  height="20" /></td>
+      <td width="99%"><form:input path="command.commandName"  value=""  size="64" maxlength="64"  height="20" /></td>
      </tr>
    
      <tr>
       <td>Command&nbsp;Executor&nbsp;:</td>
-      <td><form:select path="command.executor"  items="${map.commandExecutors}" value="${map.reqExecutor}"  onChange="displayWinOnlyPredefinedVars()"  /></td>
+      <td><form:select path="command.executor"  items="${map.commandExecutors}" value="${map.reqExecutor}"  onChange="visibilyForCommandExecutor()"  /></td>
      </tr>
 
      <tr>
       <td></td>
-      <td id="winOnlyPredefinedVars" colspan=2 style="font-size: 9px" ><b>predefined (win only):&nbsp;&nbsp;</b>%SERVER_METRICS_WEB_BASE_DIR%</td>   
+      <td id="winOnlyPredefinedVars" style="color:grey;font-size:small;"><b>predefined (win only):&nbsp;&nbsp;</b>%SERVER_METRICS_WEB_BASE_DIR%</td>          
+     </tr>
+
+     <tr>
+      <td></td>
+      <td id="groovyPredefinedVars"  style="color:grey;font-size:small;"> Available variables : <b>parameter names</b> (as listed below)
+             , serverProfile (eg <b>serverProfile.serverProfileName</b>), to be returned : <b>scriptResponse</b></td>
      </tr>
 
      <tr>
       <td>Command&nbsp;:</td>
-      <td><form:textarea path="command.command" value="" style="width:100%;height:50px" /></td>
+      <td><form:textarea path="command.command" value="" spellcheck="false" maxlength="8000"  /></td>
      </tr>
   
      <tr>
       <td>Ignore&nbsp;StdErr?:</td>
       <td><form:select path="command.ingoreStderr"  items="${map.ingoreStderrYesNo}" value="${map.ingoreStderr}" />
-          <span style="font-size: 10px">&nbsp;&nbsp;&nbsp;( If you are unsure, just leave as '<b>N</b>' )</span>
-           </td>      
+          <span style="font-size: 10px">&nbsp;&nbsp;&nbsp;( If you are unsure, just leave as '<b>N</b>' )</span></td>      
      </tr>
      
      <tr>
       <td>Comment&nbsp;:</td>
       <td><form:input path="command.comment"  value=""  size="64" maxlength="128"  height="20" /></td>
      </tr>
-    
      <tr><td><br></td><td></td></tr>
-     <tr> 
+     
+     <tr id=paramNamesRow >
+      <td>Parameter&nbsp;Names&nbsp;:</td>
+      <td><form:textarea path="paramNamesTextboxFormat" spellcheck="false" maxlength="1000"/></td>
+     </tr>
+     
+     <tr><td><br></td><td></td></tr>
+     <tr id=responseParsersRow> 
       <td>Response&nbsp;Parsers</td>
       <td>
  		<table>    
@@ -113,7 +124,5 @@
   </div>
 
 </div>
-
-
 </body>
 </html>

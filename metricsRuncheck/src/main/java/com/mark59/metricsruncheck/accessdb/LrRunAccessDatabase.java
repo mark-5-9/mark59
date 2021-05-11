@@ -189,7 +189,7 @@ public class LrRunAccessDatabase {
 			
 					TestTransaction testTransaction = new TestTransaction();
 					testTransaction.setTxnId(lrEventMapTable.get(currentEventMeterEventId).eventName);
-					testTransaction.setTxnType(Mark59Constants.DatabaseDatatypes.TRANSACTION.name() );
+					testTransaction.setTxnType(Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() );
 					testTransaction.setTxnResult(lrEventMeterBean.getValue());		
 					
 					if (STATUS1_FAIL.equals(lrEventMeterBean.getStatus1())){
@@ -425,7 +425,9 @@ public class LrRunAccessDatabase {
 		serverTransaction.setTxn90th(new BigDecimal(-1.0));
 		if (eventAttributes.getEventMapping().getIsPercentage().equals("Y")){
 			serverTransaction.setTxn90th(new BigDecimal(percentSpendAtBottleneckThresholdStr));
-		}		
+		}	
+		serverTransaction.setTxn95th(new BigDecimal(-1.0));
+		serverTransaction.setTxn99th(new BigDecimal(-1.0));
 		serverTransaction.setTxnPass(count);
 		serverTransaction.setTxnFail(Long.valueOf(-1).longValue() );
 		serverTransaction.setTxnStop(Long.valueOf(-1).longValue() );

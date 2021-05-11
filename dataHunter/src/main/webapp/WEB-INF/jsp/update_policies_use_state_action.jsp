@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Update Policy Use State</title>
+<title>Update Items Use State Action</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -37,7 +37,7 @@
   
  <br><br><br>
  
- <b>Update Policy Use State (optionally EpochTime)</b> 
+ <b>Update Items Use State (optionally EpochTime)</b> 
  <br><br>
   
  <table >

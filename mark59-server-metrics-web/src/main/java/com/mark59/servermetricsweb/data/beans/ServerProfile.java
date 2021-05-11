@@ -16,6 +16,8 @@
 
 package com.mark59.servermetricsweb.data.beans;
 
+import java.util.Map;
+
 /**
  * @author Philip Webb
  * Written: Australian Spring 2020
@@ -23,19 +25,19 @@ package com.mark59.servermetricsweb.data.beans;
 public class ServerProfile {
 
 	String	serverProfileName;
+	String  executor;
 	String	server;
 	String	alternativeServerId;	
 	String	username;
 	String	password;	
 	String	passwordCipher;	
-	String	operatingSystem;
 	String	connectionPort;
 	String	connectionTimeout;
 	String	comment;
+	Map<String,String> parameters;
 	
 	public ServerProfile() {
 	}
-
 
 	public String getServerProfileName() {
 		return serverProfileName;
@@ -45,6 +47,14 @@ public class ServerProfile {
 		this.serverProfileName = serverProfileName;
 	}
 	
+	public String getExecutor() {
+		return executor;
+	}
+
+	public void setExecutor(String executor) {
+		this.executor = executor;
+	}
+
 	public String getServer() {
 		return server;
 	}
@@ -85,14 +95,7 @@ public class ServerProfile {
 		this.passwordCipher = passwordCipher;
 	}
 
-	public String getOperatingSystem() {
-		return operatingSystem;
-	}
 
-	public void setOperatingSystem(String operatingSystem) {
-		this.operatingSystem = operatingSystem;
-	}
-	
 	public String getConnectionPort() {
 		return connectionPort;
 	}
@@ -117,17 +120,27 @@ public class ServerProfile {
 		this.comment = comment;
 	}
 
+	public Map<String, String> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(Map<String, String> parameters) {
+		this.parameters = parameters;
+	}
 
 	@Override
     public String toString() {
         return   "[serverProfileName="+ serverProfileName + 
-        		", operatingSystem="+ operatingSystem + 
-        		", username="+ username + 
-        		", password="+ password + 
-        		", passwordCipher="+ passwordCipher + 
+        		", executor="+ executor + 
+        		", server="+ server + 
         		", alternativeServerId="+ alternativeServerId + 
+        		", username="+ username + 
+//        		", password="+ password + 
+//        		", passwordCipher="+ passwordCipher + 
         		", connectionPort="+ connectionPort  +
         		", connectionTimeout="+ connectionTimeout  +
+        		", comment="+ comment  +
+        		", parameters="+ parameters  +
         		"]";
 	}
 

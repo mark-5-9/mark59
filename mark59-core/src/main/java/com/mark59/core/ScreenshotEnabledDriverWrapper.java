@@ -17,14 +17,16 @@
 package com.mark59.core;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mark59.core.utils.ScreenshotLoggingHelper;
 
@@ -122,8 +124,12 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 		bufferScreenshot("EXCEPTION");
 		writeBufferedArtifacts();
 		
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		String stackTrace = sw.toString(); 
+				
 		ScreenshotLoggingHelper.writeScreenshotLog(new File(ScreenshotLoggingHelper.buildFullyQualifiedImageName("EXCEPTION", "txt")),
-														StringUtils.isNotBlank(e.getMessage()) ? e.getMessage().getBytes() : null);
+														StringUtils.isNotBlank(stackTrace) ? stackTrace.getBytes() : null);
 	}
 
 

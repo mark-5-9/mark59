@@ -30,7 +30,7 @@
 <script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
-<body onload="displayWinOnlyPredefinedVars()"> 
+<body onload="sizeToFitText('command.command');sizeToFitText('paramNamesTextboxFormat');visibilyForCommandExecutor();"> 
 
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
@@ -41,40 +41,58 @@
   <p>&nbsp;</p> 
   
   <div>
+  
+   <c:if test="${map.reqErr != ''}">
+		<p style="color:red"><b>${map.reqErr}</b></p> 
+   </c:if>     
  
    <form:form method="post" action="updateCommand?reqExecutor=${map.reqExecutor}" modelAttribute="commandEditingForm" >
     <table >
     
      <tr>
-      <td>Command&nbsp;Name&nbsp;:</td><td>${map.commandEditingForm.command.commandName} </td> </tr>
+      <td>Command&nbsp;Name&nbsp;:</td><td width="99%">${map.commandEditingForm.command.commandName}</td>
+     </tr>
    
      <tr>
       <td>Command&nbsp;Executor&nbsp;:</td>
-      <td><form:select path="command.executor"  items="${map.commandExecutors}" value="${map.commandEditingForm.command.executor}"  onChange="displayWinOnlyPredefinedVars()" /></td>
+      <td>${map.commandEditingForm.command.executor}</td>
      </tr>
 
      <tr>
       <td></td>
-      <td id="winOnlyPredefinedVars" colspan=2 style="font-size: 9px" ><b>predefined (win only):&nbsp;&nbsp;</b>%SERVER_METRICS_WEB_BASE_DIR%</td>          
+      <td id="winOnlyPredefinedVars" style="color:grey;font-size:small;"><b>predefined (win only):&nbsp;&nbsp;</b>%SERVER_METRICS_WEB_BASE_DIR%</td>          
+     </tr>
+
+     <tr>
+      <td></td>
+      <td id="groovyPredefinedVars"  style="color:grey;font-size:small;"> Available variables : <b>parameter names</b> (as listed below)
+             , serverProfile (eg <b>serverProfile.serverProfileName</b>), to be returned : <b>scriptResponse</b></td>
      </tr>
 
      <tr>
       <td>Command&nbsp;:</td>
-      <td><form:textarea path="command.command" style="width:100%;height:50px"  maxlength="4000" /></td>
+      <td><form:textarea path="command.command" spellcheck="false" maxlength="8000"/></td>
      </tr>
    
      <tr>
       <td>Ignore&nbsp;StdErr?:</td>
       <td><form:select path="command.ingoreStderr"  items="${map.ingoreStderrYesNo}" value="${map.commandEditingForm.command.ingoreStderr}" /></td>      
      </tr>
-     
+     <tr><td><br></td><td></td></tr>
+          
      <tr>
       <td>Comment&nbsp;:</td>
       <td><form:input path="command.comment"  size="100" maxlength="128"  height="20" /></td>
      </tr>
-     
      <tr><td><br></td><td></td></tr>
-     <tr> 
+         
+     <tr id=paramNamesRow >
+      <td>Parameter&nbsp;Names&nbsp;:</td>
+      <td><form:textarea path="paramNamesTextboxFormat" spellcheck="false" maxlength="1000"/></td>
+     </tr>
+              
+     <tr><td><br></td><td></td></tr>
+     <tr id=responseParsersRow> 
       <td>Response&nbsp;Parsers</td>
       <td>
  		<table>    
@@ -102,12 +120,11 @@
     </table>
      
     <form:hidden path="command.commandName" />     
+    <form:hidden path="command.executor" />     
      
    </form:form>
   </div>
 
 </div>
-
-
 </body>
 </html>

@@ -16,8 +16,13 @@
 
 package com.mark59.servermetricsweb.data.serverprofiles.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mark59.servermetricsweb.data.beans.ServerProfile;
 
 
@@ -38,5 +43,27 @@ public interface ServerProfilesDAO
 	void updateServerProfile(ServerProfile serverProfile);
 
 	void deleteServerProfile(String serverProfileName);
+	
+	
+	default String serializeMapToJson(Map<String,String> parameters)  {
+		try {
+			return new ObjectMapper().writeValueAsString(parameters);
+		} catch (JsonProcessingException e) {
+			return "";
+		}
+	}
+		
+	default Map<String,String> deserializeJsonToMap(String parameters)  {
+		Map<String, String> parametersMap = new HashMap<String, String>();
+		TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>(){};
+		try {
+			parametersMap = new ObjectMapper().readValue(parameters, typeRef);
+		} catch (Exception e) {
+			return new HashMap<String, String>();
+		}
+		return parametersMap;
+	}	
+	
+	
 
 }

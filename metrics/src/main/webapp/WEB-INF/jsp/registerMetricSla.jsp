@@ -67,11 +67,11 @@
      </tr>
      <tr>
       <td>Min Value :</td>
-      <td><form:input path="slaMin"  value="0.0" /></td>     
+      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="0.0" /></td>     
      </tr>     
      <tr>
       <td>Max Value :</td>
-      <td><form:input path="slaMax"  value="0.0" /></td>     
+      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="0.0" /></td>     
      </tr>
      <tr>
       <td>Is Active :</td>

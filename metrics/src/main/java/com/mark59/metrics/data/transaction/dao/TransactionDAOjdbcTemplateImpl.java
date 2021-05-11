@@ -57,8 +57,9 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	public void insert(Transaction transaction) {
 		String sql = "INSERT INTO TRANSACTION "
 				+ "(APPLICATION, RUN_TIME, TXN_ID, TXN_TYPE, "
-				+ "TXN_MINIMUM, TXN_AVERAGE, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_PASS, TXN_FAIL, TXN_STOP, TXN_FIRST, TXN_LAST, TXN_SUM  )"
-				+ " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "TXN_MINIMUM, TXN_AVERAGE, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_95TH, TXN_99TH, "
+				+ "TXN_PASS, TXN_FAIL, TXN_STOP, TXN_FIRST, TXN_LAST, TXN_SUM  )"
+				+ " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		
 //		System.out.println("TransactionDAOjdbcTemplateImpl insert [" + transaction.toString() + "]"   );
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -67,7 +68,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 				new Object[] { transaction.getApplication(), transaction.getRunTime(), 
 				transaction.getTxnId(), transaction.getTxnType(),
 				transaction.getTxnMinimum(), transaction.getTxnAverage(), transaction.getTxnMaximum(),
-				transaction.getTxnStdDeviation(), transaction.getTxn90th(),
+				transaction.getTxnStdDeviation(), transaction.getTxn90th(), transaction.getTxn95th(), transaction.getTxn99th(),
 				transaction.getTxnPass(), transaction.getTxnFail(), transaction.getTxnStop(), 
 				transaction.getTxnFirst(), transaction.getTxnLast(), transaction.getTxnSum() });
 	}

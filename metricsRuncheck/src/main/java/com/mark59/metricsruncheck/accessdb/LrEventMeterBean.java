@@ -32,19 +32,12 @@ public class LrEventMeterBean {
 	public LrEventMeterBean() {
 	}
 
-
 	public LrEventMeterBean(Integer eventId, String endTime, BigDecimal value, String status1) {
 		this.eventId = eventId;
 		this.endTime = endTime;
 		this.value = value;
 		this.status1 = status1;
 	}
-
-
-
-
-
-
 
 	public Integer getEventId() {
 		return eventId;

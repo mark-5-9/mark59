@@ -19,10 +19,12 @@ package com.mark59.selenium.drivers;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Capabilities;
@@ -35,8 +37,12 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.Command;
+import org.openqa.selenium.remote.CommandExecutor;
 
+import com.google.common.collect.ImmutableMap;
 import com.mark59.core.utils.Mark59Constants;
+import com.mark59.core.utils.Mark59Utils;
 
 
 /**
@@ -186,7 +192,34 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 				LOG.debug("  Chrome Driver Version    : " + chromeReturnedCapsMap.get("chromedriverVersion"));
 				LOG.debug("  Chrome Driver Temp Dir   : " + chromeReturnedCapsMap.get("userDataDir"));
 			}
+			
+	
+			String emulateNetworkConditions = arguments.get(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS);
+			if (StringUtils.isNotBlank(emulateNetworkConditions)) {
+				List<String> emulateNetworkConditionsArray = Mark59Utils.commaDelimStringToStringList(emulateNetworkConditions);
+				if (emulateNetworkConditionsArray.size() != 3 ) {
+					LOG.warn("Invalid EMULATE_NETWORK_CONDITIONS passed (3 comma-delimited values required) and will be ignored : " + emulateNetworkConditions);
+				} else if (	!StringUtils.isNumeric(emulateNetworkConditionsArray.get(0)) || 
+							!StringUtils.isNumeric(emulateNetworkConditionsArray.get(1)) || 
+							!StringUtils.isNumeric(emulateNetworkConditionsArray.get(2) )){
+					LOG.warn("Invalid EMULATE_NETWORK_CONDITIONS passed (only integer values allowed) and will be ignored : " + emulateNetworkConditions);
+					
+				} else {
 
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("offline", false);
+					map.put("download_throughput", 	Integer.valueOf(emulateNetworkConditionsArray.get(0)) * 128);  	// kbps to bytes/sec (1024/8)
+					map.put("upload_throughput",   	Integer.valueOf(emulateNetworkConditionsArray.get(1)) * 128);  	// kbps to bytes/sec (1024/8)
+					map.put("latency", 				Integer.valueOf(emulateNetworkConditionsArray.get(2)));			// msecs
+
+					CommandExecutor executor = ((ChromeDriver) driver).getCommandExecutor();
+					executor.execute(new Command(((ChromeDriver) driver).getSessionId(),
+							"setNetworkConditions", ImmutableMap.of("network_conditions", ImmutableMap.copyOf(map))));
+					
+					LOG.debug("  EMULATE_NETWORK_CONDITIONS triggered   : " + emulateNetworkConditions);
+				}
+			}
+			
 		} catch (Exception e) {
 			LOG.error("An error has occured during the creation of the ChromeDriver : "  + e.getMessage() );	
 			e.printStackTrace();

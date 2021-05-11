@@ -24,6 +24,7 @@ public class Run {
 	
 	String		application;
 	String		runTime;
+	String		isRunIgnored;
 	String		runReference;
 	String		period;
 	String		duration;	
@@ -37,6 +38,7 @@ public class Run {
 	public Run(Run run) {
 		this.application = run.application;
 		this.runTime = run.runTime;
+		this.isRunIgnored = run.isRunIgnored;
 		this.runReference = run.runReference;
 		this.period = run.period;
 		this.duration = run.duration;
@@ -53,6 +55,12 @@ public class Run {
 	}
 	public String getRunTime() {
 		return runTime;
+	}
+	public String getIsRunIgnored() {
+		return isRunIgnored;
+	}
+	public void setIsRunIgnored(String isRunIgnored) {
+		this.isRunIgnored = isRunIgnored;
 	}
 	public void setRunTime(String runTime) {
 		this.runTime = runTime;
@@ -92,12 +100,12 @@ public class Run {
 	public String toString() {
 		return  "application="+application
 			+ ", runTime="+runTime
+			+ ", isRunIgnored="+isRunIgnored
   			+ ", runReference="+runReference
   			+ ", period="+period
   			+ ", duration="+duration
   			+ ", baselineRun="+baselineRun
   			+ ", comment="+comment;
 	}
-	
 
 }

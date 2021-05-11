@@ -29,23 +29,22 @@
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
 <script>
 	
-	function resendServerListOperatingSystem()
+	function resendCommandListExecutor()
 	{
-		var selectedreqOperatingSystem = document.getElementById("operatingSystem").value;		
-		window.location.href = 	"./serverProfileList?reqOperatingSystem=" + selectedreqOperatingSystem;
+		var selectedReqExecutor = document.getElementById("executor").value;		
+		window.location.href = 	"./serverProfileList?reqExecutor=" + selectedReqExecutor;
 	}	
 
-	function setSelectedOperatingSystemInDropdown(reqOperatingSystem)
+	function setSelectedExecutorInDropdown(reqExecutor)
 	{    
-	    var element = document.getElementById('operatingSystem');
-	    element.value = reqOperatingSystem;
+	    var element = document.getElementById('executor');
+	    element.value = reqExecutor;
 	}	
 
-	
 </script>
 </head>
 
-<body onload="setSelectedOperatingSystemInDropdown('${parmsMap.reqOperatingSystem}') ">
+<body onload="setSelectedExecutorInDropdown('${parmsMap.reqExecutor}') ">
               
               
 <%-- Include navigation element --%>
@@ -55,7 +54,7 @@
 
  <h1>Monitored Server Profiles</h1>     
 
- <p><a href="registerServerProfile?reqOperatingSystem=${parmsMap.reqOperatingSystem}">Add Server Profile</a></p>
+ <p><a href="registerServerProfile?reqExecutor=${parmsMap.reqExecutor}">Add Server Profile</a></p>
 
  <p><a href="downloadServerProfiles">Download Server Profiles</a></p>
 
@@ -66,10 +65,10 @@
     <th></th>
     <th></th>
     <th>Server Profile Name</th>    
+    <th>Command(s) Executor<br><form:select id='executor' path="parmsMap" items="${parmsMap.commandExecutors}"  onChange="resendCommandListExecutor()" /></th>
     <th>Server</th>
     <th>Alternative Server Id</th>        
     <th>Username</th>
-    <th>Operating System<br><form:select id='operatingSystem' path="parmsMap" items="${parmsMap.operatingSystems}"  onChange="resendServerListOperatingSystem()" /></th>
     <th>Port</th>
     <th>Timeout</th>
     <th>Comment</th> 
@@ -77,14 +76,14 @@
    </tr>
    <c:forEach var="serverProfileWithCommands" items="${parmsMap.serverProfileWithCommandLinksList}">
     <tr>
-     <td><a href="copyServerProfile?&reqServerProfileName=${serverProfileWithCommands.serverProfile.serverProfileName}&reqOperatingSystem=${parmsMap.reqOperatingSystem}" title="Copy"><img src="images/copy.png"/></a></td> 
-     <td><a href="editServerProfile?&reqServerProfileName=${serverProfileWithCommands.serverProfile.serverProfileName}&reqOperatingSystem=${parmsMap.reqOperatingSystem}" title="Edit"><img src="images/edit.png"/></a></td>
-     <td><a href="deleteServerProfile?&reqServerProfileName=${serverProfileWithCommands.serverProfile.serverProfileName}&reqOperatingSystem=${parmsMap.reqOperatingSystem}" onclick="return confirm('Are you sure (server profile : ${serverProfileWithCommands.serverProfile.serverProfileName})?');" title="Delete"><img src="images/delete.png"/></a></td>
-     <td><a href="viewServerProfile?&reqServerProfileName=${serverProfileWithCommands.serverProfile.serverProfileName}&reqOperatingSystem=${parmsMap.reqOperatingSystem}">${serverProfileWithCommands.serverProfile.serverProfileName}</a></td>
+     <td><a href="copyServerProfile?&reqServerProfileName=${serverProfileWithCommands.serverProfile.serverProfileName}&reqExecutor=${parmsMap.reqExecutor}" title="Copy"><img src="images/copy.png"/></a></td> 
+     <td><a href="editServerProfile?&reqServerProfileName=${serverProfileWithCommands.serverProfile.serverProfileName}&reqExecutor=${parmsMap.reqExecutor}" title="Edit"><img src="images/edit.png"/></a></td>
+     <td><a href="deleteServerProfile?&reqServerProfileName=${serverProfileWithCommands.serverProfile.serverProfileName}&reqExecutor=${parmsMap.reqExecutor}" onclick="return confirm('Are you sure (server profile : ${serverProfileWithCommands.serverProfile.serverProfileName})?');" title="Delete"><img src="images/delete.png"/></a></td>
+     <td><a href="viewServerProfile?&reqServerProfileName=${serverProfileWithCommands.serverProfile.serverProfileName}&reqExecutor=${parmsMap.reqExecutor}">${serverProfileWithCommands.serverProfile.serverProfileName}</a></td>
+     <td>${serverProfileWithCommands.serverProfile.executor}</td>
      <td>${serverProfileWithCommands.serverProfile.server}</td>
      <td>${serverProfileWithCommands.serverProfile.alternativeServerId}</td>
      <td>${serverProfileWithCommands.serverProfile.username}</td>
-     <td>${serverProfileWithCommands.serverProfile.operatingSystem}</td>
      <td>${serverProfileWithCommands.serverProfile.connectionPort}</td>
      <td>${serverProfileWithCommands.serverProfile.connectionTimeout}</td>
      <td>${serverProfileWithCommands.serverProfile.comment}</td>

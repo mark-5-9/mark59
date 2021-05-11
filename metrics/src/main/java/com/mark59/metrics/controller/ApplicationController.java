@@ -113,7 +113,7 @@ public class ApplicationController {
 
 
 	@RequestMapping("/editApplication")
-	public String editApplication(@RequestParam String applicationId, @ModelAttribute Application application, Model model) {
+	public String editApplication(@RequestParam String applicationId, @RequestParam String reqAppListSelector, @ModelAttribute Application application, Model model) {
 		
 		application = applicationDAO.findApplication(applicationId); 
 		model.addAttribute("application", application);
@@ -122,16 +122,17 @@ public class ApplicationController {
 		List<String> activeYesNo = populateActiveYesNoDropdown();	
 		map.put("activeYesNo",activeYesNo);
 		map.put("applicationId",applicationId);
+		map.put("reqAppListSelector",reqAppListSelector);
 		model.addAttribute("map", map);
 		return "editApplication"; 
 	}
 	
 
 	@RequestMapping("/updateApplication")
-	public ModelAndView updateApplication(@ModelAttribute Application application) {
+	public ModelAndView updateApplication(@RequestParam String reqAppListSelector, @ModelAttribute Application application) {
 		System.out.println("@ updateApplication : app=" + application.getApplication() ); 
 		applicationDAO.updateApplication(application);
-		return new ModelAndView("redirect:/dashboard?reqAppListSelector=All" ) ;
+		return new ModelAndView("redirect:/dashboard?reqAppListSelector=" + reqAppListSelector ) ;
 	}
 
 	
@@ -213,7 +214,7 @@ public class ApplicationController {
 	
 	@RequestMapping("/deleteApplication")
 	public String deleteApplication(@RequestParam String applicationId) {
-		System.out.println("deleting application data  entry for: " + applicationId  );
+		System.out.println("deleting all application data for: " + applicationId  );
 		runDAO.deleteAllForApplication(applicationId);
 		return "redirect:/dashboard?reqAppListSelector=All";
 	}

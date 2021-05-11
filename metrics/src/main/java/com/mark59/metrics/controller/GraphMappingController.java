@@ -55,7 +55,7 @@ public class GraphMappingController {
 	
 	@RequestMapping("/registerGraphMapping")
 	public ModelAndView registerSla(@RequestParam(required=false) String reqErr, @ModelAttribute GraphMapping graphMapping) { 
-		List<String>transactionTypes = Mark59Constants.DatabaseDatatypes.listOfDatabaseDatatypes();  
+		List<String>transactionTypes = Mark59Constants.DatabaseTxnTypes.listOfDatabaseTxnTypes();  
 		Map<String, Object> map = new HashMap<String, Object>(); 
 		map.put("transactionTypes",transactionTypes);			
 		return new ModelAndView("registerGraphMapping",  "map", map);  	
@@ -66,7 +66,6 @@ public class GraphMappingController {
 		GraphMapping existingGraphMapping = new GraphMapping();
 		if (graphMapping != null)
 			existingGraphMapping = graphMappingDAO.findGraphMapping(graphMapping.getGraph() ); 
-//			System.out.println("insertData does " + sla.getApplication() + ":" + sla.getTxnId() + " exist? " +  existingSla   );
 		
 			if (existingGraphMapping == null ){  //not trying to add something already there, so go ahead..
 				graphMappingDAO.inserttGraphMapping(graphMapping);
@@ -75,15 +74,14 @@ public class GraphMappingController {
 				return "redirect:/registerGraphMapping?&reqErr=Oh, graph " + graphMapping.getGraph()  + " AlreadyExists";
 			}
 	}	
-	
 
 	
 	@RequestMapping("/editGraphMapping")
 	public ModelAndView editGraphMapping(@RequestParam String graph,  @ModelAttribute GraphMapping graphMapping) {
-		System.out.println("GraphMappingController:ediGraphMapping : graph=" + graph  );		
+		System.out.println("GraphMappingController:editGraphMapping : graph=" + graph  );		
 		graphMapping = graphMappingDAO.findGraphMapping(graph);
 		Map<String, Object> map = new HashMap<String, Object>(); 
-		List<String>transactionTypes = Mark59Constants.DatabaseDatatypes.listOfDatabaseDatatypes();  
+		List<String>transactionTypes = Mark59Constants.DatabaseTxnTypes.listOfDatabaseTxnTypes();  
 		map.put("graphMapping",graphMapping);
 		map.put("transactionTypes",transactionTypes);
 		return new ModelAndView("editGraphMapping", "map", map);
@@ -94,16 +92,12 @@ public class GraphMappingController {
 		graphMappingDAO.updateGraphMapping(graphMapping);
 		return "redirect:/graphMappingList";
 	}
-	
-	
 
 	@RequestMapping("/deleteGraphMapping")
-	public String deleteSla(@RequestParam String graph) {
-//		System.out.println("deleting sla for  app = " + reqApp + ", txnId = " + txnId);
+	public String deleteGraphMapping(@RequestParam String graph) {
+		System.out.println("GraphMappingController:deleteGraphMapping : graph=" + graph  );	
 		graphMappingDAO.deleteGraphMapping(graph);
 		return "redirect:/graphMappingList";
 	}
-	
-	
 
 }

@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Delete Multiple Policies</title>
+<title>Delete Multiple Items</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -37,7 +37,7 @@
   
  <br><br><br>
  
- <b>Delete Multiple Policies Matching Selection Criteria</b> 
+ <b>Delete Multiple Items Matching Selection Criteria</b> 
 
   <br><br><br> 
 

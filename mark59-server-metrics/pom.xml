@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-server-metrics</artifactId>
-	<version>3.0.1</version>
+	<version>3.2.0</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-server-metrics</name>
@@ -22,7 +22,7 @@
 		<!-- The logging exclusion is because mark59's core class Log4jConfigurationHelper expects
 		     a log4j binding as used in server-metrics-web, not SpringBoot's Logback binding.  
 		     Also, groovy-all version between web application and JMeter may differ, so excluded 
-		     (was changed to 2.4.18 for JMeter 5.3) -->
+		     (was changed 3.0.7 for JMeter 5.4.1) -->
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-server-metrics-web</artifactId>
@@ -36,14 +36,14 @@
 				    <artifactId>groovy-all</artifactId>
 				</exclusion>				
 			</exclusions>				
-			<version>3.0.1</version>
+			<version>3.2.0</version>
 		</dependency>
 	
 		<!-- https://mvnrepository.com/artifact/org.apache.jmeter/ApacheJMeter_core -->
 		<dependency>
 			<groupId>org.apache.jmeter</groupId>
 			<artifactId>ApacheJMeter_java</artifactId>
-			<version>5.3</version>
+			<version>5.4.1</version>
 			<scope>provided</scope>
 		</dependency>
 	
@@ -55,10 +55,11 @@
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<!-- (only required for legacy classes) -->
 		<dependency>
 		    <groupId>org.json</groupId>
 		    <artifactId>json</artifactId>
-		    <version>20190722</version>
+		    <version>20201115</version>
 		</dependency>
 
 		<dependency>
@@ -80,7 +81,9 @@
 			     (to be copied into the jmeter lib/ext folder -->
 
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>			
 				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.3.0</version>
 				<configuration>
 					<appendAssemblyId>false</appendAssemblyId>
 					<descriptorRefs><descriptorRef>jar-with-dependencies</descriptorRef></descriptorRefs>

@@ -62,8 +62,7 @@
       <td>&nbsp;</td>
       <td></td>
      </tr>   
-  
-      
+
      <tr>
       <td> </td>
       <td><input type="submit" value="Copy All" />
@@ -71,7 +70,6 @@
      </tr>
      
      <tr>
-      
       <td colspan="2"><a href="slaList?reqApp=${copyApplicationForm.reqApp}">Cancel</a></td>
      </tr>     
      

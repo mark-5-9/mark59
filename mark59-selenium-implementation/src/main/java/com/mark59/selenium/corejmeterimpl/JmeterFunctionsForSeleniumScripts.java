@@ -35,7 +35,7 @@ import com.mark59.selenium.drivers.SeleniumDriverWrapper;
  * <p>At instantiation, transaction level logging usage is set, based on the log4j level.  This can be over-ridden vai Jmeter parameters and/or directly calling 
  * the methods in this class from the script.</p>
  * 
- * <p>From jmeter, selenium scripts (those extending SeleniumAbstractJavaSamplerClient) have been provisioned to have transaction-level 'logging settings' available.<br>
+ * <p>From JMeter, Selenium scripts (that extend SeleniumAbstractJavaSamplerClient) have been provisioned to have transaction-level 'logging settings' available.<br>
  * 
  *  <p>Current default outputs setting are :
  *  
@@ -62,7 +62,7 @@ import com.mark59.selenium.drivers.SeleniumDriverWrapper;
  * if (LOG.isInfoEnabled()) jm.logScreenshotsAtStartOfTransactions(ScreenshotLogging.WRITE);
  * jm.startTransaction("Some-transaction-whose-screenshot-i-want-to-see-at-the-start-when-at-log4j-INFO-level");
  *       :
- * //ok, now just go back to the default behaviour for the current Log4j level..  	 
+ * //OK, now just go back to the default behavior for the current Log4j level..  	 
  * if (LOG.isInfoEnabled()) jm.logScreenshotsAtStartOfTransactions(ScreenshotLogging.DEFAULT);
  * </code></pre>
  * 
@@ -169,9 +169,9 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	
 	
 	
-	public void endTransaction(String transactionLabel, Outcome result, boolean includeInEndOfTransactionScreenshotLogs) {
+	public SampleResult endTransaction(String transactionLabel, Outcome result, boolean includeInEndOfTransactionScreenshotLogs) {
 		
-		super.endTransaction(transactionLabel, result);
+		SampleResult sampleResult = super.endTransaction(transactionLabel, result);
 
 		String markIfailedTxn = "";
 		if (result.getOutcomeText().equals(Outcome.FAIL.getOutcomeText())){
@@ -200,20 +200,21 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 				seleniumDriverWrapper.writeDriverLogs(transactionLabel + markIfailedTxn + "_perflog" );
 			}			
 		}
+		return sampleResult;
 	}
 	
-	public void endTransaction(String transactionLabel, boolean includeInEndOfTransactionshots) {
-		endTransaction(transactionLabel, Outcome.PASS, includeInEndOfTransactionshots); 
-	}
-	
-	@Override
-	public void endTransaction(String transactionLabel, Outcome result) {
-		endTransaction(transactionLabel, result, true); 
+	public SampleResult endTransaction(String transactionLabel, boolean includeInEndOfTransactionshots) {
+		return endTransaction(transactionLabel, Outcome.PASS, includeInEndOfTransactionshots); 
 	}
 	
 	@Override
-	public void endTransaction(String transactionLabel) {
-		endTransaction(transactionLabel, Outcome.PASS, true);
+	public SampleResult endTransaction(String transactionLabel, Outcome result) {
+		return endTransaction(transactionLabel, result, true); 
+	}
+	
+	@Override
+	public SampleResult endTransaction(String transactionLabel) {
+		return endTransaction(transactionLabel, Outcome.PASS, true);
 	}
 	
 

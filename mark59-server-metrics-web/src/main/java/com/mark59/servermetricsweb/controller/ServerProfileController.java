@@ -61,9 +61,12 @@ import com.mark59.servermetricsweb.data.commandparserlinks.dao.CommandParserLink
 import com.mark59.servermetricsweb.data.commands.dao.CommandsDAO;
 import com.mark59.servermetricsweb.data.servercommandlinks.dao.ServerCommandLinksDAO;
 import com.mark59.servermetricsweb.data.serverprofiles.dao.ServerProfilesDAO;
+import com.mark59.servermetricsweb.forms.CommandParameter;
 import com.mark59.servermetricsweb.forms.CommandSelector;
 import com.mark59.servermetricsweb.forms.ServerProfileEditingForm;
 import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb;
+import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb.CommandExecutorDatatypes;
+import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
 
 
 
@@ -142,15 +145,16 @@ public class ServerProfileController {
 			
 			// System.out.println("serverProfile [" + serverProfile + "]" ); 
 			dataRow.createCell(0).setCellValue(serverProfile.getServerProfileName());			
-			dataRow.createCell(1).setCellValue(serverProfile.getServer());
-			dataRow.createCell(2).setCellValue(serverProfile.getAlternativeServerId());
-			dataRow.createCell(3).setCellValue(serverProfile.getUsername());
-			dataRow.createCell(4).setCellValue(serverProfile.getPassword());
-			dataRow.createCell(5).setCellValue(serverProfile.getPasswordCipher());
-			dataRow.createCell(6).setCellValue(serverProfile.getOperatingSystem());
+			dataRow.createCell(1).setCellValue(serverProfile.getExecutor());
+			dataRow.createCell(2).setCellValue(serverProfile.getServer());
+			dataRow.createCell(3).setCellValue(serverProfile.getAlternativeServerId());
+			dataRow.createCell(4).setCellValue(serverProfile.getUsername());
+			dataRow.createCell(5).setCellValue(serverProfile.getPassword());
+			dataRow.createCell(6).setCellValue(serverProfile.getPasswordCipher());
 			dataRow.createCell(7).setCellValue(serverProfile.getConnectionPort());
 			dataRow.createCell(8).setCellValue(serverProfile.getConnectionTimeout());
 			dataRow.createCell(9).setCellValue(serverProfile.getComment());
+			dataRow.createCell(10).setCellValue(serverProfilesDAO.serializeMapToJson(serverProfile.getParameters()));
 			rowIndex++;
 		}
 		autoSizeColumns(sheet, columnCount);
@@ -180,6 +184,7 @@ public class ServerProfileController {
 			dataRow.createCell(2).setCellValue(command.getCommand());
 			dataRow.createCell(3).setCellValue(command.getIngoreStderr());
 			dataRow.createCell(4).setCellValue(command.getComment());
+			dataRow.createCell(5).setCellValue(commandsDAO.serializeListToJson(command.getParamNames()));
 			rowIndex++;
 		}
 		autoSizeColumns(sheet, columnCount);
@@ -218,7 +223,6 @@ public class ServerProfileController {
 		workbook.write(outputStream);
 		workbook.close();
 		return outputStream;        
-
 	}	
 		
 	private int createHeaderRow(Sheet sheet, CellStyle headerCellStyle, String tableName) {
@@ -242,51 +246,149 @@ public class ServerProfileController {
 	
 
 	@RequestMapping("/registerServerProfile")
-	public ModelAndView registerServerProfile(@RequestParam(required=false) String reqOperatingSystem, @RequestParam(required=false) String reqErr, 
+	public ModelAndView registerServerProfile(@RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr, 
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm) { 
 		
 		ServerProfile serverProfile = new ServerProfile();
-		serverProfile.setOperatingSystem(reqOperatingSystem);
-		serverProfileEditingForm.setServerProfile(serverProfile);
-				
+		serverProfile.setExecutor(reqExecutor);
+		serverProfileEditingForm.setServerProfile(serverProfile);		
+
 		ServerProfileWithCommandLinks serverProfileWithCommandLinks = serverProfileAddSelectedCommandLinks(serverProfile);
-		serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
+		
+		serverProfileEditingForm.setCommandSelectors(new ArrayList<CommandSelector>());
+		
+		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
+			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
+			String selectedScriptCommandName = selectedScriptCommandName(serverProfileWithCommandLinks);
+			serverProfileEditingForm.setSelectedScriptCommandName(selectedScriptCommandName); 
+			serverProfileEditingForm.setCommandParameters(alignProfileToCurrentCommandParameters(serverProfile, selectedScriptCommandName));
+		} else if (CommandExecutorDatatypes.SSH_LINIX_UNIX.getExecutorText().equals(serverProfile.getExecutor()) ||
+				   CommandExecutorDatatypes.WMIC_WINDOWS.getExecutorText().equals(serverProfile.getExecutor())){  
+			serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
+		}
 
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("serverProfileEditingForm",serverProfileEditingForm);		
-		map.put("reqOperatingSystem",reqOperatingSystem);
+		map.put("reqExecutor", reqExecutor);
 		
 		return new ModelAndView("registerServerProfile", "map", map);
 	}
 	
 
 	@RequestMapping("/insertServerProfile")
-	public ModelAndView insertServerProfile( @RequestParam(required=false) String reqOperatingSystem, @RequestParam(required=false) String reqErr,  
+	public ModelAndView insertServerProfile( @RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr,  
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm, Model model) {
 
 		Map<String, Object> map = createMapOfDropdowns();			
-		map.put("reqOperatingSystem",reqOperatingSystem);
+		map.put("reqExecutor", reqExecutor);
 		
 		ServerProfile serverProfile = serverProfileEditingForm.getServerProfile();
+	
+//		System.out.println("insertServerProfile exec change : " + serverProfileEditingForm.getSelectedExecutorChanged());
+//		System.out.println("insertServerProfile exec        : " + serverProfileEditingForm.getServerProfile().getExecutor());	
+//		System.out.println("insertServerProfile cmd change  : " + serverProfileEditingForm.getSelectedScriptCommandNameChanged() );
+//		System.out.println("insertServerProfile cmd         : " + serverProfileEditingForm.getSelectedScriptCommandName());
+//		System.out.println("insertServerProfile cmd parms   : " + serverProfileEditingForm.getCommandParameters());
 		
-		if (StringUtils.isEmpty(serverProfile.getServerProfileName()) ) {
+		if ("true".equalsIgnoreCase(serverProfileEditingForm.getSelectedExecutorChanged())){
+		
+			serverProfileEditingForm.setSelectedExecutorChanged("false");
+			serverProfileEditingForm.setSelectedScriptCommandNameChanged("false");
+			serverProfileEditingForm.setSelectedScriptCommandName("");
+			serverProfileEditingForm.setCommandSelectors(new ArrayList<CommandSelector>());
+			serverProfileEditingForm.setCommandNames(new ArrayList<String>());
+			
+			serverProfileEditingForm.setCommandParameters(new ArrayList<CommandParameter>());
+			serverProfile.setParameters(new HashMap<String,String>());
+
+			if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
+				serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
+				//clear server related data:
+				serverProfile.setServer("");
+				serverProfile.setAlternativeServerId("");
+				serverProfile.setUsername("");
+				serverProfile.setPassword("");
+				serverProfile.setPasswordCipher("");
+				serverProfile.setConnectionPort("");
+				serverProfile.setConnectionTimeout("");
+			} else if (CommandExecutorDatatypes.SSH_LINIX_UNIX.getExecutorText().equals(serverProfile.getExecutor()) ||
+					   CommandExecutorDatatypes.WMIC_WINDOWS.getExecutorText().equals(serverProfile.getExecutor())){ 
+				ServerProfileWithCommandLinks blankServerProfileWithCommandLinks = new ServerProfileWithCommandLinks();
+				blankServerProfileWithCommandLinks.setServerProfile(new ServerProfile());
+				blankServerProfileWithCommandLinks.setCommandNames(new ArrayList<String>());
+				serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(blankServerProfileWithCommandLinks));
+				if (CommandExecutorDatatypes.SSH_LINIX_UNIX.getExecutorText().equals(serverProfile.getExecutor())){
+					serverProfile.setConnectionPort("22");
+					serverProfile.setConnectionTimeout("60000");
+				} else {
+					serverProfile.setConnectionPort("");
+					serverProfile.setConnectionTimeout("");
+				}
+						
+			} // (else do nothing if the blank executor has been selected)
+			map.put("reqExecutor", reqExecutor);
+			map.put("serverProfileEditingForm", serverProfileEditingForm);	
+			model.addAttribute("map", map);	
+			return new ModelAndView("registerServerProfile", "map", map);
+		}
+
+		if ("true".equalsIgnoreCase(serverProfileEditingForm.getSelectedScriptCommandNameChanged())){
+			//back to register profile page with selected Groovy command parms added
+			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
+			List<CommandParameter> commandParameters = new ArrayList<CommandParameter>();
+			Command command = commandsDAO.findCommand(serverProfileEditingForm.getSelectedScriptCommandName());
+			if (command != null) {
+				for (String paramName : command.getParamNames()) {
+					commandParameters.add(new CommandParameter(paramName, "") );
+				} 
+			}
+			serverProfileEditingForm.setCommandParameters(commandParameters);
+			serverProfileEditingForm.setSelectedScriptCommandNameChanged("false");
+			map.put("reqExecutor", reqExecutor);
+			map.put("serverProfileEditingForm", serverProfileEditingForm);	
+			model.addAttribute("map", map);	
+			return new ModelAndView("registerServerProfile", "map", map);
+		}
+		
+		// verify data and prepare for server profile and command links inserts  
+		
+		if (StringUtils.isBlank(serverProfile.getServerProfileName())){
 			map.put("serverProfileEditingForm", serverProfileEditingForm);		
 			map.put("reqErr", "ServerProfile id is required");			
 			model.addAttribute("map", map);	
 			return new ModelAndView("registerServerProfile", "map", map);
 		}
-
+		if (StringUtils.isBlank(serverProfile.getExecutor())){
+			map.put("serverProfileEditingForm", serverProfileEditingForm);		
+			map.put("reqErr", "You must select a Command Executor from the dropdown");			
+			model.addAttribute("map", map);	
+			return new ModelAndView("registerServerProfile", "map", map);
+		}
+		
+		
 		ServerProfile existingServerProfile = serverProfilesDAO.findServerProfile(serverProfile.getServerProfileName());
 		
 		if (existingServerProfile == null ){  //not trying to add something already there, so go ahead..
-		
+
+			List<String> commandNames = new ArrayList<String>();
+			if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
+				commandNames.add(serverProfileEditingForm.getSelectedScriptCommandName()); 
+				serverProfile.setParameters(ServerMetricsWebUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
+			} else { // win or nix
+				commandNames = createListOfSelectedCommands(serverProfileEditingForm.getCommandSelectors());
+				serverProfile.setParameters(new HashMap<String,String>());
+			}
+			
 			serverProfilesDAO.insertServerProfile(serverProfile);
-			List<String> commandNames = createListOfSelectedCommands(serverProfileEditingForm.getCommandSelectors());
-			serverCommandLinksDAO.updateServerCommandLinksForServerProfileName(serverProfileEditingForm.getServerProfile().getServerProfileName(), commandNames);
+			serverCommandLinksDAO.updateServerCommandLinksForServerProfileName(serverProfile.getServerProfileName(), commandNames);
+
+			serverProfileEditingForm.setServerProfile(serverProfile);
 			map.put("serverProfileEditingForm", serverProfileEditingForm);	
+			model.addAttribute("map", map);	
 			return new ModelAndView("viewServerProfile", "map", map);		
 			
 		} else {
+			serverProfileEditingForm.setServerProfile(serverProfile);
 			map.put("serverProfileEditingForm", serverProfileEditingForm);	
 			map.put("reqErr","Oh, a listing for serverProfileName " + existingServerProfile.getServerProfileName() + " AlreadyExists");			
 			model.addAttribute("map", map);	
@@ -296,12 +398,12 @@ public class ServerProfileController {
 	
 
 	@RequestMapping("/serverProfileList")
-	public ModelAndView serverProfileList(@RequestParam(required=false) String reqOperatingSystem) {
+	public ModelAndView serverProfileList(@RequestParam(required=false) String reqExecutor) {
 
 		List<ServerProfile> serverProfileList = new ArrayList<ServerProfile>(); 
 
-		if (!StringUtils.isEmpty(reqOperatingSystem)){
-			serverProfileList = serverProfilesDAO.findServerProfiles("OPERATING_SYSTEM", reqOperatingSystem);	
+		if (!StringUtils.isEmpty(reqExecutor)){
+			serverProfileList = serverProfilesDAO.findServerProfiles("EXECUTOR", reqExecutor);	
 		} else {
 			serverProfileList = serverProfilesDAO.findServerProfiles();	
 		}
@@ -313,31 +415,39 @@ public class ServerProfileController {
 			serverProfileWithCommandLinksList.add(serverProfileWithCommandLinks);
 		}		
 		
-		List<String>operatingSystems  =  new ArrayList<String>(); 
-		operatingSystems.addAll(AppConstantsServerMetricsWeb.OPERATING_SYSTEM_LIST);
-		operatingSystems.add(0, "");			
+		List<String> commandExecutors = new ArrayList<String>();
+		commandExecutors.add("");
+		commandExecutors.addAll(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
+		
 		
 		Map<String, Object> parmsMap = new HashMap<String, Object>();
 		parmsMap.put("serverProfileWithCommandLinksList", serverProfileWithCommandLinksList);
-		parmsMap.put("operatingSystems", operatingSystems);
-		parmsMap.put("reqOperatingSystem", reqOperatingSystem);
+		parmsMap.put("commandExecutors",commandExecutors);	
+		parmsMap.put("reqExecutor", reqExecutor);
 		return new ModelAndView("serverProfileList", "parmsMap", parmsMap);
 	}
 
 	
 	@RequestMapping("/viewServerProfile")
-	public String viewServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqOperatingSystem,  
+	public String viewServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqExecutor,  
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm, Model model) {
 		
 		ServerProfile serverProfile = serverProfilesDAO.findServerProfile(reqServerProfileName); 
 		serverProfileEditingForm.setServerProfile(serverProfile);
-		
 		ServerProfileWithCommandLinks serverProfileWithCommandLinks = serverProfileAddSelectedCommandLinks(serverProfile);
-		serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
+		
+		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
+			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
+			String selectedScriptCommandName = selectedScriptCommandName(serverProfileWithCommandLinks);
+			serverProfileEditingForm.setSelectedScriptCommandName(selectedScriptCommandName); 
+			serverProfileEditingForm.setCommandParameters(alignProfileToCurrentCommandParameters(serverProfile, selectedScriptCommandName));
+		} else {  
+			serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
+		}
 		model.addAttribute("serverProfileEditingForm", serverProfileEditingForm);
 		
 		Map<String, Object> map = createMapOfDropdowns();
-		map.put("reqOperatingSystem", reqOperatingSystem);
+		map.put("reqExecutor", reqExecutor);
 		map.put("serverProfileEditingForm", serverProfileEditingForm);
 		model.addAttribute("map", map);		
 		return "viewServerProfile";
@@ -346,18 +456,25 @@ public class ServerProfileController {
 	
 	
 	@RequestMapping("/copyServerProfile")
-	public String copyServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqOperatingSystem,  
+	public String copyServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqExecutor,  
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm, Model model) {
 		
 		ServerProfile serverProfile = serverProfilesDAO.findServerProfile(reqServerProfileName); 
 		serverProfileEditingForm.setServerProfile(serverProfile);
-		
 		ServerProfileWithCommandLinks serverProfileWithCommandLinks = serverProfileAddSelectedCommandLinks(serverProfile);
-		serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
+		
+		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
+			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
+			String selectedScriptCommandName = selectedScriptCommandName(serverProfileWithCommandLinks);
+			serverProfileEditingForm.setSelectedScriptCommandName(selectedScriptCommandName); 
+			serverProfileEditingForm.setCommandParameters(alignProfileToCurrentCommandParameters(serverProfile, selectedScriptCommandName));
+		} else {  
+			serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
+		}
 		model.addAttribute("serverProfileEditingForm", serverProfileEditingForm);
 		
 		Map<String, Object> map = createMapOfDropdowns();
-		map.put("reqOperatingSystem", reqOperatingSystem);
+		map.put("reqExecutor", reqExecutor);
 		map.put("serverProfileEditingForm", serverProfileEditingForm);
 		model.addAttribute("map", map);		
 		return "copyServerProfile";
@@ -365,81 +482,102 @@ public class ServerProfileController {
 	
 	
 	@RequestMapping("/editServerProfile")
-	public String editServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqOperatingSystem,  
+	public String editServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqExecutor,  
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm, Model model) {
 		
 		ServerProfile serverProfile = serverProfilesDAO.findServerProfile(reqServerProfileName); 
 		serverProfileEditingForm.setServerProfile(serverProfile);
-		
 		ServerProfileWithCommandLinks serverProfileWithCommandLinks = serverProfileAddSelectedCommandLinks(serverProfile);
-		serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
+		
+		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
+			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
+			String selectedScriptCommandName = selectedScriptCommandName(serverProfileWithCommandLinks);
+			serverProfileEditingForm.setSelectedScriptCommandName(selectedScriptCommandName); 
+			serverProfileEditingForm.setCommandParameters(alignProfileToCurrentCommandParameters(serverProfile, selectedScriptCommandName));
+		} else {  
+			serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
+		}
 		model.addAttribute("serverProfileEditingForm", serverProfileEditingForm);
 		
 		Map<String, Object> map = createMapOfDropdowns();
-		map.put("reqOperatingSystem", reqOperatingSystem);
+		map.put("reqExecutor", reqExecutor);
 		map.put("serverProfileEditingForm", serverProfileEditingForm);
 		model.addAttribute("map", map);	
 		return "editServerProfile";
 	}
 
-	
+
+
 	@RequestMapping("/updateServerProfile")
-	public ModelAndView updateServerProfile(@RequestParam(required=false) String reqOperatingSystem, @ModelAttribute ServerProfileEditingForm serverProfileEditingForm) {
+  public ModelAndView updateServerProfile(@RequestParam(required=false) String reqExecutor, @ModelAttribute ServerProfileEditingForm serverProfileEditingForm) {
+	
+//		System.out.println("updateServerProfile cmd change : " + serverProfileEditingForm.getSelectedScriptCommandNameChanged() );
+//		System.out.println("updateServerProfile cmd        : " + serverProfileEditingForm.getSelectedScriptCommandName());
 		
-		// System.out.println("updateServerProfile serverProfileEditingForm.getCommandSelectors() = " + serverProfileEditingForm.getCommandSelectors() );
+		if ("true".equalsIgnoreCase(serverProfileEditingForm.getSelectedScriptCommandNameChanged())){
+			//rebuild form with the newly selected cmd params
+			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
+			
+			Command command = commandsDAO.findCommand(serverProfileEditingForm.getSelectedScriptCommandName());
+			List<CommandParameter> commandParameters = new ArrayList<CommandParameter>();
+			if (command != null ) {
+				for (String paramName : command.getParamNames()) {
+					commandParameters.add(new CommandParameter(paramName, "") );
+				} 
+			}
+			serverProfileEditingForm.setCommandParameters(commandParameters);
+			serverProfileEditingForm.setSelectedScriptCommandNameChanged("false"); ;
+			Map<String, Object> map = new HashMap<String, Object>(); 		
+			map.put("reqExecutor", reqExecutor);
+			map.put("serverProfileEditingForm", serverProfileEditingForm);		
+			return new ModelAndView("editServerProfile", "map", map);
+		}
 		
-		serverProfilesDAO.updateServerProfile(serverProfileEditingForm.getServerProfile());
-		List<String> commandNames = createListOfSelectedCommands(serverProfileEditingForm.getCommandSelectors());
-		serverCommandLinksDAO.updateServerCommandLinksForServerProfileName(serverProfileEditingForm.getServerProfile().getServerProfileName(), commandNames);
+		ServerProfile serverProfile = serverProfileEditingForm.getServerProfile();
+		List<String> commandNames = new ArrayList<String>();
+		
+		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
+			commandNames.add(serverProfileEditingForm.getSelectedScriptCommandName()); 
+			serverProfile.setParameters(ServerMetricsWebUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
+		} else {
+			commandNames = createListOfSelectedCommands(serverProfileEditingForm.getCommandSelectors());
+		}
+		serverProfilesDAO.updateServerProfile(serverProfile);
+		serverCommandLinksDAO.updateServerCommandLinksForServerProfileName(serverProfile.getServerProfileName(), commandNames);
 		
 		Map<String, Object> map = createMapOfDropdowns();			
-		map.put("reqOperatingSystem",reqOperatingSystem);
+		map.put("reqExecutor", reqExecutor);
 		map.put("serverProfileEditingForm", serverProfileEditingForm);		
 		return new ModelAndView("viewServerProfile", "map", map);
 	}
 
 
 	@RequestMapping("/deleteServerProfile")
-	public String deleteServerProfile(@RequestParam String reqServerProfileName, @RequestParam String reqOperatingSystem) {
+	public String deleteServerProfile(@RequestParam String reqServerProfileName, @RequestParam String reqExecutor) {
 		serverCommandLinksDAO.deleteServerCommandLinksForServerProfile(reqServerProfileName);
 		serverProfilesDAO.deleteServerProfile(reqServerProfileName);
-		return "redirect:/serverProfileList?reqOperatingSystem=" + reqOperatingSystem;
+		return "redirect:/serverProfileList?reqExecutor=" + reqExecutor;
 	}
 	
 	
-	
-	/**
-	 * @param ServerProfileWithCommandLinks
-	 * @param operatingSystem
-	 */
-	private List<CommandSelector> createListOfAllCommandSelectors(ServerProfileWithCommandLinks ServerProfileWithCommandLinks){
-		
-		List<CommandSelector> listOfAllCommandSelectors = new ArrayList<CommandSelector>();	
-			
-		for (Command command : commandsDAO.findCommands()) {
-			CommandSelector commandSelector = new CommandSelector();
-			commandSelector.setCommandName(command.getCommandName());
-			commandSelector.setCommandChecked(false);
-			if (ServerProfileWithCommandLinks != null &&
-				ServerProfileWithCommandLinks.getCommandNames().contains(command.getCommandName())) {
-				commandSelector.setCommandChecked(true);
-			}
-			commandSelector.setExecutor(command.getExecutor());
-			listOfAllCommandSelectors.add(commandSelector);
-		}
-		return listOfAllCommandSelectors;
+
+	private String selectedScriptCommandName(ServerProfileWithCommandLinks serverProfileWithCommandLinks) {
+		String selectedScriptCommandName = "";
+		if (! serverProfileWithCommandLinks.getCommandNames().isEmpty()){
+			//assume the first (and should be only) command for this profile is the GROOVY_SCRIPT command you want
+			selectedScriptCommandName = serverProfileWithCommandLinks.getCommandNames().get(0);
+		} 
+//		System.out.println("selectedScriptCommandName=" + selectedScriptCommandName);
+		return selectedScriptCommandName; 	
 	}
-
-
-
+	
+	
 	private ServerProfileWithCommandLinks serverProfileAddSelectedCommandLinks(ServerProfile serverProfile) {
-		
 		ServerProfileWithCommandLinks serverProfileWithCommandLinks = new ServerProfileWithCommandLinks();
 		serverProfileWithCommandLinks.setServerProfile(serverProfile); 
+		serverProfileWithCommandLinks.setCommandNames(new ArrayList<String>());
 		
-		if (serverProfile == null || serverProfile.getServerProfileName() == null ) {
-			serverProfileWithCommandLinks.setCommandNames(new ArrayList<String>());
-		} else { 
+		if (serverProfile != null && serverProfile.getServerProfileName() != null ) {
 			List<ServerCommandLink> serverCommandLinkList = serverCommandLinksDAO.findServerCommandLinksForServerProfile(serverProfile.getServerProfileName());
 			List<String> commandNames = new ArrayList<String>();
 			for (ServerCommandLink commandParserLink : serverCommandLinkList) {
@@ -449,23 +587,79 @@ public class ServerProfileController {
 		}
 		return serverProfileWithCommandLinks;
 	}
+	
+
+	private List<String> createListOfAllGroovyScriptCommands(){
+		List<String> listOfAllGroovyScriptCommandNames = new ArrayList<String>();
+		listOfAllGroovyScriptCommandNames.add("");
+		for (Command command : commandsDAO.findCommands("EXECUTOR", CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText())) {
+			listOfAllGroovyScriptCommandNames.add(command.getCommandName());
+		}
+		return listOfAllGroovyScriptCommandNames;
+	}
+	
+	
+	private List<CommandSelector> createListOfAllCommandSelectors(ServerProfileWithCommandLinks serverProfileWithCommandLinks){
+		List<CommandSelector> listOfAllCommandSelectors = new ArrayList<CommandSelector>();	
+			
+		for (Command command : commandsDAO.findCommands()) {
+			CommandSelector commandSelector = new CommandSelector();
+			commandSelector.setCommandName(command.getCommandName());
+			commandSelector.setCommandChecked(false);
+			if (serverProfileWithCommandLinks != null &&
+				serverProfileWithCommandLinks.getCommandNames().contains(command.getCommandName())) {
+				commandSelector.setCommandChecked(true);
+			}
+			commandSelector.setExecutor(command.getExecutor());
+			listOfAllCommandSelectors.add(commandSelector);
+		}
+		return listOfAllCommandSelectors;
+	}
+
+	
+	private List<CommandParameter> alignProfileToCurrentCommandParameters(ServerProfile serverProfile, String selectedScriptCommandName){
+		List<CommandParameter> editableParameters = new ArrayList<CommandParameter>();
 		
+		if (StringUtils.isNotBlank(selectedScriptCommandName)  ){
+			
+			Command scriptCommand = commandsDAO.findCommand(selectedScriptCommandName);
+			if (scriptCommand != null ) {
+				
+				Map<String,String> currentProfileParams = serverProfile.getParameters() == null ? new HashMap<String,String>() : serverProfile.getParameters();
+				List<String> commandParmNames = scriptCommand.getParamNames() == null ? new ArrayList<String>() : scriptCommand.getParamNames();
+				
+				for (String commandParmName : commandParmNames) {
+					if (currentProfileParams.containsKey(commandParmName)) {
+						editableParameters.add(new CommandParameter(commandParmName, currentProfileParams.get(commandParmName)));
+					} else {
+						editableParameters.add(new CommandParameter(commandParmName, ""));
+					}
+				}
+			}
+		}
+		return editableParameters;
+	}
+	
 	
 	private List<String> createListOfSelectedCommands(List<CommandSelector> commandSelectors) {
 		List<String> commandNames = new ArrayList<String>();
-		for (CommandSelector commandSelector : commandSelectors) {
-			if (commandSelector.isCommandChecked()) {
-				commandNames.add(commandSelector.getCommandName());
+		if (commandSelectors != null) {
+			for (CommandSelector commandSelector : commandSelectors) {
+				if (commandSelector.isCommandChecked()) {
+					commandNames.add(commandSelector.getCommandName());
+				}
 			}
 		}
 		return commandNames;
 	}
-
 	
 
 	private Map<String, Object> createMapOfDropdowns() {
 		Map<String, Object> map = new HashMap<String, Object>(); 
-		map.put("operatingSystems",AppConstantsServerMetricsWeb.OPERATING_SYSTEM_LIST);		
+		List<String> listOfCommandExecutors = new ArrayList<String>();
+		listOfCommandExecutors.add("");
+		listOfCommandExecutors.addAll(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
+		map.put("commandExecutors",listOfCommandExecutors);	
 		return map;
 	}
 	

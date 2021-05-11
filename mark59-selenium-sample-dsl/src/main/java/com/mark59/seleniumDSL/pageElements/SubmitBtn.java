@@ -49,6 +49,10 @@ public class SubmitBtn extends Elemental {
 		return super.waitUntilTextPresentInElement(elemental, expectedText);
 	}
 	
+	public void waitUntilTextPresentInTitle(String expectedText) {
+		super.waitUntilTextPresentInTitle(expectedText);
+	}
+
 	public SubmitBtn thenSleep() {
 		thenSleep(1000);
 		return this;

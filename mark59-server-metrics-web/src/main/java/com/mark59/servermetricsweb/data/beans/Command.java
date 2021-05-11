@@ -16,6 +16,8 @@
 
 package com.mark59.servermetricsweb.data.beans;
 
+import java.util.List;
+
 /**
  * @author Philip Webb
  * Written: Australian Spring 2020
@@ -28,6 +30,7 @@ public class Command {
 	String command;
 	String ingoreStderr;
 	String comment;
+	List<String> paramNames;
 	
 	public Command() {
 	}
@@ -37,7 +40,6 @@ public class Command {
 		return commandName;
 	}
 
-
 	public void setCommandName(String commandName) {
 		this.commandName = commandName;
 	}
@@ -46,39 +48,40 @@ public class Command {
 		return executor;
 	}
 
-
 	public void setExecutor(String executor) {
 		this.executor = executor;
 	}
-
 
 	public String getCommand() {
 		return command;
 	}
 
-
 	public void setCommand(String command) {
 		this.command = command;
 	}
-
 
 	public String getIngoreStderr() {
 		return ingoreStderr;
 	}
 
-
 	public void setIngoreStderr(String ingoreStderr) {
 		this.ingoreStderr = ingoreStderr;
 	}
-
 
 	public String getComment() {
 		return comment;
 	}
 
-
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public List<String> getParamNames() {
+		return paramNames;
+	}
+
+	public void setParamNames(List<String> paramNames) {
+		this.paramNames = paramNames;
 	}
 
 
@@ -89,6 +92,7 @@ public class Command {
         		", command="+ command + 
         		", ingoreStderr="+ ingoreStderr + 
         		", comment="+ comment + 
+        		", paramNames="+ paramNames + 
         		"]";
 	}
 		

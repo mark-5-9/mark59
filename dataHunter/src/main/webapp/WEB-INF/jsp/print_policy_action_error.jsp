@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Print Policy ERROR</title>
+<title>Print Item Action ERROR</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -37,7 +37,7 @@
   
  <br><br><br>
  
- <b>Policy Lookup Error !</b> 
+ <b>Item Lookup Error !</b> 
  <br><br>
   
  <table >

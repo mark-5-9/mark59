@@ -21,7 +21,7 @@ import java.util.List;
 
 public class DataHunterConstants {
 
-	public static final String DATAHUNTER_VERSION 			= "3.0.1";  
+	public static final String DATAHUNTER_VERSION 			= "3.2.0";  
 	
 	public static final String UNSELECTED 					= "";  
 	
@@ -48,5 +48,16 @@ public class DataHunterConstants {
 	
 	public static final List<String>  APPLICATION_OPERATORS =  
 			Arrays.asList( EQUALS, STARTS_WITH);
+	
+	
+	public static final String UPDATE_USEABILITY_ON_EXISTING_ENTRIES = "UPDATE_USEABILITY_ON_EXISTING_ENTRIES";  
+	public static final String LEAVE_EXISTING_ENTRIES_UNCHANGED      = "LEAVE_EXISTING_ENTRIES_UNCHANGED";  
+	
+	public static final List<String>  UPDATE_OR_BYPASS      =  
+			Arrays.asList( UPDATE_USEABILITY_ON_EXISTING_ENTRIES, LEAVE_EXISTING_ENTRIES_UNCHANGED);
+	
+	
+	
+	
 
 }

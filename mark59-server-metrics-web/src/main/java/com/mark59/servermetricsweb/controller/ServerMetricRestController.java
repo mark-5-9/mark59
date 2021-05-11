@@ -37,7 +37,7 @@ import com.mark59.servermetricsweb.data.servercommandlinks.dao.ServerCommandLink
 import com.mark59.servermetricsweb.data.serverprofiles.dao.ServerProfilesDAO;
 import com.mark59.servermetricsweb.pojos.TestCommandParserResponsePojo;
 import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
-import com.mark59.servermetricsweb.utils.TargetServerCommandProcessor;
+import com.mark59.servermetricsweb.utils.ServerProfileRunner;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,7 +89,7 @@ public class ServerMetricRestController {
 	@GetMapping(path =  "/metric")
 	public ResponseEntity<Object> apiMetric(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqTestMode){
 	
-		return ResponseEntity.ok(TargetServerCommandProcessor.serverResponse(reqServerProfileName, reqTestMode, 
+		return ResponseEntity.ok(ServerProfileRunner.commandsResponse(reqServerProfileName, reqTestMode, 
 				serverProfilesDAO, serverCommandLinksDAO, commandsDAO, commandParserLinksDAO, commandResponseParsersDAO));	
 	}
 

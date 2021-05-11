@@ -50,9 +50,9 @@ import com.mark59.selenium.drivers.SeleniumDriverFactory;
  * <li> <b>STOP_THREAD_AFTER_TEST_START_IN_SECS.</b> at the start of each iteration, a check is made to see if the time in seconds since the JMeter test started exceeds this value.
  *  If so, the finalize is executed and the and the script completed. The check is also made at script start-up, so when the script (re)starts and this condition has been met the thread will
  *  be stopped immediately.  Must be a non-zero numeric to be active.   
- * <li> <b>ITERATION_PACING_IN_SECS.</b> the target length of time each iteration.  A thread delay calculated at the end of the iteration to force the iteration to the iteration pacing time.  
+ * <li> <b>ITERATION_PACING_IN_SECS.</b> The target length of time of each iteration. A thread delay calculated at the end of the iteration forces the iteration to the iteration pacing time.  
  *   Must be a non-zero numeric to be active.  
- * <li> <b>STOP_THREAD_ON_FAILURE.</b> by default the script thread will re-start of failure (timers permitting).  This flag can be set to <b>true</b> to force the thread to stop for the rest of the test.  
+ * <li> <b>STOP_THREAD_ON_FAILURE.</b> by default the script thread will re-start on failure (timers permitting).  This flag can be set to <b>true</b> to force the thread to stop for the rest of the test.  
  * </ul>
  *     
  * <p>Note that if none of the conditions <b>ITERATE_FOR_PERIOD_IN_SECS</b> or <b>ITERATE_FOR_NUMBER_OF_TIMES</b> or <b>STOP_THREAD_AFTER_TEST_START_IN_SECS</b> are set, the thread will be stopped 
@@ -98,13 +98,42 @@ import com.mark59.selenium.drivers.SeleniumDriverFactory;
 public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  SeleniumAbstractJavaSamplerClient {
 
 	public static Logger LOG = LogManager.getLogger(SeleniumIteratorAbstractJavaSamplerClient.class);
+
+	/**
+	 * At the end of each iteration, a check is made to see if the time in seconds the script has been iterating has reached this.
+	 * If so, the finalize is executed and the script completed. Must be a non-zero numeric to be active.
+	 * @see SeleniumIteratorAbstractJavaSamplerClient
+	 */
 	public static final String ITERATE_FOR_PERIOD_IN_SECS 			= "ITERATE_FOR_PERIOD_IN_SECS";
-	public static final String ITERATE_FOR_NUMBER_OF_TIMES			= "ITERATE_FOR_NUMBER_OF_TIMES";
-	public static final String ITERATION_PACING_IN_SECS 			= "ITERATION_PACING_IN_SECS";	
-	public static final String STOP_THREAD_AFTER_TEST_START_IN_SECS	= "STOP_THREAD_AFTER_TEST_START_IN_SECS";	
-	public static final String STOP_THREAD_ON_FAILURE 				= "STOP_THREAD_ON_FAILURE";
 	
-	private KeepBrowserOpen keepBrowserOpen = KeepBrowserOpen.NEVER;
+	/**
+	 * At the end of each iteration, a check is made to see if the number of iterations the script has performed has reached this value.
+	 * If so, the finalize is executed and the script completed. Must be a non-zero numeric to be active.
+	 * @see SeleniumIteratorAbstractJavaSamplerClient
+	 */
+	public static final String ITERATE_FOR_NUMBER_OF_TIMES			= "ITERATE_FOR_NUMBER_OF_TIMES";
+
+	/**
+	 * The target length of time of each iteration. A thread delay calculated at the end of the iteration forces the iteration to the iteration pacing time.  
+	 * Must be a non-zero numeric to be active.
+	 * @see SeleniumIteratorAbstractJavaSamplerClient
+	 */	
+	public static final String ITERATION_PACING_IN_SECS 			= "ITERATION_PACING_IN_SECS";	
+	
+	/**
+	 * At the start of each iteration, a check is made to see if the time in seconds since the JMeter test started exceeds this value.
+	 * If so, the finalize is executed and the and the script completed. The check is also made at script start-up, so when the script (re)starts and this 
+	 * condition has been met the thread will be stopped immediately.  Must be a non-zero numeric to be active.
+	 * @see SeleniumIteratorAbstractJavaSamplerClient
+	 */	
+	public static final String STOP_THREAD_AFTER_TEST_START_IN_SECS	= "STOP_THREAD_AFTER_TEST_START_IN_SECS";	
+	
+	/**
+	 * By default the script thread will re-start on failure (timers permitting).  This flag can be set to <b>true</b> to force the thread to stop
+	 * for the rest of the test.
+	 * @see SeleniumIteratorAbstractJavaSamplerClient
+	 */	
+	public static final String STOP_THREAD_ON_FAILURE 				= "STOP_THREAD_ON_FAILURE";
 
 	
 	private static final Map<String,String> defaultIterArgumentsMap;	
@@ -125,8 +154,8 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 	
 	/** 
 	 * Creates the list of parameters with default values, as they would appear on the JMeter GUI for the JavaSampler being implemented.
-	 * <p>A standard set of parameters are defined (defaultArgumentsMap). Additionally,an implementing class (the script extending this class) 
-	 * can add additional parameters (or override the standard defaults) via the additionalTestParameters() method.    
+	 * <p>A standard set of parameters are defined (defaultArgumentsMap and defaultIterArgumentsMap). Additionally,an implementing class 
+	 * (the script extending this class) can add additional parameters (or override the standard defaults) via the additionalTestParameters() method.    
 	 * 
 	 * @see #additionalTestParameters()
 	 * @see org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient
@@ -140,7 +169,8 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 
 	/**
 	 * {@inheritDoc}
-	 * Note the use of the catch on  AssertionError - as this is NOT an Exception but an Error, and therefore need to be explicitly caught. 
+	 * 
+	 *  Note the use of the catch on  AssertionError - as this is NOT an Exception but an Error, and therefore need to be explicitly caught. 
 	 */
 	@Override
 	public SampleResult runTest(JavaSamplerContext context) {
@@ -200,10 +230,12 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			long scriptIterationStartTimeMs;
 			long delay = 0;
 			
-			if (LOG.isDebugEnabled()) LOG.debug(thread + ": tgName = " + tgName + ", scriptStartTimeMs = " + scriptStartTimeMs + ", iteratePeriodMs = " + iterateForPeriodMs + ", iterateNumberOfTimes = " + iterateNumberOfTimes );
+			if (LOG.isDebugEnabled()) LOG.debug(thread + ": tgName = " + tgName + ", scriptStartTimeMs = " + scriptStartTimeMs 
+					+ ", iteratePeriodMs = " + iterateForPeriodMs + ", iterateNumberOfTimes = " + iterateNumberOfTimes );
 		
 			if (iterateForPeriodMs==0 && iterateNumberOfTimes==0 && stopThreadAfterTestStartMs==0 ) {
-				LOG.info("Thread Group " + tgName + " is stopping (none of ITERATE_FOR_PERIOD_IN_SECS or ITERATE_FOR_NUMBER_OF_TIMES or STOP_THREAD_AFTER_TEST_START_IN_SECS have been set to a valid non-zero value)" );
+				LOG.info("Thread Group " + tgName + " is stopping (none of ITERATE_FOR_PERIOD_IN_SECS or ITERATE_FOR_NUMBER_OF_TIMES or "
+						+ "STOP_THREAD_AFTER_TEST_START_IN_SECS have been set to a valid non-zero value)" );
 				if (tg!=null) tg.stop();
 				return null;
 			}
@@ -243,7 +275,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			}
 			
 		} finally {
-			if (! keepBrowserOpen.equals(KeepBrowserOpen.ALWAYS )     ) { 
+			if (! this.getKeepBrowserOpen().equals(KeepBrowserOpen.ALWAYS )     ) { 
 				seleniumDriverWrapper.driverDispose();
 			}
 		}

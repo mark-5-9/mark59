@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class Mark59Constants {
 	
-	public static final String MARK59_VERSION  = "3.0";	
+	public static final String MARK59_VERSION  = "3.2";	
 		
 	public static final String TRUE = "TRUE";
 	public static final String FALSE = "FALSE";
@@ -47,12 +47,24 @@ public class Mark59Constants {
     public static final String H2TCPCLIENT	= "h2tcpclient";
     
     /**
-     * Defines an enumeration of the data-type values use in the Mark59 framework that may appear in 
-     * a JMeter results file (the 'dt' columnn) 
+     * Defines an enumeration of values used in the Mark59 framework that are used in to populate the JMeter
+     *  results file data type (the 'dt' columnn in a csv formatted file) 
+     * 
+     * <p>The current list of types, and thier corresponding text values (as would appear in a JMeter csv Results file) are:<br>
+	 * <table summary="">
+  	 *	<tr><td>Mark59 JMeterFileDatatypes<br>enumeration<br></td><td> --&gt; </td><td>JMeter file 'dt' value</td></tr>
+  	 *	<tr><td>CPU_UTIL  </td><td> --&gt; </td><td>CPU_UTIL   </td></tr>
+  	 *	<tr><td>MEMORY    </td><td> --&gt; </td><td>MEMORY     </td></tr>
+  	 *	<tr><td>DATAPOINT </td><td> --&gt; </td><td>DATAPOINT  </td></tr>
+  	 *	<tr><td>TRANSACTION</td><td> --&gt; </td><td>'' (blank)</td></tr>
+  	 *	<tr><td>PARENT</td><td> --&gt; </td><td>PARENT</td></tr>
+  	 * </table>
+  	 * 
+  	 * <p>Note that 'PARENT' is intended for internal use only.  
      */
     public static enum JMeterFileDatatypes {
 
-    	DATAPOINT ("DATAPOINT", true), CPU_UTIL ("CPU_UTIL", true),	MEMORY ("MEMORY", true), TRANSACTION ("", false), PARENT	("PARENT", false);
+    	DATAPOINT ("DATAPOINT", true), CPU_UTIL ("CPU_UTIL", true),	MEMORY ("MEMORY", true), TRANSACTION ("", false), PARENT ("PARENT", false);
     	
     	private final String datatypeText;
     	private final boolean metricDataType;
@@ -89,32 +101,32 @@ public class Mark59Constants {
      * Defines an enumeration for transaction data-type values used in the Mark59 framework that are stored 
      * in the database (TXN_TYPE on the transaction table ) 
      */
-    public static enum DatabaseDatatypes {  //should really be called DatabaseTxnTypes to align do metric db names
+    public static enum DatabaseTxnTypes { 
 
     	DATAPOINT(true), CPU_UTIL(true), MEMORY(true), TRANSACTION(false);
 		
-    	private final boolean metricDataType;   
-		private DatabaseDatatypes(boolean metricDataType) {
-			this.metricDataType = metricDataType;  
+    	private final boolean metricTxnType;   
+		private DatabaseTxnTypes(boolean metricTxnType) {
+			this.metricTxnType = metricTxnType;  
 		}
-		public boolean isMetricDataType() {
-			return this.metricDataType;
+		public boolean isMetricTxnType() {
+			return this.metricTxnType;
 		}
-		public static List<String> listOfDatabaseDatatypes(){
-			List<String> listOfDatabaseDatatypes = new ArrayList<String>();
-			for (DatabaseDatatypes databaseDatatypes : DatabaseDatatypes.values()) {
-				listOfDatabaseDatatypes.add(databaseDatatypes.name());
+		public static List<String> listOfDatabaseTxnTypes(){
+			List<String> listOfDatabaseTxnTypes = new ArrayList<String>();
+			for (DatabaseTxnTypes databaseTxnType : DatabaseTxnTypes.values()) {
+				listOfDatabaseTxnTypes.add(databaseTxnType.name());
 			}
-			return listOfDatabaseDatatypes;
+			return listOfDatabaseTxnTypes;
 		}
-		public static List<String> listOfMetricDatabaseDatatypes() {
-			List<String> listOfMetricDatabaseDatatypes = new ArrayList<String>();
-			for (DatabaseDatatypes databaseDatatypes : DatabaseDatatypes.values()) {
-				if (databaseDatatypes.isMetricDataType()) {
-					listOfMetricDatabaseDatatypes.add(databaseDatatypes.name());
+		public static List<String> listOfMetricDatabaseTxnTypes() {
+			List<String> listOfMetricDatabaseTxnTypes = new ArrayList<String>();
+			for (DatabaseTxnTypes databaseTxntypes : DatabaseTxnTypes.values()) {
+				if (databaseTxntypes.isMetricTxnType()) {
+					listOfMetricDatabaseTxnTypes.add(databaseTxntypes.name());
 				}
 			}
-			return listOfMetricDatabaseDatatypes;
+			return listOfMetricDatabaseTxnTypes;
 		}
 	}
 

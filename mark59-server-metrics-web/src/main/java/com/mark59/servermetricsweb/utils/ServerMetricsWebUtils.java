@@ -1,9 +1,17 @@
 package com.mark59.servermetricsweb.utils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
+
+import com.mark59.servermetricsweb.forms.CommandParameter;
+import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb.OS;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -13,16 +21,16 @@ public class ServerMetricsWebUtils {
 	
 	public static String obtainOperatingSystemForLocalhost() {	
 	
-		String operatingSystem = System.getProperty("os.name", AppConstantsServerMetricsWeb.UNKNOWN).toUpperCase();
-
-		if ( operatingSystem.contains("WIN")) {
-			operatingSystem = AppConstantsServerMetricsWeb.WINDOWS;
-		} else if ( operatingSystem.contains("LINUX")) {
-			operatingSystem = AppConstantsServerMetricsWeb.LINUX;
-		} else if ( operatingSystem.contains("UNIX")) {
-			operatingSystem = AppConstantsServerMetricsWeb.UNIX;
+		String operatingSystem = System.getProperty("os.name",OS.UNKNOWN.getOsName());
+		
+		if ( operatingSystem.toUpperCase().contains("WIN")) {
+			operatingSystem = OS.WINDOWS.getOsName();
+		} else if ( operatingSystem.toUpperCase().contains("LINUX")) {
+			operatingSystem = OS.LINUX.getOsName();
+		} else if ( operatingSystem.toUpperCase().contains("UNIX")) {
+			operatingSystem = OS.UNIX.getOsName();
 		} else {
-			operatingSystem = AppConstantsServerMetricsWeb.UNKNOWN;
+			operatingSystem = OS.UNKNOWN.getOsName();
 		}
 		return operatingSystem;
 	}
@@ -36,6 +44,16 @@ public class ServerMetricsWebUtils {
 		return result;
 	}
 
+	
+	public static Object runGroovyScript(String groovyScript, Map<String,Object> scriptParms  ) {
+		Binding binding = new Binding();
+		for(Map.Entry<String,Object> scriptParam : scriptParms.entrySet()) {
+			binding.setVariable(scriptParam.getKey(), scriptParam.getValue());
+		}
+		GroovyShell shell = new GroovyShell(binding);
+		Object result = shell.evaluate(groovyScript);
+		return result;
+	}
 
 
 	public static String createMultiLineLiteral(List<String> multiLineStringList) {
@@ -52,6 +70,58 @@ public class ServerMetricsWebUtils {
 		return sb.toString();
 	}
 
+	
+	public static Map<String,String> createParmsMap(List<CommandParameter> commandParameters) {
+		if (commandParameters == null) { 
+			return new HashMap<String,String>();
+		}
+		Map<String,String> parametersMap = new HashMap<String,String>(); 
+		for (CommandParameter commandParameter : commandParameters) {
+			parametersMap.put(commandParameter.getParamName() , commandParameter.getParamValue());
+		}
+		return parametersMap;
+	}
+	
+	public static List<CommandParameter> createParmsList(Map<String,String> parametersMap) {
+		List<CommandParameter> commandParameters = new ArrayList<CommandParameter>(); 
+		if (parametersMap == null) { 
+			return commandParameters;
+		}
+		parametersMap.forEach((k, v) -> commandParameters.add(new CommandParameter(k,v)));
+		return commandParameters;
+	}
+	
+	
+	public static String listToTextboxFormat(List<String> listOfStrings) {
+		if (listOfStrings == null) {
+			return "";
+		}
+		StringBuilder textboxFormatSb = new StringBuilder();
+		boolean firstTimeThruNoComma = true;
+		for (String str : listOfStrings) {
+			if (!firstTimeThruNoComma ){ 
+				textboxFormatSb.append(System.lineSeparator());
+			}
+			firstTimeThruNoComma = false;
+			textboxFormatSb.append(str); 
+		}
+		return textboxFormatSb.toString();
+	}
+
+	public static List<String> textboxFormatToList(String stringTextboxFormat) {
+		List<String> listOfStrings = new ArrayList<String>();
+		if ( stringTextboxFormat != null ){
+			String spaceDelimitedStr = StringUtils.normalizeSpace(stringTextboxFormat).replace(',', ' ');
+			// when an empty string is passed to the split, it creates a empty first element, not what we want 
+			if (StringUtils.isAllBlank(spaceDelimitedStr)) {
+				return listOfStrings; 
+			}				
+			listOfStrings = Arrays.asList(spaceDelimitedStr.split("\\s+")); 
+		} 
+		System.out.println(">> textboxFormatToList stringTextboxFormat=" +  stringTextboxFormat); 
+		System.out.println("<< textboxFormatToList listOfStrings=" +  listOfStrings); 
+		return listOfStrings;
+	}
 	
 	
 	/**

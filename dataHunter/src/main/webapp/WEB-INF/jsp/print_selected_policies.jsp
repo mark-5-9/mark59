@@ -22,7 +22,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
-<title>Print Selected Policies</title>
+<title>Print Selected Items</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <style>
   body { font-size: 20px; color: purple; font-family: Calibri; }
@@ -37,7 +37,7 @@
   
  <br><br><br>
  
- <b>Print Policies Matching Selection Criteria</b> 
+ <b>Print Items Matching Selection Criteria</b> 
 
   <br><br><br> 
 

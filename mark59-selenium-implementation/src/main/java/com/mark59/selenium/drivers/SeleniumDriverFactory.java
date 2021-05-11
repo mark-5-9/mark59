@@ -45,14 +45,73 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 
 	private static final Logger LOG = LogManager.getLogger(SeleniumDriverFactory.class);
 
+	/**
+	 *  "DRIVER"- required, must be 'CHROME' or 'FIREFOX'  
+	 *  @see SeleniumDriverFactory#getDriverBuilderOfType  
+	 */
 	public static final String DRIVER = "DRIVER";
+	
+	/**
+	 * "HEADLESS_MODE" - 'true' or 'false', default 'true' 
+	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setHeadless(boolean)   
+	 */
 	public static final String HEADLESS_MODE = "HEADLESS_MODE";
+	
+	/**
+	 * "BROWSER_EXECUTABLE" - Set an alternate browser executable (eg to a Chrome Beta or Chromium instance)
+	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAlternateBrowser(java.nio.file.Path)
+	 */
 	public static final String BROWSER_EXECUTABLE = "BROWSER_EXECUTABLE";
+	
+	/**
+	 * "PAGE_LOAD_STRATEGY" - PageLoadStrategy.NONE ('NONE') / PageLoadStrategy.NORMAL ('NORMAL').
+	 * Default is 'NORMAL'.
+	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setPageLoadStrategy(PageLoadStrategy)
+	 */
 	public static final String PAGE_LOAD_STRATEGY = "PAGE_LOAD_STRATEGY";
+	
+	/**
+	 * "WRITE_FFOX_BROWSER_LOGFILE" - Only implemented for Firefox.  Primary purpose is to redirect 
+	 * gekodriver's copious error logging off the console.  Set to 'true' or 'false', default is 'false'.
+	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setWriteBrowserLogfile(boolean)
+	 */
 	public static final String WRITE_FFOX_BROWSER_LOGFILE = "WRITE_FFOX_BROWSER_LOGFILE";
+	
+	/**
+	 * "PROXY"- used to set the proxy (refer to the 'see also' below for format) 
+	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setProxy(org.openqa.selenium.Proxy) 
+	 */
 	public static final String PROXY = "PROXY";
+	
+	/**
+	 * "BROWSER_DIMENSIONS") - sets the browser size (eg "800,600") default is 1920 (w) x 1080 (h)
+	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setSize(int width, int height) 
+	 */
 	public static final String BROWSER_DIMENSIONS = "BROWSER_DIMENSIONS";
-	public static final String ADDITIONAL_OPTIONS = "ADDITIONAL_OPTIONS";
+	
+	/**
+	 * "ADDITIONAL_OPTIONS" - a comma delimited list used to set of any of the many
+	 *  additional driver options. Refer to the 'see also' below for details. 
+	 *  @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAdditionalOptions(java.util.List)
+	 */
+	public static final String ADDITIONAL_OPTIONS = "ADDITIONAL_OPTIONS";	
+
+	/**
+	 * "EMULATE_NETWORK_CONDITIONS" - (Chrome only) allows for network throttling, with parameters for download speed, 
+	 * upload speed, and latency.  Speeds are in kilobits per second (kb/s), and latency in milliseconds (ms).
+	 * For instance, if you intend to emulate a connection download speed of of 12 Mbps (Megabits per second), 
+	 * a typical low-end direct Internet connection in Australia, the download value to enter is 12288 (12 * 1024).
+	 * <p>The three values to enter are comma-delimited, in the order : download speed, upload speed, and latency. So:
+	 * <br><br><b>"12288,1024,10"</b>
+	 * <br><br>represents a connection with 12Mbps download, 1Mbps upload, and 10ms latency      
+	 *
+	 * <p>Note that this throttling is achieved via the Chrome DevTools Protocol command `Network.emulateNetworkConditions`
+	 * (<a href="https://chromedevtools.github.io/devtools-protocol/tot/Network/#method-emulateNetworkConditions"> 
+	 *           https://chromedevtools.github.io/devtools-protocol/tot/Network/#method-emulateNetworkConditions</a> ) 
+	 * <p>The Mark59 framework internally converts the input kb/s speeds into bytes/sec, required by the
+	 *  Network.emulateNetworkConditions command.               
+	 */
+	public static final String EMULATE_NETWORK_CONDITIONS = "EMULATE_NETWORK_CONDITIONS";
 	
 	private static final String CHROME = "CHROME";
 	private static final String FIREFOX = "FIREFOX";
@@ -94,7 +153,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	 *  <br><b>SeleniumDriverFactory.HEADLESS_MODE</b>&emsp;("HEADLESS_MODE") - default true  
 	 *  <br><b>SeleniumDriverFactory.PAGE_LOAD_STRATEGY</b>&emsp;("PAGE_LOAD_STRATEGY") - PageLoadStrategy.NONE / PageLoadStrategy.NORMAL
 	 *  <br><b>SeleniumDriverFactory.BROWSER_DIMENSIONS</b>&emsp;("BROWSER_DIMENSIONS") - sets the browser size (eg "800,600") default is 1920 x 1080  
-	 *  <br><b>SeleniumDriverFactory.PROXY</b>&emsp;("PROXY") - set the proxy  
+	 *  <br><b>SeleniumDriverFactory.PROXY</b>&emsp;("PROXY") - to set the proxy  
 	 *  <br><b>SeleniumDriverFactory.ADDITIONAL_OPTIONS</b>&emsp;("ADDITIONAL_OPTIONS") - allows for the setting of any of the many additional driver options  
 	 *  <br><b>SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE</b>&emsp;("WRITE_FFOX_BROWSER_LOGFILE") -
 	 *  Only implemented for Firefox - primary purpose is to redirect gekodriver's copious error logging off the console..
@@ -226,7 +285,9 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 		}
 		
 		if (seleniumDriverPath == null) {
-			throw new RuntimeException("No selenium driver path property set for " + driverType ); 
+			throw new RuntimeException("No selenium driver path property set for " + driverType +
+				".\n (Please set " + PropertiesKeys.MARK59_PROP_DRIVER_CHROME + " or " + PropertiesKeys.MARK59_PROP_DRIVER_FIREFOX +
+				" as appropriate, to the location of the Selenium driver (usually done in mark59.properties)." ); 
 		}
 		
 		
@@ -235,7 +296,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 		} else if (FIREFOX.equalsIgnoreCase(driverType)) {
 			builder = new FireFoxDriverBuilder();
 		} else {
-			throw new IllegalArgumentException("No known driver for " + driverType);
+			throw new IllegalArgumentException("No known driver for " + driverType +  ".  (only CHROME or FIREFOX permitted)");
 		}
 
 		builder.setDriverExecutable(new File(seleniumDriverPath).toPath());

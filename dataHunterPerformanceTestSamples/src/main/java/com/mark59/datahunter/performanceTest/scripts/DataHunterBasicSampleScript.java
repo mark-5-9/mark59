@@ -41,13 +41,13 @@ import com.mark59.selenium.drivers.SeleniumDriverFactory;
 
 /**
  * This selenium test provides a basic example of the Mark59 framework usage. It contains no 'DSL' classes etc, so that you can see the basics within the script.
- * <p>Also, this type of scripting would be appropriate when our are knocking out a 'quick and dirty' script for a simple application. It will quickly become too 
+ * <p>This type of scripting would be appropriate when our are knocking out a 'quick and dirty' script for a simple application. It will quickly become too 
  * limited, cumbersome and difficult to maintain for more complex application tests, where DSL style scripts should be used.   
  * 
  * <p>This script performs a sub-set of the actions in performed by DataHunterLifecyclePvtScript:
  * <ul>
- * <li>deletes 'DataHunter' rows for a 'lifecycle' (which is set to the thread name) </li>
- * <li>adds a single Policy </li>
+ * <li>deletes 'DataHunter' rows for application 'DATAHUNTER_PV_TEST_BASIC', which have a 'lifecycle' based on the thread name) </li>
+ * <li>adds a single Policy for application 'DATAHUNTER_PV_TEST_BASIC' </li>
  * <li>creates a DataPoint </li>   
  * </ul> 
  *  
@@ -75,7 +75,8 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, "");
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, "");
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, 	String.valueOf(false));
-		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");			
+		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, "");				
 		return jmeterAdditionalParameters;			
 	}
 	

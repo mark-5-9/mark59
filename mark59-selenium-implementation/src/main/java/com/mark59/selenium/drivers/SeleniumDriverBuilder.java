@@ -63,7 +63,7 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 	 * Sets whether or not the Selenium WebDriver will start in headless mode,
 	 * meaning that no GUI browser will be used.
 	 * 
-	 * <p>By default, headless mode will be set to 'TRUE' by the factory. </p>
+	 * <p>By default, headless mode will be set to 'true' by the factory. </p>
 	 * 
 	 * @param <T> of T
 	 * @param isHeadless indicates if the driver should start in headless mode
@@ -86,16 +86,14 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 	 * </ul>
 	 * 
 	 * <p>
-	 * Not all load strategies are implemented for all WebDrivers.  In particular, at time of 
-	 * writing ChromeDriver only implements none and normal.  
-	 * <p>
-	 * Therefore when setting the <b>PAGE_LOAD_STRATEGY</b> parameter for a selenium script, the values to use will be:
+	 * Not all load strategies are implemented for all WebDrivers.  Therefore when setting the <b>PAGE_LOAD_STRATEGY</b>
+	 *  parameter for a selenium script, the values to use will be:
 	 * <ul> 
 	 * <li> PageLoadStrategy.<b>NORMAL</b>.toString()  -  this is the default, or
 	 * <li> PageLoadStrategy.<b>NONE</b>.toString()
 	 * </ul>   
 	 * <p>
-	 * It is recommended that the "normal" page load strategy be used in most cases.
+	 * It is recommended that the "normal" page load strategy be used in simple cases.
 	 * For more advanced/difficult web pages,the "none" strategy will need to be paired with a check to verify a desired
 	 * element has loaded (else it will likely return in just a few milliseconds).<br>
 	 * </p>
@@ -150,7 +148,7 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 	
 	/**
 	 * <p>Overrides the proxy to be used by the selenium WebDriver, and can passed via the 'PROXY' parameter.  
-	 * The proxy settings need to be passed as a set of comma-delimited key-value pairs, 
+	 * The proxy settings need to be formatted as a list of comma-delimited key-value pairs, 
 	 * and are passed directly to the selenium's proxy class constructor (strings values only)</p>
 	 * 
 	 * <p>For example, defining a proxy pac url: 
@@ -186,8 +184,17 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 	 * 
 	 * <p>(note that a proxy override can be set using the "PROXY" parameter, just shown here as an example)<br>  
 	 *  
-	 * Another example would be to run Chrome in incognito mode, set the "ADDITIONAL OPTIONS" parameter as : 
-	 * <br><br> <b> --incognito</b> </p>
+	 * <p>Another example: to run Chrome in incognito mode and have DevTools open with the browser, you can set the "ADDITIONAL OPTIONS"
+	 *  parameter as : 
+	 * <br><br> <b>--incognito,--auto-open-devtools-for-tabs</b> </p>
+	 * 
+	 * <p>At the time of writing the best sources for the list of available options are:<br>
+	 *  <ul>
+	 *   <li><a href="https://peter.sh/experiments/chromium-command-line-switches">
+	 *   			  https://peter.sh/experiments/chromium-command-line-switches</a></li> 
+	 *   <li><a href="https://chromium.googlesource.com/chromium/src/+/master/chrome/common/chrome_switches.cc">
+	 *   			  https://chromium.googlesource.com/chromium/src/+/master/chrome/common/chrome_switches.cc</a></li> 
+	 *  </ul>
 	 * 
 	 * @see org.openqa.selenium.chrome.ChromeOptions#addArguments(java.util.List)
 	 * @see SeleniumAbstractJavaSamplerClient
@@ -205,7 +212,8 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 	 * <p>From a selenium script, the only implemented jmeter parameter is '<b>WRITE_FFOX_BROWSER_LOGFILE</b>'.  Values are:
 	 * <ul>
 	 * <li><b>false</b> : suppresses Firefox error logging (the default)</li>
-	 * <li><b>true</b> : depending on log setting, logs may to written to a log directory (refer to FireFoxDriverBuilder)
+	 * <li><b>true</b> : depending on log setting, logs may to written to the 
+	 * 'screenshot' log directory (for example as set via property mark59.screenshot.directory in the mark59.properties file).
 	 * </ul>
 	 * @param <T> of T 
 	 * @param isWriteBrowserLogFile see above

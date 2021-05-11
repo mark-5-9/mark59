@@ -16,8 +16,12 @@
 
 package com.mark59.servermetricsweb.data.commands.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mark59.servermetricsweb.data.beans.Command;
 
 
@@ -38,5 +42,28 @@ public interface CommandsDAO
 	void updateCommand(Command command);
 
 	void deleteCommand(String commandName);
+	
+	
+	default String serializeListToJson(List<String> parameters)  {
+		try {
+			return new ObjectMapper().writeValueAsString(parameters);
+		} catch (JsonProcessingException e) {
+			return "";
+		}
+	}
+	
+	default List<String> deserializeJsonToList(String parameters)  {
+		List<String> parametersList = new ArrayList<String>();
+		TypeReference<ArrayList<String>> typeRef = new TypeReference<ArrayList<String>>(){};
+		try {
+			parametersList = new ObjectMapper().readValue(parameters, typeRef);
+		} catch (Exception e) {
+			return new ArrayList<String>();
+		}
+		return parametersList;
+	}	
+	
+	
+	
 
 }

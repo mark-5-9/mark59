@@ -42,20 +42,21 @@
 
 <br>
 <h2 style="text-align:center;" >The Data Hunter</h2>
-<h3 style="text-align:center;" >Designed for Performance and Volume Testing</h3>
+<h3 style="text-align:center;" >Data retention and retrieval designed for Performance and Volume Testing</h3>
 		 
 <table>
-	<tr><td valign="top"><img src="icons/add.png" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/add_policy${urlAppReqParm}">add_policy</a></td></tr>
-	<tr><td valign="top"><img src="icons/count.jpg" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/count_policies${urlAppReqParm}">count_policies</a></td></tr>
-	<tr><td valign="top"><img src="icons/count.jpg" height="40" width="40" /> </td>	  	<td><a href="http://${urltoContext}/count_policies_breakdown${urlAppReqParm}">count_policies_breakdown</a></td></tr>
-	<tr><td valign="top"><img src="icons/policy.png" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/print_policy${urlAppReqParm}">print_policy</a></tr>
-	<tr><td valign="top"><img src="icons/policies.png" height="40" width="40" /></td> 	<td><a href="http://${urltoContext}/print_selected_policies${urlAppReqParm}">print_selected_policies</a></td></tr>
-	<tr><td valign="top"><img src="icons/delete.png" height="40" width="40" /> </td>  	<td><a href="http://${urltoContext}/delete_policy${urlAppReqParm}">delete_policy</a></td></tr>
-	<tr><td valign="top"><img src="icons/remove.jpg" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/delete_multiple_policies${urlAppReqParm}">delete_multiple_policies</a></td></tr>
-	<tr><td valign="top"><img src="icons/use_next.jpg" height="40" width="40" /></td> 	<td><a href="http://${urltoContext}/next_policy${urlAppReqParm}${urlUseReqParmName}use">use_next_policy</a></td></tr>
-	<tr><td valign="top"><img src="icons/use_next.jpg" height="40" width="40" /></td> 	<td><a href="http://${urltoContext}/next_policy${urlAppReqParm}${urlUseReqParmName}lookup">lookup_next_policy</a></td></tr>
-	<tr><td valign="top"><img src="icons/update.png" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/update_policies_use_state${urlAppReqParm}">Update Policy(s) Time and Use State</a></td></tr>
+	<tr><td valign="top"><img src="icons/add.png" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/add_policy${urlAppReqParm}">add an item</a></td></tr>
+	<tr><td valign="top"><img src="icons/count.jpg" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/count_policies${urlAppReqParm}">count items</a></td></tr>
+	<tr><td valign="top"><img src="icons/count.jpg" height="40" width="40" /> </td>	  	<td><a href="http://${urltoContext}/count_policies_breakdown${urlAppReqParm}">count items breakdown</a></td></tr>
+	<tr><td valign="top"><img src="icons/policy.png" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/print_policy${urlAppReqParm}">print an item</a></tr>
+	<tr><td valign="top"><img src="icons/policies.png" height="40" width="40" /></td> 	<td><a href="http://${urltoContext}/print_selected_policies${urlAppReqParm}">print selected items</a></td></tr>
+	<tr><td valign="top"><img src="icons/delete.png" height="40" width="40" /> </td>  	<td><a href="http://${urltoContext}/delete_policy${urlAppReqParm}">delete an item</a></td></tr>
+	<tr><td valign="top"><img src="icons/remove.jpg" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/delete_multiple_policies${urlAppReqParm}">delete multiple items</a></td></tr>
+	<tr><td valign="top"><img src="icons/use_next.jpg" height="40" width="40" /></td> 	<td><a href="http://${urltoContext}/next_policy${urlAppReqParm}${urlUseReqParmName}use">use next item</a></td></tr>
+	<tr><td valign="top"><img src="icons/use_next.jpg" height="40" width="40" /></td> 	<td><a href="http://${urltoContext}/next_policy${urlAppReqParm}${urlUseReqParmName}lookup">lookup next item</a></td></tr>
+	<tr><td valign="top"><img src="icons/update.png" height="40" width="40" /></td>	  	<td><a href="http://${urltoContext}/update_policies_use_state${urlAppReqParm}">Update Item(s) Time and Use State</a></td></tr>
 	<tr><td valign="top"><img src="icons/asynchronous.jpg" height="40" width="40"/></td><td><a href="http://${urltoContext}/async_message_analyzer${urlAppReqParm}">Asynchronous Message Analyzer</a></td></tr>
+	<tr><td valign="top"><img src="icons/upload.png" height="40" width="40"/></td>      <td><a href="http://${urltoContext}/upload${urlAppReqParm}">Upload File</a></td></tr>
 
 	<c:if test="${currentDatabaseProfile == 'h2' }">
 		<tr><td valign="top"><img src="icons/h2-logo.png" height="40" width="40"/></td> <td><a href="http://${urltoContext}/h2-console">H2 Database Console <br>URL: jdbc:h2:~/hunter</a></td></tr>
