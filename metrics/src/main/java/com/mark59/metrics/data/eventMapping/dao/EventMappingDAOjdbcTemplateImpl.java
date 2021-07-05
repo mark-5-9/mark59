@@ -128,7 +128,9 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 	}
 	
 	private String getEventsMappingListSelectionSQL(String selectionCol, String selectionValue){	
-		String eventsMappingListSelectionSQL               = "select TXN_TYPE, METRIC_SOURCE, MATCH_WHEN_LIKE, TARGET_NAME_LB, TARGET_NAME_RB, IS_PERCENTAGE, IS_INVERTED_PERCENTAGE, PERFORMANCE_TOOL, COMMENT from EVENTMAPPING ";
+		String eventsMappingListSelectionSQL = 
+				"select TXN_TYPE, METRIC_SOURCE, MATCH_WHEN_LIKE, TARGET_NAME_LB, TARGET_NAME_RB, IS_PERCENTAGE, IS_INVERTED_PERCENTAGE, PERFORMANCE_TOOL, COMMENT"
+				+ " from EVENTMAPPING ";
 		if (!selectionValue.isEmpty()  ) {			
 			eventsMappingListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
 		} 
@@ -139,8 +141,8 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 	
 	
 	@Override
-	public boolean doesLrEventMapEntryMatchThisEventMapping(String eventType, String eventName, EventMapping eventMapping) {
-		
+	public boolean doesLrEventMapEntryMatchThisEventMapping(String mdbEventType, String mdbEventName, EventMapping eventMapping) {
+//		System.out.println("doesLrEventMapEntryMatchThisEventMapping : " + mdbEventType + " : " + mdbEventName + " : " + eventMapping.getMetricSource() + ":" + eventMapping.getMatchWhenLike() ); 	
 		Integer matchCount  = 0;
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
@@ -148,13 +150,13 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 		
 		if (matchWhenLikeSplit.length != 2) {
 			throw new RuntimeException("Unexpected Metric_Source Format on EventMapping Table for a Loadrunner event. \n "
-					+ "Expected underscord separated value (Loadrunncer_EventType) but got : " + eventMapping.getMetricSource()
+					+ "Expected underscored separated value (Loadrunner_EventType) but got : " + eventMapping.getMetricSource()
 					+ "\n   ,EventMapping : " + eventMapping.toString()
-					+ "\n   ,for eventType = " + eventType + ", eventName = " + eventName );
+					+ "\n   ,for eventType = " + mdbEventType + ", eventName = " + mdbEventName );
 	
 		}
 		
-		String sql = "SELECT count(*) col FROM dual where '" + eventType + "'" + " = '" + matchWhenLikeSplit[1] + "' and '" + eventName + "' like  '" +  eventMapping.getMatchWhenLike() + "'"; 		
+		String sql = "SELECT count(*) col FROM dual where '" + mdbEventType + "'" + " = '" + matchWhenLikeSplit[1] + "' and '" + mdbEventName + "' like  '" +  eventMapping.getMatchWhenLike() + "'"; 		
 		matchCount = Integer.valueOf(jdbcTemplate.queryForObject(sql, String.class));
 		
 		if ( matchCount > 0 ){
@@ -165,18 +167,6 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 	}
 
 
-	/**
-	 *   See if the passed transaction id / metric source type (eg 'Jmeter_DATAPONT') matches to an event on the event mapping table  
-	 *   (if it does, it will be the mapped data type that will used for SLA checking with this transaction).
-	 *   
-	 *   <p>Selection is based on a "best-guess" algorithm as to what a user was attempting to match against when multiple rows 
-	 *   match the passed transaction id / metric source:
-	 *   <ul>
-	 *   <li>any rows with no percent symbol (no free wild-cards) take precedence
-	 *   <li>next is the length of the match (minus the number of free wild-cards - high to low)
-	 *   <li>then next is the total length boundary characters (longest to shortest)   
-	 *   </ul>	    
-	 **/
 	@Override
 	public EventMapping findAnEventForTxnIdAndSource(String txnId, String metricSource) {
 			
@@ -225,8 +215,5 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 		eventMapping.setComment((String)row.get("COMMENT"));
 		return eventMapping;
 	}
-
-
-
 	
 }

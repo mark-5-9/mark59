@@ -56,7 +56,6 @@ import com.mark59.selenium.drivers.SeleniumDriverFactory;
  * @author Philip Webb
  * Written: Australian Summer 2019/20
  * 
- * 
  */
 public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerClient {
 

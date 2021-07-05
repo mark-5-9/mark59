@@ -31,7 +31,7 @@ import com.mark59.core.utils.Mark59Constants;
  */
 public class AppConstantsMetrics {
 	
-	public static final String MARK59_TRENDING_VERSION = "3.2.0";		
+	public static final String MARK59_TRENDING_VERSION = "3.3.0";		
 	
 	public static final String TXN_90TH_GRAPH  		= "TXN_90TH";
 	public static final String TXN_95TH_GRAPH  		= "TXN_95TH";
@@ -50,6 +50,7 @@ public class AppConstantsMetrics {
 	
 	public static final String LOADRUNNER 	= "Loadrunner";
 	public static final String JMETER		= "Jmeter";	
+	public static final String GATLING		= "Gatling";	
 	
 	
 	public static final String RUN_TIME_YET_TO_BE_CALCULATED	= "000000000000";
@@ -67,7 +68,9 @@ public class AppConstantsMetrics {
 	public static final String METRIC_SOURCE_JMETER_DATAPOINT	  		= JMETER + "_" + Mark59Constants.DatabaseTxnTypes.DATAPOINT.name(); 	
 	public static final String METRIC_SOURCE_JMETER_CPU      	  		= JMETER + "_" + Mark59Constants.DatabaseTxnTypes.CPU_UTIL.name(); 	
 	public static final String METRIC_SOURCE_JMETER_MEMORY     	  		= JMETER + "_" + Mark59Constants.DatabaseTxnTypes.MEMORY.name(); 	
-	public static final String METRIC_SOURCE_JMETER_TRANSACTION	  		= JMETER + "_" + Mark59Constants.DatabaseTxnTypes.TRANSACTION.name(); 	
+	public static final String METRIC_SOURCE_JMETER_TRANSACTION	  		= JMETER + "_" + Mark59Constants.DatabaseTxnTypes.TRANSACTION.name();
+	// there is no concept of datatype for Gatling, so all incoming simulation log entries will be TRANSACTIONs
+	public static final String METRIC_SOURCE_GATLING_TRANSACTION		= GATLING + "_" + Mark59Constants.DatabaseTxnTypes.TRANSACTION.name(); 
 		
 
 	// bit of a stretch here for a constants - unmodifiable map for value lookups
@@ -88,8 +91,9 @@ public class AppConstantsMetrics {
     private static Map<String, String> createTxnFieldsMap() {
         Map<String, String> result = new HashMap<String, String>();
         result.put("Minimum",        "TXN_MINIMUM");
-        result.put("Maximum",        "TXN_MAXIMUM");
         result.put("Average",        "TXN_AVERAGE");
+        result.put("Median",         "TXN_MEDIAN");
+        result.put("Maximum",        "TXN_MAXIMUM");
         result.put("StdDeviation",   "TXN_STD_DEVIATION");
         result.put("90th",           "TXN_90TH");
         result.put("95th",           "TXN_95TH");
@@ -100,6 +104,7 @@ public class AppConstantsMetrics {
         result.put("First",          "TXN_FIRST");
         result.put("Last",           "TXN_LAST");
         result.put("Sum",            "TXN_SUM");
+        result.put("Delay",          "TXN_DELAY");
         result.put("PercentOver90",  "TXN_90TH");
         return Collections.unmodifiableMap(result);
     }
@@ -108,6 +113,6 @@ public class AppConstantsMetrics {
 	}
 	
 	public static final List<String>  DIRECT_VALUE_DERIVATONS =  
-			Arrays.asList("Minimum","Maximum","Average","StdDeviation","90th","95th","99th","Pass","Fail","Stop","First","Last","Sum","PercentOver90");  
+			Arrays.asList("Minimum","Average","Median","Maximum","StdDeviation","90th","95th","99th","Pass","Fail","Stop","First","Last","Sum","Delay","PercentOver90");  
 	
 }

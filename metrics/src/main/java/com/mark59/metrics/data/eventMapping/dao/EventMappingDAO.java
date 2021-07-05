@@ -39,8 +39,25 @@ public interface EventMappingDAO
 
 	public List<EventMapping> findEventMappings(String selectionCol,  String selectionValue);
 	
-	public boolean doesLrEventMapEntryMatchThisEventMapping(String EventType, String EventName, EventMapping eventMapping);
 
+	public boolean doesLrEventMapEntryMatchThisEventMapping(String mdbEventType, String mdbEventName, EventMapping mark59EventMapping);
+
+	/**
+	 *   See if the passed transaction id / metric source type (eg 'Jmeter_DATAPOINT' - refer to AppConstantsMetrics ) matches to an event 
+	 *   on the event mapping table (if it does, it will be the mapped data type that will used for SLA checking with this transaction).
+	 *   
+	 *   <p>Selection is based on a "best-guess" algorithm as to what a user was attempting to match against when multiple rows 
+	 *   match the passed transaction id / metric source:
+	 *   <ul>
+	 *   <li>any rows with no percent symbol (no free wild-cards) take precedence
+	 *   <li>next is the length of the match (minus the number of free wild-cards - high to low)
+	 *   <li>then next is the total length boundary characters (longest to shortest)   
+	 *   </ul>
+	 *   
+	 * @param txnId
+	 * @param metricSource
+	 * @return matched EventMapping 
+	 */
 	public EventMapping findAnEventForTxnIdAndSource(String txnId, String metricSource);
 	
 	public void updateData(EventMapping eventMapping);

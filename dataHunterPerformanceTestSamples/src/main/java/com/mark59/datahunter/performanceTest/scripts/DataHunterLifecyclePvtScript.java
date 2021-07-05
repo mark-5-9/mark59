@@ -19,6 +19,7 @@ package com.mark59.datahunter.performanceTest.scripts;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
@@ -35,6 +36,7 @@ import com.mark59.core.Outcome;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Constants;
+import com.mark59.core.utils.SafeSleep;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.AddPolicyActionPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.AddPolicyPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.CountPoliciesActionPage;
@@ -76,12 +78,10 @@ import com.mark59.seleniumDSL.pageElements.HtmlTableRow;
  * @author Philip Webb
  * Written: Australian Winter 2019
  * 
- * 
  */
 public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerClient {
 
 	private static final Logger LOG = LogManager.getLogger(DataHunterLifecyclePvtScript.class);	
-	private static Boolean printedOnce = false;
 	
 	@Override
 	protected Map<String, String> additionalTestParameters() {
@@ -139,7 +139,8 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		
 		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
 		deleteMultiplePoliciesPage.submit().submit().waitUntilClickable( deleteMultiplePoliciesActionPage.backLink() );   // ** note 1
-		waitActionPageCheckSqlOk(new DeleteMultiplePoliciesActionPage(driver));
+		waitForSqlResultsTextOnActionPageAndCheckOk(deleteMultiplePoliciesActionPage);
+		SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
 		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
 	
 //		add a set of policies 		
@@ -158,7 +159,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 			
 			jm.startTransaction("DH-lifecycle-0200-addPolicy");
 			addPolicyPage.submit().submit().waitUntilClickable( addPolicyActionPage.backLink() );   // ** note 1;	
-			waitActionPageCheckSqlOk(addPolicyActionPage);
+			waitForSqlResultsTextOnActionPageAndCheckOk(addPolicyActionPage);
 			jm.endTransaction("DH-lifecycle-0200-addPolicy");
 			
 			addPolicyActionPage.backLink().click().waitUntilClickable( addPolicyPage.submit() ).thenSleep();    // ** note 1 & note 2
@@ -181,7 +182,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 
 		jm.startTransaction("DH-lifecycle-0300-countUnusedPolicies");
 		countPoliciesPage.submit().submit().waitUntilClickable( countPoliciesActionPage.backLink() );
-		waitActionPageCheckSqlOk(countPoliciesActionPage);
+		waitForSqlResultsTextOnActionPageAndCheckOk(countPoliciesActionPage);
 		jm.endTransaction("DH-lifecycle-0300-countUnusedPolicies");
 		
 		Long countPolicies = Long.valueOf( countPoliciesActionPage.rowsAffected().getText());
@@ -198,7 +199,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 
 		jm.startTransaction("DH-lifecycle-0400-countUnusedPoliciesCurrentThread");		
 		countPoliciesBreakdownPage.submit().submit();
-		waitActionPageCheckSqlOk(countPoliciesBreakdownActionPage);		
+		waitForSqlResultsTextOnActionPageAndCheckOk(countPoliciesBreakdownActionPage);		
 		jm.endTransaction("DH-lifecycle-0400-countUnusedPoliciesCurrentThread");				
 		
 		// direct access to required row-column table element by computing the id:
@@ -217,7 +218,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		
 		jm.startTransaction("DH-lifecycle-0500-useNextPolicy");		
 		nextPolicyPage.submit().submit();
-		waitActionPageCheckSqlOk(nextPolicyActionPage);			
+		waitForSqlResultsTextOnActionPageAndCheckOk(nextPolicyActionPage);			
 		jm.endTransaction("DH-lifecycle-0500-useNextPolicy");	
 		
 		if (LOG.isDebugEnabled() ) {LOG.debug("useNextPolicy: " + application + "-" + lifecycle + " : " + nextPolicyActionPage.identifier() );	}
@@ -234,7 +235,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		
 		jm.startTransaction("DH-lifecycle-0600-displaySelectedPolicies");	
 		printSelectedPoliciesPage.submit().submit();
-		waitActionPageCheckSqlOk(printSelectedPoliciesActionPage);
+		waitForSqlResultsTextOnActionPageAndCheckOk(printSelectedPoliciesActionPage);
 		// demo how to extract a transaction time from with a running script 
 		SampleResult sr_0600 = jm.endTransaction("DH-lifecycle-0600-displaySelectedPolicies");
 		
@@ -259,14 +260,19 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		
 		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
 		deleteMultiplePoliciesPage.submit().submit();
-		waitActionPageCheckSqlOk(new DeleteMultiplePoliciesActionPage(driver));
+		waitForSqlResultsTextOnActionPageAndCheckOk(deleteMultiplePoliciesActionPage);
+		SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
 		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
 		
 //		jm.writeBufferedArtifacts();
 	}
 
 
-	private void waitActionPageCheckSqlOk(_GenericDatatHunterActionPage _genericDatatHunterActionPage) {
+	/*
+	 * At first glance this may seem not to have any 'wait for element' conditions.  However the 'getText()'
+	 * method (indirectly) invokes a Fluent Wait condition 
+	 */
+	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDatatHunterActionPage _genericDatatHunterActionPage) {
 		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();
 		if (!"PASS".equals(sqlResultText)) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ") : " +
@@ -274,25 +280,27 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		}
 	}
 	
+	
 	@SuppressWarnings("unchecked")
 	private static synchronized void PrintSomeMsgOnceAtStartUp(String dataHunterUrl, WebDriver driver) {
-		if (!printedOnce) {			
-			LOG.info(" " + DataHunterLifecyclePvtScript.class.getSimpleName() +  " is using DataHunter with Url " + dataHunterUrl + "/dataHunter");
+		Properties sysprops = System.getProperties();
+		if (!"true".equals(sysprops.get("printedOnce")) ) {	
+			LOG.info("  using DataHunter with Url " + dataHunterUrl + "/dataHunter");
 			Capabilities caps = ((ChromeDriver)driver).getCapabilities();
 			LOG.info(" Browser Name and Version : " + caps.getBrowserName() + " " + caps.getVersion());
 			if ("chrome".equalsIgnoreCase(caps.getBrowserName()) && caps.getCapability("chrome") != null ){
 				String chromedriverVersion =  ((Map<String, String>)caps.getCapability("chrome")).get("chromedriverVersion");
 				LOG.info(" Chrome Driver Version    : " +  ((Map<String, String>)caps.getCapability("chrome")).get("chromedriverVersion"));
 				if (chromedriverVersion != null &&  chromedriverVersion.startsWith("2.44") ) {
-					String outDatedDriver = "\n\n You are using the outdated ChromeDriver that ships with the Mark59 Selenium test scripts"
-							+ " project 'dataHunterPerformanceTestSamples'.  It may be unstable or not work at all." 				
-					        +  "\n - Please visit https://chromedriver.chromium.org/downloads and update to a ChomeDriver which supports "
-					        + "Chrome browser version " + caps.getVersion() + "\n";
+					String outDatedDriver = "\n\n You are using the outdated ChromeDriver that ships with the Mark59 Selenium test scripts " +
+							" project 'dataHunterPerformanceTestSamples'.  It may be unstable or not work at all." + 				
+							"\n - Please visit https://chromedriver.chromium.org/downloads and update to a ChomeDriver which supports " +
+							"Chrome browser version " + caps.getVersion() + "\n";
 					System.out.println(outDatedDriver);
 					LOG.warn(outDatedDriver);
 				}	
 			}
-			printedOnce = true;
+			sysprops.put("printedOnce", "true");
 		}
 	}
 
@@ -313,14 +321,18 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		//1: single
 		thisTest.runSeleniumTest(KeepBrowserOpen.ONFAILURE);
 		
-		//2: multi-thread
+		//2: multi-thread  (with and  without KeepBrowserOpen option) 
 //		thisTest.runMultiThreadedSeleniumTest(2, 2000);
+//		thisTest.runMultiThreadedSeleniumTest(2, 2000, KeepBrowserOpen.ONFAILURE);   
+  
 
 		//3: multi-thread with parms
 //		Map<String, java.util.List<String>>threadParameters = new java.util.LinkedHashMap<String,java.util.List<String>>();
 //		threadParameters.put("USER",                              java.util.Arrays.asList( "USER-MATTHEW", "USER-MARK", "USER-LUKE", "USER-JOHN"));
-//		threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "true"));		
+//		threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "true"));	
+//		//  (with and  without KeepBrowserOpen option)
 //		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters);
+//		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE);		
 	}
 		
 }

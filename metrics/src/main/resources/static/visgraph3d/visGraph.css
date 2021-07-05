@@ -134,6 +134,7 @@ a:hover {
 }
 
 	.maroontitle { font-size: 18px;	 color: maroon;	 font: bold;	 background-color: white;	 border: thick;}
+	a.maroontitle { font-size: 18px;	 color: maroon;	 font: bold;	 background-color: white;	 border: thick;  text-decoration: none;}
 	.textarea { width: 35px; height: 15px; min-height: 10px; font-family: Arial, sans-serif; font-size: 12px;  color: #444; padding: 5px;}
 	.textred { color: red; max-width: 600px; white-space: nowrap;}
 	.customButton { font-size: 16px; color:maroon;}

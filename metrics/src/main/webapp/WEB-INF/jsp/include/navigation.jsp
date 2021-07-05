@@ -13,15 +13,16 @@ if (reqApp != null && !reqApp.isEmpty()) {
 %>
 
 <div class="sidebar">
-<div class="canterbury">Mark59</div>  
-  <a <% if (path.contains("welcome")){ %> class="active" <% } %> href="/metrics">Overview</a> 
+<div><a class=canterbury href="/metrics/overview<%= reqAppUrlParm %>">Mark59</a></div>
+
+  <a <% if (path.contains("overview")){ %> class="active" <% } %> href="/metrics/overview<%= reqAppUrlParm %>">Overview</a> 
   <a <% if (path.contains("dashboard")){ %> class="active" <% } %> href="dashboard?reqAppListSelector=Active">Application Dashboard</a> 
-<%--   <a href="trending<%= reqAppUrlParm %>" target="_blank">Trend Analysis</a> --%>
   <a href="trending<%= reqAppUrlParm %>">Trend Analysis</a>  
   <a <% if (path.contains("run")){ %> class="active" <% } %> href="runsList<%= reqAppUrlParm %>" >Run List</a> 
   <a <% if (path.contains("/slalist") || path.contains("copysla") || path.contains("registersla") || path.contains("editsla") || path.contains("deletesla") || path.contains("bulkapplication") || path.contains("applicationsla") )
                                        { %> class="active" <% } %> href="slaList<%= reqAppUrlParm %>">SLA Transactions</a> 
   <a <% if (path.contains("metricsla")){ %> class="active" <% } %> href="metricSlaList<%= reqAppUrlParm %>" >SLA Metrics</a>
+  <a <% if (path.contains("transaction")){ %> class="active" <% } %> href="transactionList<%= reqAppUrlParm %>">Rename Transactions</a>
   <a <% if (path.contains("eventmapping")){ %> class="active" <% } %> href="eventMappingList">Event Mapping Admin</a>
   <a <% if (path.contains("graphmapping")){ %> class="active" <% } %> href="graphMappingList">Graph Mapping Admin</a>
  

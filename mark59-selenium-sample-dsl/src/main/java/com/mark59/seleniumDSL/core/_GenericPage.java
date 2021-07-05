@@ -17,6 +17,7 @@
 package com.mark59.seleniumDSL.core;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 
 
@@ -54,5 +55,10 @@ public class _GenericPage {
 	public String getPageTitle(){
 		return driver.getTitle() ;  
 	}
-	
+
+	public void scrollBy(int pxRight, int pxDown){
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		js.executeScript("window.scrollBy( " +  pxRight + ", " + pxDown + ")", "");	
+	}
+
 }

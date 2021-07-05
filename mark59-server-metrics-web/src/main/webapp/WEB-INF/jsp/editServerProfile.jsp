@@ -100,16 +100,16 @@
          <td>
  		  <table>    
           <c:forEach items="${serverProfileEditingForm.commandSelectors}" var="commandSelector"  varStatus="status"   >
-     		<tr id="commandSelectors${status.index}">
-     		   <c:set var="thisrowexecutor" value="${commandSelector.executor}" />
-     		   <c:if test="${commandexecutor.equals(thisrowexecutor)}">  
+ 			<c:set var="thisrowexecutor" value="${commandSelector.executor}" />
+ 			<c:if test="${commandexecutor.equals(thisrowexecutor)}">  
+     			<tr id="commandSelectors${status.index}">
 	     		   <td><form:checkbox path="commandSelectors[${status.index}].commandChecked" /></td>     		   
 	     		   <td><a href="editCommand?&reqCommandName=${commandSelector.commandName}">${commandSelector.commandName}</a></td>
 	    		   <td><form:hidden path="commandSelectors[${status.index}].commandName" /></td>
 	    		   <td style="font-size: 10px">&nbsp;&nbsp;(${commandSelector.executor})</td>
 	    		   <td><form:hidden path="commandSelectors[${status.index}].executor" /></td>   
-	    	   </c:if>       		   
-     		</tr>
+     			</tr>
+			</c:if>       		   
           </c:forEach>
           </table> 
          <td>          

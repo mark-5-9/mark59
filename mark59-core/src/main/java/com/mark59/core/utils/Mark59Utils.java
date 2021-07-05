@@ -192,7 +192,14 @@ public class Mark59Utils {
 		return listOfStrings;
 	}
 	
-	
-	
+	public static List<String> pipeDelimStringToStringList(String pipeDelimitedString) {
+		List<String> listOfStrings = new ArrayList<String>();
+		// when an empty string is passed to the split, it creates a empty first element ... not what we want .. 
+		if ( ! (pipeDelimitedString == null || pipeDelimitedString.isEmpty() )){
+			listOfStrings = Arrays.asList(pipeDelimitedString.split("\\s*\\|\\s*"));
+		} 
+		return listOfStrings;
+	}
+
 	
 }

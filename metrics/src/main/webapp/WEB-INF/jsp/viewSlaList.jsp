@@ -42,33 +42,37 @@
    <tr>
     <th>Transaction</th>
     <th>Application</th>
-    <th>Txn Ignored<br>on Graphs</th>        
+    <th>Txn Ignored<br>on Graphs</th>    
     <th>90th Res<br>Time</th>
     <th>95th Res<br>Time</th>
     <th>99th Res<br>Time</th>
     <th>Txn Pass Count</th>
-    <th>Txn Pass<br>Count<br>Variance %</th>    
+    <th>Txn Pass<br>Count Variance %</th>    
     <th>Txn Fail Count</th>
     <th>Txn Fail %</th>
-    <th>Xtra<br>num</th>    
+    <th>Txn<br>delay</th>    
+    <th>Xtra<br>num</th>
+    <th>Xtra<br>int</th>    
     <th>Reference</th>
-    <th>Comment</th>    
+    <th>Comment</th>  
    </tr>
    <c:forEach var="sla" items="${slaList}">
     <tr>
      <td>${sla.txnId}</td>
      <td>${sla.application}</td>
-     <td>${sla.isTxnIgnored }</td>       
+     <td>${sla.isTxnIgnored }</td>     
      <td>${sla.sla90thResponse}</td>
      <td>${sla.sla95thResponse}</td>
      <td>${sla.sla99thResponse}</td>
      <td>${sla.slaPassCount}</td>
-     <td>${sla.slaPassCountVariancePercent}</td>     
-     <td>${sla.slaFailCount}</td>
+     <td>${sla.slaPassCountVariancePercent}</td>
+     <td>${sla.slaFailCount}</td>     
      <td>${sla.slaFailPercent}</td>
-     <td>${sla.xtraNum}</td>        
+     <td>${sla.txnDelay}</td>        
+     <td>${sla.xtraNum}</td>     
+     <td>${sla.xtraInt}</td>     
      <td>${sla.slaRefUrl}</td>
-     <td>${sla.comment}</td>        
+     <td>${sla.comment}</td>          
     </tr>
    </c:forEach>
   </table>

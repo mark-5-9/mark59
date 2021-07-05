@@ -168,7 +168,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * <p>When the transaction is added to the main result (with a status of a 'passed')</p>
 	 * <p>Elapsed time is recorded in milliseconds, the standard for JMeter</p>
 	 * <p>Once a transaction is ended it is added to the main SampleResult object that will ultimately be returned upon script completion.<br>
-	 * <p>Once the transaction is ended, an internal key entry for the transaction ('label' in JMeter terminology) is cleared, freeing the
+	 * <p>Once a transaction is ended, an internal key entry for the transaction ('label' in JMeter terminology) is cleared, freeing the
 	 *  transaction name to be re-used if desired.</p>
 	 * 
 	 * @param transactionLabel label for the transaction
@@ -178,7 +178,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 */
 	@Override
 	public SampleResult endTransaction(String transactionLabel) {
-		return endTransaction(transactionLabel, Outcome.PASS);
+		return endTransaction(transactionLabel, Outcome.PASS, null);
 	}
 	
 	
@@ -196,9 +196,34 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * 
 	 * @throws IllegalArgumentException if the transactionLabel supplied is an illegal value (null or empty)
 	 * @throws NoSuchElementException   if the transactionLabel doesn't exist in the  transactionMap
-	 * @return the JMeter subresult for this transaction - which includes the transaction time (getTime)
+	 * @return the JMeter sub-result for this transaction (which includes the transaction time)
 	 */
 	public SampleResult endTransaction(String transactionLabel, Outcome result) {
+		return endTransaction(transactionLabel, result, null);
+	}
+	
+		
+	/**
+	 * Ends an existing transaction (SampleResult), stopping the running timer.
+	 * 
+	 * <p>When the transaction is added to the main result, it will be given a success state based on the Outcome passed in</p>
+	 * <p>Elapsed time is recorded in milliseconds, the standard for JMeter</p>
+	 * <p>Once a transaction is ended it is added to the main SampleResult object that will ultimately be returned upon test completion.<br>
+	 * <p>Once a transaction is ended, an internal key entry for the transaction ('label' in JMeter terminology) is cleared, freeing the
+	 *  transaction name to be re-used if desired.</p>
+	 * 
+	 * <p>Allows for a response message (which can be printed in a JMeter report for errored transactions).  This  will 
+	 * default to "200" or  "-1" for passed/failed transaction if a blank or null message is passed.
+	 * 
+	 * @param transactionLabel label for the transaction
+	 * @param result the success or failure state of the transaction
+	 * @param responseCode response message (useful for error transactions) 
+	 * 
+	 * @throws IllegalArgumentException if the transactionLabel supplied is an illegal value (null or empty)
+	 * @throws NoSuchElementException   if the transactionLabel doesn't exist in the  transactionMap
+	 * @return the JMeter subresult for this transaction - which includes the transaction time (getTime)
+	 */
+	public SampleResult endTransaction(String transactionLabel, Outcome result, String responseCode) {
 		if (StringUtils.isBlank(transactionLabel))
 			throw new IllegalArgumentException("transactionLabel cannot be null or empty");
 
@@ -207,58 +232,84 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 					"could not find SampleResult in transactionMap as it does not contain a key matching the expected value : "
 							+ transactionLabel);
 
+		if (StringUtils.isBlank(responseCode)) 
+			responseCode = result.getOutcomeResponseCode();
+		
 		SampleResult subResult = transactionMap.get(transactionLabel);
 		subResult.sampleEnd();
 		subResult.setSuccessful(result.isOutcomeSuccess());
 		subResult.setResponseMessage(result.getOutcomeText());
-		subResult.setResponseCode(result.getOutcomeResponseCode()); // 200 code
+		subResult.setResponseCode(responseCode);     // 200 | -1 | responseCode (passed string)
 		subResult.setSampleLabel(transactionLabel);
 		mainResult.addSubResult(subResult, false);   // prevents strange indexed named transactions (from Jmeter 5.0)		
 
 		transactionMap.remove(transactionLabel);
 		return subResult;
 	}
+
 	
 	/**
 	 * Adds a new SubResult to the main result, bypassing the transactionMap used by the timing methods: 
 	 * this.startTransaction(String); this.endTransaction(String).
 	 * 
-	 * <p>The new SubResult must be given both a transactionLabel and a transactionTime<br>
-	 * transactionTime is expected to be in milliseconds, as per the timing methods, but not enforced,
-	 *  so you can do with it as you will within the constraints of a single long</p>
+	 * <p>The new SubResult must be given both a transactionLabel and a transactionTime, transactionTime
+	 * is expected to be in milliseconds.
 	 * 
 	 * @param transactionLabel label for the transaction
-	 * @param transactionTime time taken for the transaction. Expects Milliseconds, but doesn't enforce.
+	 * @param transactionTime time taken for the transaction. Expects Milliseconds.
 	 * 
 	 * @throws IllegalArgumentException if the transactionLabel is null or empty
+	 * @return SampleResult
 	 */
 	@Override
-	public void setTransaction(String transactionLabel, long transactionTime){
-		setTransaction(transactionLabel, transactionTime, true);
+	public SampleResult setTransaction(String transactionLabel, long transactionTime){
+		return setTransaction(transactionLabel, transactionTime, true);
 	}
 	
 	/**
-	 * Adds a new SubResult to the main result, bypassing the transactionMap used by the timing methods: 
-	 * this.startTransaction(String); this.endTransaction(String).
+	 * Adds a new SubResult directly to the main result, without the need to use timing methods 
+	 * startTransaction(txnName) and endTransaction(txnName).
 	 * 
 	 * <p>When the transaction is added to the main result, it will be given a success state based on the Outcome passed in</p>
 	 * 
-	 * <p>The new SubResult must be given both a transactionLabel and a transactionTime<br>
-	 * transactionTime is expected to be in milliseconds, as per the timing methods, but not enforced,
-	 *  so you can do with it as you will within the constraints of a single long</p>
+	 * <p>The new SubResult must be given both a transactionLabel and a transactionTime, transactionTime 
+	 * is expected to be in milliseconds.
 	 * 
 	 * @param transactionLabel label for the transaction
-	 * @param transactionTime time taken for the transaction. Expects Milliseconds, but doesn't enforce.
-	 * @param success the success or failure state of the transaction
+	 * @param transactionTime time taken for the transaction. Expects Milliseconds.
 	 * 
 	 * @throws IllegalArgumentException if the transactionLabel is null or empty
+	 * @return SampleResult
 	 */
 	@Override
-	public void setTransaction(String transactionLabel, long transactionTime, boolean success) {
-		createSubResult(transactionLabel, transactionTime, success ? Outcome.PASS : Outcome.FAIL, JMeterFileDatatypes.TRANSACTION );		
+	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success) {
+		return createSubResult(transactionLabel, transactionTime, success ? Outcome.PASS : Outcome.FAIL, JMeterFileDatatypes.TRANSACTION, null );		
 	}
 
-
+	/**
+	 * Adds a new SubResult directly to the main result, without the need to use timing methods 
+	 * startTransaction(txnName) and endTransaction(txnName).
+	 * 
+	 * <p>When the transaction is added to the main result, it will be given a success state based on the Outcome passed in</p>
+	 * 
+	 * <p>The new SubResult must be given both a transactionLabel and a transactionTime, transactionTime 
+	 * is expected to be in milliseconds.
+	 * 
+	 * <p>Allows for a response message (which can be printed in a JMeter report for errored transactions).  This  will 
+	 * default to "200" or  "-1" for passed/failed transaction if a blank or null message is passed.
+	 * 
+	 * @param transactionLabel label for the transaction
+	 * @param transactionTime time taken for the transaction
+	 * @param success  the success (true) or failure (false) state of the transaction
+	 * @param responseCode response message (useful for error transactions)
+	 *   
+	 * @throws IllegalArgumentException if the transactionLabel is null or empty
+	 * @return SampleResult
+	 */
+	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode) {
+		return createSubResult(transactionLabel, transactionTime, success ? Outcome.PASS : Outcome.FAIL, JMeterFileDatatypes.TRANSACTION, responseCode );		
+	}
+	
 	
 	/**
 	 * Similar to this.{@link #userDataPoint(String, long)}, but instead of just being able to create a JMeter sub-result of
@@ -269,11 +320,12 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * <pre><code>
 	 * jm.userDatatypeEntry("MyServersCPUUtilizationPercent", 40L, Mark59Constants.JMeterFileDatatypes.CPU_UTIL );	
 	 * </code></pre>
+	 * @return SampleResult
 	 */ 
 	@Override
-	public void userDatatypeEntry(String dataPointName, long dataPointValue,  JMeterFileDatatypes outputDatatype) {
+	public SampleResult userDatatypeEntry(String dataPointName, long dataPointValue,  JMeterFileDatatypes outputDatatype) {
 		if (LOG.isDebugEnabled()) LOG.debug(" userDatatypeEntry Name:Value [ " + dataPointName + ":" + dataPointValue + ":" +  outputDatatype.getDatatypeText() + "]");
-		createSubResult(dataPointName, dataPointValue, Outcome.PASS, outputDatatype);		
+		return createSubResult(dataPointName, dataPointValue, Outcome.PASS, outputDatatype, null);		
 	}
 	
 	
@@ -286,27 +338,31 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * @param dataPointValue an arbitrary non-timing metric
 	 * 
 	 * @throws IllegalArgumentException if the dataPointName is null or empty
+	 * @return SampleResult
 	 */
 	@Override
-	public void userDataPoint(String dataPointName, long dataPointValue ) {
+	public SampleResult userDataPoint(String dataPointName, long dataPointValue ) {
 		if (LOG.isDebugEnabled()) LOG.debug(" userDataPoint Name:Value [ " + dataPointName + ":" + dataPointValue + "]");
-		createSubResult(dataPointName, dataPointValue, Outcome.PASS, JMeterFileDatatypes.DATAPOINT);
+		return createSubResult(dataPointName, dataPointValue, Outcome.PASS, JMeterFileDatatypes.DATAPOINT, null);
 	}
 	
 	
-	private void createSubResult(String dataPointName, long dataPointValue, Outcome result, JMeterFileDatatypes jmeterFileDatatypes) {
+	private SampleResult createSubResult(String dataPointName, long dataPointValue, Outcome result, JMeterFileDatatypes jmeterFileDatatypes, String responseCode) {
 		if (StringUtils.isBlank(dataPointName))
 			throw new IllegalArgumentException("dataPointName cannot be null or empty");
+		if (StringUtils.isBlank(responseCode)) 
+			responseCode = result.getOutcomeResponseCode();
 		
 		SampleResult subResult = new SampleResult(); 
-		subResult.setSuccessful(result.isOutcomeSuccess());
-		subResult.setResponseMessage(result.getOutcomeText());		
-		subResult.setDataType(jmeterFileDatatypes.getDatatypeText() );
+		subResult.setSuccessful(result.isOutcomeSuccess());             // true | false
+		subResult.setResponseCode(responseCode);                        // 200 | -1 | responseCode (passed string)
+		subResult.setResponseMessage(result.getOutcomeText());          // PASS | FAIL
+		subResult.setDataType(jmeterFileDatatypes.getDatatypeText() );	
 		subResult.setSampleLabel(dataPointName);
 		subResult.sampleStart();    
 		subResult.setEndTime(subResult.getStartTime() + dataPointValue );	
 		mainResult.addSubResult(subResult, false);
-		
+		return subResult;
 	}			
 	
 	/**
@@ -341,7 +397,6 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * @param label the transaction label for the SampleResults to locate.
 	 * @return  a list of sample results
 	 */
-
 	public List<SampleResult> getSampleResultFromMainResultWithLabel(String label) {
 		return Arrays.asList(mainResult.getSubResults()).stream()
 				.filter(sr -> sr.getSampleLabel().equals(label))

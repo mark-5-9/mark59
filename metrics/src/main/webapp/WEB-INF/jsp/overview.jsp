@@ -35,6 +35,8 @@
 	  
 		<h1>Overview</h1>     
 		
+		<div><img src="images/mark59_banner.jpg"/></div>
+		
 		<p>The Mark59 Performance and Volume Testing Analysis System allows you to view and analyse and test result trends over time.</p>
 	
 		<p>The system is a collection of the following components that can be launched from the left hand side menu:</p>  
@@ -45,13 +47,14 @@
 			<li>Run List</li>
 			<li>SLA Transactions</li>
 			<li>SLA Metrics</li>
+			<li>Rename Transactions</li>
 			<li>Event Mapping Admin</li>
 			<li>Graph Mapping Admin</li>
 		</ul>
 	
 		<br>
 		<br>
-		<p>Version: 3.2.0.   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+		<p>Version: 3.3.0.   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 	</div>
 </body>

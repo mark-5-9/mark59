@@ -1,0 +1,6 @@
+<!ELEMENT configuration (include,logger+)>
+<!ELEMENT include EMPTY>
+<!ATTLIST include resource CDATA #REQUIRED>
+<!ELEMENT logger EMPTY>
+<!ATTLIST logger name CDATA #REQUIRED>
+<!ATTLIST logger level NMTOKEN #FIXED "error">

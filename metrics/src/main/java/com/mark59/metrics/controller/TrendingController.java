@@ -62,25 +62,18 @@ public class TrendingController {
 	
 	@Autowired
 	ApplicationDAO applicationDAO; 
-
 	@Autowired
 	RunDAO runDAO; 	
-	
 	@Autowired
 	TransactionDAO transactionDAO;
-	
 	@Autowired
 	SlaDAO slaDAO; 	
-
 	@Autowired	
 	MetricSlaDAO metricSlaDAO;
-		
 	@Autowired
 	GraphMappingDAO graphMappingDAO; 	
-	
 	@Autowired
 	VisGraphicDataProductionInterface visGraphicDataProduction;
-	
 
 	 //TODO: increase and rationalize input validation (messages, prevent fails etc).   
 	
@@ -191,7 +184,7 @@ public class TrendingController {
 	
 		trendingForm.setNthRankedTxn(UtilsMetrics.defaultIfBlank(reqNthRankedTxn, AppConstantsMetrics.ALL));
 		
-		System.out.println("TrendingController trendingForm : " + trendingForm  );
+//		System.out.println("TrendingController trendingForm : " + trendingForm  );
 		
 		String runDatesToGraphId = runDAO.determineRunDatesToGraph(	trendingForm.getApplication(),
 																	trendingForm.getSqlSelectRunLike(),
@@ -284,6 +277,13 @@ public class TrendingController {
 	}
 
 	
+	/**
+	 * labelRunShortDescriptionsId id used by the graphic to populate the run labels 
+	 * 
+	 * @param application
+	 * @param runDatesToGraphId
+	 * @return labelRunShortDescriptionsId
+	 */
 	private String populateLabelRunShortDescriptionsId(String application, String runDatesToGraphId) {
 
 		List<String> runDatesToGraph = UtilsMetrics.commaDelimStringToStringList(runDatesToGraphId);
@@ -309,13 +309,13 @@ public class TrendingController {
 			if (runReferenceLinkText == null ){
 				runReferenceLinkText = run.getRunReference();
 			}
-			runDescriptionsb.append(runReferenceLinkText);
+			runDescriptionsb.append(runReferenceLinkText.replace(',',' '));
 			
-			if ( run.getComment() != null  &&  !run.getComment().isEmpty() ){
+			if (StringUtils.isNotBlank(run.getComment())){
 				if (run.getComment().length() > 20 ){
-					runDescriptionsb.append(" " +  run.getComment().substring(0,20));
+					runDescriptionsb.append(" " +  run.getComment().replace(',',' ').substring(0,20));
 				} else {
-					runDescriptionsb.append(" " +  run.getComment());
+					runDescriptionsb.append(" " +  run.getComment().replace(',',' '));
 				}
 			}
 			runShortDescriptionsList.add(runDescriptionsb.toString() );
@@ -327,6 +327,13 @@ public class TrendingController {
 	
 
 	
+	/**
+	 * labelRunDescriptionsId is used for the run descriptions in the Comparison Table
+	 * 
+	 * @param application
+	 * @param runDatesToGraphId
+	 * @return labelRunDescriptionsId
+	 */
 	private String populateLabelRunDescriptionsId(String application, String runDatesToGraphId) {
 
 		List<String> runDatesToGraph = UtilsMetrics.commaDelimStringToStringList(runDatesToGraphId);
@@ -335,13 +342,14 @@ public class TrendingController {
 		for (int i = 0; i < runDatesToGraph.size();  i++) {
 			Run run = runDAO.findRun(application, runDatesToGraph.get(i));
 			StringBuilder runDescriptionsb   = new StringBuilder();
-			runDescriptionsb.append(run.getRunReference());
 			
-			if ( run.getComment() != null  &&  !run.getComment().isEmpty() ){
+			runDescriptionsb.append(run.getRunReference().replace(',',' '));
+			
+			if (StringUtils.isNotBlank(run.getComment())){
 				if (run.getComment().length() > 20 ){
-					runDescriptionsb.append("<br><br><div style='color:grey;'>" +  run.getComment().substring(0,20) + "..</div>" );
+					runDescriptionsb.append("<br><br><div style='color:grey;'>" +  run.getComment().replace(',',' ').substring(0,20) + "..</div>" );
 				} else {
-					runDescriptionsb.append("<br><br><div style='color:grey;'>" +  run.getComment() + "</div>" );
+					runDescriptionsb.append("<br><br><div style='color:grey;'>" +  run.getComment().replace(',',' ') + "</div>" );
 				}
 			}
 			if ( "Y".equalsIgnoreCase(run.getBaselineRun())){
@@ -385,6 +393,7 @@ public class TrendingController {
 		List<String> trxnIdsWithFailedSla95thResponse = new ArrayList<String>();
 		List<String> trxnIdsWithFailedSla99thResponse = new ArrayList<String>();
 		List<String> trxnIdsWithFailedSlaFailPercent = new ArrayList<String>();
+		List<String> trxnIdsWithFailedSlaFailCount = new ArrayList<String>();
 		List<String> trxnIdsWithFailedSlaPassCount = new ArrayList<String>();		
 
 		for (SlaTransactionResult slaTransactionResult : slaTransactionResultList) {
@@ -404,11 +413,13 @@ public class TrendingController {
 			if ( !slaTransactionResult.isPassedFailPercent()){
 				trxnIdsWithFailedSlaFailPercent.add(slaTransactionResult.getTxnId());
 			}
+			if ( !slaTransactionResult.isPassedFailCount()){
+				trxnIdsWithFailedSlaFailCount.add(slaTransactionResult.getTxnId());
+			}				
 			if ( !slaTransactionResult.isPassedPassCount()){
 				trxnIdsWithFailedSlaPassCount.add(slaTransactionResult.getTxnId());
 			}			
 		}
-		
 		
 		List<String> missingTransactions  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, latestRunTime, slaDAO  );
 		for (String missingTnxId : missingTransactions) {
@@ -420,12 +431,9 @@ public class TrendingController {
 		model.addAttribute("trxnIdsWithFailedSla95thResponseId", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSla95thResponse) );	
 		model.addAttribute("trxnIdsWithFailedSla99thResponseId", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSla99thResponse) );	
 		model.addAttribute("trxnIdsWithFailedSlaFailPercentId", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSlaFailPercent) );
+		model.addAttribute("trxnIdsWithFailedSlaFailCount", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSlaFailCount) );
 		model.addAttribute("trxnIdsWithFailedSlaPassCount", UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSlaPassCount) );
 		model.addAttribute("missingTransactionsId", UtilsMetrics.stringListToCommaDelimString(missingTransactions) );				
-		
-//		System.out.println(" trxnIdsWithFailedSla90thResponseId: " + UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSla90thResponse)   );
-//		System.out.println(" trxnIdsWithFailedSlaFailPercentId: "  + UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSlaFailPercent)   );
-//		System.out.println(" trxnIdsWithFailedSlaPassCount: "      + UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSlaPassCount)   );
 	}	
 	
 	private void populateIgnoredTransactionsList(String application, Model model){

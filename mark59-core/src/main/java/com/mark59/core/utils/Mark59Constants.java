@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class Mark59Constants {
 	
-	public static final String MARK59_VERSION  = "3.2";	
+	public static final String MARK59_VERSION  = "3.3";	
 		
 	public static final String TRUE = "TRUE";
 	public static final String FALSE = "FALSE";
@@ -48,9 +48,9 @@ public class Mark59Constants {
     
     /**
      * Defines an enumeration of values used in the Mark59 framework that are used in to populate the JMeter
-     *  results file data type (the 'dt' columnn in a csv formatted file) 
+     *  results file data type (the 'dt' column in a csv formatted file) 
      * 
-     * <p>The current list of types, and thier corresponding text values (as would appear in a JMeter csv Results file) are:<br>
+     * <p>The current list of types, and their corresponding text values (as would appear in a JMeter csv Results file) are:<br>
 	 * <table summary="">
   	 *	<tr><td>Mark59 JMeterFileDatatypes<br>enumeration<br></td><td> --&gt; </td><td>JMeter file 'dt' value</td></tr>
   	 *	<tr><td>CPU_UTIL  </td><td> --&gt; </td><td>CPU_UTIL   </td></tr>

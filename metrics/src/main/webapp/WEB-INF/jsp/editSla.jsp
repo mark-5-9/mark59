@@ -92,10 +92,22 @@
      <tr>
       <td>Fail Percent:</td>
       <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"/></td>
-     </tr> 
+     </tr>
      <tr>
-      <td>Xtra num :</td>
+      <td><br></td>
+      <td style="font-size: 12px"><br>Non-SLA related fields (defaults are 0's).</td>     
+     </tr>        
+     <tr>
+      <td>Txn delay:</td>
+      <td><form:input path="txnDelay" type="text" pattern="^-?\d*\.{0,1}\d+$" /></td>     
+     </tr>       
+     <tr>
+      <td>Xtra num:</td>
       <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$" /></td>     
+     </tr>
+     <tr>
+      <td>Xtra int:</td>
+      <td><form:input path="xtraInt" type="text" pattern="-?\d*" /></td>      
      </tr>      
      <tr>
       <td><br>Reference:</td>

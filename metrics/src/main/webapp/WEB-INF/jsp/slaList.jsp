@@ -83,7 +83,9 @@
     <th>Txn Pass<br>Count Variance %</th>    
     <th>Txn Fail Count</th>
     <th>Txn Fail %</th>
+    <th>Txn<br>delay</th>    
     <th>Xtra<br>num</th>
+    <th>Xtra<br>int</th>    
     <th>Reference</th>
     <th>Comment</th>
    </tr>
@@ -102,7 +104,9 @@
      <td>${sla.slaPassCountVariancePercent}</td>
      <td>${sla.slaFailCount}</td>     
      <td>${sla.slaFailPercent}</td>
+     <td>${sla.txnDelay}</td>        
      <td>${sla.xtraNum}</td>     
+     <td>${sla.xtraInt}</td>     
      <td>${sla.slaRefUrl}</td>
      <td>${sla.comment}</td>     
     </tr>

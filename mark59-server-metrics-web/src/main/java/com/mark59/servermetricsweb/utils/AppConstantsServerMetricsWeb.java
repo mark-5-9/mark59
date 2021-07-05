@@ -25,18 +25,11 @@ import java.util.List;
  */
 public class AppConstantsServerMetricsWeb {
 	
-	public static final String MARK59_SERVER_METRICS_VERSION = "3.2.0";	
+	public static final String MARK59_SERVER_METRICS_VERSION = "3.3.0";	
 	
 	public static final String MARK59_SERVER_PROFILES_EXCEL_FILE = "mark59serverprofiles.xlsx";  
 
 	public static final String SERVER_PROFILE_NOT_FOUND  = "SERVER_PROFILE_NOT_FOUND";	
-
-//	public static final String UNKNOWN  	= "UNKNOWN";     
-//	public static final String WINDOWS 		= "WINDOWS";  
-//	public static final String LINUX    	= "LINUX"; 
-//	public static final String UNIX			= "UNIX";  
-//	public static final String SCRIPT		= "SCRIPT";  
-//	public static final List<String>  OPERATING_SYSTEM_LIST =	Arrays.asList(WINDOWS, LINUX, UNIX, SCRIPT);  
 	
 	public static final String SERVER_METRICS_WEB_BASE_DIR 	= "SERVER_METRICS_WEB_BASE_DIR"; 
 	

@@ -122,7 +122,8 @@ if ( OS_NAME_LC.indexOf(&quot;win&quot;) &gt;= 0 ) {
 	os = &quot;WINDOWS&quot;; 
 } 
 
-JMeterUtils.setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_&quot; + os);
+// System Properties vs JMeterUtils - please review the mark59 User Guide if using JSR223 for Mark59 scripts
+System.getProperties().setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_&quot; + os);
 
 SampleResult.setIgnore();
  
@@ -341,7 +342,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.2</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.3</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -525,7 +526,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.2</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.3</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -607,7 +608,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information: " elementType="Argument">
                 <stringProp name="Argument.name">build information: </stringProp>
-                <stringProp name="Argument.value">mark59-server-metrics version 3.2.0</stringProp>
+                <stringProp name="Argument.value">mark59-server-metrics version 3.3.0</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -616,6 +617,547 @@ return 0;</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DemoMark59ScriptAsJSR223" enabled="false">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">2</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">60</stringProp>
+        <stringProp name="ThreadGroup.delay">10</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="DataHunterBasicSampleScriptJSR223Format" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">package com.mark59.datahunter.performanceTest.scripts.jsr223format;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
+import org.apache.logging.log4j.Level;
+import org.openqa.selenium.By;
+import org.openqa.selenium.PageLoadStrategy;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
+
+import com.mark59.core.utils.*;
+import com.mark59.selenium.corejmeterimpl.*;
+import com.mark59.selenium.drivers.SeleniumDriverFactory;
+
+
+// &gt;&gt; --------- COMMENT OUT THE NEXT TWO LINES ---------  
+// public class DataHunterBasicSampleScriptJSR223Format  {
+// public static void main(String[] args) throws InterruptedException{
+// &lt;&lt;  
+	
+	
+class ThisScript extends SeleniumAbstractJavaSamplerClient {
+	
+	@SuppressWarnings(&quot;unused&quot;)
+	final class TestConstants {
+		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = &quot;/dataHunter/delete_multiple_policies&quot;;
+		public static final String COUNT_POLICIES_URL_PATH              = &quot;/dataHunter/count_policies&quot;;	
+		public static final String ADD_POLICY_URL_PATH                  = &quot;/dataHunter/add_policy&quot;;
+		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = &quot;/dataHunter/print_selected_policies&quot;;
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/dataHunter/count_policies_breakdown&quot;;		
+		public static final String NEXT_POLICY_URL_PATH                 = &quot;/dataHunter/next_policy&quot;;	
+		public static final String UNUSED                               = &quot;UNUSED&quot;;  
+		public static final String EQUALS                               = &quot;EQUALS&quot;;
+		public static final String SELECT_MOST_RECENTLY_ADDED           = &quot;SELECT_MOST_RECENTLY_ADDED&quot;;  
+	}
+	
+	
+	@Override
+	protected Map&lt;String, String&gt; additionalTestParameters() {
+		Map&lt;String, String&gt; jmeterAdditionalParameters = new LinkedHashMap&lt;String, String&gt;();
+		jmeterAdditionalParameters.put(&quot;DATAHUNTER_URL_HOST_PORT&quot;,	&quot;http://localhost:8081&quot;);
+		jmeterAdditionalParameters.put(&quot;DATAHUNTER_APPLICATION_ID&quot;, &quot;DATAHUNTER_PV_TEST_BASIC&quot;);
+		jmeterAdditionalParameters.put(&quot;USER&quot;, 	 &quot;default_user&quot;);		
+		jmeterAdditionalParameters.put(&quot;DRIVER&quot;, &quot;CHROME&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.HEADLESS_MODE, String.valueOf(false));
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.PAGE_LOAD_STRATEGY, PageLoadStrategy.NORMAL.toString());
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, &quot;&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, &quot;&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, 	String.valueOf(false));
+		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, &quot;&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, &quot;&quot;);				
+		return jmeterAdditionalParameters;			
+	}
+	
+
+	@Override
+	protected void runSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,  WebDriver driver) {
+//		jm.logScreenshotsAtStartOfTransactions(Mark59LogLevels.WRITE);
+//		jm.logScreenshotsAtEndOfTransactions(Mark59LogLevels.WRITE);
+//		jm.logPageSourceAtStartOfTransactions(Mark59LogLevels.WRITE);		
+//		jm.logPageSourceAtEndOfTransactions(Mark59LogLevels.WRITE );
+//		jm.logPerformanceLogAtEndOfTransactions(Mark59LogLevels.WRITE);
+		// you need to use jm.writeBufferedArtifacts to output BUFFERed data (see end of this method)  		
+//		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.BUFFER);		
+
+		String thread = Thread.currentThread().getName();
+		String lifecycle = &quot;thread_&quot; + thread;
+//		System.out.println(&quot;Thread &quot; + thread + &quot; is running with LOG level &quot; + LOG.getLevel());
+
+		String dataHunterUrl 	= context.getParameter(&quot;DATAHUNTER_URL_HOST_PORT&quot;);
+		String application 		= context.getParameter(&quot;DATAHUNTER_APPLICATION_ID&quot;);
+		String user 			= context.getParameter(&quot;USER&quot;);
+
+// 		delete any existing policies for this application/thread combination
+		
+		jm.startTransaction(&quot;DH-basic-0001-gotoDeleteMultiplePoliciesUrl&quot;);
+		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
+		jm.endTransaction(&quot;DH-basic-0001-gotoDeleteMultiplePoliciesUrl&quot;);	
+		
+		driver.findElement(By.id(&quot;lifecycle&quot;)).sendKeys(lifecycle);  ; 
+		
+		jm.startTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);
+		driver.findElement(By.id(&quot;submit&quot;)).submit();
+		checkSqlOk(driver.findElement(By.id(&quot;sqlResult&quot;)));
+		jm.endTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);	
+	
+//		add a policy 		
+		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + &quot;?application=&quot; + application);
+
+		driver.findElement(By.id(&quot;identifier&quot;)).sendKeys(&quot;DH-BASIC-POLICY&quot;); 		
+		driver.findElement(By.id(&quot;lifecycle&quot;)).sendKeys(lifecycle); 		
+		
+		Select dropdown = new Select(driver.findElement(By.id(&quot;useability&quot;)));
+		dropdown.selectByVisibleText(TestConstants.UNUSED);
+
+		driver.findElement(By.id(&quot;otherdata&quot;)).sendKeys(user); 
+		driver.findElement(By.id(&quot;epochtime&quot;)).sendKeys(new String(Long.toString(System.currentTimeMillis()))); 
+//		jm.writeScreenshot(&quot;add_policy_DH-BASIC-POLICY&quot;);
+		
+		jm.startTransaction(&quot;DH-lifecycle-0200-addPolicy&quot;);
+		driver.findElement(By.id(&quot;submit&quot;)).submit();
+		checkSqlOk(driver.findElement(By.id(&quot;sqlResult&quot;)));
+		jm.endTransaction(&quot;DH-lifecycle-0200-addPolicy&quot;);
+		
+//		set a Data Point		
+		Long rowsAffected = Long.valueOf(driver.findElement(By.id(&quot;rowsAffected&quot;)).getText());
+		LOG.debug( &quot;rowsAffected : &quot; + rowsAffected); 
+		jm.userDataPoint(application + &quot;_PolicyRowsAffected&quot;, rowsAffected);    // (expected to be always 1 for this action)		
+
+		driver.findElement(By.linkText(&quot;Back&quot;)).click();
+		
+//		jm.writeBufferedArtifacts();
+	}
+
+	private void checkSqlOk(WebElement sqlResultWebElement) {
+		String sqlResultText = sqlResultWebElement.getText();
+		if ( !&quot;PASS&quot;.equals(sqlResultText) ) {
+			throw new RuntimeException(&quot;SQL issue (&quot; + sqlResultText + &quot;)&quot;);   
+		}
+	}
+};
+
+
+// &gt;&gt; --------- COMMENT OUT THE NEXT THREE LINES ---------  
+// org.apache.jmeter.samplers.SampleResult SampleResult = new org.apache.jmeter.samplers.SampleResult();
+// SampleResult.sampleStart();
+// Log4jConfigurationHelper.init(Level.INFO) ;
+// &lt;&lt; 
+
+org.apache.jmeter.samplers.SampleResult testResults = new ThisScript().runSeleniumTest(KeepBrowserOpen.NEVER);
+if (testResults != null) {
+	for (org.apache.jmeter.samplers.SampleResult subResult : testResults.getSubResults()) {
+		SampleResult.addSubResult(subResult, false);
+	}
+}
+SampleResult.setDataType(&quot;PARENT&quot; );
+SampleResult.setEndTime(0);
+
+// &gt;&gt; --------- COMMENT OUT THE END BRACES BELOW --------- 
+// }
+// }</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="DataHunterLifecyclePvtScriptJSR223Format" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">package com.mark59.datahunter.performanceTest.scripts.jsr223format;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
+import org.apache.logging.log4j.Level;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.PageLoadStrategy;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import com.mark59.core.Outcome;
+import com.mark59.core.utils.*;
+import com.mark59.selenium.corejmeterimpl.*;
+import com.mark59.selenium.drivers.SeleniumDriverFactory;
+import com.mark59.seleniumDSL.core._GenericPage;
+import com.mark59.seleniumDSL.pageElements.*;
+
+
+// &gt;&gt; --------- COMMENT OUT THE NEXT TWO LINES ---------  
+// public class DataHunterLifecyclePvtScriptJSR223Format  {
+// public static void main(String[] args) throws InterruptedException{
+// &lt;&lt;  
+	
+/**
+ * Note that in this more advanced example access to the com.mark59.seleniumDSL.* packages is assumed (from the mark59-selenium-sample-dsl project).
+ * &lt;p&gt;Hint: A quick and dirty way to do this is to copy target jar from the dataHunterPerformanceTestSamples project since it contains sample DSL
+ * packages, into the lib/ext directory of your JMeter instance.  
+ *   
+ * @author Phil Webb
+ */
+class ThisScript extends SeleniumAbstractJavaSamplerClient {
+	
+	final class TestConstants {
+		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = &quot;/dataHunter/delete_multiple_policies&quot;;
+		public static final String COUNT_POLICIES_URL_PATH              = &quot;/dataHunter/count_policies&quot;;	
+		public static final String ADD_POLICY_URL_PATH                  = &quot;/dataHunter/add_policy&quot;;
+		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = &quot;/dataHunter/print_selected_policies&quot;;
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/dataHunter/count_policies_breakdown&quot;;		
+		public static final String NEXT_POLICY_URL_PATH                 = &quot;/dataHunter/next_policy&quot;;	
+		public static final String UNUSED                               = &quot;UNUSED&quot;;  
+		public static final String EQUALS                               = &quot;EQUALS&quot;;
+		public static final String SELECT_MOST_RECENTLY_ADDED           = &quot;SELECT_MOST_RECENTLY_ADDED&quot;;  
+	}
+	
+	final class DataHunterInputPages extends _GenericPage {
+
+		public DataHunterInputPages(WebDriver driver) {
+			super(driver);
+		}
+		public DropdownList applicationStartsWithOrEquals() {
+			return new DropdownList(driver, By.id(&quot;applicationStartsWithOrEquals&quot;));
+		};			
+		public InputTextElement identifier() {
+			return new InputTextElement(driver, By.id(&quot;identifier&quot;));
+		};			
+		public InputTextElement lifecycle() {
+			return new InputTextElement(driver, By.id(&quot;lifecycle&quot;));
+		};
+		public DropdownList useability() {
+			return new DropdownList(driver, By.id(&quot;useability&quot;));
+		};
+		public InputTextElement otherdata() {
+			return new InputTextElement(driver, By.id(&quot;otherdata&quot;));
+		};
+		public InputTextElement epochtime() {
+			return new InputTextElement(driver, By.id(&quot;epochtime&quot;));
+		};
+		public DropdownList selectOrder() {
+			return new DropdownList(driver, By.id(&quot;selectOrder&quot;));
+		};		
+		public SubmitBtn submit() {
+			return new SubmitBtn(driver, By.id(&quot;submit&quot;));
+		};
+	}
+	
+	
+	final class DatatHunterActionPages extends  _GenericPage {
+		
+		public DatatHunterActionPages(WebDriver driver) {
+			super(driver);
+		}
+		public InputTextElement identifier() {
+			return new InputTextElement(driver, By.id(&quot;identifier&quot;));
+		};
+		public PageTextElement sql() {
+			return new PageTextElement(driver, By.id(&quot;sql&quot;));
+		};	
+		public PageTextElement sqlResult() {
+			return new PageTextElement(driver, By.id(&quot;sqlResult&quot;));
+		};	
+		public PageTextElement rowsAffected() {
+			return new PageTextElement(driver, By.id(&quot;rowsAffected&quot;));
+		};	
+		public PageTextElement sqlResultText() {
+			return new PageTextElement(driver, By.id(&quot;sqlResultText&quot;));
+		};	
+		public Link backLink() {
+			return new Link(driver, &quot;Back&quot;);
+		};	
+		public int getCountForBreakdown(String application, String lifecycle, String useability){  // breakdown result only 
+			PageTextElement countForBreakdownElement = null;
+			try { countForBreakdownElement =  new PageTextElement(driver, By.id((application + &quot;_&quot; + lifecycle + &quot;_&quot; + useability + &quot;_count&quot;).replace(&quot; &quot;, &quot;_&quot;)));
+			} catch ( NoSuchElementException e) {return 0;	}
+			int count = Integer.valueOf(countForBreakdownElement.getText());
+			return count;
+		}
+		public HtmlTable printSelectedPoliciesTable() {
+			return new HtmlTable(driver, &quot;printSelectedPoliciesTable&quot;);
+		};		
+		public String formatResultsMessage(String tag){
+			return  &quot;DataHunter &quot; +  sqlResultText().getText() + &quot; at &quot; + tag + &quot;, SQL statement [&quot; + sql().getText() + &quot;]&quot; +
+					&quot;, rows affected [&quot; +  rowsAffected().getText() + &quot;], details [&quot; + sqlResultText().getText() + &quot;]&quot;;		
+		}
+	}
+
+	
+	@Override
+	protected Map&lt;String, String&gt; additionalTestParameters() {
+		Map&lt;String, String&gt; jmeterAdditionalParameters = new LinkedHashMap&lt;String, String&gt;();
+		jmeterAdditionalParameters.put(&quot;DATAHUNTER_URL_HOST_PORT&quot;,	&quot;http://localhost:8081&quot;);
+		jmeterAdditionalParameters.put(&quot;DATAHUNTER_APPLICATION_ID&quot;, &quot;DATAHUNTER_PV_TEST&quot;);
+		jmeterAdditionalParameters.put(&quot;FORCE_TXN_FAIL_PERCENT&quot;, 	&quot;20&quot;);
+		jmeterAdditionalParameters.put(&quot;USER&quot;, 	 &quot;default_user&quot;);		
+
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, &quot;CHROME&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.HEADLESS_MODE, String.valueOf(false));
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_DIMENSIONS, Mark59Constants.DEFAULT_BROWSER_DIMENSIONS);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.PAGE_LOAD_STRATEGY, PageLoadStrategy.NONE.toString());
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, &quot;&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, &quot;&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, String.valueOf(false));
+		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, &quot;&quot;);			
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, &quot;&quot;);			
+		return jmeterAdditionalParameters;			
+	}
+	
+
+	@Override
+	protected void runSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,  WebDriver driver) {
+		
+		String thread = Thread.currentThread().getName();
+		String lifecycle = &quot;thread_&quot; + thread;
+		String dataHunterUrl 	= context.getParameter(&quot;DATAHUNTER_URL_HOST_PORT&quot;);
+		String application 		= context.getParameter(&quot;DATAHUNTER_APPLICATION_ID&quot;);
+		int forceTxnFailPercent = Integer.valueOf(context.getParameter(&quot;FORCE_TXN_FAIL_PERCENT&quot;).trim());
+		String user 			= context.getParameter(&quot;USER&quot;);
+		
+		PrintSomeMsgOnceAtStartUp(dataHunterUrl, driver);
+
+		DataHunterInputPages dataHunterInputPages = new DataHunterInputPages(driver); 
+
+// 		delete any existing policies for this application/thread combination
+		jm.startTransaction(&quot;DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl&quot;);
+		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
+		dataHunterInputPages.lifecycle().waitUntilClickable();
+		jm.endTransaction(&quot;DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl&quot;);	
+		
+		dataHunterInputPages.lifecycle().type(lifecycle);
+
+		DatatHunterActionPages resultsPage = new DatatHunterActionPages(driver);
+		
+		jm.startTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);		
+		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );  
+		waitActionPageCheckSqlOk(new DatatHunterActionPages(driver));
+		jm.endTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);	
+	
+//		add a set of policies 		
+		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + &quot;?application=&quot; + application);
+		
+		for (int i = 1; i &lt;= 5; i++) {
+			dataHunterInputPages.identifier().type(&quot;TESTID&quot; + i);
+			dataHunterInputPages.lifecycle().type(lifecycle);
+			dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED) ;
+			dataHunterInputPages.otherdata().type(user);		
+			dataHunterInputPages.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
+//			jm.writeScreenshot(&quot;add_policy_TESTID&quot; + i);
+
+			jm.startTransaction(&quot;DH-lifecycle-0200-addPolicy&quot;);
+			dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );   
+			waitActionPageCheckSqlOk(resultsPage);
+			jm.endTransaction(&quot;DH-lifecycle-0200-addPolicy&quot;);
+			
+			resultsPage.backLink().click().waitUntilClickable( dataHunterInputPages.submit() ).thenSleep();    
+		} 
+	
+//		dummy transaction just to test transaction failure behavior
+		jm.startTransaction(&quot;DH-lifecycle-0299-sometimes-I-fail&quot;);
+		int randomNum_1_to_100 = ThreadLocalRandom.current().nextInt(1, 101);
+		if ( randomNum_1_to_100 &gt;= forceTxnFailPercent ) {
+			jm.endTransaction(&quot;DH-lifecycle-0299-sometimes-I-fail&quot;, Outcome.PASS);
+		} else {
+			jm.endTransaction(&quot;DH-lifecycle-0299-sometimes-I-fail&quot;, Outcome.FAIL);
+		}
+		
+		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_URL_PATH + &quot;?application=&quot; + application);
+		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED).thenSleep();   // ** note 2
+
+		jm.startTransaction(&quot;DH-lifecycle-0300-countUnusedPolicies&quot;);
+		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );
+		waitActionPageCheckSqlOk(resultsPage);
+		jm.endTransaction(&quot;DH-lifecycle-0300-countUnusedPolicies&quot;);
+		
+		Long countPolicies = Long.valueOf( resultsPage.rowsAffected().getText());
+		LOG.debug( &quot;countPolicies : &quot; + countPolicies); 
+		jm.userDataPoint(application + &quot;_Total_Unused_Policy_Count&quot;, countPolicies);
+		
+// 		count breakdown (count for unused DATAHUNTER_PV_TEST policies for this thread )
+		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_BREAKDOWN_URL_PATH + &quot;?application=&quot; + application);		
+		dataHunterInputPages.applicationStartsWithOrEquals().selectByVisibleText(TestConstants.EQUALS);
+		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED);
+
+		jm.startTransaction(&quot;DH-lifecycle-0400-countUnusedPoliciesCurrentThread&quot;);		
+		dataHunterInputPages.submit().submit();
+		waitActionPageCheckSqlOk(resultsPage);		
+		jm.endTransaction(&quot;DH-lifecycle-0400-countUnusedPoliciesCurrentThread&quot;);				
+		
+		// direct access to required row-column table element by computing the id:
+		int countUsedPoliciesCurrentThread = resultsPage.getCountForBreakdown(application, lifecycle, TestConstants.UNUSED); 
+		LOG.debug( &quot;countUsedPoliciesCurrentThread : &quot; + countUsedPoliciesCurrentThread); 
+		jm.userDataPoint(application + &quot;_This_Thread_Unused_Policy_Count&quot;, countUsedPoliciesCurrentThread);	
+
+//		use next policy
+		driver.get(dataHunterUrl + TestConstants.NEXT_POLICY_URL_PATH + &quot;?application=&quot; + application + &quot;&amp;pUseOrLookup=use&quot;);		
+		dataHunterInputPages.lifecycle().type(lifecycle);
+		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED);
+		dataHunterInputPages.selectOrder().selectByVisibleText(TestConstants.SELECT_MOST_RECENTLY_ADDED);
+		
+		jm.startTransaction(&quot;DH-lifecycle-0500-useNextPolicy&quot;);		
+		dataHunterInputPages.submit().submit();
+		waitActionPageCheckSqlOk(resultsPage);			
+		jm.endTransaction(&quot;DH-lifecycle-0500-useNextPolicy&quot;);	
+		
+		if (LOG.isDebugEnabled() ) {LOG.debug(&quot;useNextPolicy: &quot; + application + &quot;-&quot; + lifecycle + &quot; : &quot; + resultsPage.identifier() );	}
+		
+		//HTML table demo.
+		long used=0;
+		long unused=0;
+		
+		driver.get(dataHunterUrl + TestConstants.PRINT_SELECTED_POLICIES_URL_PATH  + &quot;?application=&quot; + application);
+		dataHunterInputPages.submit().waitUntilClickable();
+		
+		jm.startTransaction(&quot;DH-lifecycle-0600-displaySelectedPolicies&quot;);	
+		dataHunterInputPages.submit().submit();
+		waitActionPageCheckSqlOk(resultsPage);
+		// demo how to extract a transaction time from with a running script 
+		org.apache.jmeter.samplers.SampleResult sr_0600 = jm.endTransaction(&quot;DH-lifecycle-0600-displaySelectedPolicies&quot;);
+		LOG.debug(&quot;Transaction &quot; + sr_0600.getSampleLabel() + &quot; ran at &quot; + sr_0600.getTimeStamp() + &quot; and took &quot; + sr_0600.getTime() + &quot; ms.&quot; );
+		
+		HtmlTable printSelectedPoliciesTable = resultsPage.printSelectedPoliciesTable();
+		for (HtmlTableRow tableRow : printSelectedPoliciesTable.getHtmlTableRows()) {
+			if (tableRow.getColumnNumberOfExpectedColumns(4, 8).getText().equals(&quot;USED&quot;))   used++;
+			if (tableRow.getColumnNumberOfExpectedColumns(4, 8).getText().equals(&quot;UNUSED&quot;)) unused++;
+		}	
+		jm.userDataPoint(&quot;USED-count-html-demo&quot;,   used );				
+		jm.userDataPoint(&quot;UNUSED-count-html-demo&quot;, unused );	
+		LOG.debug(&quot;HTML demo: USED=&quot; + used + &quot;, UNUSED=&quot; + unused); 
+		
+// 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
+		jm.startTransaction(&quot;DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl&quot;);		
+		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
+		dataHunterInputPages.lifecycle().waitUntilClickable();		
+		jm.endTransaction(&quot;DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl&quot;);	
+		
+		dataHunterInputPages.lifecycle().type(lifecycle);
+		
+		jm.startTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);		
+		dataHunterInputPages.submit().submit();
+		waitActionPageCheckSqlOk(new DatatHunterActionPages(driver));
+		jm.endTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);	
+		
+//		jm.writeBufferedArtifacts();
+	}
+
+
+	private void waitActionPageCheckSqlOk(DatatHunterActionPages resultsPage) {
+		String sqlResultText = resultsPage.sqlResult().getText();
+		if (!&quot;PASS&quot;.equals(sqlResultText)) {
+			throw new RuntimeException(&quot;SQL issue (&quot; + sqlResultText + &quot;) : &quot; +
+						resultsPage.formatResultsMessage(resultsPage.getClass().getName()));
+		}
+	}
+	
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	private synchronized void PrintSomeMsgOnceAtStartUp(String dataHunterUrl, WebDriver driver) {
+		Properties sysprops = System.getProperties();
+		if (!&quot;true&quot;.equals(sysprops.get(&quot;printedOnce&quot;)) ) {	
+			LOG.info(&quot;  using DataHunter with Url &quot; + dataHunterUrl + &quot;/dataHunter&quot;);
+			Capabilities caps = ((ChromeDriver)driver).getCapabilities();
+			LOG.info(&quot; Browser Name and Version : &quot; + caps.getBrowserName() + &quot; &quot; + caps.getVersion());
+			if (&quot;chrome&quot;.equalsIgnoreCase(caps.getBrowserName()) &amp;&amp; caps.getCapability(&quot;chrome&quot;) != null ){
+				String chromedriverVersion =  ((Map&lt;String, String&gt;)caps.getCapability(&quot;chrome&quot;)).get(&quot;chromedriverVersion&quot;);
+				LOG.info(&quot; Chrome Driver Version    : &quot; +  ((Map&lt;String, String&gt;)caps.getCapability(&quot;chrome&quot;)).get(&quot;chromedriverVersion&quot;));
+				if (chromedriverVersion != null &amp;&amp;  chromedriverVersion.startsWith(&quot;2.44&quot;) ) {
+					String outDatedDriver = &quot;\n\n You are using the outdated ChromeDriver that ships with the Mark59 Selenium test scripts &quot; +
+							&quot; project &apos;dataHunterPerformanceTestSamples&apos;.  It may be unstable or not work at all.&quot; + 				
+							&quot;\n - Please visit https://chromedriver.chromium.org/downloads and update to a ChomeDriver which supports &quot; +
+							&quot;Chrome browser version &quot; + caps.getVersion() + &quot;\n&quot;;
+					System.out.println(outDatedDriver);
+					LOG.warn(outDatedDriver);
+				}	
+			}
+			sysprops.put(&quot;printedOnce&quot;, &quot;true&quot;);
+		}
+	}
+};
+
+
+// &gt;&gt; --------- COMMENT OUT THE NEXT THREE LINES ---------  
+// org.apache.jmeter.samplers.SampleResult SampleResult = new org.apache.jmeter.samplers.SampleResult();
+// SampleResult.sampleStart();
+// Log4jConfigurationHelper.init(Level.INFO) ;
+// &lt;&lt; 
+
+org.apache.jmeter.samplers.SampleResult testResults = new ThisScript().runSeleniumTest(KeepBrowserOpen.NEVER);
+if (testResults != null) {
+	for (org.apache.jmeter.samplers.SampleResult subResult : testResults.getSubResults()) {
+		SampleResult.addSubResult(subResult, false);
+	}
+}
+SampleResult.setDataType(&quot;PARENT&quot; );
+SampleResult.setEndTime(0);
+
+// &gt;&gt; --------- COMMENT OUT THE END BRACES BELOW --------- 
+// }
+// }</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+      </hashTree>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+        <stringProp name="TestPlan.comments">-- You would normally disable &apos;View Results Tree&apos; for a real test --</stringProp>
+      </ResultCollector>
+      <hashTree/>
       <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report csv" enabled="false">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
@@ -653,43 +1195,6 @@ return 0;</stringProp>
         </objProp>
         <stringProp name="TestPlan.comments">Recommended Standard Config (default+hostname)  ** For LINUX Gui run, remove &quot;C:/&quot; in the Filename (you get a strange C: named directory otherwise!)  </stringProp>
         <stringProp name="filename">C:/Mark59_Runs/Jmeter_Results/DataHunter/DataHunterTestResults.csv</stringProp>
-      </ResultCollector>
-      <hashTree/>
-      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-        <boolProp name="ResultCollector.error_logging">false</boolProp>
-        <objProp>
-          <name>saveConfig</name>
-          <value class="SampleSaveConfiguration">
-            <time>true</time>
-            <latency>true</latency>
-            <timestamp>true</timestamp>
-            <success>true</success>
-            <label>true</label>
-            <code>true</code>
-            <message>true</message>
-            <threadName>true</threadName>
-            <dataType>true</dataType>
-            <encoding>false</encoding>
-            <assertions>true</assertions>
-            <subresults>true</subresults>
-            <responseData>false</responseData>
-            <samplerData>false</samplerData>
-            <xml>false</xml>
-            <fieldNames>true</fieldNames>
-            <responseHeaders>false</responseHeaders>
-            <requestHeaders>false</requestHeaders>
-            <responseDataOnError>false</responseDataOnError>
-            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-            <assertionsResultsToSave>0</assertionsResultsToSave>
-            <bytes>true</bytes>
-            <sentBytes>true</sentBytes>
-            <threadCounts>true</threadCounts>
-            <idleTime>true</idleTime>
-            <connectTime>true</connectTime>
-          </value>
-        </objProp>
-        <stringProp name="filename"></stringProp>
-        <stringProp name="TestPlan.comments">-- You would normally disable &apos;View Results Tree&apos; for a real test --</stringProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>

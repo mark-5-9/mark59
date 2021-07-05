@@ -16,7 +16,9 @@
 
 package com.mark59.metrics.data.transaction.dao;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -57,9 +59,9 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	public void insert(Transaction transaction) {
 		String sql = "INSERT INTO TRANSACTION "
 				+ "(APPLICATION, RUN_TIME, TXN_ID, TXN_TYPE, "
-				+ "TXN_MINIMUM, TXN_AVERAGE, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_95TH, TXN_99TH, "
-				+ "TXN_PASS, TXN_FAIL, TXN_STOP, TXN_FIRST, TXN_LAST, TXN_SUM  )"
-				+ " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "TXN_MINIMUM, TXN_AVERAGE, TXN_MEDIAN, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_95TH, TXN_99TH, "
+				+ "TXN_PASS, TXN_FAIL, TXN_STOP, TXN_FIRST, TXN_LAST, TXN_SUM, TXN_DELAY)"
+				+ " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		
 //		System.out.println("TransactionDAOjdbcTemplateImpl insert [" + transaction.toString() + "]"   );
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -67,10 +69,10 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		jdbcTemplate.update(sql,
 				new Object[] { transaction.getApplication(), transaction.getRunTime(), 
 				transaction.getTxnId(), transaction.getTxnType(),
-				transaction.getTxnMinimum(), transaction.getTxnAverage(), transaction.getTxnMaximum(),
+				transaction.getTxnMinimum(), transaction.getTxnAverage(), transaction.getTxnMedian(), transaction.getTxnMaximum(),
 				transaction.getTxnStdDeviation(), transaction.getTxn90th(), transaction.getTxn95th(), transaction.getTxn99th(),
 				transaction.getTxnPass(), transaction.getTxnFail(), transaction.getTxnStop(), 
-				transaction.getTxnFirst(), transaction.getTxnLast(), transaction.getTxnSum() });
+				transaction.getTxnFirst(), transaction.getTxnLast(), transaction.getTxnSum(), transaction.getTxnDelay() });
 	}
 	
 	
@@ -93,6 +95,73 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	}		
 	
 	
+	@Override
+	public List<Transaction> getUniqueListOfTransactionsByType(String application) {
+		// bit of a hack using the 'transaction' bean (should be a new form bean really...)
+		List<Transaction> transactionKeyList = new ArrayList<Transaction>();
+		String sql = "SELECT DISTINCT TXN_ID, TXN_TYPE, MAX(RUN_TIME) AS MAX_RUN_TIME, COUNT(*) AS TXN_COUNT "
+					+ "FROM TRANSACTION "
+					+ "WHERE APPLICATION = '" + application + "' "
+					+ "GROUP BY TXN_ID, TXN_TYPE "
+					+ "ORDER BY 2 DESC, 1 ASC "; 
+				
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+		for (Map<String, Object> row : rows) {
+			Transaction transactionKey = new Transaction();
+			transactionKey.setApplication(application); 
+			transactionKey.setTxnId((String)row.get("TXN_ID")); 
+			transactionKey.setTxnType((String)row.get("TXN_TYPE")); 
+			transactionKey.setRunTime((String)row.get("MAX_RUN_TIME")); 
+			transactionKey.setTxnPass((Long)row.get("TXN_COUNT"));   // big hack 
+			try {
+				transactionKey.setTxnIdURLencoded(URLEncoder.encode(transactionKey.getTxnId(), "UTF-8")) ;
+			} catch (UnsupportedEncodingException e) {	e.printStackTrace();	}	  
+			transactionKeyList.add(transactionKey);
+		}	
+		return transactionKeyList;		
+	}
+
+	
+	/**
+	 *  Used to check to see if any runs contain BOTH transactions 
+	 */
+	@Override	
+	public long countRunsContainsBothTxnIds(String application, String txnType, String txnId1, String txnId2 ){
+		Long rowCount;
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		
+		String sql =  "SELECT COUNT(DISTINCT R.RUN_TIME) FROM RUNS R, TRANSACTION T "    
+				   + " WHERE R.APPLICATION = '" + application + "' " 
+				   + " AND T.TXN_TYPE = '" + txnType + "'" 
+				   + " AND R.APPLICATION = T.APPLICATION AND R.RUN_TIME = T.RUN_TIME "   
+				   + " AND R.RUN_TIME IN ( SELECT RUN_TIME FROM TRANSACTION  WHERE APPLICATION = '" + application + "' " 
+				   														+ " AND TXN_TYPE = '" + txnType + "'" 
+				   														+ " AND TXN_ID = '" + txnId1 + "') " 
+				   + " AND R.RUN_TIME IN ( SELECT RUN_TIME FROM TRANSACTION  WHERE APPLICATION = '" + application + "' " 
+				   														+ " AND TXN_TYPE = '" + txnType + "'" 
+				   														+ " AND TXN_ID = '" + txnId2 + "') "; 
+		rowCount = Long.valueOf(jdbcTemplate.queryForObject(sql, String.class));
+//		System.out.println("countRunsContainsBothTxnIds sql = " + sql + "\n - rowCount = " + rowCount );
+		return rowCount;
+	}	
+	
+	
+	/**
+	 *  Validation need to be done before the rename (see {@link #countRunsContainsBothTxnIds(String, String, String, String)}. 
+	 */
+	@Override
+	public void renameTransactions(String application, String txnType, String fromTxnId, String toTxnId) {
+		String sql = "UPDATE TRANSACTION SET TXN_ID = '" + toTxnId + "'"  
+					+ " WHERE APPLICATION='" + application + "'"  
+					+ "   AND TXN_TYPE='" + txnType + "'"
+					+ "   AND TXN_ID='" + fromTxnId + "'";
+//		System.out.println("TransactionDAOjdbcTemplateImpl.renameTransactions : " + sql );
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate.update(sql);	
+	}
+	
+
 	@Override
 	public Object getTransactionValue(String application, String txnType, String runTime, String txnId, String transactionField) {
 
@@ -144,6 +213,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	}
 
 	
+	
 	/**
 	 *  The returned list of Transactions is ordered by the ranking of the target values
 	 */
@@ -174,17 +244,15 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		List<Transaction> selectedTransactions = selectTopNthRankedTransactionsByValue(transactionListOrderedByValue, nthRankedTxn);  
 		return selectedTransactions;
 	}
-	
- 
 	 
 	 
 	/**
-	 * Note: The supplied database installs supplied will put the lists is in UTF-8 order (h2 default, MySQL utf8mb4_0900_bin collation)
-	 * This should be pretty close, but to avoid any  potential for issues for odd non-standard chars or a different collation being chosen
-	 * on a database, the returned list is re-ordered in the natural order of Java sorting.
+	 * Note: The supplied database installs (DDL) will put the lists is in UTF-8 order (h2 default, MySQL utf8mb4_0900_bin collation)
+	 * This should be pretty close to the ordering used by Java, but to avoid any  potential for issues for odd non-standard chars or
+	 * a different collation being chosen on a database, the returned list is re-ordered in the natural order of Java sorting.
 	 * 
-	 * Important as this list is supplied to graph datapoints creation where a string compareTo is done.  The datapoints would be out of 
-	 * sequence and the graph could fail if the compareTo did not work properly because the list was out of natural Java order.  
+	 * This is Important as this list is supplied to the graph datapoints creation routine where a string compareTo is done.  The datapoints
+	 * would be out of sequence and the graph could fail if the compareTo did not work properly because the list was out of natural Java order.  
 	 */
 	@Override
 	public List<String> returnListOfSelectedTransactionIds(String transactionIdsSQL, String nthRankedTxn){
@@ -383,6 +451,6 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		String sqlIn =" AND TXN_ID IN ( '" +  chosenTxnsListWithQuotes + "' ) ";  
 		return sqlIn;
 	}
-	
+
 	
 }

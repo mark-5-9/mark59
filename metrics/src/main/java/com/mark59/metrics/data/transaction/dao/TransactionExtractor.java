@@ -40,17 +40,19 @@ public class TransactionExtractor implements ResultSetExtractor<Transaction> {
 	  transaction.setTxnType(resultSet.getString(4));
 	  transaction.setTxnMinimum(resultSet.getBigDecimal(5));
 	  transaction.setTxnAverage(resultSet.getBigDecimal(6));
-	  transaction.setTxnMaximum(resultSet.getBigDecimal(7));
-	  transaction.setTxnStdDeviation(resultSet.getBigDecimal(8));
-	  transaction.setTxn90th(resultSet.getBigDecimal(9));
-	  transaction.setTxn95th(resultSet.getBigDecimal(10));
-	  transaction.setTxn99th(resultSet.getBigDecimal(11));
-	  transaction.setTxnPass(resultSet.getLong(12));
-	  transaction.setTxnFail(resultSet.getLong(13));
-	  transaction.setTxnStop(resultSet.getLong(14));
-	  transaction.setTxnFirst(resultSet.getBigDecimal(15));
-	  transaction.setTxnLast(resultSet.getBigDecimal(16));
-	  transaction.setTxnSum(resultSet.getBigDecimal(17));
+	  transaction.setTxnMedian(resultSet.getBigDecimal(7));
+	  transaction.setTxnMaximum(resultSet.getBigDecimal(8));
+	  transaction.setTxnStdDeviation(resultSet.getBigDecimal(9));
+	  transaction.setTxn90th(resultSet.getBigDecimal(10));
+	  transaction.setTxn95th(resultSet.getBigDecimal(11));
+	  transaction.setTxn99th(resultSet.getBigDecimal(12));
+	  transaction.setTxnPass(resultSet.getLong(13));
+	  transaction.setTxnFail(resultSet.getLong(14));
+	  transaction.setTxnStop(resultSet.getLong(15));
+	  transaction.setTxnFirst(resultSet.getBigDecimal(16));
+	  transaction.setTxnLast(resultSet.getBigDecimal(17));
+	  transaction.setTxnSum(resultSet.getBigDecimal(18));
+	  transaction.setTxnDelay(resultSet.getBigDecimal(19));	  
 	  
 	  return transaction;
 	 }

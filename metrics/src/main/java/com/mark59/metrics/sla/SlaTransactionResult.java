@@ -41,8 +41,12 @@ public class SlaTransactionResult {
 	private BigDecimal sla99thResponse;	
 	
 	private boolean passedFailPercent;
-	private double txnFailurePercent;
+	private BigDecimal txnFailurePercent;
 	private BigDecimal slaFailurePercent;
+	
+	private boolean passedFailCount;
+	private long txnFailCount;
+	private long slaFailCount;	
 	
 	private boolean passedPassCount;
 	private long txnPassCount;
@@ -130,10 +134,10 @@ public class SlaTransactionResult {
 	public void setSla99thResponse(BigDecimal sla99thResponse) {
 		this.sla99thResponse = sla99thResponse;
 	}
-	public double getTxnFailurePercent() {
+	public BigDecimal getTxnFailurePercent() {
 		return txnFailurePercent;
 	}
-	public void setTxnFailurePercent(double txnFailurePercent) {
+	public void setTxnFailurePercent(BigDecimal txnFailurePercent) {
 		this.txnFailurePercent = txnFailurePercent;
 	}
 	public BigDecimal getSlaFailurePercent() {
@@ -142,9 +146,26 @@ public class SlaTransactionResult {
 	public void setSlaFailurePercent(BigDecimal slaFailurePercent) {
 		this.slaFailurePercent = slaFailurePercent;
 	}
-
 	public boolean isPassedPassCount() {
 		return passedPassCount;
+	}
+	public boolean isPassedFailCount() {
+		return passedFailCount;
+	}
+	public void setPassedFailCount(boolean passedFailCount) {
+		this.passedFailCount = passedFailCount;
+	}
+	public long getTxnFailCount() {
+		return txnFailCount;
+	}
+	public void setTxnFailCount(long txnFailCount) {
+		this.txnFailCount = txnFailCount;
+	}
+	public long getSlaFailCount() {
+		return slaFailCount;
+	}
+	public void setSlaFailCount(long slaFailCount) {
+		this.slaFailCount = slaFailCount;
 	}
 	public void setPassedPassCount(boolean passedPassCount) {
 		this.passedPassCount = passedPassCount;
@@ -168,4 +189,28 @@ public class SlaTransactionResult {
 		this.slaPassCountVariancePercent = slaPassCountVariancePercent;
 	}
 
+	@Override
+	public String toString() {
+		String prettyPrint = "txnId : " + txnId
+				+ ", passedAllSlas="+passedAllSlas
+				+ ", foundSLAforTxnId="+foundSLAforTxnId
+				+ ", passed90thResponse="+passed90thResponse
+				+ ", txn90thResponse="+txn90thResponse
+				+ ", sla90thResponse="+sla90thResponse
+				+ ", passed95thResponse="+passed95thResponse
+				+ ", txn95thResponse="+txn95thResponse
+				+ ", sla95thResponse="+sla95thResponse
+				+ ", passed99thResponse="+passed99thResponse
+				+ ", txn99thResponse="+txn99thResponse
+				+ ", sla99thResponse="+sla99thResponse
+				+ ", passedFailPercent="+passedFailPercent
+				+ ", txnFailurePercent="+txnFailurePercent
+				+ ", slaFailurePercent="+slaFailurePercent
+				+ ", passedPassCount="+passedPassCount
+				+ ", txnPassCount="+txnPassCount
+				+ ", slaPassCount="+slaPassCount
+				+ ", slaPassCountVariancePercent="+slaPassCountVariancePercent
+				;
+		return prettyPrint;
+	} 
 }

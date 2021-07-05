@@ -35,133 +35,76 @@ public class EventMapping {
 	
 	public EventMapping() {
 	}
-	
-
 
 	public String getTxnType() {
 		return txnType;
 	}
-
-
 	public void setTxnType(String txnype) {
 		this.txnType = txnype;
 	}
-
-
 	public String getMetricSource() {
 		return metricSource;
 	}
-
-
-
 	public void setMetricSource(String metricSource) {
 		this.metricSource = metricSource;
 	}
-
-
-
 	public String getMatchWhenLike() {
 		return matchWhenLike;
 	}
-
-
-
 	public void setMatchWhenLike(String matchWhenLike) {
 		this.matchWhenLike = matchWhenLike;
 	}
-
-
-
 	public String getMatchWhenLikeURLencoded() {
 		return matchWhenLikeURLencoded;
 	}
-
-
-
 	public void setMatchWhenLikeURLencoded(String matchWhenLikeURLencoded) {
 		this.matchWhenLikeURLencoded = matchWhenLikeURLencoded;
 	}
-
-
-
 	public String getTargetNameLB() {
 		return targetNameLB;
 	}
-
-
-
 	public void setTargetNameLB(String targetNameLB) {
 		this.targetNameLB = targetNameLB;
 	}
-
-
-
 	public String getTargetNameRB() {
 		return targetNameRB;
 	}
-
-
-	
 	public void setTargetNameRB(String targetNameRB) {
 		this.targetNameRB = targetNameRB;
 	}
-
-	
-	
-
 	public String getIsPercentage() {
 		return isPercentage;
 	}
-
-
-
 	public void setIsPercentage(String isPercentage) {
 		this.isPercentage = isPercentage;
 	}
-
-
-
 	public String getIsInvertedPercentage() {
 		return isInvertedPercentage;
 	}
-
-
 	public void setIsInvertedPercentage(String isInvertedPercentage) {
 		this.isInvertedPercentage = isInvertedPercentage;
 	}
-
-
 	public String getPerformanceTool() {
 		return performanceTool;
 	}
-
 	public void setPerformanceTool(String performanceTool) {
 		this.performanceTool = performanceTool;
 	}
-
-
-
 	public String getComment() {
 		return comment;
 	}
-
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
 
-
-
 	@Override
     public String toString() {
-        return   "[txnType= "+ txnType + 
-        		", metricSource= "+ metricSource + 
-        		", matchWhenLike= "+ matchWhenLike + 
-        		", targetNameLB= "+ targetNameLB + 
-        		", targetNameRB= "+ targetNameRB  +
-        		", tool= "+ performanceTool  +        		
+        return   "[txnType="+ txnType + 
+        		", metricSource="+metricSource + 
+        		", matchWhenLike="+matchWhenLike + 
+        		", targetNameLB="+targetNameLB + 
+        		", targetNameRB="+targetNameRB  +
+        		", performanceTool="+performanceTool  +        		
         		"]";
 	}
-
-	
-		
 }

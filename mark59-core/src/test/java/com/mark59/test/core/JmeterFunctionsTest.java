@@ -16,9 +16,12 @@
 
 package com.mark59.test.core;
 
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import org.apache.jmeter.samplers.SampleResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +52,88 @@ public class JmeterFunctionsTest {
 		t.tearDown();
 		assert (t.getMainResult().isSuccessful());
 	}
+	
+	@Test
+	public final void CheckReturnedSampleResultFromEndTransaction() {
+		JmeterFunctionsImpl t = getJmeterFunctions();
+		t.startTransaction("simpleTransaction01");
+		t.startTransaction("simpleTransaction03");	
+		t.endTransaction("simpleTransaction01");
+		t.startTransaction("simpleTransaction02");
+		t.endTransaction("simpleTransaction02");		
+		t.endTransaction("simpleTransaction03");
+		t.startTransaction("simpleTransaction04Fail");
+		t.endTransaction("simpleTransaction04Fail", Outcome.FAIL ); 
+		t.startTransaction("simpleTransaction05Pass");
+		t.endTransaction("simpleTransaction05Pass", Outcome.PASS ); 
+		t.startTransaction("simpleTransaction06Fail");
+		t.endTransaction("simpleTransaction06Fail", Outcome.FAIL, "oops"); 
+		
+		t.tearDown();
+		SampleResult mainResult =  t.getMainResult();
+		
+		SampleResult[] subrsArray = mainResult.getSubResults();
+		for (int i = 0; i < subrsArray.length; i++) {
+			SampleResult subrs = subrsArray[i];
+			if ("simpleTransaction01".equals(subrs.getSampleLabel())){
+				assert "PASS".equals(subrs.getResponseMessage());}
+			else if ("simpleTransaction02".equals(subrs.getSampleLabel())){
+				assert "PASS".equals(subrs.getResponseMessage());}
+			else if ("simpleTransaction02".equals(subrs.getSampleLabel())){
+				assert "PASS".equals(subrs.getResponseMessage());}
+			else if ("simpleTransaction03".equals(subrs.getSampleLabel())){
+				assert "PASS".equals(subrs.getResponseMessage());}
+			else if ("simpleTransaction04Fail".equals(subrs.getSampleLabel())){
+				assert "FAIL".equals(subrs.getResponseMessage());}
+			else if ("simpleTransaction05Pass".equals(subrs.getSampleLabel())){
+				assert "PASS".equals(subrs.getResponseMessage());}
+			else if ("simpleTransaction06Fail".equals(subrs.getSampleLabel())){
+				assert "FAIL".equals(subrs.getResponseMessage());
+				assert "oops".equals(subrs.getResponseCode());}
+			else { fail("Unexpected transaction " + subrs.getSampleLabel()); };
+		}
+		assert subrsArray.length == 6;
+		assert (!t.getMainResult().isSuccessful());
+	}
 
+	@Test
+	public final void CheckReturnedSampleResultFromSetTransaction() {
+		JmeterFunctionsImpl t = getJmeterFunctions();
+		t.setTransaction("simpleTransaction01", 666);	
+		t.startTransaction("simpleTransaction04NormalTxn");
+		t.setTransaction("simpleTransaction02fail", 177, false);	
+		t.setTransaction("simpleTransaction03pass", 888, true);	
+		t.endTransaction("simpleTransaction04NormalTxn");	
+		t.setTransaction("simpleTransaction05fail", 0, false, "badCode");
+		
+		t.tearDown();
+		SampleResult mainResult =  t.getMainResult();
+		
+		SampleResult[] subrsArray = mainResult.getSubResults();
+		for (int i = 0; i < subrsArray.length; i++) {
+			SampleResult subrs = subrsArray[i];
+			if ("simpleTransaction01".equals(subrs.getSampleLabel())){
+				assert "PASS".equals(subrs.getResponseMessage());
+				assert 666 == subrs.getTime();}
+			else if ("simpleTransaction02fail".equals(subrs.getSampleLabel())){
+				assert "FAIL".equals(subrs.getResponseMessage());
+				assert 177 == subrs.getTime();}
+			else if ("simpleTransaction03pass".equals(subrs.getSampleLabel())){
+				assert "PASS".equals(subrs.getResponseMessage());
+				assert 888 == subrs.getTime();}
+			else if ("simpleTransaction04NormalTxn".equals(subrs.getSampleLabel())){
+				assert "PASS".equals(subrs.getResponseMessage());}			
+			else if ("simpleTransaction05fail".equals(subrs.getSampleLabel())){
+				assert "FAIL".equals(subrs.getResponseMessage());
+				assert 0 == subrs.getTime();
+				assert "badCode".equals(subrs.getResponseCode()); }
+			else { fail("Unexpected transaction " + subrs.getSampleLabel()); };
+		}
+		assert subrsArray.length == 5;
+		assert (!t.getMainResult().isSuccessful());
+	}
+	
+		
 	@Test
 	public final void TearDown_OnlyMainResultWhichIsIncompleteButIsForcedToFail_MainResultCompletedInFailState() {
 		JmeterFunctionsImpl t = getJmeterFunctions();

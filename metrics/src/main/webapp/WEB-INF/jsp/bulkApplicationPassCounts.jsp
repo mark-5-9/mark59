@@ -63,7 +63,7 @@
      <tr>
       <td><br><br><b>DEFAULT VALUES</b><br><br></td>
       <td style="font-size: 12px"><br><br>
-      	Will be applied to new Application SLAs only.<br>
+      	Will be applied to new Application SLAs rows only.<br>
       	Enter <b>-1</b> for values you do not want to set an SLA against.
       </td>     
      </tr>
@@ -95,11 +95,25 @@
      <tr>
       <td>Fail percent :</td>
       <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="2.0" /></td>     
-     </tr>  
+     </tr>
+     <tr>
+      <td></td>
+      <td style="font-size: 12px"><br>
+      	Non SLA-related fields (the default values will be applied to new rows) :
+      </td>     
+     </tr>     
+     <tr>
+      <td>Txn delay :</td>
+      <td><form:input path="txnDelay" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
+     </tr>       
      <tr>
       <td>Xtra num :</td>
       <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
      </tr>
+     <tr>
+      <td>Xtra int :</td>
+      <td><form:input path="xtraInt" type="text" pattern="-?\d*" value="0"/></td>      
+     </tr>      
       
      <tr>
       <td><br><br><b>SLA REFERENCE</b><br><br></td>

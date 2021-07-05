@@ -20,14 +20,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
@@ -37,10 +37,8 @@ import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.metrics.application.AppConstantsMetrics;
 import com.mark59.metrics.data.beans.DateRangeBean;
-import com.mark59.metrics.data.beans.EventMapping;
 import com.mark59.metrics.data.beans.Run;
 import com.mark59.metrics.data.beans.TestTransaction;
-import com.mark59.metrics.data.beans.Transaction;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 	
@@ -52,45 +50,40 @@ public class JmeterRun extends PerformanceTest  {
 
 	private static final String IGNORE ="IGNORE";
 	
-	private Map<String,String> optimizedTxnTypeLookup = new HashMap<String, String>();;
-	private Map<String,EventMapping> txnIdToEventMappingLookup = new HashMap<String, EventMapping>();
-	
 	private int fieldPostimeStamp;
 	private int fieldPoselapsed;	
 	private int fieldPoslabel;	
 	private int fieldPosdataType;	
 	private int fieldPossuccess;	
+	private int fieldPosfailureMessage;	
 
 	
-	public JmeterRun(ApplicationContext context, String application, String inputdirectory, String runReference, String excludestart, String captureperiod, String keeprawresults) {
+	public JmeterRun(ApplicationContext context, String application, String inputdirectory, String runReference, String excludestart, String captureperiod,
+			String keeprawresults, String ignoredErrors) {
 		
 		super(context,application, runReference);
+		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
 		
-		//clean up before  
-		testTransactionsDAO.deleteAllForRun(run);  // RUN_TIME_YET_TO_BE_CALCULATED
-		
-		loadTestTransactionAllDataFromJmeterFiles(run.getApplication(), inputdirectory);
+		loadTestTransactionAllDataFromJmeterFiles(run.getApplication(), inputdirectory, ignoredErrors );
 		
 		DateRangeBean dateRangeBean = getRunDateRangeUsingTestTransactionalData(run.getApplication());
 		run = new Run( calculateAndSetRunTimesUsingEpochStartAndEnd(run, dateRangeBean));
 		runDAO.deleteRun(run.getApplication(), run.getRunTime());
 		runDAO.insertRun(run);
+		
+		applyTimeRangeFiltersToTestTransactions(excludestart, captureperiod, dateRangeBean);
 
-		applyTimingRangeFilters(excludestart, captureperiod, dateRangeBean);
 		transactionDAO.deleteAllForRun(run.getApplication(), run.getRunTime());	
 		
 		storeTransactionSummaries(run);
 		
-		storeSystemMetricSummaries(run);
+		storeMetricTransactionSummaries(run);
 		
-		if (String.valueOf(true).equalsIgnoreCase(keeprawresults)) {
-			testTransactionsDAO.deleteAllForRun(run); // clean up in case of re-run (when the data already exists because this is a re-run)
-			testTransactionsDAO.updateRunTime(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED, run.getRunTime());
-		}
+		endOfRunCleanupTestTransactions(keeprawresults);
 	}
 
 
-	private void loadTestTransactionAllDataFromJmeterFiles(String application, String inputdirectory) {
+	private void loadTestTransactionAllDataFromJmeterFiles(String application, String inputdirectory, String ignoredErrors) {
 		int sampleCount = 0;
 		File[] jmeterResultsDirFiles = new File(inputdirectory).listFiles();;
 		
@@ -106,10 +99,12 @@ public class JmeterRun extends PerformanceTest  {
 					jmeterResultsFile.getName().toUpperCase().endsWith(".XML") || 
 					jmeterResultsFile.getName().toUpperCase().endsWith(".CSV"))){
 				try {
-					sampleCount = sampleCount + loadTestTransactionDataForaJmeterFile(jmeterResultsFile, application);
+					sampleCount = sampleCount + loadTestTransactionDataForaJmeterFile(jmeterResultsFile, application, ignoredErrors);
 				} catch (IOException e) {
-					System.out.println( "Error: problem with processing Jmeter results file transactions " + jmeterResultsFile.getName() );
-					e.printStackTrace();
+					System.out.println( "Error : problem with processing Jmeter results file transactions " + jmeterResultsFile.getName() );
+					StringWriter sw = new StringWriter();
+					e.printStackTrace(new PrintWriter(sw));
+					throw new RuntimeException(e.getMessage());
 				}
 			} else {
 				System.out.println("   " + jmeterResultsFile.getName() + " bypassed (only files in the input folder with a suffix of .xml, .csv or .jtl are processed)"  ); 
@@ -126,7 +121,7 @@ public class JmeterRun extends PerformanceTest  {
 	/**
 	 * A validly name named jmeter results file is expected to be passed for conversion, now need determine the data format 
 	 */
-	private int loadTestTransactionDataForaJmeterFile(File jmeterResultsFile, String application) throws IOException {
+	private int loadTestTransactionDataForaJmeterFile(File jmeterResultsFile, String application, String ignoredErrors) throws IOException {
 
 		BufferedReader brOneLine = new BufferedReader(new FileReader(jmeterResultsFile));
 		String firstLineOfFile = brOneLine.readLine();
@@ -137,14 +132,17 @@ public class JmeterRun extends PerformanceTest  {
 			return 0;
 		
 		} else  if (firstLineOfFile.trim().startsWith("<")) {
+			if (StringUtils.isNotBlank(ignoredErrors)){
+				System.out.println("   Warning : " + " the -e ('ignoredErrors') runtime option is not implemented for XML files");
+			}
 			return loadXMLFile(jmeterResultsFile, application);
 			
 		} else if (firstLineOfFile.trim().startsWith("timeStamp") &&  firstLineOfFile.matches("timeStamp.elapsed.*")){	
-			return loadCSVFile(jmeterResultsFile, true, application);
+			return loadCSVFile(jmeterResultsFile, true, application, ignoredErrors);
 
 		} else if ( firstLineOfFile.length() > 28 && StringUtils.countMatches(firstLineOfFile, ",") > 14  && firstLineOfFile.indexOf(",") == 13   ){  
-			//assuming a headerless CSV file in default layout	
-			return loadCSVFile(jmeterResultsFile, false, application);
+			System.out.println("   Info : " + " the file " + jmeterResultsFile.getName() + " appears to be headerless (default field positions assumed)");
+			return loadCSVFile(jmeterResultsFile, false, application, ignoredErrors);
 			
 		} else {
 			System.out.println("   Warning : " + jmeterResultsFile.getName()
@@ -320,7 +318,7 @@ public class JmeterRun extends PerformanceTest  {
 	 * @return
 	 * @throws IOException
 	 */
-	private int loadCSVFile(File inputCsvFileName, boolean hasHeader, String application) throws IOException {
+	private int loadCSVFile(File inputCsvFileName, boolean hasHeader, String application, String ignoredErrors) throws IOException {
 		
 		int samplesCreated=0; 
 		CSVReader csvReader = new CSVReader(new BufferedReader(new FileReader(inputCsvFileName)));
@@ -339,11 +337,12 @@ public class JmeterRun extends PerformanceTest  {
 				throw new RuntimeException("failed to process expected CVS header fields (line 1 of file) " + e.getMessage());
 			}
 
-			fieldPostimeStamp = csvHeaderFieldsList.indexOf("timeStamp"); 
-			fieldPoselapsed   = csvHeaderFieldsList.indexOf("elapsed"); 
-			fieldPoslabel     = csvHeaderFieldsList.indexOf("label"); 
-			fieldPosdataType  = csvHeaderFieldsList.indexOf("dataType"); 
-			fieldPossuccess   = csvHeaderFieldsList.indexOf("success"); 
+			fieldPostimeStamp      = csvHeaderFieldsList.indexOf("timeStamp"); 
+			fieldPoselapsed        = csvHeaderFieldsList.indexOf("elapsed"); 
+			fieldPoslabel          = csvHeaderFieldsList.indexOf("label"); 
+			fieldPosdataType       = csvHeaderFieldsList.indexOf("dataType"); 
+			fieldPossuccess        = csvHeaderFieldsList.indexOf("success"); 
+			fieldPosfailureMessage = csvHeaderFieldsList.indexOf("failureMessage"); 
 			
 			if (fieldPostimeStamp==-1 || fieldPoselapsed==-1 || fieldPoslabel==-1 || fieldPosdataType==-1 || fieldPossuccess==-1 ){
 				System.out.println("\n   Severe Error.  Unexpected csv file header format, terminating run");
@@ -359,6 +358,8 @@ public class JmeterRun extends PerformanceTest  {
 		List<TestTransaction> testTransactionList = new ArrayList<TestTransaction>();
 		String[] csvDataLineFields = csvReadNextLine(csvReader, inputCsvFileName);
 		
+		List<String> ignoredErrorsList = Mark59Utils.pipeDelimStringToStringList(ignoredErrors);
+		
 	   	while ( csvDataLineFields != null ) {
 	   		
 	   		// if not enough fields or first field cannot be a time stamp, bypass 	
@@ -367,9 +368,8 @@ public class JmeterRun extends PerformanceTest  {
 	    		String transactionNameLabel = csvDataLineFields[fieldPoslabel];
 	    		String inputDatatype 		= csvDataLineFields[fieldPosdataType];
 
-	    		if (!transactionNameLabel.startsWith(IGNORE) &&
-	    			!inputDatatype.equals(JMeterFileDatatypes.PARENT.getDatatypeText() )){
-	    			addCsvSampleToTestTransactionList(testTransactionList, csvDataLineFields, application);
+	    		if (!transactionNameLabel.startsWith(IGNORE) &&  !inputDatatype.equals(JMeterFileDatatypes.PARENT.getDatatypeText() )){
+	    			addCsvSampleToTestTransactionList(testTransactionList, csvDataLineFields, application, ignoredErrorsList);
 					samplesCreated++;
 		    	} 	    		
 	    	} 
@@ -423,16 +423,17 @@ public class JmeterRun extends PerformanceTest  {
 		fieldPoslabel     		= 2;
 		fieldPosdataType  		= 6; 
 		fieldPossuccess   		= 7; 
+		fieldPosfailureMessage	= 8; 
 	}
 
-	private void addCsvSampleToTestTransactionList(List<TestTransaction> testTransactionList, String[] csvDataLineFields, String application) {
-		TestTransaction testTransaction = extractTransactionFromJmeterCSVsample(csvDataLineFields);
+	private void addCsvSampleToTestTransactionList(List<TestTransaction> testTransactionList, String[] csvDataLineFields, String application, List<String> ignoredErrorsList) {
+		TestTransaction testTransaction = extractTransactionFromJmeterCSVsample(csvDataLineFields, ignoredErrorsList);
 		testTransaction.setApplication(application);
 		testTransaction.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
 		testTransactionList.add(testTransaction);		
 	}
 
-	private TestTransaction extractTransactionFromJmeterCSVsample(String[] csvDataLineFields) {
+	private TestTransaction extractTransactionFromJmeterCSVsample(String[] csvDataLineFields, List<String> ignoredErrorsList) {
 		TestTransaction testTransaction = new TestTransaction();
 
 		testTransaction.setTxnId(csvDataLineFields[fieldPoslabel]);
@@ -448,22 +449,21 @@ public class JmeterRun extends PerformanceTest  {
 //		      return code, but to be handed by Event Mapping lookup?
 		
 		BigDecimal txnResultMsBigD = new BigDecimal(csvDataLineFields[fieldPoselapsed]);
-		testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP)  );			
 	
 		if ( Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals(testTransaction.getTxnType())) {
-			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP)  );			
-		} else {
+			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP)  );	
+		} else {	
 			try {
 				testTransaction.setTxnResult( validateAndDetermineMetricValue(txnResultMsBigD, testTransaction.getTxnType()));
 			} catch (Exception e) {
 				invalidDatapointMessageAndFail(Arrays.toString(csvDataLineFields), e);
 			}
 		}		
-		
-		testTransaction.setTxnPassed("N");
-		if ( "true".equalsIgnoreCase(csvDataLineFields[fieldPossuccess])){
-			testTransaction.setTxnPassed("Y");
-		}
+
+		testTransaction.setTxnPassed("Y");
+		if ("false".equalsIgnoreCase(csvDataLineFields[fieldPossuccess]) && !errorToBeIgnored(csvDataLineFields[fieldPosfailureMessage], ignoredErrorsList)){
+			testTransaction.setTxnPassed("N");
+		}		
 				
 		testTransaction.setTxnEpochTime(csvDataLineFields[fieldPostimeStamp]);
 		return testTransaction;
@@ -473,56 +473,12 @@ public class JmeterRun extends PerformanceTest  {
 	private void invalidDatapointMessageAndFail(String jmeterFileLine, Exception e) {
 		System.out.println("!! Error : looks like an invalid datapoint value or type has been entered. ");
 		System.out.println("           Time (t) must be an integer.  Datatype (dt) must be a know datatype + optional multiplier.  eg DATAPOINT or CPU_1000 .. ");
-		System.out.println("           The line (by field for csv) uin issue:  ");
+		System.out.println("           The line (by field for csv) with the issue:  ");
 		System.out.println("           " + jmeterFileLine);	
 		e.printStackTrace();
 		throw new RuntimeException("  " + e.getClass());
 	}
 	
-	
-
-	
-	/**
-	 * If an event mapping is found for the given transaction / tool / Database Data type (relating to a a sample line), 
-	 * then the Database Data type for that mapping is returned<br>
-	 * If a event mapping for the sample line is not found, then it is taken to be a TRANSACTION<br>
-	 * TODO: PERFMON<br>
-	 * TODO: also allow for transforms to TRANSACTION in event mapping<br>
-	 * @param txnId
-	 * @param performanceTool
-	 * @param sampleLineDbDataType -will be a string value of enum Mark59Constants.DatabaseDatatypes (DATAPOINT, CPU_UTIL, MEMORY, TRANSACTION)
-	 * @return txnType -  will be a string value of enum Mark59Constants.DatabaseDatatypes (DATAPOINT, CPU_UTIL, MEMORY, TRANSACTION)
-	 */
-	private String eventMappingTxnTypeTransform(String txnId, String performanceTool, String sampleLineRawDbDataType) {
-		
-		String eventMappingTxnType = null;
-		String metricSource = performanceTool + "_" + sampleLineRawDbDataType;   // (eg 'Jmeter_CPU_UTIL',  'Jmeter_TRANSACTION' ..)
-		
-		String txnId_MetricSource_Key = txnId + "-" + metricSource; 
-			
-		if (optimizedTxnTypeLookup.get(txnId_MetricSource_Key) != null ){
-			
-			//As we could be processing large files, a Map of type by transaction ids (labels) is held for ids that have already had a lookup on the eventMapping table.  
-			// Done to minimise sql calls - each different label / data type in the jmeter file just gets one lookup to see if it has a match on Event Mapping table.
-			
-			eventMappingTxnType = optimizedTxnTypeLookup.get(txnId_MetricSource_Key);
-			
-		} else {
-			
-			eventMappingTxnType = Mark59Constants.DatabaseTxnTypes.TRANSACTION.name();   
-			
-			EventMapping eventMapping = eventMappingDAO.findAnEventForTxnIdAndSource(txnId, metricSource);
-			
-			if ( eventMapping != null ) {
-				// this not a standard TRANSACTION (it's one of the metric types) - store eventMapping for later use 
-				eventMappingTxnType = eventMapping.getTxnType();
-				txnIdToEventMappingLookup.put(txnId, eventMapping);
-			}
-			optimizedTxnTypeLookup.put(txnId_MetricSource_Key, eventMappingTxnType);
-		}
-		return eventMappingTxnType;
-	}
-
 
 	/**
 	 * Calculate the datapoint value, using the multiplier passed in the jmeter datatype ("dt") field.
@@ -543,48 +499,10 @@ public class JmeterRun extends PerformanceTest  {
 				if (StringUtils.isNotBlank(passedMultipler)) {
 					valueMultiplier = new BigDecimal(passedMultipler);
 				}
-
 				return txnResultMsBigD.divide(valueMultiplier, 3, RoundingMode.HALF_UP) ;
 			}
 		}
-
-	    throw new Exception("ERORR unexpected datatype present :  " +  sampleLineDataType    ) ;
-	}
-
-		
-	/**
-	 * Once all transaction and metrics data has been stored for the run, work out the start and end 
-	 * time for the run.  Start/end times are taken lowest and highest transaction epoch time for the
-	 * application run. 
-	 *  
-	 * The times are actually an approximation, as any time difference between the timestamp and the time
-	 * to take the sample is not considered, nor is any running time before/after the first/last sample.
-	 * 
-	 * NOTE: When this method is called currently assumed the run being processed will have a  
-	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 	  
-	 */
-	private DateRangeBean getRunDateRangeUsingTestTransactionalData(String application){
-		Long runStartTime = testTransactionsDAO.getEarliestTimestamp(application);
-		Long runEndTime   = testTransactionsDAO.getLatestTimestamp(application);
-		return new DateRangeBean(runStartTime, runEndTime);
-	}
-
-	
-	private void storeSystemMetricSummaries(Run run) {
-
-		// Creates a list of the names of metric transactions for the run, with their types (bit of an abuse of the 'TestTransaction' bean)  
-		List<TestTransaction> dataSampleTxnkeys = testTransactionsDAO.getUniqueListOfSystemMetricNamesByType(run.getApplication()); 
-		
-		for (TestTransaction dataSampleKey : dataSampleTxnkeys) {
-
-			EventMapping eventMapping = txnIdToEventMappingLookup.get(dataSampleKey.getTxnId());
-			if (eventMapping == null) {
-				throw new RuntimeException("ERROR : No event mapping found for " + dataSampleKey.getTxnId());
-			};
-			Transaction eventTransaction = testTransactionsDAO.extractEventSummaryStats(run.getApplication(), dataSampleKey.getTxnType(), dataSampleKey.getTxnId(), eventMapping);
-			eventTransaction.setRunTime(run.getRunTime());
-			transactionDAO.insert(eventTransaction);
-		} 
+	    throw new RuntimeException("ERROR : unexpected datatype present :  " +  sampleLineDataType    ) ;
 	}
 
 }

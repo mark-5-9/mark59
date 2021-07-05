@@ -37,6 +37,7 @@ public interface JmeterFunctions {
 	 */
 	void startTransaction(String transactionID);
 
+	
 	/**
 	 * Stop monitoring the transaction / End the timer
 	 * <p>Ends an existing transaction with the supplied label name, stopping the timer</p>
@@ -47,6 +48,7 @@ public interface JmeterFunctions {
 	 */
 	SampleResult endTransaction(String transactionID);
 
+	
 	/**
 	 * Set a transactions for a given time.
 	 * 
@@ -54,8 +56,10 @@ public interface JmeterFunctions {
 	 * 
 	 * @param transactionLabel label for the transaction
 	 * @param transactionTime time taken for the transaction
+	 * @return SampleResult 
 	 */
-	void setTransaction(String transactionLabel, long transactionTime);
+	SampleResult setTransaction(String transactionLabel, long transactionTime);
+	
 	
 	/**
 	 * Set a transactions for a given time (in milliseconds).  The transaction status of success (or fail) is passed. 
@@ -65,8 +69,25 @@ public interface JmeterFunctions {
 	 * @param transactionLabel label for the transaction
 	 * @param transactionTime time taken for the transaction
 	 * @param success success state of the transaction
+	 * @return SampleResult
 	 */
-	void setTransaction(String transactionLabel, long transactionTime, boolean success);
+	SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success);
+	
+	
+	/**
+	 * Set a transactions for a given time (in milliseconds).  The transaction status of success (or fail) is passed. 
+	 * <p>This is independent of starting or stopping transactions, setting a specific value for the transaction duration.</p>
+	 * <p>Allows for setting whether the transaction was a success or failure</p>
+	 * <p>Allows for a response message (which is printed in a JMeter report for error transactions)</p>
+	 * 
+	 * @param transactionLabel label for the transaction
+	 * @param transactionTime time taken for the transaction
+	 * @param success success state of the transaction
+	 * @param responseCode response message (useful for error transactions)
+	 * @return SampleResult
+	 */
+	SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode);
+	
 	
 	/**
 	 * Add a single datapoint.
@@ -74,8 +95,9 @@ public interface JmeterFunctions {
 	 * 
 	 * @param dataPointName label for the datapoint
 	 * @param dataPointValue value for the datapoint
+	 * @return SampleResult
 	 */
-	void userDataPoint(String dataPointName, long dataPointValue);
+	SampleResult userDataPoint(String dataPointName, long dataPointValue);
 	
 	
 	/**
@@ -84,9 +106,10 @@ public interface JmeterFunctions {
 	 * @param dataPointName label for the datapoint
 	 * @param dataPointValue value for the datapoint
 	 * @param jmeterFileDatatypes see data value as they appear on the JMeter results file
+	 * @return SampleResult
 	 * @see JMeterFileDatatypes
 	 */
-	void userDatatypeEntry(String dataPointName, long dataPointValue,  JMeterFileDatatypes jmeterFileDatatypes);
+	SampleResult userDatatypeEntry(String dataPointName, long dataPointValue,  JMeterFileDatatypes jmeterFileDatatypes);
 
 	
 	/**
@@ -95,10 +118,12 @@ public interface JmeterFunctions {
 	 */
 	void tearDown();
 	
+	
 	/**
 	 * Marks the test as failed.
 	 */
 	void failTest();
+	
 	
 	/**
 	 * Return results from running the test

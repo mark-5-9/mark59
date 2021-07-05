@@ -66,6 +66,17 @@ public class LrRunAccessDatabase {
 	private Database db;
 	private Map<Integer,LrEventMapBean> lrEventMapTable = new HashMap<Integer,LrEventMapBean>(); 
 
+	/**
+	 * Connects to the Loadrunner Access database, and stores the Event_Map table. 
+	 * <b>The 'Event_Map' provides a key list of EventIDs, which map to an 'Event Type' and 'Event Name' (which is the name  matched against).
+	 * <p>It is necessary use this list because it determines what table the EventIDs for a given transaction are on. Basically: 
+	 * <p>'Transaction' eventsIds are on the 'Event_meter' table.
+	 * <p>'SiteScope' events are on the 'Monitor_meter' table.
+	 * <p>'DataPoints' events are on the  'DataPoint_meter'.
+	 * <p>FYI, there are other events (such as 'Web' and 'Connections') however only DataPoint and SiteScope events are mapped by mark59.
+	 * 
+	 * @param mdbFileName   a Loadruner access database
+	 */
 	public LrRunAccessDatabase(String mdbFileName){
 		try {
 			this.db = DatabaseBuilder.open(new File(mdbFileName));
@@ -76,7 +87,6 @@ public class LrRunAccessDatabase {
 		}
 		lrEventMapTable.putAll(extractEventMapTableFromMdb());
 	}
-	
 	
 	private Map<Integer,LrEventMapBean> extractEventMapTableFromMdb() {
 		
@@ -102,7 +112,7 @@ public class LrRunAccessDatabase {
 	
 	public DateRangeBean getRunDateRangeUsingLoadrunnerAccessDB(String timeZone) {
 		long runStartTime;
-		long runEndTime;;
+		long runEndTime;
 		int resultTableTimeZoneOffestMs;
 		try {
 			Table table = db.getTable("Result");
@@ -119,6 +129,10 @@ public class LrRunAccessDatabase {
 			
 			// it appears the stored epoch time actually goes 1 hour ahead during Australian daylight savings, this 'hack' seems to cater for that   
 			
+			if (StringUtils.isBlank(timeZone)) {
+				timeZone = new GregorianCalendar().getTimeZone().getID();
+				System.out.println("The 'timeZone'(z) parameter was blank! Assuming a timezone id of : " + timeZone);	
+			}	
 			Date runStartTimeDate = new Date(runStartTime);
 			GregorianCalendar runStartTimeCal = new GregorianCalendar();
 			runStartTimeCal.setTimeZone(TimeZone.getTimeZone(timeZone));
@@ -143,6 +157,14 @@ public class LrRunAccessDatabase {
 	}
 	
 	
+	/**
+	 * Loads all 'Transaction' events on the LR Event_meter table into the mark59 TestTrasactions table, in a similar process to how Trasaction events are
+	 * handled with the other Tools).   System Metrics and DataPoints are handled separately.
+	 *    
+	 * @param application
+	 * @param testTransactionsDAO
+	 * @param runStartTimeEpochMsecs
+	 */
 	public void loadTestTransactionForTransactionsOnlyFromLoadrunnAccessDB(String application, TestTransactionsDAO testTransactionsDAO, Long runStartTimeEpochMsecs ){
 
 		System.out.println("Loading transactional data from loadrunner mdb Event_meter table..");
@@ -224,9 +246,31 @@ public class LrRunAccessDatabase {
 		System.out.println(" ..(" + lineCount + ")");
 		System.out.println("load Tansactional data From LoadrunnerAccessDB completed  " + new Date(endLoadms) +  ".   Load took " + (endLoadms -startLoadms)/1000 + " secs" );		
 	}
-	
 
 	
+	/**
+	 * Create the mark59 system metric and dataPoint transactions for the run.
+	 * <p>First, it goes though the saved LR Event_map, and examines each Event Name to see what event we want to capture for the run (as listed in the mark59 
+	 * EventMapping table. In more detail:
+	 * <ul>
+	 * <li>For Loadrunner the 'MATCH_WHEN_LIKE' column of the mark59 EventMapping table is used to match against the LR Event Name (extracted from the LR Event Map table).
+	 * <li>Also, LR Event Type (extracted from the LR Event Map table) must match match against the METRIC_SOURCE column of the mark59 EventMapping table.  This is done by:
+	 * <ul>
+	 * <li>LR Event type of 'SiteScope' will only match against EventMapping METRIC_SOURCE entries of 'Loadrunner_SiteScope'  
+	 * <li>LR Event type of 'DataPoint' will only match against EventMapping METRIC_SOURCE entries of 'Loadrunner_DataPoint'  
+	 * </ul>
+	 * <li>When a match is found, other entries from the mark59 EventMapping table are used to determine the txnId in mark95 (using left/right boundaries against LR Event Name,
+	 * and the mark59 transaction type (using the TXN_TYPE column).  
+	 * </ul>
+	 * <p><p>Then in the second part of the process, for each identified event, it goes to the LR table (Monitor_meter or DataPoint_meter) holding that Event Id,
+	 *  and extract the LR data to create the mark59 transaction for that event. 
+	 * 
+	 * @param run
+	 * @param eventMappingDAO
+	 * @param dateRangeBean
+	 * @param filteredDateRangeBean
+	 * @return eventTransactions  - system metric and dataPoint transactions
+	 */
 	public List<Transaction> extractSystemMetricEventsFromMDB(Run run, EventMappingDAO eventMappingDAO, DateRangeBean dateRangeBean, DateRangeBean filteredDateRangeBean ) {
 		
 		List<Transaction> eventTransactions = new ArrayList<Transaction>();  
@@ -248,7 +292,7 @@ public class LrRunAccessDatabase {
 		}	
 		System.out.println("-------------------  " + metricEventsToBeExtracted.size()); 
 
-		// now go thru each required system metric event id (eg an idle or utilisation percentage ) to get the actual metric values from the  appropriate "xxx_meter" tables in the LR mdb file
+		// now go thru each required system metric event id (eg an CPU or Memory metric) to get the actual metric values from the  appropriate "xxx_meter" tables in the LR mdb file
 		
 		for (EventAttributes eventAttributes : metricEventsToBeExtracted) {
 			try {
@@ -264,10 +308,9 @@ public class LrRunAccessDatabase {
 	}
 	
 
-	/**	
-	 * 	For Loadrunner we only match against the Event Mapping Reference Table, we only use the 'MATCH_WHEN_LIKE' column of the event table.
-	 * 	So for example a  MATCH_WHEN_LIKE value of 'DataPoint:myfavouritedp' would match an entry on the LR Event Map Table of Event Type = 'DataPoint' and Event Name = 'myfavouritedp' 
-	 * 	The METRIC_SOURCE column is later used to tell what LR table to find the recored events on (either DataPoint_meteror Monitor_Metor)  
+	/*	
+	 * See if a LR event (Id and Type) matches an entry on mark59 EventMapping table.
+	 * The mark59 txnId is also determined using the left/right boundary rules on the eventMapping entry. 
 	 */
 	private List<EventAttributes> findMetricsToBeReportedForThisMdbEventId(LrEventMapBean lrEventMapBean, EventMappingDAO eventMappingDAO ){
 		
@@ -277,28 +320,28 @@ public class LrRunAccessDatabase {
 //		System.out.println("            findMetricsToBeReportedForThisMdbEventId : " + lrEventMapBean.getEventId() +":"+lrEventMapBean.getEventType()+":"+lrEventMapBean.getEventName() );
 		
 		List<EventAttributes> reportedEventAttributes = new ArrayList<EventAttributes>();		
-		List<EventMapping> lrMetricsEventMappings = eventMappingDAO.findEventMappingsForPerformanceTool(AppConstantsMetrics.LOADRUNNER); 				
+		List<EventMapping> mark59MetricsEventMappings = eventMappingDAO.findEventMappingsForPerformanceTool(AppConstantsMetrics.LOADRUNNER); 				
 		
 		boolean lrEventNameMatched = false;
 		int i = 0;
 		String txnId = null;
 		
-		while (i < lrMetricsEventMappings.size() && !lrEventNameMatched ){
+		while (i < mark59MetricsEventMappings.size() && !lrEventNameMatched ){
 
-			EventMapping eventMapping = lrMetricsEventMappings.get(i);
+			EventMapping mark59EventMapping = mark59MetricsEventMappings.get(i);
 			
-			boolean lrEventNameMatchFound = eventMappingDAO.doesLrEventMapEntryMatchThisEventMapping(mdbEventType, mdbEventName, eventMapping);   
+			boolean lrEventNameMatchFound = eventMappingDAO.doesLrEventMapEntryMatchThisEventMapping(mdbEventType, mdbEventName, mark59EventMapping);   
 	
 			
 			if ( lrEventNameMatchFound ){
-				txnId = UtilsMetrics.deriveEventTxnIdUsingEventMappingBoundaryRules(mdbEventName, eventMapping);
+				txnId = UtilsMetrics.deriveEventTxnIdUsingEventMappingBoundaryRules(mdbEventName, mark59EventMapping);
 			}
 		
 			if ( StringUtils.isNotBlank(txnId)){
 				lrEventNameMatched = true;
 				System.out.println("      matched LrEvent Id : " + mdbEventId + " (" + mdbEventType + ") to mapping entry \"" 
-						+ eventMapping.getMatchWhenLike() + "\".  Mapped Txn type = " + eventMapping.getTxnType() + ", Txn Id = " + txnId    );
-				reportedEventAttributes.add(new EventAttributes(mdbEventId, txnId,  eventMapping));
+						+ mark59EventMapping.getMatchWhenLike() + "\".  Mapped Txn type = " + mark59EventMapping.getTxnType() + ", Txn Id = " + txnId    );
+				reportedEventAttributes.add(new EventAttributes(mdbEventId, txnId,  mark59EventMapping));
 			}
 			i++;
 		}
@@ -417,8 +460,9 @@ public class LrRunAccessDatabase {
 		serverTransaction.setRunTime(run.getRunTime()); 
 		serverTransaction.setTxnId(eventAttributes.getTxnId()); 
 		serverTransaction.setTxnType(eventAttributes.getEventMapping().getTxnType());  
-		serverTransaction.setTxnAverage(tnxAverage); 
 		serverTransaction.setTxnMinimum(txnMinimum); 		      		
+		serverTransaction.setTxnAverage(tnxAverage); 
+		serverTransaction.setTxnMedian(new BigDecimal(-1.0));
 		serverTransaction.setTxnMaximum(txnMaximum);
 		serverTransaction.setTxnStdDeviation(new BigDecimal(-1.0));
 
@@ -435,6 +479,7 @@ public class LrRunAccessDatabase {
 		serverTransaction.setTxnFirst(txnFirst);
 		serverTransaction.setTxnLast(txnLast);
 		serverTransaction.setTxnSum(totalOfValues);		
+		serverTransaction.setTxnDelay(new BigDecimal(-1.0));		
 
 		return serverTransaction;
 	}

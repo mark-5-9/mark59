@@ -31,6 +31,7 @@ public class Transaction {
 	String		txnType;
 	BigDecimal	txnMinimum;
 	BigDecimal	txnAverage;
+	BigDecimal	txnMedian;
 	BigDecimal	txnMaximum;
 	BigDecimal	txnStdDeviation;
 	BigDecimal	txn90th;
@@ -42,6 +43,8 @@ public class Transaction {
 	BigDecimal	txnFirst;	
 	BigDecimal	txnLast;	
 	BigDecimal	txnSum;	
+	BigDecimal	txnDelay;	
+	String		txnIdURLencoded;
 
 	
 	public String getApplication() {
@@ -80,6 +83,12 @@ public class Transaction {
 	public void setTxnAverage(BigDecimal txnAverage) {
 		this.txnAverage = txnAverage.setScale(3, RoundingMode.HALF_UP);
 	}
+	public BigDecimal getTxnMedian() {
+		return txnMedian;
+	}
+	public void setTxnMedian(BigDecimal txnMedian) {
+		this.txnMedian = txnMedian.setScale(3, RoundingMode.HALF_UP);;
+	}
 	public BigDecimal getTxnMaximum() {
 		return txnMaximum;
 	}
@@ -102,13 +111,13 @@ public class Transaction {
 		return txn95th;
 	}
 	public void setTxn95th(BigDecimal txn95th) {
-		this.txn95th = txn95th;
+		this.txn95th = txn95th.setScale(3, RoundingMode.HALF_UP);
 	}
 	public BigDecimal getTxn99th() {
 		return txn99th;
 	}
 	public void setTxn99th(BigDecimal txn99th) {
-		this.txn99th = txn99th;
+		this.txn99th = txn99th.setScale(3, RoundingMode.HALF_UP);
 	}
 	public Long getTxnPass() {
 		return txnPass;
@@ -146,16 +155,29 @@ public class Transaction {
 	public void setTxnSum(BigDecimal txnSum) {
 		this.txnSum = txnSum.setScale(3, RoundingMode.HALF_UP);
 	}
+	public BigDecimal getTxnDelay() {
+		return txnDelay;
+	}
+	public void setTxnDelay(BigDecimal txnDelay) {
+		this.txnDelay = txnDelay.setScale(3, RoundingMode.HALF_UP);;
+	}
+	public String getTxnIdURLencoded() {
+		return txnIdURLencoded;
+	}
+	public void setTxnIdURLencoded(String txnIdURLencoded) {
+		this.txnIdURLencoded = txnIdURLencoded;
+	}
+	
 	
 	@Override
 	public String toString() {
-		String prettyPrint = "transaction : " + application
+		String prettyPrint = "application="+application
 				+ ", runTime="+runTime
 				+ ", txnId="+txnId
-//				+ ", txnName="+txnName
 				+ ", txnType="+txnType
 				+ ", txnMinimum="+txnMinimum
 				+ ", txnAverage="+txnAverage
+				+ ", txnMedian="+txnMedian
 				+ ", txnMaximum="+txnMaximum
 				+ ", txn90th="+txn90th
 				+ ", txn95th="+txn95th
@@ -166,6 +188,7 @@ public class Transaction {
 				+ ", txnFirst="+txnFirst
 				+ ", txnLast="+txnLast
 				+ ", txnSum="+txnSum
+				+ ", txnDelay="+txnDelay
 				;
 		return prettyPrint;
 	} 

@@ -70,15 +70,12 @@
      </tr>     
      <tr>
      
-     
      <tr>
-      <td> </td>
       <td><input type="submit" value="Save" />
       </td>
      </tr>
      
      <tr>
-      
       <td colspan="2"><a href="eventMappingList?reqMetricSource=${map.eventMapping.metricSource}">Cancel</a></td>
      </tr>     
      

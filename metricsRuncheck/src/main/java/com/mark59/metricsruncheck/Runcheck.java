@@ -38,6 +38,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 import com.mark59.core.utils.Mark59Constants;
+import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.SimpleAES;
 import com.mark59.metrics.application.AppConstantsMetrics;
 import com.mark59.metrics.data.eventMapping.dao.EventMappingDAO;
@@ -50,6 +51,7 @@ import com.mark59.metrics.metricSla.MetricSlaChecker;
 import com.mark59.metrics.metricSla.MetricSlaResult;
 import com.mark59.metrics.sla.SlaChecker;
 import com.mark59.metrics.sla.SlaTransactionResult;
+import com.mark59.metricsruncheck.run.GatlingRun;
 import com.mark59.metricsruncheck.run.JmeterRun;
 import com.mark59.metricsruncheck.run.LrRun;
 import com.mark59.metricsruncheck.run.PerformanceTest;
@@ -90,29 +92,32 @@ public class Runcheck  implements CommandLineRunner
 	@Autowired
 	ApplicationContext context;
 
-
 	
 	private static String argApplication;
 	private static String argInput;
 	private static String argDatabasetype;
 	private static String argReference;
 	private static String argTool;
-	private static String argKeeprawresults;
 	private static String argExcludestart;
 	private static String argCaptureperiod;
+	private static String argIgnoredErrors;
+	private static String argSimulationLog;
+	private static String argKeeprawresults;
+	private static String argSimlogCustom;
 	private static String argTimeZone;
 
+	private PerformanceTest performanceTest;
 	private List<MetricSlaResult> metricSlaResults = new ArrayList<MetricSlaResult>();
-
+	private List<SlaTransactionResult> slaTransactionResults = new ArrayList<SlaTransactionResult>();
+	private List<String> slasWithMissingTxns = new ArrayList<String>(); 
 	
 	public static void parseArguments(String[] args) {
 		Options options = new Options(); 
 		options.addRequiredOption("a", "application",	true, "Application Id, as it will appear in the Trending Graph Application dropdown selections");
 		options.addRequiredOption("i", "input",			true, "The directory or file containing the performance test results.  Multiple xml/csv/jtl results files allowed for Jmeter within a directory, a single .mdb file is required for Loadrunner");			
-		options.addOption("d", "databasetype",			true, "Load data to a 'h2', 'pg' or 'mysql' database (defaults to 'h2')");			
+		options.addOption("d", "databasetype",			true, "Load data to a 'h2', 'pg' or 'mysql' database (defaults to 'mysql')");			
 		options.addOption("r", "reference",		 		true, "A reference.  Usual purpose would be to identify this run (possibly by a link). Eg <a href='http://ciServer/job/myJob/001/HTML_Report'>run 001</a>");
-		options.addOption("t", "tool",      			true, "Performance Tool used to generate the results to be processed { JMETER (default) | LOADRUNNER }" );
-		options.addOption("k", "keeprawresults", 		true, "Keep Raw Test Resuts (JMeter only).  If 'true' will keep each JMeter transaction for each run in the database. This can use a large amount of storage and is not recommended (defaults to false).");
+		options.addOption("t", "tool",      			true, "Performance Tool used to generate the results to be processed { JMETER (default) | GATLING | LOADRUNNER }" );
 		options.addOption("h", "dbserver",				true, "Server hosting the database where results will be held (defaults to localhost). \n"
 																+ "*******************************************\n"
 																+ "** NOTE: all db options applicable to MySQL or Postgres ONLY\n"  
@@ -125,8 +130,17 @@ public class Runcheck  implements CommandLineRunner
 		options.addOption("q", "dbxtraurlparms",		true, "Any special parameters to append to the end of the database URL (include the ?). Eg \"?allowPublicKeyRetrieval=truee&useSSL=false\" (the quotes are needed to escape the ampersand)");				
 		options.addOption("x", "eXcludestart",     		true, "exclude results at the start of the test for the given number of minutes (defaults to 0)" );			
 		options.addOption("c", "captureperiod",    		true, "Only capture test results for the given number of minutes, from the excluded start period (default is all results except those skipped by the excludestart parm are included)" );			
-		options.addOption("z", "timeZone",    			true, "(Loadrunner only) Required when running extract from zone other than where Analysis Report was generated. Also, internal raw stored time"
-				+ " may not take daylight saving into account.  Two format options 1) offset against GMT. Eg 'GMT+02:00' or 2) IANA Time Zone Database (TZDB) codes. Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. Eg 'Australia/Sydney' ");   	
+		options.addOption("k", "keeprawresults", 		true, "Keep Raw Test Resuts. If 'true' will keep each transaction for each run in the database (System metrics data is not capured for Loadrunner). "
+																+ "This can use a large amount of storage and is not recommended (defaults to false).");
+		options.addOption("e", "ignoredErrors",    		true, "Gatling, JMeter(csv) only. A list of pipe (|) delimited strings.  When an error msg starts with any of the strings in the list, it will be treated as a Passed transaction rather that an Error." );	
+		options.addOption("l", "simulationLog",			true, "Gatling only. Simulation log file name - must be in the Input directory (defaults to simulation.log)" );
+		options.addOption("m", "simlogcustoM",			true, "Gatling only. Simulation log comma-separated cumtomized 'REQUEST' field column positions in order : txn name, epoch start, epoch end, tnx OK, error msg. "
+																+ "The text 'REQUEST' is assumed in position 1. EG: for a 3.6.1 layout: '2,3,4,5,6,' (This parameter may assist with un-catered for Gatling versions)" );
+		options.addOption("z", "timeZone",    			true, "Loadrunner only. Required when running extract from zone other than where Analysis Report was generated. Also, internal raw stored time"
+																+ " may not take daylight saving into account.  Two format options 1) offset against GMT. Eg 'GMT+02:00' or 2) IANA Time Zone Database (TZDB) codes."
+																+ " Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. Eg 'Australia/Sydney' ");   	
+
+		
 		
 		HelpFormatter formatter = new HelpFormatter();
 		CommandLine commandLine = null;
@@ -145,9 +159,12 @@ public class Runcheck  implements CommandLineRunner
 		argDatabasetype 	= commandLine.getOptionValue("d", Mark59Constants.MYSQL);	
 		argReference 		= commandLine.getOptionValue("r", AppConstantsMetrics.NO_ARGUMENT_PASSED + " (a reference will be generated)" ); 	  		
 		argTool   			= commandLine.getOptionValue("t", AppConstantsMetrics.JMETER );
-		argKeeprawresults	= commandLine.getOptionValue("k", String.valueOf(false));
 		argExcludestart  	= commandLine.getOptionValue("x", "0");		
 		argCaptureperiod  	= commandLine.getOptionValue("c", AppConstantsMetrics.ALL );
+		argIgnoredErrors	= commandLine.getOptionValue("e", "");				
+		argSimulationLog	= commandLine.getOptionValue("l", "simulation.log");				
+		argSimlogCustom		= commandLine.getOptionValue("m", "");				
+		argKeeprawresults	= commandLine.getOptionValue("k", String.valueOf(false));
 		argTimeZone  		= commandLine.getOptionValue("z", new GregorianCalendar().getTimeZone().getID() );				
 		
 		if (!Mark59Constants.H2.equalsIgnoreCase(argDatabasetype)
@@ -160,10 +177,10 @@ public class Runcheck  implements CommandLineRunner
 			throw new RuntimeException(
 					"The database type (d) argument must be set to 'pg', 'mysql', 'h2', 'h2mem' or 'h2tcpclient'! (or not used, in which case 'mysql' is assumed)");
 		}
-		if ( !AppConstantsMetrics.JMETER.equalsIgnoreCase(argTool)  &&  !AppConstantsMetrics.LOADRUNNER.equalsIgnoreCase(argTool)) {
+		if ( !AppConstantsMetrics.JMETER.equalsIgnoreCase(argTool)  &&  !AppConstantsMetrics.LOADRUNNER.equalsIgnoreCase(argTool) && !AppConstantsMetrics.GATLING.equalsIgnoreCase(argTool) ) {
 			formatter.printHelp( "Runcheck", options );
 			printSampleUsage();
-			throw new RuntimeException("The tool (t) argument must be set to JMETER or LOADRUNNER ! (or not used, in which case JMETER is assumed)");  
+			throw new RuntimeException("The tool (t) argument must be set to JMETER or LOADRUNNER or GATLING ! (or not used, in which case JMETER is assumed)");  
 		}
 		if ( !String.valueOf(false).equalsIgnoreCase(argKeeprawresults)  &&  !String.valueOf(true).equalsIgnoreCase(argKeeprawresults)) {
 			formatter.printHelp( "Runcheck", options );
@@ -179,6 +196,17 @@ public class Runcheck  implements CommandLineRunner
 			formatter.printHelp( "Runcheck", options );
 			printSampleUsage();
 			throw new RuntimeException("The captureperiod (c) parameter must be numeric or " +  (AppConstantsMetrics.ALL) );  
+		}
+		if (StringUtils.isNotBlank(argSimlogCustom)){
+				List<String> mPos = Mark59Utils.commaDelimStringToStringList(argSimlogCustom); 
+				if (mPos.size() != 5  ||
+					mPos.size() == 5 && ( !StringUtils.isNumeric(mPos.get(0)) || !StringUtils.isNumeric(mPos.get(1)) ||
+							              !StringUtils.isNumeric(mPos.get(2)) || !StringUtils.isNumeric(mPos.get(3)) ||
+							              !StringUtils.isNumeric(mPos.get(4)) )) {
+				formatter.printHelp( "Runcheck", options );
+				printSampleUsage();
+				throw new RuntimeException("The simlogcustoM (m) parameter must blank or 5 comma-delimited integers") ;  
+			}
 		}
 		if (! ( argTimeZone.equals("GMT") || !TimeZone.getTimeZone(argTimeZone).getID().equals("GMT"))){
 			// https://stackoverflow.com/questions/13092865/timezone-validation-in-java
@@ -259,7 +287,6 @@ public class Runcheck  implements CommandLineRunner
 		System.out.println(" database       : " + argDatabasetype );
 		System.out.println(" reference      : " + argReference );
 		System.out.println(" tool           : " + argTool );		
-		System.out.println(" keeprawresults : " + argKeeprawresults );		
 		System.out.println(" dbserver       : " + dbserver );		
 		System.out.println(" dbPort         : " + dbPort );				
 		System.out.println(" dbSchema       : " + dbSchema );				
@@ -267,6 +294,10 @@ public class Runcheck  implements CommandLineRunner
 		System.out.println(" dbUsername     : " + dbUsername );				
 		System.out.println(" eXcludestart   : " + argExcludestart + " (mins)" );		
 		System.out.println(" captureperiod  : " + argCaptureperiod + " (mins)"  );
+		System.out.println(" ignoredErrors  : " + argIgnoredErrors );		
+		System.out.println(" simulationlog  : " + argSimulationLog );		
+		System.out.println(" simlogcustoM   : " + argSimlogCustom );		
+		System.out.println(" keeprawresults : " + argKeeprawresults );		
 		System.out.println(" timeZone       : " + argTimeZone );		
 		System.out.println("------------------------------------------------   " );				    
 		System.out.println();
@@ -281,7 +312,12 @@ public class Runcheck  implements CommandLineRunner
 		System.out.println( "   The graph application name will be MY_COMPANY_BIG_APP, with a reference for this run of 'run ref 645'.");
 		System.out.println( "   The metricsdb database is hosted locally on a MySql instance assigned to port 3309 (default user/password of admin/admin) : "  );
 		System.out.println( "   java -jar metricsRuncheck.jar -a MY_COMPANY_BIG_APP -i C:/jmeter-results/BIGAPP -r \"run ref 645\" -p 3309  ");
-		System.out.println( "   2. Loadrunner example");		
+		System.out.println( "   2. Gatling example ");
+		System.out.println( "   Process Gatling simulation.log in directory C:/GatlingProjects/myBigApp");
+		System.out.println( "   The graph application name will be MY_COMPANY_BIG_APP, with a reference for this run of 'GatlingIsCool'.");
+		System.out.println( "   The metricsdb database is hosted locally on a Postgress instance using all defaults (but you want to disable sslmode) "  );
+		System.out.println( "   java -jar metricsRuncheck.jar -a MY_COMPANY_BIG_APP -i C:/GatlingProjects/myBigApp -d pg -q \"?sslmode=disable\" -t GATLING  -r \"GatlingIsCool\" ");		
+		System.out.println( "   3. Loadrunner example");		
 		System.out.println( "   Process Loadrunner analysis result at C:/templr/BIGAPP/AnalysisSession (containing file AnalysisSession.mdb).  ");
 		System.out.println( "   The graph application name will be MY_COMPANY_BIG_APP, with a reference for this run of 'run ref 644'.");
 		System.out.println( "   The metricsdb database is hosted locally on a MySql instance assigned to port 3309 (default user/password of admin/admin) : "  );
@@ -325,26 +361,28 @@ public class Runcheck  implements CommandLineRunner
 			System.out.println();			
 		}
 		
-		loadTestRun(argTool, argApplication, argInput, argReference, argExcludestart, argCaptureperiod, argTimeZone, argKeeprawresults );
+		loadTestRun(argTool, argApplication, argInput, argReference, argExcludestart, argCaptureperiod, argKeeprawresults,
+				argTimeZone, argIgnoredErrors, argSimulationLog, argSimlogCustom);
 	};
 
 	
-	public void loadTestRun(String tool, String application, String input, String runReference, String excludestart, String captureperiod, String timeZone, String keeprawresults) throws IOException {
-
-		PerformanceTest performanceTest;
+	public void loadTestRun(String tool, String application, String input, String runReference, String excludestart, String captureperiod, String keeprawresults,  
+			String timeZone, String ignoredErrors, String simulationLog, String simlogCustom) throws IOException {
 		
-		if (AppConstantsMetrics.LOADRUNNER.equalsIgnoreCase(tool)){		
-			performanceTest = new LrRun(context, application, input, runReference, excludestart, captureperiod, timeZone );
-		} else {
-			performanceTest = new JmeterRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults);
+		if (AppConstantsMetrics.JMETER.equalsIgnoreCase(tool)){		
+			performanceTest = new JmeterRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults, ignoredErrors );
+		} else if (AppConstantsMetrics.GATLING.equalsIgnoreCase(tool)){	
+			performanceTest = new GatlingRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults, ignoredErrors, simulationLog, simlogCustom);
+		} else { 
+			performanceTest = new LrRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults, timeZone );
 		}
 		
-		List<SlaTransactionResult> slaTransactionResults = new SlaChecker().listTransactionsWithFailedSlas(application, performanceTest.getTransactionSummariesThisRun(), slaDAO);;
+		slaTransactionResults = new SlaChecker().listTransactionsWithFailedSlas(application, performanceTest.getTransactionSummariesThisRun(), slaDAO);;
 		printTransactionalMetricSlaResults(slaTransactionResults);
 		
 		String runTime = performanceTest.getRunSummary().getRunTime(); 
 
-		List<String> slasWithMissingTxns  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, runTime, slaDAO  ); 
+		slasWithMissingTxns  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, runTime, slaDAO  ); 
 		printSlasWitMissingTxnsInThisRun(slasWithMissingTxns);		
 		
 		if (slasWithMissingTxns.isEmpty()  && slaTransactionResults.isEmpty() ){
@@ -390,6 +428,12 @@ public class Runcheck  implements CommandLineRunner
 	    		System.out.println( "                      % error was " + new DecimalFormat("#.##").format(slaTransactionResult.getTxnFailurePercent()) + 
 	    				" %, SLA of " +  slaTransactionResult.getSlaFailurePercent());				
 			}
+			if ( !slaTransactionResult.isPassedFailCount()){
+	    		System.out.println( "Runcheck: SLA Failed : Error : " + slaTransactionResult.getTxnId() + " has failed it's Fail Count SLA as recorded on the SLA database ! "  );
+	    		System.out.println( "                      count was " + slaTransactionResult.getTxnFailCount() + 
+	    				" Fail Count SLA is " +  slaTransactionResult.getSlaFailCount());				
+			}
+	
 			if ( !slaTransactionResult.isPassedPassCount()){
 	    		System.out.println( "Runcheck: SLA Failed : Error : " + slaTransactionResult.getTxnId() + " has failed it's Pass Count SLA as recorded on the SLA database ! "  );
 	    		System.out.println( "                      count was " + slaTransactionResult.getTxnPassCount() + 
@@ -398,7 +442,6 @@ public class Runcheck  implements CommandLineRunner
 		}
 		return allPassed;
 	}
-
 
 	
 	private void printMetricSlaResults(List<MetricSlaResult> metricSlaResults) {
@@ -410,6 +453,21 @@ public class Runcheck  implements CommandLineRunner
 		}
 	}
 
+	
+	/**
+	 * for testing purposes
+	 * @return performanceTest
+	 */
+	public PerformanceTest getPerformanceTest(){
+		return performanceTest;
+	}	
+	/**
+	 * for testing purposes
+	 * @return metricSlaResults
+	 */
+	public List<SlaTransactionResult> getSlaTransactionResults() {
+		return slaTransactionResults;
+	}
 	/**
 	 * for testing purposes
 	 * @return metricSlaResults
@@ -417,5 +475,14 @@ public class Runcheck  implements CommandLineRunner
 	public List<MetricSlaResult> getMetricSlaResults() {
 		return metricSlaResults;
 	}
+	/**
+	 * for testing purposes
+	 * @return metricSlaResults
+	 */
+	public List<String> getSlasWithMissingTxns() {
+		return slasWithMissingTxns;
+	}
+
+	
 	
 }

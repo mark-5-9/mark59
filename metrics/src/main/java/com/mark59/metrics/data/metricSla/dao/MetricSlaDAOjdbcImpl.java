@@ -58,6 +58,16 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 		jdbcTemplate.update(sql);
 	}
 
+
+	@Override
+	public void deleteData(String application, String metricName, String metricTxnType ) {
+		String sql = "delete from METRICSLA where APPLICATION='" + application + "' "
+										  + " and METRIC_NAME='" + metricName + "'"
+										  + " and METRIC_TXN_TYPE='" + metricTxnType + "'";
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate.update(sql);
+	}
+	
 	
 	@Override
 	public void deleteData(String application, String metricName, String metricTxnType, String valueDerivation ) {
@@ -81,8 +91,8 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 //				",  txnType = " + metricSla.getMetricTxnType() + ",  field = " + metricSla.getValueDerivation() +", orig= " + metricSla.getOriginalMetricName() );	
 		
 		if (existingSla == null ){  //a MetricsName rename from the original name to the new one
-			deleteData(metricSla.getApplication(), metricSla.getOriginalMetricName(),metricSla.getMetricTxnType(),metricSla.getValueDerivation() );
 			insertData(metricSla);
+			deleteData(metricSla.getApplication(), metricSla.getOriginalMetricName(),metricSla.getMetricTxnType(),metricSla.getValueDerivation() );
 			
 		} else {  // update values for an existing transaction
 			
@@ -146,7 +156,27 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 			return getMetricSlaList(application);
 		}
 		List<MetricSla> metricSlaList = new ArrayList<MetricSla>();
-		String sql = "select * from METRICSLA where APPLICATION='" + application + "' and METRIC_TXN_TYPE ='" + metricTxnType + "' order by METRIC_NAME, VALUE_DERIVATION ";
+		String sql = "select * from METRICSLA"
+				+ " where APPLICATION='" + application+ "' "
+				+ "  and METRIC_TXN_TYPE ='" + metricTxnType + "' "
+				+ "  order by METRIC_NAME, VALUE_DERIVATION ";
+//		System.out.println("getSla sql = " + sql);
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		metricSlaList = jdbcTemplate.query(sql, new MetricSlaRowMapper());
+		return metricSlaList;
+	}
+
+	@Override
+	public List<MetricSla> getMetricSlaList(String application, String metricName, String metricTxnType) {
+		if (metricTxnType == null ){
+			return getMetricSlaList(application);
+		}
+		List<MetricSla> metricSlaList = new ArrayList<MetricSla>();
+		String sql = "select * from METRICSLA"
+				+ " where APPLICATION='" + application+ "' "
+				+ "  and METRIC_NAME ='" + metricName + "' "
+				+ "  and METRIC_TXN_TYPE ='" + metricTxnType + "' "
+				+ "  order by VALUE_DERIVATION ";
 //		System.out.println("getSla sql = " + sql);
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		metricSlaList = jdbcTemplate.query(sql, new MetricSlaRowMapper());

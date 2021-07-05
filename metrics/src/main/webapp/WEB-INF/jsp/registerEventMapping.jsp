@@ -27,31 +27,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
-
-<script type="text/javascript" >
-
-function showHideMappingByTool() {
-	var selectedMetricSource = document.getElementById('metricSource').value;
-	if ( selectedMetricSource.startsWith('Loadrunner') ){
-		document.getElementById('MatchJmeter').style.display = 'none';
-		document.getElementById('MatchLoadrunner').style.display = 'table-row';		
-	} else {
-		document.getElementById('MatchJmeter').style.display = 'table-row';
-		document.getElementById('MatchLoadrunner').style.display = 'none';		
- 	}
-}
-		
-
-function setMatchWhenLike() {
-	var selectedMetricSource = document.getElementById('metricSource').value;
-	if ( selectedMetricSource.startsWith('Loadrunner') ){
-		document.getElementById("matchWhenLike").value = document.getElementById("lrEventType").value + ":" + document.getElementById("LikelrEventName").value; 	
-	} else {
-		document.getElementById("matchWhenLike").value = document.getElementById("jmeterMatchWhenLike").value; 
-	}	
-}
-
-</script>
 </head>
 
 <body onload="showHideMappingByTool();" > 
@@ -66,37 +41,25 @@ function setMatchWhenLike() {
  <p>&nbsp;</p> 
   
   <div>
-    
    <c:if test="${map.reqErr != ''}">
 		<p style="color:red"><b>${map.reqErr}</b></p> 
    </c:if>      
  
-   <form:form method="post" action="insertEventMapping?reqMetricSource=${map.reqMetricSource}" modelAttribute="eventMapping"  onsubmit="setMatchWhenLike()"  >
+   <form:form method="post" action="insertEventMapping?reqMetricSource=${map.reqMetricSource}" modelAttribute="eventMapping" >
     <table >
       <tr>
       <td>Metric Source :</td>
-      <td><form:select path="metricSource"  items="${map.metricSources}" value="${map.reqMetricSource}" onchange="showHideMappingByTool();"   /></td>
+      <td><form:select path="metricSource"  items="${map.metricSources}" value="${map.reqMetricSource}" /></td>
      </tr>
-
-     <tr id=MatchJmeter>
-      <td>Match When Jmeter Label Like : <br>(SQL format)<br></td>
-      <td><input id="jmeterMatchWhenLike" name="jmeterMatchWhenLike" type="text"  value=""   size="140" height="20" maxlength="149"  /></td>
+     <tr>
+      <td>Match When Like  :</td>
+      <td><form:input path="matchWhenLike"  value=""  size="140" height="20" maxlength="149"  /></td>
      </tr>
-	 
- 
-     <tr id=MatchLoadrunner>
-      <td style='white-space:nowrap;'>Loadrunner Event Match <br><i>[Event Type]</i> : <i>[Event Name Like]</i> : <br><br></td>
-      <td style='white-space:nowrap;'>
-      <input id="lrEventType" name="lrEventType" type="text"  value=""   size="30" height="20"  onchange="setMatchWhenLike()" /> : 
-      <input id="LikelrEventName" name="LikelrEventName" type="text"  value=""   size="120" height="20" onchange="setMatchWhenLike()"  />
-      </td>
-     </tr>       
-
-
      <tr>
       <td>Map to Metric Transaction Type :</td>
       <td><form:select path="txnType"  items="${map.metricTypes}" value="${map.eventMapping.txnType}" /></td>
-     </tr>
+     </tr>	 
+ 
      <tr>
       <td>Target Name Left Boundary :</td>
       <td><form:input path="targetNameLB"  value=""  size="100" height="20" maxlength="126"  /></td>
@@ -122,16 +85,13 @@ function setMatchWhenLike() {
      </tr> 
        
      <tr>
-
       <td> </td>
       <td><input type="submit" value="Save" /></td>
      </tr>
+     
      <tr>
-      
       <td colspan="2"><a href="eventMappingList?reqMetricSource=${map.reqMetricSource}">Cancel</a></td>
      </tr>
-     
-     <tr><td><input type="hidden" id="matchWhenLike" name="matchWhenLike" value="setviajs" /></td></tr>
 
     </table>
      
@@ -139,7 +99,6 @@ function setMatchWhenLike() {
   </div>
 
 </div>
-
 
 </body>
 </html>

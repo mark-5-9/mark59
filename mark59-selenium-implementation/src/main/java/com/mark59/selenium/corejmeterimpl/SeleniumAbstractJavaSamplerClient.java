@@ -340,9 +340,12 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 
 	
 	/**
-	 * Convenience method to a single-threaded script execution (rather than needing to use Jmeter).  
-	 * See method runMultiThreadedSeleniumTest to executed a multi-thread test<p>
-	 * You can control if the browser closes at the end of the test. 
+	 * Convenience method to a single-threaded script execution (rather than needing to use JMeter).  
+	 * <p>It can also be used in a JRS223 sampler in order to execute a script written directly in JMeter. See  the 
+	 * DataHunterLifecyclePvtScriptAsSingleJSR223 thread group in the the DataHunterSeleniumTestPlan.jmx test plan and
+	 * com.mark59.datahunter.performanceTest.scripts.jsr223format package in the dataHunterPerformanceTestSamples project.    
+	 * <p>See method runMultiThreadedSeleniumTest to executed a multi-thread test
+	 * <p>You can control if the browser closes at the end of the test. 
 	 * EG: <b>KeepBrowserOpen.ONFAILURE</b> will keep the browser open at test end if the test fails (unless running in headless mode). 
 	 * 
 	 * @see com.mark59.selenium.corejmeterimpl.KeepBrowserOpen
@@ -350,8 +353,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @see #runMultiThreadedSeleniumTest(int, int)
 	 * @see #runMultiThreadedSeleniumTest(int, int, Map)
 	 * @param keepBrowserOpen  see KeepBrowserOpen
+	 * @return {@link SampleResult} 
 	 */
-	protected void runSeleniumTest(KeepBrowserOpen keepBrowserOpen ) {
+	public SampleResult runSeleniumTest(KeepBrowserOpen keepBrowserOpen ) {
 		mockJmeterProperties();
 		JavaSamplerContext context = new JavaSamplerContext( getDefaultParameters()  );
 		
@@ -359,10 +363,11 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		if (String.valueOf(true).equalsIgnoreCase(context.getParameter(SeleniumDriverFactory.HEADLESS_MODE))) {
 			this.keepBrowserOpen = KeepBrowserOpen.NEVER;
 		};
-		LOG.info("keepBrowserOpen is set to "+ this.keepBrowserOpen);
+		LOG.debug("keepBrowserOpen is set to "+ this.keepBrowserOpen);
 		
 		setupTest(context);
-		runTest(context);
+		SampleResult sampleResult  = runTest(context);
+		return sampleResult;
 	}
 
 
@@ -370,9 +375,10 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @see #runSeleniumTest(KeepBrowserOpen)
 	 * @see #runMultiThreadedSeleniumTest(int, int)
 	 * @see #runMultiThreadedSeleniumTest(int, int, Map)	  
+	 * @return {@link SampleResult}
 	 */
-	protected void runSeleniumTest() {
-		runSeleniumTest(KeepBrowserOpen.ONFAILURE);
+	protected SampleResult runSeleniumTest() {
+		return runSeleniumTest(KeepBrowserOpen.ONFAILURE);
 	}
 
 	/**
@@ -387,9 +393,27 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param threadStartGapMs time between start of each thread in milliseconds
 	 */
 	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs) {
-		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>());
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>(), KeepBrowserOpen.NEVER);
 	}
 
+	/**
+	 * Convenience method to directly execute multiple script threads (rather than needing to use JMeter).  
+	 * For example: <br><br>
+	 * <code>thisTest.runMultiThreadedSeleniumTest(2, 2000, KeepBrowserOpen.ONFAILURE);</code>
+	 * 
+	 * @see #runSeleniumTest(KeepBrowserOpen)
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map)	 
+	 * 
+	 * @param numberOfThreads number Of Java Threads
+	 * @param threadStartGapMs time between start of each thread in milliseconds
+	 * @param keepBrowserOpen  see KeepBrowserOpen
+	 */
+	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, KeepBrowserOpen keepBrowserOpen) {
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>(), keepBrowserOpen);
+		
+	}
+	
+	
 	/**
 	 * Convenience method to directly execute multiple script threads (rather than needing to use JMeter).  For example,
 	 * if you want to user a user-defined parameter called "<code>USER</code>", and switch off headless mode for one of four threads running:  
@@ -408,6 +432,29 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param threadParameters  parameter key and list of values to be passed to each thread (needs to be at least as many entries as number of threads) 
 	 */
 	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters) {
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, threadParameters, KeepBrowserOpen.NEVER);
+	}	
+	
+	
+	/**
+	 * Convenience method to directly execute multiple script threads (rather than needing to use JMeter).  For example,
+	 * if you want to user a user-defined parameter called "<code>USER</code>", and switch off headless mode for one of four threads running:  
+	 * <br><br><code>
+	 *  Map&lt;String, java.util.List&lt;String&gt;&gt;threadParameters = new java.util.LinkedHashMap&lt;String,java.util.List&lt;String&gt;&gt;();<br>
+	 *	threadParameters.put("USER",                              java.util.Arrays.asList( "USER-MATTHEW", "USER-MARK", "USER-LUKE", "USER-JOHN"));<br>
+	 *	threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "true"));<br>		
+	 *	thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE);
+	 * </code>  
+	 *  
+	 * @see #runSeleniumTest(KeepBrowserOpen)
+	 * @see #runMultiThreadedSeleniumTest(int, int)
+	 * 
+	 * @param numberOfThreads number Of Java Threads
+	 * @param threadStartGapMs  time between start of each thread in milliseconds
+	 * @param threadParameters  parameter key and list of values to be passed to each thread (needs to be at least as many entries as number of threads) 
+	 * @param keepBrowserOpen  see KeepBrowserOpen	 
+	 */
+	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters, KeepBrowserOpen keepBrowserOpen) {
 		mockJmeterProperties();
 		Map<String, String> thisThreadParameters = new LinkedHashMap<String,String>();
 		
@@ -423,7 +470,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 				LOG.info(" Thread Override Parameters for thread " + String.format("%03d", i) + " : " +  Arrays.toString(thisThreadParameters.entrySet().toArray()));
 			}
 			
-			new Thread(new SeleniumTestThread(this.getClass(), thisThreadParameters), String.format("%03d", i)).start();
+			new Thread(new SeleniumTestThread(this.getClass(), thisThreadParameters, keepBrowserOpen), String.format("%03d", i)).start();
 			
 			if (i<numberOfThreads) {
 				try { Thread.sleep(threadStartGapMs);} catch (InterruptedException e){e.printStackTrace();}
@@ -454,13 +501,18 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 
 		private Class<? extends SeleniumAbstractJavaSamplerClient> testClass;
 		private Map<String, String> thisThreadParametersOverride;  
+		private KeepBrowserOpen keepBrowserOpen;  
 
 		
-		public SeleniumTestThread(Class<? extends SeleniumAbstractJavaSamplerClient> testClass, Map<String, String> thisThreadParametersOverride) {
+		public SeleniumTestThread(Class<? extends SeleniumAbstractJavaSamplerClient> testClass, Map<String, String> thisThreadParametersOverride, KeepBrowserOpen keepBrowserOpen) {
 			this.testClass = testClass;
 			this.thisThreadParametersOverride = thisThreadParametersOverride;
+			this.keepBrowserOpen = keepBrowserOpen;
 		}
 
+		/**
+		 *
+		 */
 		public void run() {
 			SeleniumAbstractJavaSamplerClient testInstance = null;
 			try {
@@ -471,6 +523,11 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 			
 			JavaSamplerContext context = new JavaSamplerContext( thisThreadParameterAuguments  );
 			
+			if (String.valueOf(true).equalsIgnoreCase(context.getParameter(SeleniumDriverFactory.HEADLESS_MODE))) {
+				this.keepBrowserOpen = KeepBrowserOpen.NEVER;
+			};
+			
+			testInstance.setKeepBrowserOpen(keepBrowserOpen);
 			testInstance.setupTest(context);
 			testInstance.runTest(context);
 		}

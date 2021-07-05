@@ -1,0 +1,6 @@
+RUN	Simulations.GettrashSimulation	gettrashsimulation	1622693981232	 	3.5.1
+USER	Get trash list scenario	START	1622693981987
+REQUEST		dpmockupmetric	1622693982008	1622693982142	OK	 
+REQUEST		Get trash List	1622693982008	1622693982142	OK	 
+REQUEST		Get trash List	1622693982162	1622693982219	OK	 
+USER	Get trash list scenario	END	1622693982245

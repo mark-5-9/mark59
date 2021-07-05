@@ -62,10 +62,10 @@ public class PerformanceTestTest extends TestCase {
 		return DataSourceBuilder.create().build()  ;
 	};
 		
-    @Value("h2")
+    @Value("h2mem")
     private String springProfilesActive;	
 	@Bean
-    public String currentDatabaseProfile() {return "h2";   }   
+    public String currentDatabaseProfile() {return "h2mem";   }   
 	@Bean
 	public ApplicationDAO applicationDAO() {return new ApplicationDAOjdbcTemplateImpl();}
 	@Bean

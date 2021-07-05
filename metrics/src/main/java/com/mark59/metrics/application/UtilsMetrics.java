@@ -138,5 +138,29 @@ public class UtilsMetrics  {
 	}
   
 	
+	public static String encodeBase64urlParam(String plainString) {
+//		System.out.println("at UtilsMetrics.encodeBase64urlParam :" + plainString );
+		String URLencodedString = "encodeBase64urlParam URL encode failure!!";
+		try {
+			URLencodedString = java.net.URLEncoder.encode(plainString, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			throw new RuntimeException("An attempt to decode a uri encoded parameter has failed for : " + plainString  )	;	
+		}
+
+		byte[] base64urlEncodeByte = null;
+		try {
+			base64urlEncodeByte = Base64.getEncoder().encode(URLencodedString.getBytes());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("An attempt to encode base64 (and uri encoded) parameter has failed for : " + plainString )	;	
+		}
+		String base64urlEncodedString = new String(base64urlEncodeByte);
+		
+		return base64urlEncodedString;
+	}
+	
+	
+	
 	
 }

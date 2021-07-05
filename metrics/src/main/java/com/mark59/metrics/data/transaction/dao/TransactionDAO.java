@@ -36,6 +36,8 @@ public interface TransactionDAO
 	
 	public void deleteAllForApplication(String application);
 	
+	public List<Transaction> getUniqueListOfTransactionsByType(String application);
+
 	public String transactionIdsSQL(String application, String graph, String sqlSelectLike, String sqlSelectNotLike, boolean manuallySelectTxns , String chosenTxns, String chosenRuns, boolean useRawSQL, String rawTransactionIdsSQL );
 
 	public List<Transaction> returnListOfSelectedTransactions  (String transactionIdsSQL, String nthRankedTxn);	
@@ -48,8 +50,8 @@ public interface TransactionDAO
 	
 	public Object getTransactionValue(String application, String txnType, String runTime, String txnId, String transactionField);
 
+	public long countRunsContainsBothTxnIds(String aplication, String txnType, String txnId1, String txnId2);
 
-
-
+	public void renameTransactions(String application, String txnType, String fromTxnId, String toTxnId);
 	
 }

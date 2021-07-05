@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
@@ -35,6 +36,7 @@ import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.PropertiesKeys;
 import com.mark59.core.utils.PropertiesReader;
 import com.mark59.core.utils.ScreenshotLoggingHelper;
+import com.mark59.selenium.utils.SeleniumUtils;
 
 /**
  * @author Michael Cohen
@@ -116,7 +118,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	private static final String CHROME = "CHROME";
 	private static final String FIREFOX = "FIREFOX";
 	
-
+	String legacyChomeLocation = "";
 	PropertiesReader pr = null;
 
 	public SeleniumDriverFactory() {
@@ -175,6 +177,32 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 
 		SeleniumDriverBuilder<?> builder = getDriverBuilderOfType(arguments.get(DRIVER));
 
+		// legacy Chromedriver hack		
+		Properties systemProperties = System.getProperties();
+		if (!"true".equals(systemProperties.get("mark59.check.for.legacy.chromedriver.done")) ) {
+			systemProperties.setProperty("mark59.check.for.legacy.chromedriver.done", "true");
+			systemProperties.setProperty("mark59.alternate.browser.for.legacy.chromedriver", "");
+			if (CHROME.equalsIgnoreCase(arguments.get(DRIVER)) 
+					&& systemProperties.getProperty("os.name").toLowerCase(java.util.Locale.ENGLISH).indexOf("win") >= 0  
+					&& SeleniumUtils.interogateChromedriverVersion(pr.getProperty(PropertiesKeys.MARK59_PROP_DRIVER_CHROME)).startsWith("2.") 
+				    && StringUtils.isBlank(arguments.get(BROWSER_EXECUTABLE))){
+				String updatedBrowserExecutable = SeleniumUtils.legacyChromedriverHack();
+				if (StringUtils.isNotBlank(updatedBrowserExecutable)) {
+					systemProperties.setProperty("mark59.alternate.browser.for.legacy.chromedriver", updatedBrowserExecutable);
+					arguments.put(BROWSER_EXECUTABLE, updatedBrowserExecutable);
+				}
+			}
+		}
+		
+		legacyChomeLocation = systemProperties.getProperty("mark59.alternate.browser.for.legacy.chromedriver"); 
+		if (StringUtils.isBlank(arguments.get(BROWSER_EXECUTABLE)) && StringUtils.isNotBlank(legacyChomeLocation))
+			builder.setAlternateBrowser(new File(legacyChomeLocation).toPath());
+		
+		
+		// Set an alternate browser executable. If not set will use the default installation (except for legacy hack above).
+		if (StringUtils.isNotBlank(arguments.get(BROWSER_EXECUTABLE)))
+			builder.setAlternateBrowser(new File(arguments.get(BROWSER_EXECUTABLE)).toPath());
+		
 		
 		// Turn driver headless mode on or off. Default: ON
 		if (arguments.containsKey(HEADLESS_MODE))
@@ -231,11 +259,6 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 		else	
 			builder.setWriteBrowserLogfile(false);
 		
-		
-		// Set an alternate browser executable. If not set will use the default installation.
-		if (arguments.containsKey(BROWSER_EXECUTABLE) && StringUtils.isNotBlank(arguments.get(BROWSER_EXECUTABLE)))
-			builder.setAlternateBrowser(new File(arguments.get(BROWSER_EXECUTABLE)).toPath());
-		
 				
 		//Note the Performance Log is currently only available for the Chrome Driver  
 		//TODO:  Maybe allow script argument to turn on or off more detailed driver performance logging (output seemed similar in test cases either way)
@@ -289,8 +312,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 				".\n (Please set " + PropertiesKeys.MARK59_PROP_DRIVER_CHROME + " or " + PropertiesKeys.MARK59_PROP_DRIVER_FIREFOX +
 				" as appropriate, to the location of the Selenium driver (usually done in mark59.properties)." ); 
 		}
-		
-		
+			
 		if (CHROME.equalsIgnoreCase(driverType)) {
 			builder = new ChromeDriverBuilder();
 		} else if (FIREFOX.equalsIgnoreCase(driverType)) {
@@ -300,7 +322,6 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 		}
 
 		builder.setDriverExecutable(new File(seleniumDriverPath).toPath());
-
 		return builder;
 	}
 

@@ -14,6 +14,15 @@ body {
  
 }
 
+.sidebar a.canterbury {
+	font-family: "Canterbury", Verdana, Tahoma;
+	font-size: 40px; text-align: center;
+	color: maroon;
+	padding: 10px;
+	text-decoration: none;
+	border-bottom: solid 1px maroon;
+}
+
 .sidebar a {
   display: block;
   color: black;

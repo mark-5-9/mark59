@@ -19,13 +19,15 @@ package com.mark59.seleniumDSL.core;
 import java.time.Duration;
 import java.util.List;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+
+import com.mark59.core.utils.SafeSleep;
 
 
 /**
@@ -53,16 +55,6 @@ public class Elemental {
 	}
 
 	
-	public void waitUntilCondition(ExpectedCondition<?> condition) {
-		
-		if (!LOG.isDebugEnabled() ) {			
-			FluentWaitFactory.getFluentWait(driver, timeout, pollingFrequency).until(condition);
-		} else {
-			runUsingFluentWaitInDebugMode(condition);  
-		}
-	}
-	
-	
 	protected WebElement waitForAndFindElement() {
 		return waitUntilConditionReturnsWebElement(ExpectedConditions.elementToBeClickable(by));
 	}
@@ -72,57 +64,67 @@ public class Elemental {
 	}
 		
 	
-	protected Elemental click() {
+	public Elemental click() {
 		waitForAndFindElement().click();
 		return this;
 	}
 	
-	protected Elemental waitUntilClickable() {
+	public Elemental waitUntilClickable() {
 		waitUntilCondition(ExpectedConditions.elementToBeClickable(by));
 		return this;
 	}
 	
-	
-	protected Elemental waitUntilClickable(Elemental elemental) {
+	public Elemental waitUntilClickable(Elemental elemental) {
 		waitUntilCondition(ExpectedConditions.elementToBeClickable(elemental.getBy()));
 		return  this;
 	}
-	
-	
-	protected Elemental waitUntilStale() {
+
+	public Elemental waitUntilStale() {
 		return waitUntilStale(this);
 	}
-	
 
-	protected Elemental waitUntilStale(Elemental elemental) {
+	public Elemental waitUntilStale(Elemental elemental) {
 		waitUntilCondition(ExpectedConditions.stalenessOf(driver.findElement(elemental.getBy())));
 		return this;
 	}
 	
-	
-	protected Elemental waitUntilTextPresentInElement(Elemental elemental, String expectedText) {
+	public Elemental waitUntilTextPresentInElement(Elemental elemental, String expectedText) {
 		waitUntilCondition(ExpectedConditions.textToBePresentInElementLocated(elemental.getBy() , expectedText));
 		return this;
 	}
-
 	
-	protected void waitUntilTextPresentInTitle(String expectedText) {
+	public void waitUntilTextPresentInTitle(String expectedText) {
 		waitUntilCondition(ExpectedConditions.titleIs(expectedText));  
 	}
 	
-	
-	protected WebElement waitUntilConditionReturnsWebElement(ExpectedCondition<WebElement> condition) {
-		
-		if (!LOG.isDebugEnabled()) {	
-			return FluentWaitFactory.getFluentWait(driver, timeout, pollingFrequency).until(condition);
-		} else {
-			return runUsingFluentWaitInDebugMode(condition);  
-		}
 
+	public void waitUntilCondition(ExpectedCondition<?> condition) {
+		waitUntilCondition(condition, false); 
+	}
+	
+	public void waitUntilCondition(ExpectedCondition<?> condition, boolean runInDebugMode ){
+		if (LOG.isDebugEnabled() || runInDebugMode ){	
+			runUsingFluentWaitInDebugMode(condition);  
+		} else {
+			FluentWaitFactory.getFluentWait(driver, timeout, pollingFrequency).until(condition);
+		}
 	}
 	
 	
-	protected List<WebElement> waitUntilConditionReturnsWebElements(ExpectedCondition<List<WebElement>> condition) {
+	public WebElement waitUntilConditionReturnsWebElement(ExpectedCondition<WebElement> condition) {
+		return waitUntilConditionReturnsWebElement(condition, false);
+	}
+	
+	public WebElement waitUntilConditionReturnsWebElement(ExpectedCondition<WebElement> condition, boolean runInDebugMode){
+		if (LOG.isDebugEnabled() || runInDebugMode ){	
+			return runUsingFluentWaitInDebugMode(condition);  
+		} else {
+			return FluentWaitFactory.getFluentWait(driver, timeout, pollingFrequency).until(condition);
+		}
+	}
+	
+		
+	public List<WebElement> waitUntilConditionReturnsWebElements(ExpectedCondition<List<WebElement>> condition) {
 		return FluentWaitFactory.getFluentWait(driver, timeout, pollingFrequency).until(condition);
 	}
 	

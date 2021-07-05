@@ -64,7 +64,6 @@ public class EventMappingController {
 		if (eventMapping != null){
 			existingEventMapping = eventMappingDAO.getEventMapping(eventMapping.getMetricSource(), eventMapping.getMatchWhenLike());
 		}	
-//		System.out.println("insertEventMapping does " + eventMapping.getMetricSource() + ":" + eventMapping.getMatchWhenLike()+ " exist? " +  existingEventMapping   );
 		
 		if (existingEventMapping == null ){  //not trying to add something already there, so go ahead..
 			eventMapping.setPerformanceTool(determinePerformanceTool(eventMapping.getMetricSource()));
@@ -99,8 +98,7 @@ public class EventMappingController {
 
 
 	/**
-	 * note that for the selectors 'Metric Source' has precedence  and will wipe out any 'tool' selector, as at this point the Metric Source value is unique and determines the tool 
-	 * (This is ok until a new tool mapping using the same target TXN_TYPE mappings is introduced.) 
+	 * Note that for the selectors 'Metric Source' and 'Tool' simply wipe each other out (i.e. the are not additive ) 
 	 */
 	@RequestMapping("/eventMappingList")
 	public ModelAndView eventMappingList(@RequestParam(required=false) String reqPerformanceTool, @RequestParam(required=false) String reqMetricSource) {
@@ -199,7 +197,8 @@ public class EventMappingController {
 	
 	private List<String> populatePerformanceToolsDropdown() {
 		List<String> performanceToolsList =  new ArrayList<String>(Arrays.asList(AppConstantsMetrics.JMETER,
-																		     	 AppConstantsMetrics.LOADRUNNER));
+																		     	 AppConstantsMetrics.LOADRUNNER,
+																		     	 AppConstantsMetrics.GATLING));
 		return performanceToolsList;
 	}	
 	
@@ -210,7 +209,8 @@ public class EventMappingController {
 																			AppConstantsMetrics.METRIC_SOURCE_JMETER_DATAPOINT,
 																			AppConstantsMetrics.METRIC_SOURCE_JMETER_TRANSACTION,																		  
 																			AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER, 
-																			AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_MONITOR_METER ));
+																			AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_MONITOR_METER,
+																			AppConstantsMetrics.METRIC_SOURCE_GATLING_TRANSACTION ));
 		return metricSourceList;
 	}	
 	
@@ -223,13 +223,13 @@ public class EventMappingController {
 	
 	
 	private String determinePerformanceTool(String metricSource) {
-		String tool  =  AppConstantsMetrics.JMETER;
+		String tool = AppConstantsMetrics.JMETER;
 		if (metricSource.startsWith(AppConstantsMetrics.LOADRUNNER)){
 			tool = AppConstantsMetrics.LOADRUNNER;
-		}
+		} else if (metricSource.startsWith(AppConstantsMetrics.GATLING)){
+			tool = AppConstantsMetrics.GATLING;
+		}	
 		return tool;
 	}
-	
-	
-	
+
 }

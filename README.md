@@ -4,8 +4,23 @@
 
 ## Releases 
 
-<p>Release 3.2.(.0) <br>
-  This was a major release 
+<p>Release 3.3.(0) <br>
+  <ul>
+    <li>Historical capture of Txn (Mocked) Delays and related Graphs</li>
+    <li>Simplify sample DSL project</li>
+    <li>More Set Transaction options</li>
+    <li>SafeSleep moved to core</li>
+    <li>Add ability to rename historical transactions in Trend Analysis</li>
+    <li>Trend Analysis can now capture Gatlng results (using the simulation log)</li>
+    <li>Capablity to ignore a test transaction failed status (Gatling and csv JMeter only)</li>	
+    <li>Improve Links in Trend Analysis App</li>
+    <li>Bug Fixes For : LoadRunner data load and Fail Count SLA</li>		
+    <li>Median captured in Trend Analysis</li>	
+    <li>Improve JavaDocs, and more JUnit tests</li>
+  </ul>  
+
+  
+<p>Release 3.2.(0) <br>
   <ul>
     <li>Add Emulation Network Conditions (latency and byte rates)</li>
     <li>Improve validatoin for SLA data entry</li>
@@ -35,7 +50,6 @@
 
 
 <p>Release 3.0.(.0) <br>
-  This was a major release 
   <ul>
     <li>New project: mark59-server-metrics-web.   Significant upgrade of server metric capture in mark59.</li>
     <li>Project rename:  dataHunterPVTest to dataHunterPerformanceTestSamples</li>

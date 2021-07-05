@@ -5,6 +5,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+/**
+ * This code or very similar can be found at multiple web sites such as StackOverflow etc.  It's purpose it to 
+ * check for a condition that means a triggered JQuery Ajax call has completed.
+ * 
+ * <p>While not a very useful function anymore (with the decline of Ajax), this code does gives a template
+ * about how to go about creating a WebDriverWait with a custom ExpectedCondition     
+ *
+ */
 public class AjaxControls {
 	
 	public void waitForAjaxTriggeredViaJQueryToFinish(WebDriver driver){
@@ -18,8 +26,6 @@ public class AjaxControls {
 		         return activejQeuryAjax;
 		 }
 		 });		
-
 		
 	}
-
 }

@@ -17,6 +17,8 @@
 package com.mark59.selenium.drivers;
 
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -221,10 +223,15 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 			}
 			
 		} catch (Exception e) {
+			String thread =Thread.currentThread().getName();
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
 			LOG.error("An error has occured during the creation of the ChromeDriver : "  + e.getMessage() );	
-			e.printStackTrace();
+			System.err.println("An error has occured during the creation of the ChromeDriver : "  + e.getMessage() );				
+			LOG.error(" ERROR : " + this.getClass() + ". Stack trace: \n  " + sw.toString());
+			System.err.println("["+ thread + "]  ERROR : " + this.getClass() + ". Stack trace: \n  " + sw.toString());
 			if (driver != null) {driver.quit();};
-			throw new RuntimeException("An error has occured during the creation of the ChromeDriver - throwing Runtime exception");
+			throw new RuntimeException("An error has occured during the creation of the ChromeDriver (throwing a RuntimeException" );
 		}
 		return new ChromeDriverWrapper(driver);
 	}

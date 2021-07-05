@@ -63,13 +63,13 @@ public class NewRelicServerMetricsCapture extends AbstractJavaSamplerClient {
 	static {
 		Map<String,String> staticMap = new LinkedHashMap<String,String>();
 		staticMap.put("__________________________________________________", "");	
-		staticMap.put("_  THIS JAVA REQUEST IS LEGACY  - DO NOT USE            __", "");	
+		staticMap.put("_THIS JAVA REQUEST IS LEGACY - DO NOT USE -TO BE REMOVED IN THE NEXT RELEASE !!!!_", "");	
 		staticMap.put("_________________________________________________", "");			
 		staticMap.put("______________________ general settings: ________________________", "");	
 		staticMap.put(MONITOR_CPU,				Mark59Constants.TRUE);
 		staticMap.put(MONITOR_MEMORY, 			Mark59Constants.TRUE);
 		staticMap.put("______________________ new relic configuration settings : ________",
-	 											"THIS IS LEGACY AND WILL BE REMOVED IN FUTURE RELEASE.");
+	 											"THIS IS LEGACY AND IS PLANNED TO BE REMOVED IN THE NEXT RELEASE !!!!.");
 		staticMap.put(NEW_RELIC_API_URL,		"https://api.newrelic.com/v2/applications/" );
 		staticMap.put(NEW_RELIC_API_APP_ID, 	"");
 		staticMap.put(NEW_RELIC_XAPIKEY,		"");

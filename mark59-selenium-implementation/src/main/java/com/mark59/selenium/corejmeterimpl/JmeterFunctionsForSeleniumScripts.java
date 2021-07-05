@@ -72,6 +72,14 @@ import com.mark59.selenium.drivers.SeleniumDriverWrapper;
  * @author Philip Webb
  * Written: Australian Winter 2019  
  */
+/**
+ * @author s62991
+ *
+ */
+/**
+ * @author s62991
+ *
+ */
 public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 
 	private static final Logger LOG = LogManager.getLogger(JmeterFunctionsForSeleniumScripts.class);
@@ -144,6 +152,19 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	}
 
 	
+	@Override
+	public void startTransaction(String transactionLabel) {
+		startTransaction(transactionLabel, true);	
+	}
+	
+	
+	/**
+	 * As per {@link #startTransaction(String)}, but also allows for forcing switch-off of screenshot logging for this
+	 * transaction (set to false). 
+	 * 
+	 * @param transactionLabel transaction name
+	 * @param includeInStartOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction ends 
+	 */
 	public void startTransaction(String transactionLabel, boolean includeInStartOfTransactionScreenshotLogs) {
 		if (includeInStartOfTransactionScreenshotLogs) {
 			if 	(bufferScreenshotsAtStartOfTransactions) {
@@ -162,16 +183,66 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 		super.startTransaction(transactionLabel);
 	}
 
+	
+	
 	@Override
-	public void startTransaction(String transactionLabel) {
-		startTransaction(transactionLabel, true);	
+	public SampleResult endTransaction(String transactionLabel) {
+		return endTransaction(transactionLabel, Outcome.PASS, null, true);
+	}
+
+	
+	/**
+	 * As per {@link #endTransaction(String)}, but also allows for forcing switch-off of screenshot logging for this
+	 * transaction (set to false). 
+	 * 
+	 * @param transactionLabel transaction name
+	 * @param includeInEndOfTransactionshots boolean option to switch on/off screenshot logs for transaction ends 
+	 * @return the JMeter sub-result for this transaction (which includes the transaction time)
+	 */
+	public SampleResult endTransaction(String transactionLabel, boolean includeInEndOfTransactionshots) {
+		return endTransaction(transactionLabel, Outcome.PASS, null, includeInEndOfTransactionshots); 
 	}
 	
 	
+	@Override
+	public SampleResult endTransaction(String transactionLabel, Outcome result) {
+		return endTransaction(transactionLabel, result, null, true); 
+	}
 	
+	
+	/**
+	 * As per {@link #endTransaction(String, Outcome)}, but also allows for forcing switch-off of screenshot logging for this
+	 * transaction (set to false). 
+	 * 
+	 * @param transactionLabel transaction name
+	 * @param result transaction pass or fail as Outcome
+	 * @param includeInEndOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction ends 
+	 * @return the JMeter sub-result for this transaction (which includes the transaction time)
+	 */
 	public SampleResult endTransaction(String transactionLabel, Outcome result, boolean includeInEndOfTransactionScreenshotLogs) {
+		return endTransaction(transactionLabel, result, null, includeInEndOfTransactionScreenshotLogs);
+	}
+	
+	
+	public SampleResult endTransaction(String transactionLabel, Outcome result, String responseCode) {
+		return endTransaction(transactionLabel, result, responseCode, true);
+	}
+	
+	
+	/**
+	 * As per {@link #endTransaction(String, Outcome, String)}, but also allows for forcing switch-off of screenshot logging for this
+	 * transaction (includeInEndOfTransactionshots set to false). 
+	 * 
+	 * @param transactionLabel transaction name
+	 * @param result transaction pass or fail as Outcome
+	 * @param responseCode response code text
+	 * @param includeInEndOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction ends 
+	 * 
+	 * @return SampleResult the JMeter sub-result for this transaction (which includes the transaction time)
+	 */
+	public SampleResult endTransaction(String transactionLabel, Outcome result, String responseCode, boolean includeInEndOfTransactionScreenshotLogs) {
 		
-		SampleResult sampleResult = super.endTransaction(transactionLabel, result);
+		SampleResult sampleResult = super.endTransaction(transactionLabel, result, responseCode);
 
 		String markIfailedTxn = "";
 		if (result.getOutcomeText().equals(Outcome.FAIL.getOutcomeText())){
@@ -201,37 +272,55 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 			}			
 		}
 		return sampleResult;
-	}
 	
-	public SampleResult endTransaction(String transactionLabel, boolean includeInEndOfTransactionshots) {
-		return endTransaction(transactionLabel, Outcome.PASS, includeInEndOfTransactionshots); 
 	}
-	
-	@Override
-	public SampleResult endTransaction(String transactionLabel, Outcome result) {
-		return endTransaction(transactionLabel, result, true); 
-	}
-	
-	@Override
-	public SampleResult endTransaction(String transactionLabel) {
-		return endTransaction(transactionLabel, Outcome.PASS, true);
-	}
-	
+
 
 	@Override
-	public void setTransaction(String transactionLabel, long transactionTime){
-		setTransaction(transactionLabel, transactionTime, true, true);
+	public SampleResult setTransaction(String transactionLabel, long transactionTime){
+		return setTransaction(transactionLabel, transactionTime, true, null, true);
 	}
 	
 	@Override
-	public void setTransaction(String transactionLabel, long transactionTime, boolean success) {
-		setTransaction(transactionLabel, transactionTime, success, true);
+	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success) {
+		return setTransaction(transactionLabel, transactionTime, success, null, true);
 	}
 
 	
-	public void setTransaction(String transactionLabel, long transactionTime, boolean success, boolean includeInEndOfTransactionshots) {
+	/**
+	 * As per {@link #setTransaction(String, long, boolean)}, but also allows for forcing switch-off of screenshot logging for this
+	 * transaction (includeInEndOfTransactionshots set to false).  
+	 * 
+	 * @param transactionLabel transaction name
+	 * @param transactionTime transaction time (ms)
+	 * @param success  pass or fail transaction
+	 * @param includeInEndOfTransactionshots boolean option to switch on/off screenshot logs for transaction ends 
+	 * @return SampleResult
+	 */
+	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, boolean includeInEndOfTransactionshots) {
+		return setTransaction(transactionLabel, transactionTime, success, null, includeInEndOfTransactionshots);
+	}
+
+	@Override
+	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode) {
+		return setTransaction(transactionLabel, transactionTime, success, responseCode, true);
+	}
+
+	
+	/**
+	 * As per {@link #setTransaction(String, long, boolean, String)}, but also allows for forcing switch-off of screenshot logging for this
+	 * transaction (includeInEndOfTransactionshots set to false).  
+	 * 
+	 * @param transactionLabel transaction name
+	 * @param transactionTime  transaction time (ms)
+	 * @param success   pass or fail transaction
+	 * @param responseCode  text response code
+	 * @param includeInEndOfTransactionshots  boolean option to switch on/off screenshot logs for transaction ends 
+	 * @return SampleResult
+	 */
+	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode, boolean includeInEndOfTransactionshots) {
 		
-		super.setTransaction(transactionLabel, transactionTime, success);
+		SampleResult sampleResult = super.setTransaction(transactionLabel, transactionTime, success, responseCode);
 		
 		if (includeInEndOfTransactionshots) {
 			if 	(bufferScreenshotsAtEndOfTransactions) {
@@ -246,8 +335,8 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 			if 	(writePerformanceLogAtEndOfTransactions) {
 				seleniumDriverWrapper.writeDriverLogs(transactionLabel + "_perflog" );
 			}				
-			
 		}
+		return sampleResult;
 	}
 	
 	

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mark59.seleniumDSL.core;
+package com.mark59.core.utils;
 
 /**
  * Un-interruptible wrapper for Thread.sleep

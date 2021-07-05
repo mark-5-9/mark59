@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.context.ApplicationContext;
 
+import com.mark59.metrics.application.AppConstantsMetrics;
 import com.mark59.metrics.data.beans.DateRangeBean;
 import com.mark59.metrics.data.beans.Run;
 import com.mark59.metrics.data.beans.Transaction;
@@ -31,21 +32,14 @@ import com.mark59.metricsruncheck.accessdb.LrRunAccessDatabase;
  */
 public class LrRun extends PerformanceTest  {
 	
-	//private LrRunAccessDatabase lrRundb;
-	
-	public LrRun(ApplicationContext context, String application, String inputAccessDbFileNmae, String runReference, String excludestart, String captureperiod, String timeZone) {
+	public LrRun(ApplicationContext context, String application, String inputAccessDbFileNmae, String runReference, String excludestart, String captureperiod,
+			String keeprawresults, String timeZone) {
 		super(context, application, runReference);
+		
 		LrRunAccessDatabase lrRundb = new LrRunAccessDatabase(inputAccessDbFileNmae);
 		System.out.println("Processing Loadrunner access DB file " + inputAccessDbFileNmae);
-		storePerformanceTest(lrRundb, excludestart, captureperiod, timeZone);	
-	}
-
-
-	
-	private void storePerformanceTest(LrRunAccessDatabase lrRundb,  String excludestart, String captureperiod,  String timeZone ) {
 		
-		//clean up before  
-		testTransactionsDAO.deleteAllForApplication(run.getApplication());
+		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
 		
 		DateRangeBean dateRangeBean = lrRundb.getRunDateRangeUsingLoadrunnerAccessDB(timeZone);
 		lrRundb.loadTestTransactionForTransactionsOnlyFromLoadrunnAccessDB(run.getApplication(), testTransactionsDAO, dateRangeBean.getRunStartTime());  
@@ -54,30 +48,36 @@ public class LrRun extends PerformanceTest  {
 		runDAO.deleteRun(run.getApplication(), run.getRunTime());
 		runDAO.insertRun(run);
 
-		DateRangeBean filteredDateRangeBean = applyTimingRangeFilters(excludestart, captureperiod, dateRangeBean);
+		DateRangeBean filteredDateRangeBean = applyTimeRangeFiltersToTestTransactions(excludestart, captureperiod, dateRangeBean);
 		if (filteredDateRangeBean.isFilterApplied()) {
-			System.out.println("   Note that for Loadrunner results the removed count applies to transactions only, "
-					+ "but the time filter will also be applied to system metrics (Monitor_meter and  DataPoint_meter mdb tables)");
+			System.out.println("   Note that for Loadrunner results the 'transactions removed by filter' count applies to transactions only, "
+					+ " - however time filter is also applied to system metrics (Monitor_meter and  DataPoint_meter mdb tables)");
 		}
 		
 		transactionDAO.deleteAllForRun(run.getApplication(), run.getRunTime());				
 		storeTransactionSummaries(run);
 
-		//for Loadrunner, metric data is not placed in the testTransactions table, it is summarized directly from the LR Access DB tables and inserted directly onto the transaction table 
+		// for Loadrunner, metric data is not placed in the testTransactions table,
+		// it is summarized directly from the LR Access DB tables and inserted directly onto the transaction table 
 		
-		storeSystemMetricSummariesFromLoadrunnerAccessDB(run, lrRundb, dateRangeBean, filteredDateRangeBean);
-
-		//clean up after
-		//testTransactionsDAO.deleteAllForApplication(run.getApplication());		
+		storeMetricTransactionSummariesFromLoadrunnerAccessDB(run, lrRundb, dateRangeBean, filteredDateRangeBean);
 		
+		endOfRunCleanupTestTransactions(keeprawresults);
 	}
 
-		
-	private void storeSystemMetricSummariesFromLoadrunnerAccessDB(Run run, LrRunAccessDatabase lrRundb, DateRangeBean dateRangeBean, DateRangeBean filteredDateRangeBean) {
-		
+
+	private void storeMetricTransactionSummariesFromLoadrunnerAccessDB(Run run, LrRunAccessDatabase lrRundb, DateRangeBean dateRangeBean, DateRangeBean filteredDateRangeBean) {
+
 		List<Transaction> eventTransactions = lrRundb.extractSystemMetricEventsFromMDB(run, eventMappingDAO, dateRangeBean, filteredDateRangeBean);      	
       	for (Transaction eventTransaction : eventTransactions ) {
-      		transactionDAO.insert(eventTransaction);
+      		try {
+      			transactionDAO.insert(eventTransaction);
+      		} catch ( org.springframework.dao.DuplicateKeyException e ) {
+      			System.out.println("\n\nError :  Whoa!  This can happen if you try to match the same transaction name to two different LoadRunners events.\n"
+      					+ "Review the Event Map Table (printed above) and your matching criteria to see if this is the issue.\n\n"
+      					+ "The attempted transaction was : " + eventTransaction + "\n\n" );
+      			throw new RuntimeException(e); 
+      		}
 		}
 	}
 

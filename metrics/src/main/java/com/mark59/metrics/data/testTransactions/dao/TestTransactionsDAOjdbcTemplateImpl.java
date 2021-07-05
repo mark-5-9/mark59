@@ -147,13 +147,13 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	
 	
 	@Override
-	public void deleteAllForRun(Run run) {
-		String sql = "delete from TESTTRANSACTIONS where APPLICATION='" + run.getApplication() + "' "
-												     + "and RUN_TIME='" + run.getRunTime() + "'";
-//		System.out.println("performing TestTransactionsDAOjdbcTemplateImpl.deleteAllForRun : " + sql );
+	public void deleteAllForRun(String application,  String runTime) {
+		String sql = "delete from TESTTRANSACTIONS where APPLICATION='" + application + "' "
+													 + "and RUN_TIME='" + runTime + "'";
+//		System.out.println("deleteAllForRun : " + sql );
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
-	}
+		jdbcTemplate.update(sql);	
+	}	
 		
 	
 	@Override
@@ -247,6 +247,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		//     may have something to do with the way integer rounding is implemented in MySql   
 		// https://stackoverflow.com/questions/2567000/mysql-and-group-concat-maximum-length
 		// https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_group_concat_max_len
+		//     SET PERSIST group_concat_max_len = 18446744073709551615; SHOW GLOBAL VARIABLES  LIKE 'group_concat_max_len'  
 		// Note that transaction statistics are only calculated for Passed transactions
 		
 		List<Transaction> transactions = new ArrayList<Transaction> ();     
@@ -256,22 +257,26 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		String dbDependentStdDevAnd90th = null;
 		String dbDependent95th = null;
 		String dbDependent99th = null;
+		String dbDependentMedian = null;
 		if (Mark59Constants.MYSQL.equals(currentDatabaseProfile)){ 
 			dbDependentStdDevAnd90th = " std(TXN_RESULT) txnStdDeviation, " +
-					          " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(90/100 * COUNT(*) ) ), ',', -1) as txn90th, " ;
-			dbDependent95th = " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(95/100 * COUNT(*) ) ), ',', -1) as txn95th, " ;
-			dbDependent99th = " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(99/100 * COUNT(*) ) ), ',', -1) as txn99th, " ;			
+					            " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(90/100 * COUNT(*) ) ), ',', -1) as txn90th, " ;
+			dbDependent95th   = " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(95/100 * COUNT(*) ) ), ',', -1) as txn95th, " ;
+			dbDependent99th   = " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(99/100 * COUNT(*) ) ), ',', -1) as txn99th, " ;			
+			dbDependentMedian = " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(50/100 * COUNT(*) ) ), ',', -1) as txnMedian, " ;			
 		} else {
 			dbDependentStdDevAnd90th = 	" STDDEV_POP (TXN_RESULT) txnStdDeviation,"
 				              + " PERCENTILE_DISC(0.90) WITHIN GROUP (ORDER BY TXN_RESULT ) as txn90th, " ;
 			dbDependent95th = 	" PERCENTILE_DISC(0.95) WITHIN GROUP (ORDER BY TXN_RESULT ) as txn95th, " ;
 			dbDependent99th = 	" PERCENTILE_DISC(0.99) WITHIN GROUP (ORDER BY TXN_RESULT ) as txn99th, " ;
+			dbDependentMedian =	" PERCENTILE_DISC(0.50) WITHIN GROUP (ORDER BY TXN_RESULT ) as txnMedian, " ;
 		}
 		
 		String sql = 
 				"select APPLICATION, RUN_TIME,TXN_ID, " + 
 				"       sum(txnMinimum) txnMinimum, " + 
 				"       sum(txnAverage) txnAverage, " + 
+				"       sum(txnMedian)  txnMedian, " + 
 				"       sum(txnMaximum) txnMaximum, " + 
 				"       sum(txnStdDeviation) txnStdDeviation, " + 
 				"       sum(txn90th) txn90th, " + 
@@ -284,6 +289,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 					"select APPLICATION, RUN_TIME,TXN_ID, " +
 					 " min(TXN_RESULT) txnMinimum, " +
 					 " avg(TXN_RESULT) txnAverage, " +
+					 dbDependentMedian +					 
 					 " max(TXN_RESULT) txnMaximum, " +
 					 dbDependentStdDevAnd90th +
 					 dbDependent95th +
@@ -303,6 +309,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 			   		"select APPLICATION, RUN_TIME,TXN_ID, " + 
 			   		 " 0 txnMinimum, " + 
 			   		 " 0 txnAverage, " + 
+			   		 " 0 txnMedian, " + 
 			   		 " 0 txnMaximum, " + 
 			   		 " 0 txnStdDeviation, " + 
 			   		 " 0 txn90th, " + 
@@ -351,10 +358,12 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				transaction.setTxn90th(new BigDecimal((Double)row.get("txn90th")));
 				transaction.setTxn95th(new BigDecimal((Double)row.get("txn95th")));
 				transaction.setTxn99th(new BigDecimal((Double)row.get("txn99th")));
+				transaction.setTxnMedian(new BigDecimal((Double)row.get("txnMedian")));				
 			} else {
 				transaction.setTxn90th((BigDecimal)row.get("txn90th"));
 				transaction.setTxn95th((BigDecimal)row.get("txn95th"));
 				transaction.setTxn99th((BigDecimal)row.get("txn99th"));
+				transaction.setTxnMedian((BigDecimal)row.get("txnMedian"));
 			}
 			
 			transaction.setTxnPass(Long.valueOf( ((BigDecimal)row.get("txnPass")).longValue() ));
@@ -363,6 +372,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
       		transaction.setTxnFirst(new BigDecimal(-1.0));
       		transaction.setTxnLast(new BigDecimal(-1.0));
       		transaction.setTxnSum(new BigDecimal(-1.0));
+      		transaction.setTxnDelay(new BigDecimal(0.0));		      		
       		transactions.add(transaction);
 //			System.out.println("populating extractTransactionStats: " + row.get("TXN_ID")  ) ;
 		}
@@ -479,8 +489,9 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		metricTransaction.setRunTime(run.getRunTime()); 
 		metricTransaction.setTxnId(eventTxnId); 
 		metricTransaction.setTxnType(eventMapping.getTxnType());   //DATAPOINT, CPU_UTIL, MEMORY .. 
-		metricTransaction.setTxnAverage(tnxAverage); 
 		metricTransaction.setTxnMinimum(txnMinimum); 		      		
+		metricTransaction.setTxnAverage(tnxAverage); 
+		metricTransaction.setTxnMedian(new BigDecimal(-1.0)); 
 		metricTransaction.setTxnMaximum(txnMaximum);
 		metricTransaction.setTxnStdDeviation(new BigDecimal(-1.0));
 
@@ -497,6 +508,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		metricTransaction.setTxnFirst(txnFirst);
 		metricTransaction.setTxnLast(txnLast);
 		metricTransaction.setTxnSum(totalOfValues);		
+		metricTransaction.setTxnDelay(new BigDecimal(0.0));		
 
 		return metricTransaction;
 	}

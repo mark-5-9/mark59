@@ -1,0 +1,9 @@
+RUN	Simulations.GetTrashSimulation	gettrashsimulation	1622677317818	 	6.6.6
+USER	Extra TAB after the REQUEST text to create a custom layout START	1622677319290
+REQUEST			Get trash List	1622677319320	1622677339399	KO	i.n.c.ConnectTimeoutException: connection timed out: les-trash/111.666.17.18:8080
+ERROR	Get Single trash Record: Failed to build request: No attribute named 'randomCSV' is defined 	1622677339405
+USER	Get trash list scenario	END	1622677339411
+USER	Get trash list scenario	START	1622678946466
+REQUEST			Get trash List	1622678946482	1622678946747	OK	 
+REQUEST			Get Single trash Record	1622678946772	1622678946829	OK	 
+USER	Get trash list scenario	END	1622678946862

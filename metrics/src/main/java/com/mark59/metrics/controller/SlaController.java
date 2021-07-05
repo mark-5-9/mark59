@@ -144,15 +144,17 @@ public class SlaController {
 			@ModelAttribute BulkApplicationPassCountsForm bulkApplicationPassCountsForm) {
 	
 		Sla slaKeywithDefaultValues = new Sla();
-		slaKeywithDefaultValues.setApplication(bulkApplicationPassCountsForm.getApplication() );
-		slaKeywithDefaultValues.setIsTxnIgnored(bulkApplicationPassCountsForm.getIsTxnIgnored()  );		
-		slaKeywithDefaultValues.setSla90thResponse(bulkApplicationPassCountsForm.getSla90thResponse()  );
-		slaKeywithDefaultValues.setSla95thResponse(bulkApplicationPassCountsForm.getSla95thResponse()  );
-		slaKeywithDefaultValues.setSla99thResponse(bulkApplicationPassCountsForm.getSla99thResponse()  );
-		slaKeywithDefaultValues.setSlaFailCount(bulkApplicationPassCountsForm.getSlaFailCount() );
-		slaKeywithDefaultValues.setSlaFailPercent(bulkApplicationPassCountsForm.getSlaFailPercent() );
+		slaKeywithDefaultValues.setApplication(bulkApplicationPassCountsForm.getApplication());
+		slaKeywithDefaultValues.setIsTxnIgnored(bulkApplicationPassCountsForm.getIsTxnIgnored());		
+		slaKeywithDefaultValues.setSla90thResponse(bulkApplicationPassCountsForm.getSla90thResponse());
+		slaKeywithDefaultValues.setSla95thResponse(bulkApplicationPassCountsForm.getSla95thResponse());
+		slaKeywithDefaultValues.setSla99thResponse(bulkApplicationPassCountsForm.getSla99thResponse());
+		slaKeywithDefaultValues.setSlaFailCount(bulkApplicationPassCountsForm.getSlaFailCount());
+		slaKeywithDefaultValues.setSlaFailPercent(bulkApplicationPassCountsForm.getSlaFailPercent());
+		slaKeywithDefaultValues.setTxnDelay(bulkApplicationPassCountsForm.getTxnDelay());
 		slaKeywithDefaultValues.setXtraNum(bulkApplicationPassCountsForm.getXtraNum());
-		slaKeywithDefaultValues.setSlaPassCountVariancePercent(bulkApplicationPassCountsForm.getSlaPassCountVariancePercent() );
+		slaKeywithDefaultValues.setXtraInt(bulkApplicationPassCountsForm.getXtraInt());
+		slaKeywithDefaultValues.setSlaPassCountVariancePercent(bulkApplicationPassCountsForm.getSlaPassCountVariancePercent());
 		slaKeywithDefaultValues.setSlaRefUrl(bulkApplicationPassCountsForm.getSlaRefUrl());
 		slaKeywithDefaultValues.setComment("");
 		

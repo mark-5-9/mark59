@@ -18,8 +18,11 @@ package com.mark59.metricsruncheck.run;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,10 +31,14 @@ import org.springframework.context.ApplicationContext;
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.metrics.application.AppConstantsMetrics;
 import com.mark59.metrics.data.beans.DateRangeBean;
+import com.mark59.metrics.data.beans.EventMapping;
 import com.mark59.metrics.data.beans.Run;
+import com.mark59.metrics.data.beans.Sla;
+import com.mark59.metrics.data.beans.TestTransaction;
 import com.mark59.metrics.data.beans.Transaction;
 import com.mark59.metrics.data.eventMapping.dao.EventMappingDAO;
 import com.mark59.metrics.data.run.dao.RunDAO;
+import com.mark59.metrics.data.sla.dao.SlaDAO;
 import com.mark59.metrics.data.testTransactions.dao.TestTransactionsDAO;
 import com.mark59.metrics.data.transaction.dao.TransactionDAO;
 
@@ -45,18 +52,25 @@ public class PerformanceTest {
 	protected TransactionDAO transactionDAO; 	
 	protected TestTransactionsDAO testTransactionsDAO; 	
 	protected EventMappingDAO eventMappingDAO; 
+	protected SlaDAO slaAO; 
 
 	protected Run run = new Run();
+	
 	private List<Transaction> transactionSummariesThisRun;
+	private List<Transaction> metricTransactionSummariesThisRun = new ArrayList<Transaction>();  // currently only used for testing 	
 
+	private Map<String,String> optimizedTxnTypeLookup = new HashMap<String, String>();;
+	private Map<String,EventMapping> txnIdToEventMappingLookup = new HashMap<String, EventMapping>();
 
+	
 	public PerformanceTest(ApplicationContext context, String application, String runReferenceArg) {
 
 		runDAO = (RunDAO)context.getBean("runDAO");
 		transactionDAO = (TransactionDAO)context.getBean("transactionDAO");
 		testTransactionsDAO = (TestTransactionsDAO)context.getBean("testTransactionsDAO");		
 		eventMappingDAO = (EventMappingDAO)context.getBean("eventMappingDAO");	
-		
+		slaAO = (SlaDAO)context.getBean("slaDAO");	
+
 		run.setApplication(application);
 		run.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED );
 		run.setIsRunIgnored("N");
@@ -82,19 +96,21 @@ public class PerformanceTest {
 			Long durationInMinutes = TimeUnit.MILLISECONDS.toMinutes(durationMs);
 			run.setDuration(durationInMinutes.toString());
 			
-			//period is set really just to keep everything to the same format as a default Loadrunner report does
+			// period (local time from/to format) is set really just to keep everything to the same format as a default Loadrunner report does
 			
 			DateFormat formatterSecPrecision = new SimpleDateFormat("yyyyMMddHHmmss");
 			
 			String period = formatterSecPrecision.format(runStartDate).substring(0,8) + "_"
 				 		  + formatterSecPrecision.format(runStartDate).substring(8,14) + " - "
 				 		  + formatterSecPrecision.format(runEndDate).substring(0,8) + "_"
-						  + formatterSecPrecision.format(runEndDate).substring(8,14);	
-			run.setPeriod(period);
+						  + formatterSecPrecision.format(runEndDate).substring(8,14); 
 			
 			System.out.println("\nRun start time set as " + run.getRunTime() + "  [ " + runStartDate 
-				+ ", Timestamp " + runStartTime + " ], with a duration of " + run.getDuration() + " mins,  period of " + run.getPeriod());
+				+ ", Timestamp " + runStartTime + " ] with a duration of " + run.getDuration() + " minutes.");
+			System.out.println("Run period of " + period );			
 			System.out.println("Epoch Range (msec)  " + dateRangeBean.prettyPrint() + "\n"  );		
+			
+			run.setPeriod(period + "<br>" + dateRangeBean.prettyPrint());			
 			
 			// generate the run reference from the run start time, if a reference argument was not passed
 			
@@ -111,13 +127,37 @@ public class PerformanceTest {
 		transactionSummariesThisRun = testTransactionsDAO.extractTransactionResponsesSummary(run.getApplication(), Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() );  
       	for (Transaction transaction : transactionSummariesThisRun) {  // insert a row for each transaction captured 
       		transaction.setRunTime(run.getRunTime());
+      		
+      		Sla sla = slaAO.getSla(run.getApplication(), transaction.getTxnId());
+      		if (sla != null && sla.getTxnDelay() != null ){
+      			transaction.setTxnDelay(sla.getTxnDelay());
+      		}
       		transactionDAO.insert(transaction);
       	}		
 		return transactionSummariesThisRun;
 	}
 	
 	
-	protected DateRangeBean applyTimingRangeFilters(String excludestart, String captureperiod, DateRangeBean dateRangeBean) {
+	protected List<Transaction> storeMetricTransactionSummaries(Run run) {
+		// Creates a list of the names of metric transactions for the run, with their types (bit of an abuse of the 'TestTransaction' bean)  
+		List<TestTransaction> dataSampleTxnkeys = testTransactionsDAO.getUniqueListOfSystemMetricNamesByType(run.getApplication()); 
+		
+		for (TestTransaction dataSampleKey : dataSampleTxnkeys) {
+
+			EventMapping eventMapping = txnIdToEventMappingLookup.get(dataSampleKey.getTxnId());
+			if (eventMapping == null) {
+				throw new RuntimeException("ERROR : No event mapping found for " + dataSampleKey.getTxnId());
+			};
+			Transaction eventTransaction = testTransactionsDAO.extractEventSummaryStats(run.getApplication(), dataSampleKey.getTxnType(), dataSampleKey.getTxnId(), eventMapping);
+			eventTransaction.setRunTime(run.getRunTime());
+			transactionDAO.insert(eventTransaction);
+			metricTransactionSummariesThisRun.add(eventTransaction);
+		} 
+		return metricTransactionSummariesThisRun; 
+	}
+	
+	
+	protected DateRangeBean applyTimeRangeFiltersToTestTransactions(String excludestart, String captureperiod, DateRangeBean dateRangeBean) {
 		
 		DateRangeBean filteredDateRangeBean = new DateRangeBean(dateRangeBean.getRunStartTime(), dateRangeBean.getRunEndTime(), false );
 			
@@ -156,13 +196,105 @@ public class PerformanceTest {
 		return filteredDateRangeBean;
 	}
 	
+	
+	public boolean errorToBeIgnored(String errorMsg, List<String> ignoredErrorsList) {
+		if (StringUtils.isBlank(errorMsg))
+			return false;
+		
+		boolean isErrorToBeIgnored = false;
+		for (String ignoredError : ignoredErrorsList) {
+			if (errorMsg.startsWith(ignoredError)){
+				isErrorToBeIgnored = true;
+			}
+		}
+		return isErrorToBeIgnored;
+	}
+	
 
+	/**
+	 * If an event mapping is found for the given transaction / tool / Database Data type (relating to a a sample line), 
+	 * then the Database Data type for that mapping is returned<br>
+	 * If a event mapping for the sample line is not found, then it is taken to be a TRANSACTION<br>
+	 * TODO: PERFMON / allow for transforms to a TRANSACTION in event mapping<br>
+	 * 
+	 * @param txnId
+	 * @param performanceTool
+	 * @param sampleLineDbDataType -will be a string value of enum Mark59Constants.DatabaseDatatypes (DATAPOINT, CPU_UTIL, MEMORY, TRANSACTION)
+	 * @return txnType -  will be a string value of enum Mark59Constants.DatabaseDatatypes (DATAPOINT, CPU_UTIL, MEMORY, TRANSACTION)
+	 */
+	protected String eventMappingTxnTypeTransform(String txnId, String performanceTool, String sampleLineRawDbDataType) {
+		
+		String eventMappingTxnType = null;
+		String metricSource = performanceTool + "_" + sampleLineRawDbDataType;   // (eg 'Jmeter_CPU_UTIL',  'Jmeter_TRANSACTION' ..)
+		
+		String txnId_MetricSource_Key = txnId + "-" + metricSource; 
+			
+		if (optimizedTxnTypeLookup.get(txnId_MetricSource_Key) != null ){
+			
+			//As we could be processing large files, a Map of type by transaction ids (labels) is held for ids that have already had a lookup on the eventMapping table.  
+			// Done to minimise sql calls - each different label / data type in the jmeter file just gets one lookup to see if it has a match on Event Mapping table.
+			
+			eventMappingTxnType = optimizedTxnTypeLookup.get(txnId_MetricSource_Key);
+			
+		} else {
+			
+			eventMappingTxnType = Mark59Constants.DatabaseTxnTypes.TRANSACTION.name();   
+			
+			EventMapping eventMapping = eventMappingDAO.findAnEventForTxnIdAndSource(txnId, metricSource);
+			
+			if ( eventMapping != null ) {
+				// this not a standard TRANSACTION (it's one of the metric types) - store eventMapping for later use 
+				eventMappingTxnType = eventMapping.getTxnType();
+				txnIdToEventMappingLookup.put(txnId, eventMapping);
+			}
+			optimizedTxnTypeLookup.put(txnId_MetricSource_Key, eventMappingTxnType);
+		}
+		return eventMappingTxnType;
+	}
+
+		
+	/**
+	 * Once all transaction and metrics data has been stored for the run, work out the start and end 
+	 * time for the run.  Start/end times are taken lowest and highest transaction epoch time for the
+	 * application run. 
+	 *  
+	 * The times are actually an approximation, as any time difference between the timestamp and the time
+	 * to take the sample is not considered, nor is any running time before/after the first/last sample.
+	 * 
+	 * NOTE: When this method is called currently assumed the run being processed will have a  
+	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 	  
+	 * 
+	 * @param application
+	 * @return DateRangeBean
+	 */
+	protected DateRangeBean getRunDateRangeUsingTestTransactionalData(String application){
+		Long runStartTime = testTransactionsDAO.getEarliestTimestamp(application);
+		Long runEndTime   = testTransactionsDAO.getLatestTimestamp(application);
+		return new DateRangeBean(runStartTime, runEndTime);
+	}
+
+	
+	/**
+	 * Save off testTransaction data if request, otherwise clean it up at the end of the run.
+	 * @param keeprawresults
+	 */
+	protected void endOfRunCleanupTestTransactions(String keeprawresults) {
+		if (String.valueOf(true).equalsIgnoreCase(keeprawresults)) {
+			testTransactionsDAO.deleteAllForRun(run.getApplication(), run.getRunTime()); // clean up in case of re-run (the data already exists)
+			testTransactionsDAO.updateRunTime(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED, run.getRunTime());
+		} else {
+			testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
+		}
+	}
+		
+	
 	public Run getRunSummary() {
 		return run;
 	}
-	
 	public List<Transaction> getTransactionSummariesThisRun() {
 		return transactionSummariesThisRun;
 	}
-	
+	public List<Transaction> getMetricTransactionSummariesThisRun() {
+		return metricTransactionSummariesThisRun;
+	}
 }

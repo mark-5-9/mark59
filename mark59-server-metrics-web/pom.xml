@@ -12,7 +12,7 @@
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-server-metrics-web</artifactId>
 	<packaging>war</packaging>
-	<version>3.2.0</version>
+	<version>3.3.0</version>
 	<name>mark59-server-metrics-web</name>
 
 	<properties>
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>3.2</version>
+			<version>3.3</version>
 		</dependency>
       
    		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->

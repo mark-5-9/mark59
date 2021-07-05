@@ -40,7 +40,8 @@
  	showHideElementIfCheckboxTicked('useRawSQL1','transactionIdsSQL');
  	setElementReadonlyIfCheckboxTicked('manuallySelectRuns1','chosenRuns');
  	setElementReadonlyIfCheckboxTicked('manuallySelectTxns1','chosenTxns' );
- 	buildHomePageink();
+ 	buildHomePageLink();
+ 	buildTitleHomePageLink();
  	buildSlaDatabaseLink();
  	buildMetricSlaDatabaseLink();
  	buildRunsListLink(); 	 
@@ -53,7 +54,7 @@
 
 <table  id="graphSelectorTable">
 	<tr>
-	  <td class=maroontitle  style="white-space:nowrap">Trend Analysis &nbsp;</td>
+	  <td style="white-space:nowrap"><a class=maroontitle id="titleHomePageLink" href="see_titleHomePageLink_JS">Trend Analysis</a></td>
   	  <td style="white-space:nowrap"><form:select path="appListSelector" items="${appListSelectors}"  class="smallborder" dir="rtl"  onChange="asyncPopulationOfApplicationList()" /></td>
 	  <td style="white-space:nowrap; padding-top: 5px">applications:</td>
  	  <td style="white-space:nowrap"><form:select path="application" items="${applications}"  onChange="resetSelectionFields()" /></td>
@@ -101,7 +102,7 @@
  </tr>	
  <tr>
     <td>	
-    <a id="homePageLink" 			href="see_buildHomePageink_JS"        target="_blank">Home</a> &nbsp; &nbsp; &nbsp;    
+    <a id="homePageLink" 			href="see_buildHomePageLink_JS"       target="_blank">Home</a> &nbsp; &nbsp; &nbsp;    
     <a id="dashboardLink" 			href="dashboard?reqAppListSelector=Active" target="_blank">Application Dashboard </a> &nbsp; &nbsp; &nbsp;
     <a id="slaDatabaseLink" 		href="see_buildSlaDatabaseLink_JS"    target="_blank">Transactional SLAs</a> &nbsp; &nbsp; &nbsp;
     <a id="slaMetricDatabaseLink" 	href="see_buildMetricSlaDatabaseLink" target="_blank">Metric SLAs</a> &nbsp; &nbsp; &nbsp;
@@ -201,7 +202,7 @@
      
       <table>
          <tr> 
-           <td width="15%"><b>v3.2.0</b> </td> <td width="85%"></td> 	
+           <td width="15%"><b>v3.3.0</b> </td> <td width="85%"></td> 	
          </tr> 
 
          <tr> 
@@ -261,9 +262,16 @@
          </tr> 	
 
 	     <tr> 
-           <td width="15%">Failed Sla for Txn Failure Rate Transaction Ids</td> 
+           <td width="15%">Failed Sla for Txn FAIL Percent Transaction Ids</td> 
            <td width="85%"> 
            	<textarea id='trxnIdsWithFailedSlaFailPercentId' style="width:100%;height:50px" >${trxnIdsWithFailedSlaFailPercentId}</textarea> 
+           </td> 	
+         </tr> 	
+
+	     <tr> 
+           <td width="15%">Failed Sla FAIL Count Transaction Ids</td> 
+           <td width="85%"> 
+           	<textarea id='trxnIdsWithFailedSlaFailCount' style="width:100%;height:50px" >${trxnIdsWithFailedSlaFailCount}</textarea> 
            </td> 	
          </tr> 	
 

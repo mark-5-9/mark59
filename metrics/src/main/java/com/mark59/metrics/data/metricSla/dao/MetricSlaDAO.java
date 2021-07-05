@@ -29,8 +29,10 @@ public interface MetricSlaDAO {
 	 public List<MetricSla> getMetricSlaList();
 	 public List<MetricSla> getMetricSlaList(String application);
 	 public List<MetricSla> getMetricSlaList(String application, String metricTxnType);
+	 public List<MetricSla> getMetricSlaList(String application, String metricName, String metricTxnType);
 	 public void updateData(MetricSla metricSla);
 	 public void deleteAllSlasForApplication(String application);
+	 public void deleteData(String application,String metricName, String metricTxnType);
 	 public void deleteData(String application,String metricName, String metricTxnType, String valueDerivation );
 	 public MetricSla getMetricSla(String application,String metricName, String metricTxnType, String valueDerivation);
 	 public List<String> findApplications();

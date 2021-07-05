@@ -29,16 +29,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 
 @Controller
-public class HomeController {
+public class OverviewController {
 	
 	@RequestMapping(value = "/",  method = RequestMethod.GET)
-	public String welcome(Model model, HttpServletRequest request ) {
-
-		
-		return "welcome";
+	public String empty(Model model, HttpServletRequest request ) {
+		return "overview";
 	}	
 
+	@RequestMapping(value = "/overview",  method = RequestMethod.GET)
+	public String overview(Model model, HttpServletRequest request ) {
+		return "overview";
+	}		
 	
+	@RequestMapping(value = "/welcome",  method = RequestMethod.GET)
+	public String welcome(Model model, HttpServletRequest request ) {
+		return "overview";
+	}		
 
-	
+	@RequestMapping(value = "/home",  method = RequestMethod.GET)
+	public String home(Model model, HttpServletRequest request ) {
+		return "overview";
+	}		
+
 }

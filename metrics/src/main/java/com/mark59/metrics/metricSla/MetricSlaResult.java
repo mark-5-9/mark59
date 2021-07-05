@@ -69,6 +69,14 @@ public class MetricSlaResult {
 		this.slaResultType = slaResultType;
 	}
 
-	
-
+	@Override
+	public String toString() {
+		String prettyPrint = "txnId="+txnId
+				+ ", metricTxnType="+metricTxnType
+				+ ", valueDerivation="+valueDerivation
+				+ ", slaResultType="+slaResultType.name()
+				+ ", messageText="+messageText
+				;
+		return prettyPrint;
+	} 
 }

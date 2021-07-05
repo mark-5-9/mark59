@@ -52,7 +52,7 @@ public class MetricSlaController {
 	@RequestMapping("/metricSlaList")
 	public ModelAndView getMetricSlaList(@RequestParam(required=false) String reqApp) {
 		List<String> applicationList = populateApplicationDropdown();
-		if (reqApp == null  && applicationList.size() > 1  ){
+		if (StringUtils.isBlank(reqApp)  && applicationList.size() > 1  ){
 			// when no application request parameter has been sent, take the first application 
 			reqApp = (String)applicationList.get(1);
 		}		

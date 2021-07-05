@@ -35,7 +35,7 @@ public interface TestTransactionsDAO
 
 	public void insertMultiple(List<TestTransaction> testTransactionList);
 
-	public void deleteAllForRun(Run run);
+	public void deleteAllForRun(String application, String runTime);
 	
 	public void deleteAllForApplication(String application);	
 	
@@ -54,6 +54,7 @@ public interface TestTransactionsDAO
 	public Transaction extractEventSummaryStats(String application, String txnType, String dataSampleLablel, EventMapping EventMapping);
 
 	public int filterByTime(Run run, DateRangeBean filteredDateRangeBean);
+
 
 	
 }

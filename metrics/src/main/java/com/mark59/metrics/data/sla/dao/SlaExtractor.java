@@ -51,9 +51,11 @@ public class SlaExtractor implements ResultSetExtractor<Sla> {
 	  sla.setSlaPassCountVariancePercent(resultSet.getBigDecimal(8));
 	  sla.setSlaFailCount(resultSet.getLong(9));
 	  sla.setSlaFailPercent(resultSet.getBigDecimal(10));
-	  sla.setXtraNum(resultSet.getBigDecimal(11));	  
-	  sla.setSlaRefUrl(resultSet.getString(12));
-	  sla.setComment(resultSet.getString(13));
+	  sla.setTxnDelay(resultSet.getBigDecimal(11));	  
+	  sla.setXtraNum(resultSet.getBigDecimal(12));
+	  sla.setXtraInt(resultSet.getLong(13));	  
+	  sla.setSlaRefUrl(resultSet.getString(14));
+	  sla.setComment(resultSet.getString(15));
  
 	  return sla;
 	 }

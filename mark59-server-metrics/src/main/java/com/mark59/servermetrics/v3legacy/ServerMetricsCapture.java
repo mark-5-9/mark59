@@ -71,14 +71,14 @@ public class ServerMetricsCapture extends AbstractJavaSamplerClient {
 	static {
 		Map<String,String> staticMap = new LinkedHashMap<String,String>();
 		staticMap.put("__________________________________________________", "");	
-		staticMap.put("_  THIS JAVA REQUEST IS LEGACY  - DO NOT USE            __", "");	
+		staticMap.put("_THIS JAVA REQUEST IS LEGACY - DO NOT USE -TO BE REMOVED IN THE NEXT RELEASE !!!!_", "");	
 		staticMap.put("_________________________________________________", "");	
 		staticMap.put("_______________ general settings: ________________________", "");	
 		staticMap.put(MONITOR_CPU,				Mark59Constants.TRUE);
 		staticMap.put(MONITOR_MEMORY, 			Mark59Constants.TRUE);
 		staticMap.put(SYSTEM_INFO, 				Mark59Constants.FALSE);
-		staticMap.put("________________ server configuration ____________________ ",
-											      "THIS IS LEGACY AND WILL BE REMOVED IN FUTURE RELEASE.");
+		staticMap.put("______________________ new relic configuration settings : ________",
+					"THIS IS LEGACY AND IS PLANNED TO BE REMOVED IN THE NEXT RELEASE !!!!.");
 		staticMap.put(SERVER_KEY,				"" );
 		staticMap.put(OPERATING_SYSTEM_KEY,		"UNIX|LINUX|WINDOWS" );
 		staticMap.put(USERNAME_KEY, 			"");

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://stackoverflow.com/questions/35232827/spring-boot-test-ignores-logging-level -->
+<!DOCTYPE configuration SYSTEM "logback-test.dtd">
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <logger name="*.myapp" level="error" />
+    <logger name="org.springframework.core " level="error" />
+    <logger name="org.springframework.beans" level="error" />
+    <logger name="org.springframework.context" level="error" />
+    <logger name="org.springframework.transaction" level="error" />
+    <logger name="org.springframework.web" level="error" />
+    <logger name="org.springframework.test" level="error" />
+    <logger name="org.hibernate" level="error" />
+    <logger name="com.zaxxer.hikari.HikariDataSource" level="error" />
+</configuration>

@@ -35,7 +35,9 @@ public class Sla {
 	BigDecimal	slaPassCountVariancePercent;
 	Long		slaFailCount;
 	BigDecimal	slaFailPercent;
-	BigDecimal	xtraNum;	
+	BigDecimal	txnDelay;	
+	BigDecimal	xtraNum;
+	Long		xtraInt;	
 	String		slaRefUrl;
 	String 		comment;	
 	String		slaOriginalTxnId;
@@ -58,7 +60,9 @@ public class Sla {
 		this.slaPassCountVariancePercent = copy.slaPassCountVariancePercent;
 		this.slaFailCount = copy.slaFailCount;
 		this.slaFailPercent = copy.slaFailPercent;
+		this.txnDelay = copy.txnDelay;
 		this.xtraNum = copy.xtraNum;
+		this.xtraInt = copy.xtraInt;
 		this.slaRefUrl = copy.slaRefUrl;
 		this.comment = copy.comment;
 		this.slaOriginalTxnId = copy.slaOriginalTxnId;
@@ -68,7 +72,6 @@ public class Sla {
 	public String getApplication() {
 		return application;
 	}
-
 	public void setApplication(String application) {
 		this.application = application;
 	}
@@ -134,11 +137,24 @@ public class Sla {
 	public void setSlaFailPercent(BigDecimal slaFailPercent) {
 		this.slaFailPercent = slaFailPercent;
 	}
+	public BigDecimal getTxnDelay() {
+		return txnDelay;
+	}
+	public void setTxnDelay(BigDecimal txnDelay) {
+		this.txnDelay = txnDelay;
+	}
 	public BigDecimal getXtraNum() {
 		return xtraNum;
 	}
 	public void setXtraNum(BigDecimal xtraNum) {
 		this.xtraNum = xtraNum;
+	}
+
+	public Long getXtraInt() {
+		return xtraInt;
+	}
+	public void setXtraInt(Long xtraInt) {
+		this.xtraInt = xtraInt;
 	}
 	public String getSlaRefUrl() {
 		return slaRefUrl;

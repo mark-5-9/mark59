@@ -12,7 +12,7 @@
 	
 	<groupId>com.mark59</groupId>
 	<artifactId>metrics</artifactId>
-	<version>3.2.0</version>
+	<version>3.3.0</version>
 	<packaging>war</packaging>
 
 	<name>metrics (Trend Analysis)</name>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>3.2</version>
+			<version>3.3</version>
 		</dependency>
 
 		<!-- Spring Boot related dependencies -->
