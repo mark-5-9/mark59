@@ -17,6 +17,7 @@
 package com.mark59.selenium.corejmeterimpl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -34,6 +35,7 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.AbstractThreadGroup;
 import org.apache.jmeter.util.JMeterUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.PageLoadStrategy;
@@ -83,7 +85,23 @@ import com.mark59.selenium.drivers.SeleniumDriverWrapper;
  * Written: Australian Winter 2019  
  */
 public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamplerClient {
+	
+	static {  // block websocket closed warnings in JMeter   
+		org.apache.logging.log4j.core.config.Configurator.setLevel("org.asynchttpclient.netty.handler", Level.ERROR);
+		org.apache.logging.log4j.core.config.Configurator.setLevel("org.openqa.selenium.remote.http", Level.ERROR);
+		
+		String logConfig = "handlers= java.util.logging.ConsoleHandler\n" + ".level= WARNING\n";
+		logConfig += "java.util.logging.ConsoleHandler.level = WARNING\n";
+		logConfig += "org.openqa.selenium.remote.http.level = SEVERE\n";
+		logConfig += "org.asynchttpclient.netty.handler.level = SEVERE\n";
 
+		try {
+			java.util.logging.LogManager.getLogManager().readConfiguration(new java.io.ByteArrayInputStream(logConfig.getBytes("UTF-8")));
+		} catch (IOException e) {
+			System.err.println("Failed to configure override java.util.logging : " + logConfig + "\nError : " + e.getMessage());
+		}
+	}
+	
 	public static Logger LOG = LogManager.getLogger(SeleniumAbstractJavaSamplerClient.class);	
 
 	protected Arguments jmeterArguments = new Arguments();
@@ -133,7 +151,6 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * Creates the list of parameters with default values, as they would appear on the JMeter GUI for the JavaSampler being implemented.
 	 * <p>A standard set of parameters are defined (defaultArgumentsMap). Additionally,an implementing class (the script extending this class) 
 	 * can add additional parameters (or override the standard defaults) via the additionalTestParameters() method.    
-	 * 
 	 * @see #additionalTestParameters()
 	 * @see org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient
 	 */
@@ -151,10 +168,10 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 
 	
 	/**
-	 * Used to define required parameters for the test and their default values.
-	 * <p>Ultimately used to build a Map of key-value pairs that will be available throughout the 'Mark59' framework
-	 * for whatever customization is required for your test or driver implementation.</p>
-	 * <p>Note: Can be used to override predefined parameters (the defaultArgumentsMap in SeleniumAbstractJavaSamplerClient)</p> 
+	 * Used to define required parameters for the test, or override their default values.
+	 * <p>Internally the values are used to build a Map of parameters that will be available throughout the
+	 *  'Mark59' framework for whatever customization is required for your test, or for the Webdriver implementation.</p>
+	 * <p>Please see link(s) below for more detail.  
 	 * 
 	 * @see SeleniumDriverFactory#makeDriverWrapper(Map)
 	 * @see SeleniumDriverFactory#getDriverBuilderOfType  
@@ -176,7 +193,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
 	 * @see JmeterFunctionsForSeleniumScripts
 	 * 
-	 * @return the updated list of JMeter arguments with any required changes
+	 * @return the updated map of JMeter arguments with any required changes
 	 */
 	protected abstract Map<String, String> additionalTestParameters();
 	

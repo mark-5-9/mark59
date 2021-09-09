@@ -25,12 +25,12 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	
 	@SuppressWarnings("unused")
 	final class TestConstants {
-		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = "/dataHunter/delete_multiple_policies";
-		public static final String COUNT_POLICIES_URL_PATH              = "/dataHunter/count_policies";	
-		public static final String ADD_POLICY_URL_PATH                  = "/dataHunter/add_policy";
-		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = "/dataHunter/print_selected_policies";
-		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = "/dataHunter/count_policies_breakdown";		
-		public static final String NEXT_POLICY_URL_PATH                 = "/dataHunter/next_policy";	
+		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = "/delete_multiple_policies";
+		public static final String COUNT_POLICIES_URL_PATH              = "/count_policies";	
+		public static final String ADD_POLICY_URL_PATH                  = "/add_policy";
+		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = "/print_selected_policies";
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = "/count_policies_breakdown";		
+		public static final String NEXT_POLICY_URL_PATH                 = "/next_policy";	
 		public static final String UNUSED                               = "UNUSED";  
 		public static final String EQUALS                               = "EQUALS";
 		public static final String SELECT_MOST_RECENTLY_ADDED           = "SELECT_MOST_RECENTLY_ADDED";  
@@ -40,7 +40,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	@Override
 	protected Map<String, String> additionalTestParameters() {
 		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<String, String>();
-		jmeterAdditionalParameters.put("DATAHUNTER_URL_HOST_PORT",	"http://localhost:8081");
+		jmeterAdditionalParameters.put("DATAHUNTER_URL",			"http://localhost:8081/dataHunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST_BASIC");
 		jmeterAdditionalParameters.put("USER", 	 "default_user");		
 		jmeterAdditionalParameters.put("DRIVER", "CHROME");
@@ -69,22 +69,22 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		String lifecycle = "thread_" + thread;
 //		System.out.println("Thread " + thread + " is running with LOG level " + LOG.getLevel());
 
-		String dataHunterUrl 	= context.getParameter("DATAHUNTER_URL_HOST_PORT");
+		String dataHunterUrl 	= context.getParameter("DATAHUNTER_URL");
 		String application 		= context.getParameter("DATAHUNTER_APPLICATION_ID");
 		String user 			= context.getParameter("USER");
 
 // 		delete any existing policies for this application/thread combination
 		
-		jm.startTransaction("DH-basic-0001-gotoDeleteMultiplePoliciesUrl");
+		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
 		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
-		jm.endTransaction("DH-basic-0001-gotoDeleteMultiplePoliciesUrl");	
+		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");
 		
 		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);  ; 
 		
-		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");
+		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
 		driver.findElement(By.id("submit")).submit();
 		checkSqlOk(driver.findElement(By.id("sqlResult")));
-		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
+		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	
 //		add a policy 		
 		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + "?application=" + application);
@@ -99,10 +99,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		driver.findElement(By.id("epochtime")).sendKeys(new String(Long.toString(System.currentTimeMillis()))); 
 //		jm.writeScreenshot("add_policy_DH-BASIC-POLICY");
 		
-		jm.startTransaction("DH-lifecycle-0200-addPolicy");
+		jm.startTransaction("DH_lifecycle_0200_addPolicy");
 		driver.findElement(By.id("submit")).submit();
 		checkSqlOk(driver.findElement(By.id("sqlResult")));
-		jm.endTransaction("DH-lifecycle-0200-addPolicy");
+		jm.endTransaction("DH_lifecycle_0200_addPolicy");
 		
 //		set a Data Point		
 		Long rowsAffected = Long.valueOf(driver.findElement(By.id("rowsAffected")).getText());

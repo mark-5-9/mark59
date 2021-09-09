@@ -67,12 +67,21 @@
   	  <td style="white-space:nowrap"><form:input path="maxBaselineRun"   maxlength="5" size="2"  onChange="clearChosenRuns('maxBaselineRun')" /></td>	
  	  <td style="white-space:nowrap; text-align:right">only top<br>txn values</td>
  	  <td style="white-space:nowrap">:</td>
-  	  <td style="white-space:nowrap"><form:input path="nthRankedTxn"   	maxlength="3" size="1" /></td>	  	  
+  	  <td style="white-space:nowrap"><form:input path="nthRankedTxn"   	maxlength="3" size="1" /></td>
+	  <td style="white-space:nowrap" id=cdpDrowdown > 
+	   		<table style="width:100%; border: 0">
+	   		  <tr>
+			 	<td class="novertpadding">show/hide<br>CDP txns</td> 	
+				<td class="novertpadding">:</td>
+				<td class="novertpadding"><form:select path="showCdpOption" items="${showCdpOptions}"/></td>
+	          </tr>
+	        </table>   
+  	  </td>
  	  <td style="white-space:nowrap; text-align:right">display txn<br>names at point</td>
  	  <td style="white-space:nowrap"><form:checkbox path="displayPointText"  onclick="graph3d.redraw();" /></td>
   	  <td style="white-space:nowrap; text-align:right">range<br>bars</td>	  
  	  <td style="white-space:nowrap"><form:checkbox path="displayBarRanges"  onclick="graph3d.redraw();" /></td>
-	  <td width="70%"></td>  
+	  <td width="80%"></td>  
       <td> <input type="button" value="Draw"  onclick="trendingBuildPageLink();trendingLinkGetNewPage();" id="submitDrawLink" class="customButton" > </td>  
 	  <td> <input type="button" value="Table" onclick="showHideElement('comparetab');draw();" id="showCompareBtb" class="customButton" ></td> 
 	  <td> <input type="button" value="Reset" onclick="draw();" id="resetGraph" class="customButton" ></td>  
@@ -123,19 +132,32 @@
 	 <tr>
 		<td><h3>Transaction Display Filters  &nbsp; &nbsp; &nbsp; -  &nbsp; &nbsp; &nbsp; there is minimal validation on the filters, use with care!</h3></td>  
 	 <tr>
-	
-	
+
 	 <tr>
-	 	<td>select txn (SQL like): 	
-		<form:textarea path="sqlSelectLike" class="textarea" style="width:40%;"  />
-		exclude txn ( NOT like ): 
-		<form:textarea path="sqlSelectNotLike" class="textarea" style="width:40%;"  /> 
-	   </td>
+	   <td> 
+	   		<table style="width:100%; text-align:left; border: 0">
+	   		  <tr>	          
+				<td></td>
+				<td colspan=4 style="font-size: 10px" >note: do NOT include the '(CDP)' tag in these 'SQL like' fields. The tag is informational and not part of the transaction name</td>
+	          </tr>	          
+	   		  <tr>
+			 	<td width="4%" style="white-space: nowrap">select txn (SQL like) : </td> 	
+				<td width="45%"><form:textarea path="sqlSelectLike" class="textarea" style="width:98%;" /></td>
+				<td width="4%" style="white-space: nowrap">exclude txn ( NOT like ) : </td>
+				<td width="45%"><form:textarea path="sqlSelectNotLike" class="textarea" style="width:98%;" /></td>
+	 			<td width="2%"></td>  
+	          </tr>
+	        </table> 
+	   </td>	
 	 </tr> 
 
 	 <tr>
 	   <td> 
 	   		<table style="width:100%; text-align:left; border: 0">
+	   		  <tr>	          
+				<td colspan=2></td>
+	   			<td colspan=4 style="font-size: 10px" >note any '(CDP)' tags are information only and simply ignored for manual transaction selection</td> 
+	          </tr>	          
 	   		  <tr>
 				<td width="8%"><div  style='vertical-align:centre;'>Manually Select Txns: </div></td>
 	   	    	<td width="1%"><form:checkbox path="manuallySelectTxns"  onclick="setElementReadonlyIfCheckboxTicked('manuallySelectTxns1','chosenTxns' )"  /></td>  
@@ -159,13 +181,23 @@
 	 <tr>
 
 	 <tr>
-	 	<td>select run date-time (SQL like): 	
-		<form:textarea path="sqlSelectRunLike" class="textarea" style="width:30%;"  />
-		exclude run date-time ( NOT like ): 
-		<form:textarea path="sqlSelectRunNotLike" class="textarea" style="width:30%;"  />
-		note: if entered the date formatting is removed for the DB lookup
-	   </td>
-	 </tr>
+	   <td> 
+	   		<table style="width:100%; text-align:left; border: 0">
+	   		  <tr>	          
+				<td></td>
+				<td colspan=4 style="font-size: 10px" >note that no date formatting is required (only the numerics in the date are needed)</td>
+	          </tr>	          
+	   		  <tr>
+			 	<td width="4%" style="white-space: nowrap">select run date-time (SQL like):</td> 	
+				<td width="45%"><form:textarea path="sqlSelectRunLike" class="textarea" style="width:98%;" /></td>
+				<td width="4%" style="white-space: nowrap">exclude run date-time ( NOT like ):</td>
+				<td width="45%"><form:textarea path="sqlSelectRunNotLike" class="textarea" style="width:98%;" /></td>
+	 			<td width="2%"></td>  
+	          </tr>
+	        </table> 
+	   </td>	
+	 </tr> 
+	 
 	 <tr>
 	   <td>
 	   		<table style="width:100%; text-align:left; border: 0">
@@ -202,7 +234,7 @@
      
       <table>
          <tr> 
-           <td width="15%"><b>v3.3.0</b> </td> <td width="85%"></td> 	
+           <td width="15%"><b>v4.0.0-rc-1</b> </td> <td width="85%"></td> 	
          </tr> 
 
          <tr> 
@@ -326,15 +358,14 @@
  </tr>    
 
 
-
  <tr style="display: none;" >
     <td>
       <h2>Options</h2>
 
       <table>
         <tr><th>Option</th><th>Value</th> </tr>
-        <tr><td>width</td><td><input type="text" id="width" value="100%" /> <span class="info">for example "500px" or "100%"</span></td> </tr>
-        <tr><td>height</td><td><input type="text" id="height" value="100%" /> <span class="info">for example "500px" or "100%"</span></td> </tr>
+        <tr><td>width</td><td><input type="text" id="width" value="100%" /><span class="info">for example "500px" or "100%"</span></td> </tr>
+        <tr><td>height</td><td><input type="text" id="height" value="100%" /><span class="info">for example "500px" or "100%"</span></td> </tr>
         <tr> <td>style</td>
           <td>
           	<select id="style">
@@ -395,7 +426,6 @@
 
 </table>
 
-	
 
 <table>
     <tr style="display: none;" >
@@ -408,14 +438,14 @@
 </form:form>
 
 <table>
-
     <tr style="display: none;" ><td><a id="trendingLink" href="see_trendingBuildPageLink_JS" >Page URL</a>
    	<tr><td><input type="hidden" name="datatype" id="datatypeDatasource" onclick="selectDataType();"  value="datasource"></td></tr>
    	<tr><td><div id="datasource"><input type="hidden" id="datasourceText"></div></td></tr>
    	<tr><td><input type="hidden" id="showHistoricData" value="no" /></td></tr>
    	<tr><td><input type="hidden" id="barRangeLegendId" value="${barRangeLegendId}" /></td></tr>
+   	<tr><td><input type="hidden" id="cdpTxnsCountId"   value="${cdpTxnsCount}" /></td></tr>
    	<tr><td><input type="hidden" id="txnTypedId" 	   value="${txnTypedId}" /></td></tr>
- </table>
+</table>
  	
 </body>
 

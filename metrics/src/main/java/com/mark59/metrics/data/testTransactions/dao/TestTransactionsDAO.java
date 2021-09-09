@@ -31,7 +31,7 @@ import com.mark59.metrics.data.beans.Transaction;
 public interface TestTransactionsDAO 
 {
 	
-	public void insert(TestTransaction testTransaction);
+//	public void insert(TestTransaction testTransaction);
 
 	public void insertMultiple(List<TestTransaction> testTransactionList);
 
@@ -41,17 +41,15 @@ public interface TestTransactionsDAO
 	
 	public void updateRunTime(String application, String originalRunTime, String newRunTime);
 
-	public List<TestTransaction> getUniqueListOfSystemMetricNamesByType(String application);	
-	
-//	public List<String> getTransactionIds(Run run, String txnType);
+	public List<TestTransaction> getUniqueListOfSystemMetricTxnIdsByType(String application);	
 
 	public Long getEarliestTimestamp(String applicationn);	
 	
 	public Long getLatestTimestamp(String applicationn);
 	
-	public List<Transaction> extractTransactionResponsesSummary(String application, String txnType_dataOrTxnSample);
+	public List<Transaction> extractTransactionResponsesSummary(String application, String txnType);
 
-	public Transaction extractEventSummaryStats(String application, String txnType, String dataSampleLablel, EventMapping EventMapping);
+	public Transaction extractEventSummaryStats(String application, String metricTxnType, String txnId, EventMapping EventMapping);
 
 	public int filterByTime(Run run, DateRangeBean filteredDateRangeBean);
 

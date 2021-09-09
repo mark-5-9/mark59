@@ -42,28 +42,28 @@
 
   <div>
     
-   <c:if test="${param.reqErr != ''}">
-		<p style="color:red"><b>${param.reqErr}</b></p> 
+   <c:if test="${map.reqErr != ''}">
+		<p style="color:red"><b>${map.reqErr}</b></p> 
   </c:if>  
     
 
-   <form:form method="post" action="insertMetricSla?reqApp=${reqApp}" modelAttribute="metricSla">
+   <form:form method="post" action="insertMetricSla?reqApp=${map.reqApp}" modelAttribute="metricSla">
     <table>
      <tr>
       <td>Application :</td>
-      <td><form:input path="application"  value="${reqApp}" size="32" maxlength="32" /></td>
+      <td><form:input path="application"  value="${map.reqApp}" size="32" maxlength="32" /></td>
      </tr>
       <tr>
       <td>Metric Name :</td>
-      <td><form:input path="metricName" size="80" maxlength="126"/></td>
+      <td><form:input path="metricName"  size="80" maxlength="126"/></td>
      </tr>
       <tr>
       <td>Metric Type :</td>
-      <td><form:select path="metricTxnType"  items="${metricTypes}" /></td>
+      <td><form:select path="metricTxnType"  items="${map.metricTypes}" /></td>
      </tr>
      <tr>
       <td>Value Derivation :</td>
-      <td><form:select path="valueDerivation"  items="${derivations}" /></td>
+      <td><form:select path="valueDerivation"  items="${map.derivations}" /></td>
      </tr>
      <tr>
       <td>Min Value :</td>
@@ -75,7 +75,7 @@
      </tr>
      <tr>
       <td>Is Active :</td>
-      <td><form:select path="isActive"  items="${isActiveYesNo}" /></td>
+      <td><form:select path="isActive"  items="${map.isActiveYesNo}" /></td>
      </tr>       
      <tr>
       <td>Comment :</td>
@@ -88,13 +88,11 @@
      </tr>
  
      <tr>
-      <td colspan="2"><a href="metricSlaList?reqApp=${reqApp}">Cancel</a></td>
+      <td colspan="2"><a href="metricSlaList?reqApp=${map.reqApp}">Cancel</a></td>
      </tr>
     </table>
    </form:form>
   </div>
-
 </div>
-
 </body>
 </html>

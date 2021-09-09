@@ -106,8 +106,7 @@
   </table>
 
 <input type="hidden" id="passedReqApp" value="${parmsMap.reqApp}" />
-  
-  </div>
+</div>
 
 </body>
 </html>

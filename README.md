@@ -4,6 +4,23 @@
 
 ## Releases 
 
+<p>Release 4.0.0-rc-1<br>
+  <ul>
+    <li>DevTools DSL added (demonstates Selenium 4 capabilities)</li>
+    <li>Dependency library is now required for Selenium projects (due to Selenium 4)</li>
+    <li>Tidy up of demo (txns use underscores, historic data neatened, use of DevTools)</li>
+    <li>Sla, Metric Sla, Events JSPs neatened</li>
+    <li>New transactional datatype of 'CDP' (Chrome DevTool Protocol txns)</li>
+    <li>New Dropdown In Trend Analysis to show/hide CDP txns</li>
+    <li>Selenium's CdpVersionFinder to only print version warning message once</li>
+    <li>Allow for SLA bulk copy of transaction percentiles</li>	
+    <li>Generally improve range of start/end transaction methods</li>
+    <li>Include new 'start DLS transaction' methods</li>	
+    <li>Improve JavaDocs</li>	
+    <li>Version number to emphasize the relationship of this release to Selenium</li>
+  </ul>  
+
+
 <p>Release 3.3.(0) <br>
   <ul>
     <li>Historical capture of Txn (Mocked) Delays and related Graphs</li>
@@ -82,3 +99,5 @@
     <li>Improve Event Selection Ordering<br>
     <li>Fix Transaction Type to a Metric Type Mapping
   </ul>
+
+

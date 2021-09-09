@@ -37,25 +37,26 @@ public class SlaExtractor implements ResultSetExtractor<Sla> {
 	  Sla sla = new Sla();
 	  
 	  sla.setTxnId(resultSet.getString(1));
-	  sla.setApplication(resultSet.getString(2));
+	  sla.setIsCdpTxn(resultSet.getString(2));
+	  sla.setApplication(resultSet.getString(3));
 	  try {
 		sla.setTxnIdURLencoded(URLEncoder.encode(resultSet.getString(1), "UTF-8") ) ;
 	  } catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 	  }	  
-	  sla.setIsTxnIgnored(resultSet.getString(3)) ;	  	  
-	  sla.setSla90thResponse(resultSet.getBigDecimal(4));
-	  sla.setSla95thResponse(resultSet.getBigDecimal(5));
-	  sla.setSla99thResponse(resultSet.getBigDecimal(6));
-	  sla.setSlaPassCount(resultSet.getLong(7));
-	  sla.setSlaPassCountVariancePercent(resultSet.getBigDecimal(8));
-	  sla.setSlaFailCount(resultSet.getLong(9));
-	  sla.setSlaFailPercent(resultSet.getBigDecimal(10));
-	  sla.setTxnDelay(resultSet.getBigDecimal(11));	  
-	  sla.setXtraNum(resultSet.getBigDecimal(12));
-	  sla.setXtraInt(resultSet.getLong(13));	  
-	  sla.setSlaRefUrl(resultSet.getString(14));
-	  sla.setComment(resultSet.getString(15));
+	  sla.setIsTxnIgnored(resultSet.getString(4)) ;	  	  
+	  sla.setSla90thResponse(resultSet.getBigDecimal(5));
+	  sla.setSla95thResponse(resultSet.getBigDecimal(6));
+	  sla.setSla99thResponse(resultSet.getBigDecimal(7));
+	  sla.setSlaPassCount(resultSet.getLong(8));
+	  sla.setSlaPassCountVariancePercent(resultSet.getBigDecimal(9));
+	  sla.setSlaFailCount(resultSet.getLong(10));
+	  sla.setSlaFailPercent(resultSet.getBigDecimal(11));
+	  sla.setTxnDelay(resultSet.getBigDecimal(12));	  
+	  sla.setXtraNum(resultSet.getBigDecimal(13));
+	  sla.setXtraInt(resultSet.getLong(14));	  
+	  sla.setSlaRefUrl(resultSet.getString(15));
+	  sla.setComment(resultSet.getString(16));
  
 	  return sla;
 	 }

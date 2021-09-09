@@ -1,24 +1,16 @@
 
-Warning:  An out-of-date release of ChromeDriver is shipped with Mark59 !
--------------------------------------------------------------------------
+Warning:  The ChromeDriver Releases shipped with Mark59 and the Quick Start Demo 
+-------------------------------------------------------------------------------
 
-Release 2.44 of the Linux and Windows ChromeDrivers are included in the Mark59 'dataHunterPerformanceTestSamples' project.
+The chromeDriver versions shipped with Mark59 may or may not work with the version of Chrome you have installed on your
+machine (for example during testing for Chrome 91/92, it was found there is some leniency in Windows, but Linux always 
+needed the exact matching browser version).
 
-This was a release where a check was NOT included to verify ChromeDriver was compatible with the version of Chrome 
-it is driving.  This version has been used to enable the immediate execution of the Selenium tests against dataHunter in the
-dataHunterPerformanceTestSamples project, particularly when running the start-up DEMO from the mark59-web-server-metrics
-application.  
+Even if you get away with using a slightly outdated chromedriver for the demo, it is HIGHLY RECOMMENDED to update and use a 
+current version of ChromeDriver (the most current version compatible with the Chrome/Chromium browser you are using),
+before doing any serious work with Selenium.
 
-It saves having to ensure the ChromeDriver is compatible with the version of Chrome or Chromium on the machine running the DEMO.
-Google and the ChromeDriver development team are currently updating every month or two, and several ChromeDriver releases
-only work on one version of Chrome.  
-
-Obviously this is really just a bit of a trick, that works mainly due to the fact that dataHunter (the system under test) is
-quite a simple application.  Presumably one day a Chrome release will break the 2.44 ChromeDriver, but anyway it works 
-for now.
-
-So, it is VERY IMPORTANT to update/use a current version of ChromeDriver (the most current version compatible with the Chrome/
-Chromium browser you are using), before doing any serious work with Selenium.
+There are more details in the Mark59 User Guide at a http://mark59.com
                          
 The ChromeDriver download site:  https://chromedriver.chromium.org/downloads
                           

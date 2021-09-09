@@ -42,7 +42,7 @@ function load() {
 	document.getElementById("legendLabel").value = "";
 	document.getElementById("showPerspective").checked = false;			
 
-	draw()
+	draw()   // not necessary? 
 }
 
 
@@ -55,6 +55,7 @@ function draw() {
 	var options = getOptions();
 
 	drawSummaryTable(data, "label");
+	hideCdpDropdownIfNoCdpTxns();
 	
 	graph3d = new vis.Graph3d(document.getElementById('graphdiv'), data, options);
 }
@@ -547,7 +548,6 @@ function drawIgnoredTransactionsTable(data,sortby){
 
 
 function showHistory(data){
-
 	document.getElementById("showHistoricData").value = "yes";
 	drawSummaryTable(data, "label");
 }
@@ -555,7 +555,6 @@ function showHistory(data){
 
 
 function showHideElement(id){
-
 	var showHideElement = document.getElementById(id);
 
 	if(showHideElement.style.display == 'block') {
@@ -591,11 +590,24 @@ function setElementReadonlyIfCheckboxTicked(checkboxId, id){
 }
 
 
+function hideCdpDropdownIfNoCdpTxns(){
+	// If any cdp txns exist all for this application, or the graph is blank ("No data available to Graph" - 
+	// maybe because he made a duff choice like 'CDP-ONLY' on the DCP selector) display the CDP selector.
+	// Otherwise hide it.
+
+	var cdpTxnsCount = document.getElementById('cdpTxnsCountId').value;
+	var cdpDrowdown  = document.getElementById('cdpDrowdown');
+
+	if( cdpTxnsCount > 0 || data.length == 0 ){ 
+		cdpDrowdown.style.display = 'block';
+	} else {
+		cdpDrowdown.style.display = 'none';
+	}	
+}
+
+
 function isInArray(value, array) {
-	
-	var foundInArray = false;
 	var arrayLength = array.length;
-	
 	for (var i =0; i < arrayLength; i++ ){
 		if (array[i] == value) {
 			return true;
@@ -711,6 +723,7 @@ function trendingBuildPageLink() {
 		+ reqAppListSelectorParm
 		+ "&reqMaxRun=" 			+ document.getElementById("maxRun").value
 		+ "&reqMaxBaselineRun=" 	+ document.getElementById("maxBaselineRun").value
+		+ "&reqShowCdpOption=" 		+ document.getElementById("showCdpOption").value		
 		
 	document.getElementById('trendingLink').href = url;
 }

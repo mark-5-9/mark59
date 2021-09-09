@@ -128,7 +128,7 @@ public class PerformanceTest {
       	for (Transaction transaction : transactionSummariesThisRun) {  // insert a row for each transaction captured 
       		transaction.setRunTime(run.getRunTime());
       		
-      		Sla sla = slaAO.getSla(run.getApplication(), transaction.getTxnId());
+      		Sla sla = slaAO.getSla(run.getApplication(), transaction.getTxnId(), transaction.getIsCdpTxn());
       		if (sla != null && sla.getTxnDelay() != null ){
       			transaction.setTxnDelay(sla.getTxnDelay());
       		}
@@ -140,15 +140,15 @@ public class PerformanceTest {
 	
 	protected List<Transaction> storeMetricTransactionSummaries(Run run) {
 		// Creates a list of the names of metric transactions for the run, with their types (bit of an abuse of the 'TestTransaction' bean)  
-		List<TestTransaction> dataSampleTxnkeys = testTransactionsDAO.getUniqueListOfSystemMetricNamesByType(run.getApplication()); 
+		List<TestTransaction> metricTypeAndTxnIds = testTransactionsDAO.getUniqueListOfSystemMetricTxnIdsByType(run.getApplication()); 
 		
-		for (TestTransaction dataSampleKey : dataSampleTxnkeys) {
+		for (TestTransaction metricTypeAndTxnId : metricTypeAndTxnIds) {
 
-			EventMapping eventMapping = txnIdToEventMappingLookup.get(dataSampleKey.getTxnId());
+			EventMapping eventMapping = txnIdToEventMappingLookup.get(metricTypeAndTxnId.getTxnId());
 			if (eventMapping == null) {
-				throw new RuntimeException("ERROR : No event mapping found for " + dataSampleKey.getTxnId());
+				throw new RuntimeException("ERROR : No event mapping found for " + metricTypeAndTxnId.getTxnId());
 			};
-			Transaction eventTransaction = testTransactionsDAO.extractEventSummaryStats(run.getApplication(), dataSampleKey.getTxnType(), dataSampleKey.getTxnId(), eventMapping);
+			Transaction eventTransaction = testTransactionsDAO.extractEventSummaryStats(run.getApplication(), metricTypeAndTxnId.getTxnType(), metricTypeAndTxnId.getTxnId(), eventMapping);
 			eventTransaction.setRunTime(run.getRunTime());
 			transactionDAO.insert(eventTransaction);
 			metricTransactionSummariesThisRun.add(eventTransaction);
@@ -213,9 +213,9 @@ public class PerformanceTest {
 
 	/**
 	 * If an event mapping is found for the given transaction / tool / Database Data type (relating to a a sample line), 
-	 * then the Database Data type for that mapping is returned<br>
+	 * then the Database Data type for that mapping is returned (CDP flag is not taken into consideration)<br>
 	 * If a event mapping for the sample line is not found, then it is taken to be a TRANSACTION<br>
-	 * TODO: PERFMON / allow for transforms to a TRANSACTION in event mapping<br>
+	 * TODO: PERFMON - allow for transforms to a TRANSACTION in event mapping (catering for CDP would be needed)<br>
 	 * 
 	 * @param txnId
 	 * @param performanceTool
@@ -231,7 +231,7 @@ public class PerformanceTest {
 			
 		if (optimizedTxnTypeLookup.get(txnId_MetricSource_Key) != null ){
 			
-			//As we could be processing large files, a Map of type by transaction ids (labels) is held for ids that have already had a lookup on the eventMapping table.  
+			// As we could be processing large files, a Map of type by transaction ids (labels) is held for ids that have already had a lookup on the eventMapping table.  
 			// Done to minimise sql calls - each different label / data type in the jmeter file just gets one lookup to see if it has a match on Event Mapping table.
 			
 			eventMappingTxnType = optimizedTxnTypeLookup.get(txnId_MetricSource_Key);

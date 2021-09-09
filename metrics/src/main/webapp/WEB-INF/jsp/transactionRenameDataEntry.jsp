@@ -50,17 +50,29 @@
      <tr>
       <td>Transaction Type</td><td>:</td><td> ${transactionRenameForm.txnType} </td>
      </tr>
+     
      <tr>
-      <td>Current Transaction Id</td><td>:</td><td> ${transactionRenameForm.fromTxnId} </td>
+      <td>From Transaction Id</td><td>:</td><td> ${transactionRenameForm.fromTxnId} </td>
      </tr>       
-         
      <tr>
-      <td>New Transaction Id</td><td>:</td>
+      <td>To Transaction Id</td><td>:</td>
       <td><form:input path="toTxnId" value="${transactionRenameForm.toTxnId}"  size="100" />
       </td>
      </tr> 
           
-             
+     <c:if test = "${transactionRenameForm.txnType == 'TRANSACTION'}">
+	     <tr>
+	      <td>From CDP txn</td><td>:</td><td> ${transactionRenameForm.fromIsCdpTxn} </td>
+	     </tr>          
+	     <tr>
+	      <td>To CDP txn</td><td>:</td>
+	      <td><form:select path="toIsCdpTxn" items="${map.isCdpTxnYesNo}" value="${transactionRenameForm.toIsCdpTxn}" /> </td>
+	     </tr> 
+     </c:if>	
+     <c:if test = "${transactionRenameForm.txnType != 'TRANSACTION'}">
+	     <tr><form:hidden path="toIsCdpTxn" value="${transactionRenameForm.fromIsCdpTxn}" /></tr> 
+     </c:if>	              
+     
      <tr>
       <td></td><td></td>
       <td><input type="submit" value="Validate" /></td>
@@ -74,6 +86,7 @@
     <form:hidden path="application" />
     <form:hidden path="txnType" />
     <form:hidden path="fromTxnId" />
+    <form:hidden path="fromIsCdpTxn" />    
    </form:form>
   </div>
 

@@ -32,12 +32,11 @@ import org.openqa.selenium.support.ui.Select;
 
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
+import com.mark59.core.utils.SafeSleep;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
 import com.mark59.selenium.corejmeterimpl.KeepBrowserOpen;
 import com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient;
 import com.mark59.selenium.drivers.SeleniumDriverFactory;
-
-//import com.mark59.selenium.corejmeterimpl.Mark59LogLevels;
 
 /**
  * This selenium test provides a basic example of the Mark59 framework usage. It contains no 'DSL' classes etc, so that you can see the basics within the script.
@@ -65,7 +64,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 	@Override
 	protected Map<String, String> additionalTestParameters() {
 		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<String, String>();
-		jmeterAdditionalParameters.put("DATAHUNTER_URL_HOST_PORT",	"http://localhost:8081");
+		jmeterAdditionalParameters.put("DATAHUNTER_URL",			"http://localhost:8081/dataHunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST_BASIC");
 		jmeterAdditionalParameters.put("USER", 	 "default_user");		
 		jmeterAdditionalParameters.put("DRIVER", "CHROME");
@@ -83,34 +82,39 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 	@Override
 	protected void runSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,  WebDriver driver) {
 		
+//      // import com.mark59.selenium.corejmeterimpl.Mark59LogLevels;;		
 //		jm.logScreenshotsAtStartOfTransactions(Mark59LogLevels.WRITE);
 //		jm.logScreenshotsAtEndOfTransactions(Mark59LogLevels.WRITE);
 //		jm.logPageSourceAtStartOfTransactions(Mark59LogLevels.WRITE);		
 //		jm.logPageSourceAtEndOfTransactions(Mark59LogLevels.WRITE );
 //		jm.logPerformanceLogAtEndOfTransactions(Mark59LogLevels.WRITE);
-		// you need to use jm.writeBufferedArtifacts to output BUFFERed data (see end of this method)  		
-//		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.BUFFER);		
+//		// you need to use jm.writeBufferedArtifacts to output BUFFERed data (see end of this method)		
+//		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.BUFFER);
 
 		String thread = Thread.currentThread().getName();
 		String lifecycle = "thread_" + thread;
 //		System.out.println("Thread " + thread + " is running with LOG level " + LOG.getLevel());
-
-		String dataHunterUrl 	= context.getParameter("DATAHUNTER_URL_HOST_PORT");
+		
+		// Start browser to cater for initial launch time 
+		driver.get("chrome://version/");
+		SafeSleep.sleep(1000);
+		
+		String dataHunterUrl 	= context.getParameter("DATAHUNTER_URL");
 		String application 		= context.getParameter("DATAHUNTER_APPLICATION_ID");
 		String user 			= context.getParameter("USER");
 
 // 		delete any existing policies for this application/thread combination
 		
-		jm.startTransaction("DH-basic-0001-gotoDeleteMultiplePoliciesUrl");
+		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
 		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
-		jm.endTransaction("DH-basic-0001-gotoDeleteMultiplePoliciesUrl");	
+		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");
 		
 		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);  ; 
 		
-		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");
+		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
 		driver.findElement(By.id("submit")).submit();
 		checkSqlOk(driver.findElement(By.id("sqlResult")));
-		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
+		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	
 //		add a policy 		
 		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + "?application=" + application);
@@ -125,10 +129,10 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		driver.findElement(By.id("epochtime")).sendKeys(new String(Long.toString(System.currentTimeMillis()))); 
 //		jm.writeScreenshot("add_policy_DH-BASIC-POLICY");
 		
-		jm.startTransaction("DH-lifecycle-0200-addPolicy");
+		jm.startTransaction("DH_lifecycle_0200_addPolicy");
 		driver.findElement(By.id("submit")).submit();
 		checkSqlOk(driver.findElement(By.id("sqlResult")));
-		jm.endTransaction("DH-lifecycle-0200-addPolicy");
+		jm.endTransaction("DH_lifecycle_0200_addPolicy");
 		
 //		set a Data Point		
 		Long rowsAffected = Long.valueOf(driver.findElement(By.id("rowsAffected")).getText());
@@ -139,7 +143,6 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		
 //		jm.writeBufferedArtifacts();
 	}
-
 	
 
 	private void checkSqlOk(WebElement sqlResultWebElement) {
@@ -148,7 +151,6 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 			throw new RuntimeException("SQL issue (" + sqlResultText + ")");   
 		}
 	}
-	
 
 	
 	/**
@@ -176,6 +178,5 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 //		threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "true"));		
 //		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters);
 	}
-
 		
 }

@@ -19,6 +19,7 @@ package com.mark59.metrics.data.sla.dao;
 import java.util.List;
 
 import com.mark59.metrics.data.beans.Sla;
+import com.mark59.metrics.form.BulkApplicationPassCountsForm;
 
 /**
  * @author Philip Webb
@@ -26,14 +27,14 @@ import com.mark59.metrics.data.beans.Sla;
  */
 public interface SlaDAO {
 	 public void insertData(Sla sla);
-	 public int bulkInsertOrUpdateApplication(String application,	Sla slaKeywithDefaultValues, String applyRefUrlOption);
+	 public int bulkInsertOrUpdateApplication(BulkApplicationPassCountsForm bulkApplication);
 	 public List<Sla> getSlaList();
 	 public List<Sla> getSlaList(String application);
 	 public void updateData(Sla sla);
 	 public void deleteAllSlasForApplication(String application);
-	 public void deleteData(String application,String txnId);
-	 public Sla getSla(String application, String txnId);
+	 public void deleteData(String application, String txnId, String isCdpTxn);
+	 public Sla getSla(String application, String txnId, String isCdpTxn);
 	 public List<String> findApplications();
-	 public List<String> getSlasWithMissingTxnsInThisRun(String application, String runTime);
-	 public List<String> getListOfIgnoredTransactionsSQL(String application);
+	 public List<String> getSlasWithMissingTxnsInThisRunCdpTags(String application, String runTime);
+	 public List<String> getListOfIgnoredTransactionsCdpTags(String application);
 }

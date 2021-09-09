@@ -36,7 +36,6 @@
 	function resendMetricSlaListURL(){
 
 		var selectedApplication = document.getElementById("application").value;
-		//alert("selectedApplication=<" + selectedApplication + ">"); 
 		window.location.href = 	"./metricSlaList?reqApp=" + selectedApplication;
 	}	
 	
@@ -60,7 +59,6 @@
 
 <div align="right">
    <p><b>SLA Bulk Edit Functions:</b></p>
-   <input type="hidden" id="passedReqApp" value="${map.reqApp}" />
    <p>
    <c:if test="${map.reqApp != null && map.reqApp != ''}"><a href="copyApplicationMetricSla?reqApp=${map.reqApp}">[ Copy All ${map.reqApp} ]</a>&nbsp;&nbsp;</c:if>
    <c:if test="${map.reqApp != null && map.reqApp != ''}"><a href="deleteApplicationMetricSla?reqApp=${map.reqApp}"  onclick="return confirm('Are you sure (applicaton=${map.reqApp})?');" >[ Delete All ${map.reqApp} ]</a>&nbsp;&nbsp;</c:if>
@@ -99,8 +97,6 @@
     </tr>
    </c:forEach>
   </table>
-
- 
   <input type="hidden" id="passedReqApp" value="${map.reqApp}" />
   
   </div>

@@ -29,6 +29,7 @@ public class Transaction {
 	String		runTime;
 	String		txnId;
 	String		txnType;
+	String		isCdpTxn;
 	BigDecimal	txnMinimum;
 	BigDecimal	txnAverage;
 	BigDecimal	txnMedian;
@@ -45,6 +46,34 @@ public class Transaction {
 	BigDecimal	txnSum;	
 	BigDecimal	txnDelay;	
 	String		txnIdURLencoded;
+
+	
+	public Transaction() {
+	}
+
+	public Transaction(Transaction transaction) {
+		this.application = transaction.application;
+		this.runTime = transaction.runTime;
+		this.txnId = transaction.txnId;
+		this.txnType = transaction.txnType;
+		this.isCdpTxn = transaction.isCdpTxn;
+		this.txnMinimum = transaction.txnMinimum;
+		this.txnAverage = transaction.txnAverage;
+		this.txnMedian = transaction.txnMedian;
+		this.txnMaximum = transaction.txnMaximum;
+		this.txnStdDeviation = transaction.txnStdDeviation;
+		this.txn90th = transaction.txn90th;
+		this.txn95th = transaction.txn95th;
+		this.txn99th = transaction.txn99th;
+		this.txnPass = transaction.txnPass;
+		this.txnFail = transaction.txnFail;
+		this.txnStop = transaction.txnStop;
+		this.txnFirst = transaction.txnFirst;
+		this.txnLast = transaction.txnLast;
+		this.txnSum = transaction.txnSum;
+		this.txnDelay = transaction.txnDelay;
+		this.txnIdURLencoded = transaction.txnIdURLencoded;		
+	}
 
 	
 	public String getApplication() {
@@ -70,6 +99,12 @@ public class Transaction {
 	}
 	public void setTxnType(String txnType) {
 		this.txnType = txnType;
+	}
+	public String getIsCdpTxn() {
+		return isCdpTxn;
+	}
+	public void setIsCdpTxn(String isCdpTxn) {
+		this.isCdpTxn = isCdpTxn;
 	}
 	public BigDecimal getTxnMinimum() {
 		return txnMinimum;
@@ -175,6 +210,7 @@ public class Transaction {
 				+ ", runTime="+runTime
 				+ ", txnId="+txnId
 				+ ", txnType="+txnType
+				+ ", isCdpTxn="+isCdpTxn
 				+ ", txnMinimum="+txnMinimum
 				+ ", txnAverage="+txnAverage
 				+ ", txnMedian="+txnMedian

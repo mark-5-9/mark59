@@ -20,6 +20,7 @@ package com.mark59.metrics.sla;
  * @author Philip Webb
  * Written: Australian Winter 2019  
  */
+@Deprecated
 public class SlaUtilities {
 	
 	public static String listOfIgnoredTransactionsSQL(String application) {

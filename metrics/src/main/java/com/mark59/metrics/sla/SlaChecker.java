@@ -21,6 +21,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mark59.metrics.application.AppConstantsMetrics;
 import com.mark59.metrics.data.beans.Sla;
 import com.mark59.metrics.data.beans.Transaction;
 import com.mark59.metrics.data.sla.dao.SlaDAO;
@@ -32,37 +33,35 @@ import com.mark59.metrics.data.sla.dao.SlaDAO;
 public class SlaChecker {
 
 
-	public List<SlaTransactionResult> listTransactionsWithFailedSlas(String application, List<Transaction> transactions, SlaDAO slaDAO) {
+	public List<SlaTransactionResult> listCdpTaggedTransactionsWithFailedSlas(String application, List<Transaction> selectedUntaggedTransactions, SlaDAO slaDAO) {
 		
-		List<SlaTransactionResult> transactionsWithFailedSlas = new ArrayList<SlaTransactionResult>();
+		List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas = new ArrayList<SlaTransactionResult>();
 
-		for (Transaction transaction : transactions) {
-			Sla transactionSla = slaDAO.getSla(application, transaction.getTxnId());
-			SlaTransactionResult slaTransactionResult = this.checkIfTransactionMeetDatabaseSLA(transaction, transactionSla);	
+		for (Transaction transaction : selectedUntaggedTransactions) {
+			Sla transactionSla = slaDAO.getSla(application, transaction.getTxnId(), transaction.getIsCdpTxn() );
+			SlaTransactionResult slaTransactionResult = checkIfTransactionMeetDatabaseSLA(transaction, transactionSla);	
 			
 			if (!slaTransactionResult.isPassedAllSlas()){
-				transactionsWithFailedSlas.add(slaTransactionResult);
+				if ("Y".equalsIgnoreCase(transaction.getIsCdpTxn())){
+					slaTransactionResult.setTxnId(transaction.getTxnId() + AppConstantsMetrics.CDP_TAG); 
+				}
+				cdpTaggedTransactionsWithFailedSlas.add(slaTransactionResult);
 			}
 		}
-		return transactionsWithFailedSlas;
+		return cdpTaggedTransactionsWithFailedSlas;
 	}	
-	
 
 	
 	public List<String> checkForMissingTransactionsWithDatabaseSLAs(String application, String runTime, SlaDAO slaDAO) {
-
-		List<String> slasWithMissingTxns = slaDAO.getSlasWithMissingTxnsInThisRun(application, runTime  );		
-		return slasWithMissingTxns;
+		List<String> cdpTaggedMissingTransactions = slaDAO.getSlasWithMissingTxnsInThisRunCdpTags(application, runTime  );		
+		return cdpTaggedMissingTransactions;
 	}
 	
-	
-	
-	
 
-	public SlaTransactionResult checkIfTransactionMeetDatabaseSLA(Transaction transaction, Sla transactionSla) {
+	private SlaTransactionResult checkIfTransactionMeetDatabaseSLA(Transaction transaction, Sla transactionSla) {
 		
 		SlaTransactionResult slaTransactionResult = new SlaTransactionResult();
-		slaTransactionResult.setTxnId(transaction.getTxnId() );
+		slaTransactionResult.setTxnId(transaction.getTxnId()); //only for debug
 		
 		if ( transactionSla  != null ){
 			slaTransactionResult.setFoundSLAforTxnId(true);
@@ -132,7 +131,6 @@ public class SlaChecker {
 		return passThisSla;
 	}
 
-
 	
 	private BigDecimal calculateTxnFailurePercent(Transaction transaction) {
 		double txnFailurePercentDbl = 0;
@@ -157,7 +155,8 @@ public class SlaChecker {
 		}
 		return passThisSla;
 	}	
-	
+
+
 	private Boolean checkFailCount(String txnId, long txnFailCount, long slaFailCount) {
 		boolean passThisSla = true;
 		if ( slaFailCount > -1 ) {   	// note that 0 can be set as a Fail Count (implies that if this txn exists, any txn failure means a SLA failure will occur)   

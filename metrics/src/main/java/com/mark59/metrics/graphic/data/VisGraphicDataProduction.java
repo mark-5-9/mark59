@@ -59,9 +59,11 @@ public class VisGraphicDataProduction  implements VisGraphicDataProductionInterf
    * @param orderedTxnsToGraphIdList transaction ids to graph - ordering is not important  
    * @return data points being graphed 
    */
-public String createDataPoints(String application, GraphMapping graphMapping, String runDatesToGraph, List<String> orderedTxnsToGraphIdList){	  
+public String createDataPoints(String application, GraphMapping graphMapping, String runDatesToGraph, 
+		List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph, List<String> listOfCdpTaggedTransactionNamesToGraph){	 
 
-	ArrayList<Object[]> graphDataRows = generateDataPointCoordinates(application, graphMapping.getGraph(), runDatesToGraph, orderedTxnsToGraphIdList);
+	ArrayList<Object[]> graphDataRows = generateDataPointCoordinates(application, graphMapping.getGraph(), runDatesToGraph, 
+			listOfStdTransactionNamesToGraph, listOfCdpTransactionNamesToGraph, listOfCdpTaggedTransactionNamesToGraph);
 
 	StringBuilder graphDataPoints = new StringBuilder();
 	
@@ -87,7 +89,8 @@ public String createDataPoints(String application, GraphMapping graphMapping, St
 
   
 
-  private ArrayList<Object[]> generateDataPointCoordinates(String application, String graph, String runDatesToGraph, List<String> orderedTxnsToGraphIdList){
+  private ArrayList<Object[]> generateDataPointCoordinates(String application, String graph, String runDatesToGraph,
+		  List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph, List<String> listOfCdpTaggedTransactionNamesToGraph){
 
 	ArrayList<String> masterRunsList  =  new ArrayList<String>(UtilsMetrics.commaDelimStringToStringList(runDatesToGraph));
 	ArrayList<String> missingRunsList =  new ArrayList<String>(UtilsMetrics.commaDelimStringToStringList(runDatesToGraph));	
@@ -95,7 +98,8 @@ public String createDataPoints(String application, GraphMapping graphMapping, St
 	ArrayList<Datapoint> datapoints   = new ArrayList<Datapoint>();
 
 	if (masterRunsList.size() > 0 ) {
-		datapoints = (ArrayList<Datapoint>)transactionDAO.findDatapointsToGraph(application, graph, runDatesToGraph, orderedTxnsToGraphIdList);
+		datapoints = (ArrayList<Datapoint>)transactionDAO.findDatapointsToGraph(application, graph, runDatesToGraph,
+				listOfStdTransactionNamesToGraph, listOfCdpTransactionNamesToGraph);
 	}
 //	System.out.println("orderedTxnsToGraphIdList : " + orderedTxnsToGraphIdList );
 //	System.out.println("datapoints : " + datapoints);
@@ -137,7 +141,7 @@ public String createDataPoints(String application, GraphMapping graphMapping, St
 //			System.out.println("change of run from " + previousRunTime + " to " + runTime);
 			
 			/* need to allow for non-existence of txns on the (prev) run that where at the end of the master txn list (i.e. the LHS of the graph) */
-			while (masterTxnsIndex < orderedTxnsToGraphIdList.size() && !(previousRunTime == null)){
+			while (masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size() && !(previousRunTime == null)){
 //				System.out.println("!! about to mark missed txns (on the lhs of graph) for " + orderedTxnsToGraphIdList.get(masterTxnsIndex) );
 				dataRows.add(new Object[]{dateX, masterTxnsIndex, -1});
 				
@@ -154,17 +158,17 @@ public String createDataPoints(String application, GraphMapping graphMapping, St
 		}
 		
 
-		if (!(masterTxnsIndex >= orderedTxnsToGraphIdList.size())) {
+		if (!(masterTxnsIndex >= listOfCdpTaggedTransactionNamesToGraph.size())) {
 //				System.out.println(" at : txnId =  " + txnId + ", trxnMasterIndex=" + masterTxnsIndex + ", masterTxnIdList=" + orderedTxnsToGraphIdList.get(masterTxnsIndex));
 		}
 		
-		if (masterTxnsIndex >= orderedTxnsToGraphIdList.size()) {
+		if (masterTxnsIndex >= listOfCdpTaggedTransactionNamesToGraph.size()) {
 
 			/* we have gone thru all the master txn list .. so any more* txns in this run should be skipped */
 			
 //				System.out.println(" !! at end of master list, skipping " + txnId);
 
-		} else if (orderedTxnsToGraphIdList.get(masterTxnsIndex).compareTo(txnId) < 0) {
+		} else if (listOfCdpTaggedTransactionNamesToGraph.get(masterTxnsIndex).compareTo(txnId) < 0) {
 
 			/* implies a transaction(s) in the master txn list (those txns to be displayed on X axis) was not in this run.  Mark with neg number.
 			 * See notes in TransactionDAOjdbcTemplateImpl.returnListOfSelectedTransactionIds(..) re ordering. */
@@ -176,7 +180,7 @@ public String createDataPoints(String application, GraphMapping graphMapping, St
 			skipGetNext = true;
 			masterTxnsIndex++;
 
-		} else if (orderedTxnsToGraphIdList.get(masterTxnsIndex).compareTo(txnId) > 0) {
+		} else if (listOfCdpTaggedTransactionNamesToGraph.get(masterTxnsIndex).compareTo(txnId) > 0) {
 
 	  		/* implies a transaction that is in this run does not exist in the master list (those txns to be displayed on X axis) ... skip over it */
 //		  		System.out.println("!! skipping " + txnId + " (at master list element " + orderedTxnsToGraphIdList.get(masterTxnsIndex) + ")" ); 					
@@ -209,7 +213,7 @@ public String createDataPoints(String application, GraphMapping graphMapping, St
 	} // end loop stillGotDataToProcess
 	
 	/* Need to allow for non-existence of txns on the earliest run that were at the end of the master txn list (i.e. at the back LHS of the graph) */
-	while (masterTxnsIndex < orderedTxnsToGraphIdList.size() && !(previousRunTime == null)){
+	while (masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size() && !(previousRunTime == null)){
 //		System.out.println("!! about to mark missed txns for the earliest run (on the lhs of graph) for " + orderedTxnsToGraphIdList.get(masterTxnsIndex) );
 		dataRows.add(new Object[]{dateX, masterTxnsIndex, -1});				
 		masterTxnsIndex++;					
@@ -218,7 +222,7 @@ public String createDataPoints(String application, GraphMapping graphMapping, St
 	/* Finally, for runs that had no datapoints, mark all transactions as missing for the run */
 	for (String missingRunTime : missingRunsList) {
 		int missingRunIndex = masterRunsList.indexOf(missingRunTime);  
-		for (masterTxnsIndex = 0; masterTxnsIndex < orderedTxnsToGraphIdList.size(); masterTxnsIndex++) {
+		for (masterTxnsIndex = 0; masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size(); masterTxnsIndex++) {
 //			System.out.println( " adding missing run : " + missingRunIndex + ", " + masterTxnsIndex + ", -1" ) ;						
 			dataRows.add(new Object[]{missingRunIndex, masterTxnsIndex, -1});				
 		}

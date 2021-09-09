@@ -24,6 +24,7 @@ public class TrendingForm {
 	
 	private String  application;
 	private String  graph;
+	private String  showCdpOption;
 	private String  sqlSelectLike;
 	private String  sqlSelectNotLike;
 	private boolean manuallySelectTxns;
@@ -58,6 +59,14 @@ public class TrendingForm {
 
 	public void setGraph(String graph) {
 		this.graph = graph;
+	}
+
+	public String getShowCdpOption() {
+		return showCdpOption;
+	}
+
+	public void setShowCdpOption(String showCdpOption) {
+		this.showCdpOption = showCdpOption;
 	}
 
 	public String getSqlSelectLike() {
@@ -209,6 +218,7 @@ public class TrendingForm {
 		return "TrendingForm: "
 				+ " application="+application 
 				+ " metric="+graph 
+				+ " showCdpOption="+showCdpOption 
 				+ " sqlSelectLike="+sqlSelectLike 
 				+ " sqlSelectNotLike="+sqlSelectNotLike 
 				+ " manuallySelectTxns="+manuallySelectTxns 

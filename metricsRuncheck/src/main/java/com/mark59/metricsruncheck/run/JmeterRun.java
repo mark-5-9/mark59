@@ -85,7 +85,7 @@ public class JmeterRun extends PerformanceTest  {
 
 	private void loadTestTransactionAllDataFromJmeterFiles(String application, String inputdirectory, String ignoredErrors) {
 		int sampleCount = 0;
-		File[] jmeterResultsDirFiles = new File(inputdirectory).listFiles();;
+		File[] jmeterResultsDirFiles = new File(inputdirectory).listFiles();
 		
 		if (jmeterResultsDirFiles == null){ 
 			System.out.println("\n   Error : unable to access input directory '" + inputdirectory + "' files (is the directory missing or inaccesible?)\n");
@@ -273,10 +273,15 @@ public class JmeterRun extends PerformanceTest  {
 	private TestTransaction extractTransactionFromJmeterXMLfile(String jmeterFileLine) {
 		TestTransaction testTransaction = new TestTransaction();
 		testTransaction.setTxnId(StringUtils.substringBetween(jmeterFileLine, " lb=\"", "\""));
-		
-		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype(StringUtils.substringBetween(jmeterFileLine, " dt=\"", "\""));
-		
+
+		String jmeterFileDatatype = StringUtils.substringBetween(jmeterFileLine, " dt=\"", "\"");
+		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype(jmeterFileDatatype);
 		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.JMETER, sampleLineRawDbTxnType));
+		
+		testTransaction.setIsCdpTxn("N"); 
+		if (JMeterFileDatatypes.CDP.name().equals(jmeterFileDatatype)){
+			testTransaction.setIsCdpTxn("Y"); 
+		}
 			
 		//		The response time ("t=") holds the value to be reported for all sample types. Note: 
 		//		- the taken to be milliseconds for all timed TRANSACTION samples in the Jmeter results file. The metrics (trend analysis) database 
@@ -438,9 +443,14 @@ public class JmeterRun extends PerformanceTest  {
 
 		testTransaction.setTxnId(csvDataLineFields[fieldPoslabel]);
 		
-		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype( csvDataLineFields[fieldPosdataType]  );
-		
+		String jmeterFileDatatype = csvDataLineFields[fieldPosdataType];
+		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype(jmeterFileDatatype);
 		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.JMETER, sampleLineRawDbTxnType));
+		
+		testTransaction.setIsCdpTxn("N"); 
+		if (JMeterFileDatatypes.CDP.name().equals(jmeterFileDatatype)){
+			testTransaction.setIsCdpTxn("Y"); 
+		}
 				
 //		The response time ("elapsed" column) holds the value to be reported for all sample types. Note: 
 //			- the taken to be milliseconds for all timed TRANSACTION samples in the Jmeter results file. The metrics (trend analysis) database 

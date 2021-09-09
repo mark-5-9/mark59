@@ -42,25 +42,29 @@
 
   <div>
     
-   <c:if test="${param.reqErr != ''}">
-		<p style="color:red"><b>${param.reqErr}</b></p> 
+   <c:if test="${map.reqErr != ''}">
+		<p style="color:red"><b>${map.reqErr}</b></p> 
   </c:if>  
     
 
-   <form:form method="post" action="insertSla?reqApp=${reqApp}" modelAttribute="sla">
+   <form:form method="post" action="insertSla?reqApp=${map.reqApp}" modelAttribute="sla">
     <table>
      <tr>
       <td>Application :</td>
-      <td><form:input path="application"  value="${reqApp}" size="32" maxlength="32" /></td>
+      <td><form:input path="application"  value="${map.reqApp}" size="32" maxlength="32" /></td>
      </tr>
      <tr>
       <td>Transaction name :</td>
       <td><form:input path="txnId" size="80" maxlength="122" /></td>
      </tr>
-     
+     <tr>
+      <td>CDP Txn?</td>
+      <td><form:select path="isCdpTxn" items="${map.IsCdpTxnYesNo}" /></td>
+     </tr>  
+          
      <tr>
       <td>Ignore Txn on Graphs?</td>
-      <td><form:select path="isTxnIgnored" items="${isTxnIgnoredYesNo}" /></td>
+      <td><form:select path="isTxnIgnored" items="${map.isTxnIgnoredYesNo}" /></td>
      </tr>    
      <tr>
       <td><br></td>
@@ -125,14 +129,11 @@
      </tr>
      
      <tr>
-      <td colspan="2"><a href="slaList?reqApp=${reqApp}">Cancel</a></td>
+      <td colspan="2"><a href="slaList?reqApp=${map.reqApp}">Cancel</a></td>
      </tr>
     </table>
    </form:form>
   </div>
-
-
 </div>
-
 </body>
 </html>

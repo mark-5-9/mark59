@@ -58,10 +58,10 @@ public class SlaController {
 	@RequestMapping("/slaList")
 	public ModelAndView getSlaList(@RequestParam(required=false) String reqApp) {
 		List<String> applicationList = populateSlaApplicationDropdown();
-		if (reqApp == null  && applicationList.size() > 1  ){
+		if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
 			// when no application request parameter has been sent, take the first application 
 			reqApp = (String)applicationList.get(1);
-		}
+		}		
 		
 		List<Sla> slaList = new ArrayList<Sla>(); 
 		if (StringUtils.isBlank(reqApp) ){
@@ -76,7 +76,6 @@ public class SlaController {
 		map.put("applications",applicationList);
 		return new ModelAndView("slaList", "map", map);
 	}
-
 	
 	
 	@RequestMapping("/viewSlaList")
@@ -92,116 +91,90 @@ public class SlaController {
 	
 	
 	@RequestMapping("/registerSla")
-	public String registerSla(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr, @ModelAttribute Sla sla, Model model) {  
-		//Map<String, Object> map = new HashMap<String, Object>(); 
-		List<String> isTxnIgnoredYesNo = populateIsTxnIgnoredYesNoDropdown();	
-		model.addAttribute("isTxnIgnoredYesNo", isTxnIgnoredYesNo);		
-		model.addAttribute("reqApp", reqApp);		
-		return "registerSla";  	
+	public ModelAndView registerSla(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr, @ModelAttribute Sla sla, Model model) {
+		Map<String, Object> map = createMapOfDropdowns();
+		map.put("sla",sla);		
+		map.put("reqApp", reqApp);	
+		return new ModelAndView("registerSla", "map", map);
 	}
 	
 
 	@RequestMapping("/insertSla")
-	public String insertData(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr,  @ModelAttribute Sla sla) {
+	public ModelAndView insertData(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr,  @ModelAttribute Sla sla) {
 		Sla	existingSla = new Sla();
 		if (sla != null)
-			existingSla = slaDao.getSla(sla.getApplication(), sla.getTxnId()); 
+			existingSla = slaDao.getSla(sla.getApplication(), sla.getTxnId(), sla.getIsCdpTxn()); 
 		
 		if (existingSla == null ){  //not trying to add something already there, so go ahead..
+			List<String> applicationList = populateSlaApplicationDropdown();
 			slaDao.insertData(sla);
-			return "redirect:/slaList?reqApp=" + reqApp;
+			if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
+				// when no application request parameter has been sent, take the first application 
+				reqApp = (String)applicationList.get(1);
+			}		
+			
+			List<Sla> slaList = new ArrayList<Sla>(); 
+			if (StringUtils.isBlank(reqApp) ){
+				slaList = slaDao.getSlaList();
+			} else {
+				slaList = slaDao.getSlaList(reqApp);			
+			}
+			
+			Map<String, Object> map = new HashMap<String, Object>(); 
+			map.put("slaList",slaList);
+			map.put("reqApp",reqApp);
+			map.put("applications",applicationList);
+			return new ModelAndView("slaList", "map", map);
+
 		} else {
-			return "redirect:/registerSla?reqApp=" + reqApp + "&reqErr=Oh, transaction " + sla.getTxnId() + " AlreadyExists";
+			Map<String, Object> map = createMapOfDropdowns();
+			map.put("sla",sla);		
+			map.put("reqApp", reqApp);	
+			map.put("reqErr", "&reqErr=Oh, metric for " + sla.getTxnId() + " CDP : " +sla.getIsCdpTxn() + " AlreadyExists");
+			return new ModelAndView("registerSla", "map", map);			
 		}
 	}
 	
 	
-	@RequestMapping("/bulkApplicationPassCounts")
-	public ModelAndView bulkApplicationPassCounts(@RequestParam(required=false) String reqErr, @RequestParam(required=false) String reqApp,  
-			@ModelAttribute BulkApplicationPassCountsForm bulkApplicationPassCountsForm) { 
-		
-		bulkApplicationPassCountsForm.setApplication(reqApp);
-		bulkApplicationPassCountsForm.setSlaRefUrl(referenceOfLastBaselineRun(reqApp));
-		
-		List<String> applicationList = populateApplicationsWithBaselinesDropdown();
-		List<String> applyRefUrlOptions = populateApplyRefUrlDropdown();	
-
-		Map<String, Object> map = new HashMap<String, Object>(); 
-		map.put("applications",applicationList);		
-		map.put("applyRefUrlOptions",applyRefUrlOptions);		
-		return new ModelAndView("bulkApplicationPassCounts", "map", map);  			
-	}
-
-	
-	@RequestMapping("/asyncReloadSlaBulkLoadPage" )	
-	public @ResponseBody String asyncReloadSlaBulkLoadPage(@RequestParam(required=false) String reqApp ) {  
-		return  referenceOfLastBaselineRun(reqApp);
-	}
-	
-	
-	@RequestMapping("/insertOrUpdateApplicationPassCounts")
-	public String insertOrUdateApplicationPassCounts(@RequestParam(required=false) String reqErr, 
-			@ModelAttribute BulkApplicationPassCountsForm bulkApplicationPassCountsForm) {
-	
-		Sla slaKeywithDefaultValues = new Sla();
-		slaKeywithDefaultValues.setApplication(bulkApplicationPassCountsForm.getApplication());
-		slaKeywithDefaultValues.setIsTxnIgnored(bulkApplicationPassCountsForm.getIsTxnIgnored());		
-		slaKeywithDefaultValues.setSla90thResponse(bulkApplicationPassCountsForm.getSla90thResponse());
-		slaKeywithDefaultValues.setSla95thResponse(bulkApplicationPassCountsForm.getSla95thResponse());
-		slaKeywithDefaultValues.setSla99thResponse(bulkApplicationPassCountsForm.getSla99thResponse());
-		slaKeywithDefaultValues.setSlaFailCount(bulkApplicationPassCountsForm.getSlaFailCount());
-		slaKeywithDefaultValues.setSlaFailPercent(bulkApplicationPassCountsForm.getSlaFailPercent());
-		slaKeywithDefaultValues.setTxnDelay(bulkApplicationPassCountsForm.getTxnDelay());
-		slaKeywithDefaultValues.setXtraNum(bulkApplicationPassCountsForm.getXtraNum());
-		slaKeywithDefaultValues.setXtraInt(bulkApplicationPassCountsForm.getXtraInt());
-		slaKeywithDefaultValues.setSlaPassCountVariancePercent(bulkApplicationPassCountsForm.getSlaPassCountVariancePercent());
-		slaKeywithDefaultValues.setSlaRefUrl(bulkApplicationPassCountsForm.getSlaRefUrl());
-		slaKeywithDefaultValues.setComment("");
-		
-		int rowcont = slaDao.bulkInsertOrUpdateApplication( bulkApplicationPassCountsForm.getApplication(), 
-																slaKeywithDefaultValues,
-																bulkApplicationPassCountsForm.getApplyRefUrlOption());
-
-		if (rowcont == 0 ){  //nothing was found to upload..
-			return "redirect:/bulkApplicationPassCounts?reqErr=No Data.  Check that application '" + bulkApplicationPassCountsForm.getApplication() + "' has had a baseline set..."
-					+ "&reqApp=" + bulkApplicationPassCountsForm.getApplication();
-		} else { // OK
-			return "redirect:/slaList?reqApp=" + bulkApplicationPassCountsForm.getApplication();	
-		}		
-	}
-	
-
-	
 	@RequestMapping("/copySla")
-	public String copySla(@RequestParam String reqTxnId, @RequestParam(required=false) String reqApp,  @ModelAttribute Sla sla, Model model) {
-		sla = slaDao.getSla(reqApp, reqTxnId);
-		sla.setTxnId(sla.getTxnId() + "_CPY" );
+	public String copySla(@RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam(required=false) String reqApp,  @ModelAttribute Sla sla, Model model) {
+		sla = slaDao.getSla(reqApp, reqTxnId, reqIsCdpTxn);
+		sla.setSlaOriginalTxnId(sla.getTxnId());
 		model.addAttribute("sla", sla);
 
-		Map<String, Object> map = new HashMap<String, Object>(); 
-		List<String> isTxnIgnoredYesNo = populateIsTxnIgnoredYesNoDropdown();	
-		map.put("isTxnIgnoredYesNo",isTxnIgnoredYesNo);				
+		Map<String, Object> map = createMapOfDropdowns();				
+		map.put("sla",sla);		
 		map.put("reqApp",reqApp);
-		map.put("reqTxnId",reqTxnId);
 		model.addAttribute("map", map);		
-		return "editSla";
+		return "copySla";
 	}
 	
 	
 	@RequestMapping("/editSla")
-	public String editSla(@RequestParam String reqTxnId, @RequestParam(required=false) String reqApp, @ModelAttribute Sla sla, Model model) {
-//		System.out.println("SlaController:editSla : txnId=" + txnId + ", reqApp=" + reqApp  );		
-		sla = slaDao.getSla(reqApp, reqTxnId);
+	public String editSla(@RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam(required=false) String reqApp, @ModelAttribute Sla sla, Model model) {
+		sla = slaDao.getSla(reqApp, reqTxnId, reqIsCdpTxn);
 		sla.setSlaOriginalTxnId(sla.getTxnId());
-		model.addAttribute("sla", sla);		
-		
-		Map<String, Object> map = new HashMap<String, Object>(); 
-		List<String> isTxnIgnoredYesNo = populateIsTxnIgnoredYesNoDropdown();	
-		map.put("isTxnIgnoredYesNo",isTxnIgnoredYesNo);		
+		model.addAttribute("sla", sla);
+
+		Map<String, Object> map = createMapOfDropdowns();				
+		map.put("sla",sla);		
 		map.put("reqApp",reqApp);
-		map.put("reqTxnId",reqTxnId);
-		model.addAttribute("map", map);
+		model.addAttribute("map", map);		
 		return "editSla"; 
+	}
+	
+	
+	@RequestMapping("/updateSla")
+	public String updateSla(@RequestParam(required=false) String reqApp, @ModelAttribute Sla sla) {
+		slaDao.updateData(sla);
+		return "redirect:/slaList?reqApp=" + reqApp  ;
+	}
+
+
+	@RequestMapping("/deleteSla")
+	public String deleteSla(@RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam(required=false) String reqApp) {
+		slaDao.deleteData(reqApp, reqTxnId, reqIsCdpTxn);
+		return "redirect:/slaList?reqApp=" + reqApp;
 	}
 
 	
@@ -230,47 +203,58 @@ public class SlaController {
 		}	
 	}
 
+	
 	@RequestMapping("/updateApplicationSla")	
 	public String updateApplicationSla(@RequestParam(required=false) String reqApp, @ModelAttribute CopyApplicationForm copyApplicationForm) {
 //		System.out.println("@ updateApplicationSla : reqApp=" + copyApplicationForm.getReqApp() + ", ReqToApp=" + copyApplicationForm.getReqToApp()  );
 		return "redirect:/slaList?reqApp=" + reqApp  ;
 	}	
+		
 	
-	
-	
-	@RequestMapping("/updateSla")
-	public String updateSla(@RequestParam(required=false) String reqApp, @ModelAttribute Sla sla) {
-//		System.out.println("@ updateSla : reqApp=" + reqApp + ", app=" + sla.getApplication() + ",  origTxn=" + sla.getSlaOriginalTxnId() + ", txnId=" + sla.getTxnId() + " ,90th=" + sla.getSla90thResponse()   );
-		slaDao.updateData(sla);
-		return "redirect:/slaList?reqApp=" + reqApp  ;
-	}
-
-
-	
-
 	@RequestMapping("/deleteApplicationSla")
 	public String deleteApplicationSla(@RequestParam String reqApp) {
-//		System.out.println("deleting all slas for application " + reqApp );
 		slaDao.deleteAllSlasForApplication(reqApp);
 		return "redirect:/slaList?reqApp=";
 	}
 	
 	
+	@RequestMapping("/bulkApplicationPassCounts")
+	public ModelAndView bulkApplicationPassCounts(@RequestParam(required=false) String reqErr, @RequestParam(required=false) String reqApp,  
+			@ModelAttribute BulkApplicationPassCountsForm bulkApplicationPassCountsForm) { 
+		
+		bulkApplicationPassCountsForm.setApplication(reqApp);
+		bulkApplicationPassCountsForm.setSlaRefUrl(referenceOfLastBaselineRun(reqApp));
+		
+		List<String> applicationList = populateApplicationsWithBaselinesDropdown();
+		List<String> isTxnIgnoredYesNo = populateIsTxnIgnoredYesNoDropdown();	
+		List<String> applyRefUrlOptions = populateApplyRefUrlDropdown();	
+		
+		Map<String, Object> map = new HashMap<String, Object>(); 
+		map.put("applications",applicationList);		
+		map.put("isTxnIgnoredYesNo", isTxnIgnoredYesNo);	
+		map.put("applyRefUrlOptions",applyRefUrlOptions);		
+		return new ModelAndView("bulkApplicationPassCounts", "map", map);  			
+	}
 
-	@RequestMapping("/deleteSla")
-	public String deleteSla(@RequestParam String reqTxnId, @RequestParam(required=false) String reqApp) {
-//		System.out.println("deleting sla for  app = " + reqApp + ", txnId = " + txnId);
-		slaDao.deleteData(reqApp, reqTxnId);
-		return "redirect:/slaList?reqApp=" + reqApp;
+	
+	@RequestMapping("/asyncReloadSlaBulkLoadPage" )	
+	public @ResponseBody String asyncReloadSlaBulkLoadPage(@RequestParam(required=false) String reqApp ) {  
+		return  referenceOfLastBaselineRun(reqApp);
 	}
 	
 	
-	private List<String> populateSlaApplicationDropdown() {
-		List<String> applicationList = new ArrayList<String>();
-		applicationList = slaDao.findApplications();
-		applicationList.add(0, "");
-		return applicationList;
-	}		
+	@RequestMapping("/insertOrUpdateApplicationPassCounts")
+	public String insertOrUdateApplicationPassCounts(@RequestParam(required=false) String reqErr, 
+			@ModelAttribute BulkApplicationPassCountsForm bulkApplicationPassCountsForm) {
+//		System.out.println("insertOrUdateApplicationPassCounts bulkApplicationPassCountsForm = " + bulkApplicationPassCountsForm );
+		int rowcont = slaDao.bulkInsertOrUpdateApplication(bulkApplicationPassCountsForm);
+		if (rowcont == 0 ){  //nothing was found to upload..
+			return "redirect:/bulkApplicationPassCounts?reqErr=No Data.  Check that application '" + bulkApplicationPassCountsForm.getApplication() + "' has had a baseline set..."
+					+ "&reqApp=" + bulkApplicationPassCountsForm.getApplication();
+		} else { // OK
+			return "redirect:/slaList?reqApp=" + bulkApplicationPassCountsForm.getApplication();	
+		}		
+	}
 	
 	
 	private List<String> populateApplicationsWithBaselinesDropdown() {
@@ -292,13 +276,6 @@ public class SlaController {
 	}		
 
 	
-	private List<String> populateIsTxnIgnoredYesNoDropdown( ) {
-		List<String> isTxnIgnoredYesNo =  new ArrayList<String>();
-		isTxnIgnoredYesNo.add("N");
-		isTxnIgnoredYesNo.add("Y");
-		return isTxnIgnoredYesNo;
-	}		
-	
 	private List<String> populateApplyRefUrlDropdown( ) {
 		List<String> applyRefUrlOptions =  new ArrayList<String>();
 		applyRefUrlOptions.add(AppConstantsMetrics.APPLY_TO_NEW_SLAS_ONLY);
@@ -307,5 +284,39 @@ public class SlaController {
 	}		
 	
 	
+	private Map<String, Object> createMapOfDropdowns() {
+		Map<String, Object> map = new HashMap<String, Object>(); 
+		List<String> applicationList   = populateSlaApplicationDropdown();		
+		List<String> IsCdpTxnYesNo     = populateIsCdpTxnYesNoDropdown();	
+		List<String> isTxnIgnoredYesNo = populateIsTxnIgnoredYesNoDropdown();	
+		map.put("applications",applicationList);		
+		map.put("isTxnIgnoredYesNo", isTxnIgnoredYesNo);	
+		map.put("IsCdpTxnYesNo",IsCdpTxnYesNo);				
+		return map;
+	}	
 	
+	
+	private List<String> populateSlaApplicationDropdown() {
+		List<String> applicationList = new ArrayList<String>();
+		applicationList = slaDao.findApplications();
+		applicationList.add(0, "");
+		return applicationList;
+	}		
+	
+	
+	private List<String> populateIsTxnIgnoredYesNoDropdown( ) {
+		List<String> isTxnIgnoredYesNo = new ArrayList<String>();
+		isTxnIgnoredYesNo.add("N");
+		isTxnIgnoredYesNo.add("Y");
+		return isTxnIgnoredYesNo;
+	}		
+	
+	
+	private List<String> populateIsCdpTxnYesNoDropdown() {
+		List<String> isCdpTxnYesNo = new ArrayList<String>();
+		isCdpTxnYesNo.add("N");
+		isCdpTxnYesNo.add("Y");
+		return isCdpTxnYesNo;
+	}
+		
 }

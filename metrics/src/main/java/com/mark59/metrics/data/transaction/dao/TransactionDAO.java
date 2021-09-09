@@ -38,20 +38,20 @@ public interface TransactionDAO
 	
 	public List<Transaction> getUniqueListOfTransactionsByType(String application);
 
-	public String transactionIdsSQL(String application, String graph, String sqlSelectLike, String sqlSelectNotLike, boolean manuallySelectTxns , String chosenTxns, String chosenRuns, boolean useRawSQL, String rawTransactionIdsSQL );
+	public long countRunsWithCdpTransactions(String application);
 
-	public List<Transaction> returnListOfSelectedTransactions  (String transactionIdsSQL, String nthRankedTxn);	
-	
-	public List<String>      returnListOfSelectedTransactionIds(String transactionIdsSQL, String nthRankedTxn);	
-	
-	public Transaction getTransaction(String application, String txnType, String runTime, String txnId);	
+	public String transactionIdsSQL(String application, String graph, String showCdpOption, String sqlSelectLike, String sqlSelectNotLike, boolean manuallySelectTxns , String chosenTxns, String chosenRuns, boolean useRawSQL, String rawTransactionIdsSQL );
 
-	public List<Datapoint> findDatapointsToGraph(String application, String graph, String chosenRuns, List<String> orderedTxnsToGraphIdList);
-	
-	public Object getTransactionValue(String application, String txnType, String runTime, String txnId, String transactionField);
+	public List<Transaction> returnListOfTransactionsToGraph (String transactionIdsSQL, String nthRankedTxn);	
 
-	public long countRunsContainsBothTxnIds(String aplication, String txnType, String txnId1, String txnId2);
+	public Transaction getTransaction(String application, String txnType, String runTime, String txnId, String isCdpTxn);
 
-	public void renameTransactions(String application, String txnType, String fromTxnId, String toTxnId);
+	public List<Datapoint> findDatapointsToGraph(String application, String graph, String chosenRuns, List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph);
+
+	public Object getTransactionValue(String application, String txnType,  String isCdpTxn, String runTime, String txnId, String transactionField);
+
+	public long countRunsContainsBothTxnIds(String application, String txnType, String fromTxnId, String toTxnId, String fromIsCdpTxn, String toIsCdpTxn);
+
+	public void renameTransactions(String application, String txnType, String fromTxnId, String toTxnId, String fromIsCdpTxn, String toIsCdpTxn);
 	
 }

@@ -27,9 +27,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.mark59.core.utils.Mark59Constants;
 import com.mark59.metrics.application.AppConstantsMetrics;
 import com.mark59.metrics.data.beans.Sla;
-import com.mark59.metrics.sla.SlaUtilities;
+import com.mark59.metrics.form.BulkApplicationPassCountsForm;
 
 /**
  * @author Philip Webb
@@ -42,31 +43,32 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 
 	
 	public void insertData(Sla sla) {
-		/* transaction name and id the same thing for now.. */
+
 		String sql = "INSERT INTO SLA "
-				+ "(TXN_ID, APPLICATION, IS_TXN_IGNORED, SLA_90TH_RESPONSE, SLA_95TH_RESPONSE, SLA_99TH_RESPONSE, "
+				+ "(TXN_ID, IS_CDP_TXN, APPLICATION, IS_TXN_IGNORED, SLA_90TH_RESPONSE, SLA_95TH_RESPONSE, SLA_99TH_RESPONSE, "
 				+ "SLA_PASS_COUNT, SLA_PASS_COUNT_VARIANCE_PERCENT, SLA_FAIL_COUNT, SLA_FAIL_PERCENT, "
 				+ "TXN_DELAY, XTRA_NUM, XTRA_INT, SLA_REF_URL, COMMENT) "
-				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 		sla = nullsToDefaultValues(sla);
 
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sql,
-				new Object[] { sla.getTxnId(), sla.getApplication(), sla.getIsTxnIgnored(), sla.getSla90thResponse(), 
+				new Object[] { sla.getTxnId(), sla.getIsCdpTxn(), sla.getApplication(), sla.getIsTxnIgnored(), sla.getSla90thResponse(), 
 						sla.getSla95thResponse(), sla.getSla99thResponse(),	sla.getSlaPassCount(),sla.getSlaPassCountVariancePercent(),
 						sla.getSlaFailCount(), sla.getSlaFailPercent(), 
 						sla.getTxnDelay(), sla.getXtraNum(), sla.getXtraInt(), sla.getSlaRefUrl(), sla.getComment()});
 	}
 
 
-
 	@Override
-	public int bulkInsertOrUpdateApplication(String application, Sla slaKeywithDefaultValues, String applyRefUrlOption) { 
-
-		String sql =  "SELECT  DISTINCT TXN_ID, TXN_PASS, RUN_TIME FROM TRANSACTION TX WHERE"
+	public int bulkInsertOrUpdateApplication(BulkApplicationPassCountsForm bulkApplication) { 
+		String application = bulkApplication.getApplication();
+		
+		String sql =  "SELECT DISTINCT TXN_ID, IS_CDP_TXN, TXN_90TH, TXN_95TH, TXN_99TH, TXN_PASS, RUN_TIME"
+				+ " FROM TRANSACTION TX WHERE"
 				+ " TX.APPLICATION =  '" + application + "' AND"
-				+ " TX.TXN_TYPE =  'TRANSACTION'  and"
+				+ " TX.TXN_TYPE =  '" + Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() + "'  and"
 				+ " TX.RUN_TIME = ( select max(RUN_TIME) from RUNS where RUNS.APPLICATION =  '" + application + "' AND RUNS.BASELINE_RUN = 'Y' )";
 
 //		System.out.println("SlaDAOjdbcImpl.bulkInsertOrUpdateApplication sql: "  + sql );		
@@ -74,39 +76,70 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 		
-		String passedSlaRefUrl =  slaKeywithDefaultValues.getSlaRefUrl();
+		String passedSlaRefUrl =  bulkApplication.getSlaRefUrl();
 		int rowCount = rows.size();
-//		System.out.println("bulkInsertOrUpdateApplication : number of rows to process: "  + rowCount + ", application: " + application );
 		
 		for (Map<String, Object> row : rows) {
-//			System.out.println("bulkInsertOrUpdateApplication: " + slaDefaults.getApplication() + ":" + (String)row.get("TXN_ID") + ":" + (Long)row.get("TXN_PASS") );
-			Sla existingSla =  getSla(slaKeywithDefaultValues.getApplication(), (String)row.get("TXN_ID")); 
+//			System.out.println("bulkInsertOrUpdateApplication: " + application + ":" + (String)row.get("TXN_ID") + ":" + (Long)row.get("TXN_PASS") );
+			Sla existingSla =  getSla(application, (String)row.get("TXN_ID"), (String)row.get("IS_CDP_TXN")); 
 			
-			if (existingSla == null ){  //sla application-transaction does not exist, so add it
-				slaKeywithDefaultValues.setTxnId((String)row.get("TXN_ID"));
-				slaKeywithDefaultValues.setSlaPassCount((Long)row.get("TXN_PASS"));
-				slaKeywithDefaultValues.setSlaRefUrl(passedSlaRefUrl);	
+			if (existingSla == null ){  // sla doesn't exist for this transaction so add it
 				
-				insertData(slaKeywithDefaultValues);
+				Sla newSla = new Sla();
+				newSla.setApplication(application);
+				newSla.setTxnId((String)row.get("TXN_ID"));
+				newSla.setIsCdpTxn((String)row.get("IS_CDP_TXN"));
+				
+				newSla.setIsTxnIgnored(bulkApplication.getIsTxnIgnored());
+				
+				if (bulkApplication.isSla90thFromBaseline()) {
+					newSla.setSla90thResponse((BigDecimal)row.get("TXN_90TH"));
+				} else {
+					newSla.setSla90thResponse(bulkApplication.getSla90thResponse());
+				}
+				if (bulkApplication.isSla95thFromBaseline()) {
+					newSla.setSla95thResponse((BigDecimal)row.get("TXN_95TH"));
+				} else {
+					newSla.setSla95thResponse(bulkApplication.getSla95thResponse());
+				}
+				if (bulkApplication.isSla99thFromBaseline()) {
+					newSla.setSla99thResponse((BigDecimal)row.get("TXN_99TH"));
+				} else {
+					newSla.setSla99thResponse(bulkApplication.getSla99thResponse());
+				}
+				
+				newSla.setSlaPassCount((Long)row.get("TXN_PASS"));
+				
+				newSla.setSlaPassCountVariancePercent(bulkApplication.getSlaPassCountVariancePercent());
+				newSla.setSlaFailCount(bulkApplication.getSlaFailCount());
+				newSla.setSlaFailPercent(bulkApplication.getSlaFailPercent());
+				newSla.setTxnDelay(bulkApplication.getTxnDelay());
+				newSla.setXtraNum(bulkApplication.getXtraNum());
+				newSla.setXtraInt(bulkApplication.getXtraInt());
+				newSla.setSlaRefUrl(passedSlaRefUrl);	
+				newSla.setComment("");
+				
+				insertData(newSla);
 				
 			} else {  // update the Pass Count, and reference if requested (removing any previous comment) for an existing transaction
 				
 				existingSla.setSlaPassCount((Long)row.get("TXN_PASS"));
 				
-				if ( AppConstantsMetrics.APPLY_TO_ALL_SLAS.equalsIgnoreCase(applyRefUrlOption) && StringUtils.isNotEmpty(passedSlaRefUrl)) {
+				if (AppConstantsMetrics.APPLY_TO_ALL_SLAS.equalsIgnoreCase(bulkApplication.getApplyRefUrlOption())
+						&& StringUtils.isNotEmpty(passedSlaRefUrl)) {
 					existingSla.setSlaRefUrl(passedSlaRefUrl);
 				}
 				if (existingSla.getSlaPassCount() == null){
 					existingSla.setSlaPassCount(new Long(-1));
 				}				
-				sql = "UPDATE SLA set SLA_PASS_COUNT = ?, SLA_REF_URL = ? where APPLICATION=? and TXN_ID = ?";
+				sql = "UPDATE SLA set SLA_PASS_COUNT = ?, SLA_REF_URL = ? where APPLICATION=? and TXN_ID = ? and IS_CDP_TXN = ?";
 				jdbcTemplate = new JdbcTemplate(dataSource);
-				jdbcTemplate.update(sql, new Object[] { existingSla.getSlaPassCount(), existingSla.getSlaRefUrl(), existingSla.getApplication(), existingSla.getTxnId() });
+				jdbcTemplate.update(sql, new Object[] { existingSla.getSlaPassCount(), existingSla.getSlaRefUrl(),
+						existingSla.getApplication(), existingSla.getTxnId(), existingSla.getIsCdpTxn() });
 			}
 		}
 		return rowCount;
 	}	
-		
 	
 
 	@Override
@@ -118,8 +151,8 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 	}
 	
 	@Override
-	public void deleteData(String application, String txnId) {
-		String sql = "delete from SLA where  APPLICATION='" + application + "' and TXN_ID='" + txnId + "'";
+	public void deleteData(String application, String txnId, String isCdpTxn) {
+		String sql = "delete from SLA where  APPLICATION='" + application + "' and TXN_ID='" + txnId + "' and IS_CDP_TXN='" + isCdpTxn + "'";	
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sql);
 
@@ -131,11 +164,11 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 	@Override
 	public void updateData(Sla sla) {
 
-		Sla existingSla =  getSla(sla.getApplication(), sla.getTxnId()); 
+		Sla existingSla =  getSla(sla.getApplication(), sla.getTxnId(), sla.getIsCdpTxn()); 
 //		System.out.println("SlaDAOjdbcImpl.updateData: app=" + sla.getApplication() + ", TxnId=" + sla.getTxnId() + ",  existingSla? = " + existingSla);	
 		
 		if (existingSla == null ){  //a transaction 'rename'
-			deleteData(sla.getApplication(), sla.getSlaOriginalTxnId());
+			deleteData(sla.getApplication(), sla.getSlaOriginalTxnId(), sla.getIsCdpTxn());
 			insertData(sla);
 			
 		} else {  // update values for an existing transaction
@@ -145,7 +178,7 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 			String sql = "UPDATE SLA set APPLICATION = ?, IS_TXN_IGNORED = ?,SLA_90TH_RESPONSE = ?, SLA_95TH_RESPONSE = ?, SLA_99TH_RESPONSE = ?, "
 					+ "SLA_PASS_COUNT = ?, SLA_PASS_COUNT_VARIANCE_PERCENT = ?, SLA_FAIL_COUNT = ?, SLA_FAIL_PERCENT = ?, "
 					+ "TXN_DELAY = ?, XTRA_NUM = ?, XTRA_INT = ?, SLA_REF_URL = ?, COMMENT = ? "
-					+ "where APPLICATION=? and TXN_ID = ?";
+					+ "where APPLICATION = ? and TXN_ID = ? and IS_CDP_TXN = ?";
 			
 			
 			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -153,15 +186,15 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 					new Object[] { sla.getApplication(), sla.getIsTxnIgnored(), sla.getSla90thResponse(),sla.getSla95thResponse(), sla.getSla99thResponse(),
 							sla.getSlaPassCount(),sla.getSlaPassCountVariancePercent(),	sla.getSlaFailCount(), sla.getSlaFailPercent(), 
 							sla.getTxnDelay(), sla.getXtraNum(), sla.getXtraInt(), sla.getSlaRefUrl(), sla.getComment(),
-							sla.getApplication(), sla.getTxnId() });
+							sla.getApplication(), sla.getTxnId(), sla.getIsCdpTxn() });
 		}
 	}
 	
 
 	@Override
-	public Sla getSla(String application, String txnId) { //  , String defaultSlaForApplicationKey) {
+	public Sla getSla(String application, String txnId, String isCdpTxn) { 
 		List<Sla> slaList = new ArrayList<Sla>();
-		String sql = "select * from SLA where APPLICATION='" + application + "' and TXN_ID='" + txnId + "'";
+		String sql = "select * from SLA where APPLICATION='" + application + "' and TXN_ID='" + txnId + "' and IS_CDP_TXN='" + isCdpTxn + "'";
 //		System.out.println("getSla sql = " + sql);
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		slaList = jdbcTemplate.query(sql, new SlaRowMapper());
@@ -217,47 +250,60 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 	 */
 	@Override
 	@SuppressWarnings("rawtypes")	
-	public List<String> getSlasWithMissingTxnsInThisRun(String application, String runTime) {
+	public List<String> getSlasWithMissingTxnsInThisRunCdpTags(String application, String runTime) {
 		
-		String sql = "SELECT TXN_ID FROM SLA "
+		String sql = "SELECT TXN_ID, IS_CDP_TXN FROM SLA S"
 					+ " where APPLICATION='" + application	+ "' " 
 					+ "  and TXN_ID not in ( "
-					+ "     SELECT TXN_ID FROM TRANSACTION"
+					+ "     SELECT TXN_ID FROM TRANSACTION T"
 					+ "     where APPLICATION = '" + application + "' "
 					+ "       and RUN_TIME = '" + runTime + "' " 
-					+ "       and TXN_TYPE = 'TRANSACTION' ) " 					
+					+ "       and TXN_TYPE = 'TRANSACTION' " 						
+					+ "       and S.IS_CDP_TXN = T.IS_CDP_TXN) " 					
 					+ "  and TXN_ID != '-" + application + "-DEFAULT-SLA-' "
 					+ "  and (not SLA_90TH_RESPONSE < 0.0 or not SLA_95TH_RESPONSE < 0 or not SLA_99TH_RESPONSE < 0 "
 					+ "        or not SLA_PASS_COUNT < 0 or not SLA_FAIL_COUNT < 0 or not SLA_FAIL_PERCENT < 0.0 )"
-					+ " order by TXN_ID";
+					+ " order by TXN_ID, IS_CDP_TXN";
 
 //		System.out.println("getSlasWithMissingTxnsInThisRun sql : " + sql  );
 		
-		List<String> missingTransactions = new ArrayList<String>();
+		List<String> cdpTaggedMissingTransactions = new ArrayList<String>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 		for (Map row : rows) {
-			missingTransactions.add( (String)row.get("TXN_ID") );
-//			System.out.println("getSlasWithMissingTxnsInThisRun : txn  " + (String)row.get("TXN_ID") ) ;
+			String txnId =  (String)row.get("TXN_ID");
+			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
+				cdpTaggedMissingTransactions.add(txnId + AppConstantsMetrics.CDP_TAG);				
+			} else {
+				cdpTaggedMissingTransactions.add(txnId);
+			}
+//			System.out.println("getSlasWithMissingTxnsInThisRun : txn:cdp " + (String)row.get("TXN_ID") + ":" + (String)row.get("IS_CDP_TXN"));
 		}	
-		return  missingTransactions;
+		return  cdpTaggedMissingTransactions;
 	}
 
 
 
 	@Override
-	public List<String> getListOfIgnoredTransactionsSQL(String application) {
-		String sql = SlaUtilities.listOfIgnoredTransactionsSQL(application); 
-		List<String> ignoredTransactions = new ArrayList<String>();
+	public List<String> getListOfIgnoredTransactionsCdpTags(String application) {
+		
+		String sql =  "SELECT TXN_ID, IS_CDP_TXN FROM SLA "
+					+ " WHERE APPLICATION = '" + application + "' AND IS_TXN_IGNORED = 'Y' "
+					+ " ORDER BY TXN_ID, IS_CDP_TXN";
+		List<String> cdpTaggedIgnoredTransactions = new ArrayList<String>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 		for (Map<String, Object> row : rows) {
-			ignoredTransactions.add( (String)row.get("TXN_ID") );
-//			System.out.println("populating application in dropdown list : " + row.get("APPLICATION")  ) ;
+			String txnId =  (String)row.get("TXN_ID");
+			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
+				cdpTaggedIgnoredTransactions.add(txnId + AppConstantsMetrics.CDP_TAG);				
+			} else {
+				cdpTaggedIgnoredTransactions.add(txnId);
+			}			
 		}	
-		return  ignoredTransactions;
+		return  cdpTaggedIgnoredTransactions;
 	}
 	
 	/*

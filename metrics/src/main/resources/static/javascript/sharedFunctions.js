@@ -61,8 +61,21 @@
 			document.getElementById("submit").disabled = false;
 		}
 	}
-	
-	
+		
+
+	function resetElementAndReadonlyIfCheckboxTicked(checkboxId, id){
+		var checkbox  = document.getElementById(checkboxId);
+		var element   = document.getElementById(id);
+		if(checkbox.checked) {
+			element.readOnly = true;
+			element.value = "-1"			
+			element.style.color = "LightGray";				
+		} else {
+			element.readOnly = false;
+			element.style.color = "Black";	
+		}
+	}
+
 	
 	function isEmpty(str) {
 		return str === null || str === ""

@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.5</version>
+		<version>2.5.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mark59</groupId>
 	<artifactId>dataHunter</artifactId>
 	<packaging>war</packaging>
-	<version>3.3.0</version>
+	<version>4.0.0-rc-1</version>
 	<name>dataHunter</name>
 
 	<properties>
@@ -81,8 +81,9 @@
 	<build>
 		<plugins>
 			<!-- spring boot maven plugin --> 
-			<!-- phase/goals:  clean package install  -->
-			<!-- Constructs a war built during the package phase  (install can be executed to place classes in the local repo)  -->
+			<!-- phase/goals:  clean package -->
+			<!-- Constructs a war built during the package phase 
+			     (a Maven install can be executed to place classes in the local repo)  -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

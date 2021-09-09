@@ -20,7 +20,7 @@ echo starting from $PWD;
 
     mkdir -p ~/Mark59_Runs/Jmeter_Results/DataHunter && 
  
-    gnome-terminal -- sh -c "~/apache-jmeter/bin/jmeter -n -X -f  -t ./test-plans/DataHunterSeleniumTestPlan.jmx -l ~/Mark59_Runs/Jmeter_Results/DataHunter/DataHunterTestResults.csv -JForceTxnFailPercent=0; exec bash"
+    gnome-terminal -- sh -c "~/apache-jmeter/bin/jmeter -n -X -f  -t ./test-plans/DataHunterSeleniumTestPlan.jmx -l ~/Mark59_Runs/Jmeter_Results/DataHunter/DataHunterTestResults.csv -JDataHunterUrl=http://localhost:8081/dataHunter -JForceTxnFailPercent=0 -JStartCdpListeners=false; exec bash"
 
 } || { # catch 
     echo A problem attempting to start the DataHunter JMeter test! 

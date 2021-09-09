@@ -60,28 +60,27 @@
     <th></th>
     <th>Application<br><form:select id='application' path="map" items="${map.applications}"  onChange="resendTransactionListURL()" /></th>
     <th>Txn Id</th>    
+    <th>CDP<br>Txn</th>    
     <th>Txn Type</th>
-    <th>Last Run to Include Txn</th>
-    <th>Number of Runs With Txn</th>
-
+    <th>Last Run<br> to Include Txn</th>
+    <th>Number of Runs<br>Using Txn</th>
    </tr>
+
    <c:forEach var="transaction" items="${map.transactionList}">
     <tr>
-     <td><a href="transactionRenameDataEntry?reqTxnId=${transaction.txnIdURLencoded}&reqTxnType=${transaction.txnType}&reqApp=${transaction.application}" title="Edit(Rename)"><img src="images/edit.png"/></a></td>
-  
+     <td><a href="transactionRenameDataEntry?reqTxnId=${transaction.txnIdURLencoded}&reqIsCdpTxn=${transaction.isCdpTxn}&reqTxnType=${transaction.txnType}&reqApp=${transaction.application}" 
+     		title="Edit(Rename)"><img src="images/edit.png"/></a></td>
      <td>${transaction.application}</td>
      <td>${transaction.txnId}</td>
+     <td>${transaction.isCdpTxn}</td>
      <td>${transaction.txnType}</td>     
      <td>${transaction.runTime}</td>     
      <td>${transaction.txnPass}</td>     
-
     </tr>
    </c:forEach>
-  </table>
- 
-  <input type="hidden" id="passedReqApp" value="${map.reqApp}" />
-  
-  </div>
 
+  </table>
+  <input type="hidden" id="passedReqApp" value="${map.reqApp}" />
+ </div>
 </body>
 </html>

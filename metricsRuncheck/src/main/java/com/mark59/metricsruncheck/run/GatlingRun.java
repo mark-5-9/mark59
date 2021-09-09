@@ -255,6 +255,8 @@ public class GatlingRun extends PerformanceTest  {
 		// not sure if there is much point doing this transform for Gatling as most tests just capture http response times and are always TRANSACTIONS, but just for completeness.. 
 		testTransaction.setTxnType(eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.GATLING, Mark59Constants.DatabaseTxnTypes.TRANSACTION.name()));
 
+		testTransaction.setIsCdpTxn("N");
+		
 		BigDecimal elapsedTime = new BigDecimal(Long.parseLong(csvDataLineFields[fieldPosTimeStampEnd]) - Long.parseLong(csvDataLineFields[fieldPosTimeStampStart])); 	
 		testTransaction.setTxnResult(elapsedTime.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP));
 	

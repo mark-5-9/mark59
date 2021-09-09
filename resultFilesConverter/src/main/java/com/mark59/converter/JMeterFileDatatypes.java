@@ -17,21 +17,30 @@
 package com.mark59.converter;
 
 /**
- * The datatypes available for output onto a Jmeter results file.
- * Note - this enum has been copied from the mark59 core library - any update to the core version may need to be reflected here. * 
+ * The datatypes available for output onto a JMeter results file.
+ * Note - this enum has been copied from the mark59 core library com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes
+ * 
+ * <p>Any update to the core version may need to be reflected here.  
  * 
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
 public enum JMeterFileDatatypes {
 
-	DATAPOINT ("DATAPOINT"), CPU_UTIL ("CPU_UTIL"),	MEMORY ("MEMORY"), TRANSACTION (""), PARENT	("PARENT");
+	DATAPOINT("DATAPOINT", true), CPU_UTIL("CPU_UTIL", true), MEMORY("MEMORY", true), 
+	TRANSACTION("", false),	CDP("CDP", false), PARENT("PARENT", false);
 	
-	private String datatypeText;
-	JMeterFileDatatypes(String datatypeText) {
+	private final String datatypeText;
+	private final boolean metricDataType;
+	
+	private JMeterFileDatatypes(String datatypeText, boolean metricDataType) {
 		this.datatypeText = datatypeText;
+		this.metricDataType = metricDataType;
 	}
 	public String getDatatypeText() {
 		return datatypeText;
 	}
+	public boolean isMetricDataType() {
+		return this.metricDataType;
+	}    	
 }

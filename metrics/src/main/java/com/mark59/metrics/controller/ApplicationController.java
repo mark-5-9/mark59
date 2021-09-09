@@ -162,10 +162,11 @@ public class ApplicationController {
 	private String computeSlaTransactionResultIconColour(String application, String lastRunDateStr) {	
 		String iconColour = "green";
 
-		String transactionIdsSQL = transactionDAO.transactionIdsSQL(application, AppConstantsMetrics.TXN_90TH_GRAPH, "%", "", false, "", lastRunDateStr, false, null );
-		List<Transaction> transactions = transactionDAO.returnListOfSelectedTransactions(transactionIdsSQL, AppConstantsMetrics.ALL);
+		String transactionIdsSQL = transactionDAO.transactionIdsSQL(application, AppConstantsMetrics.TXN_90TH_GRAPH, AppConstantsMetrics.SHOW_SHOW_CDP, 
+				"%", "", false, "", lastRunDateStr, false, null);
+		List<Transaction> transactions = transactionDAO.returnListOfTransactionsToGraph(transactionIdsSQL, AppConstantsMetrics.ALL);
 		
-		List<SlaTransactionResult> slaTransactionResultList =  new SlaChecker().listTransactionsWithFailedSlas(application, transactions, slaDAO);
+		List<SlaTransactionResult> slaTransactionResultList =  new SlaChecker().listCdpTaggedTransactionsWithFailedSlas(application, transactions, slaDAO);
 		
 		for (SlaTransactionResult slaTransactionResult : slaTransactionResultList) {
 			if ( !slaTransactionResult.isPassedFailPercent()){
@@ -179,8 +180,8 @@ public class ApplicationController {
 			}			
 		}
 		
-		List<String> missingTransactions  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, lastRunDateStr, slaDAO  );
-		if ( ! missingTransactions.isEmpty()){
+		List<String> cdpTaggedMissingTransactions  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, lastRunDateStr, slaDAO  );
+		if ( ! cdpTaggedMissingTransactions.isEmpty()){
 			return "red";
 		};
 		

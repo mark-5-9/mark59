@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -29,6 +30,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mark59.metrics.data.beans.EventMapping;
+import com.mark59.metrics.data.beans.Transaction;
+import com.mark59.metrics.data.transaction.dao.TransactionDAO;
 
 /**
  * @author Philip Webb
@@ -159,8 +162,83 @@ public class UtilsMetrics  {
 		
 		return base64urlEncodedString;
 	}
+
+	 
+	/**
+	 * 'tag' selected transactions, as they will be named on the trend analysis graphs.  That, is a A CDP transaction
+	 * will be suffixed with a CDP tag.  This method does not invoke a database call.
+	 * 
+	 * <p>Assumes the transactions have already been selected for graphing
+	 *  (EG using {@link TransactionDAO#returnListOfTransactionsToGraph(String, String)} )
+	 * 
+	 * <p>Note: The supplied database installs (DDL) will put the lists is in UTF-8 order (h2 default, MySQL utf8mb4_0900_bin collation)
+	 * This should be pretty close to the ordering used by Java, but to avoid any  potential for issues for odd non-standard chars or
+	 * a different collation being chosen on a database, and to cater for the tagged CDP entry on transactions 
+	 * the returned list is re-ordered in the natural order of Java sorting using the tagged transactions names.
+	 * 
+	 * <p>This is Important as this list is supplied to the graph datapoints creation routine where a string compareTo is done.  The datapoints
+	 * would be out of sequence and the graph could fail if the compareTo did not work properly because the list was out of natural Java order.  
+	 */
+	public static List<Transaction> returnOrderedListOfTransactionsToGraphTagged(List<Transaction> listOfTransactionsToGraph){
+
+		List<Transaction> listOfTransactionsToGraphTagged = new ArrayList<Transaction>();
+		for (Transaction transaction : listOfTransactionsToGraph) {
+			Transaction graphedTransaction = new Transaction(transaction);
+			if ("Y".equalsIgnoreCase(transaction.getIsCdpTxn())){
+				graphedTransaction.setTxnId(transaction.getTxnId() + AppConstantsMetrics.CDP_TAG);  
+				// txnIdURLencoded may be needed to be set in future 
+			}
+			listOfTransactionsToGraphTagged.add(graphedTransaction);
+		} 
+
+		// sort the transaction list using the transaction names to be graphed 
+		Collections.sort(listOfTransactionsToGraphTagged, (o1, o2) -> (o1.getTxnId().compareTo(o2.getTxnId())));
+		return listOfTransactionsToGraphTagged;
+	}
+
+
+	/**
+	 * Extract transaction names from a list of transactions. 
+	 * 
+	 * @param transactions
+	 * @return listOfTxnIdsd (in natural order)
+	 */
+	public static List<String> returnListOfTxnIdsdFromListOfTransactions(List<Transaction> transactions){
+		// alt:	transactions.stream().map(transaction -> transaction.getTxnId()).collect(Collectors.toList());
+		List<String> listOfTxnIds = new ArrayList<String>();
+		for (Transaction transaction : transactions) {
+			listOfTxnIds.add(transaction.getTxnId());
+		}
+		return listOfTxnIds;
+	}
 	
+
+
+	/**
+	 * Filter a list of Transactions by CDP, returning a list of txnids 
+	 * 
+	 * @param transactions
+	 * @param isCdpTxnFilter
+	 * @return listOfTxnIds
+	 */
+	public static List<String> returnFilteredListOfTransactionNamesToGraph(List<Transaction> transactions, String isCdpTxnFilter){
+		// alt:	transactions.stream().map(transaction -> transaction.getTxnId()).collect(Collectors.toList());
+		List<String> listOfTxnIds = new ArrayList<String>();
+		for (Transaction transaction : transactions) {
+			if (isCdpTxnFilter.equalsIgnoreCase(transaction.getIsCdpTxn() )) {
+				listOfTxnIds.add(transaction.getTxnId());
+			}
+		}
+		return listOfTxnIds;
+	}
+
 	
-	
+
+	public static String removeCdpTags(String cdpTaggedTransactionString) {
+		if (StringUtils.isNotBlank(cdpTaggedTransactionString)) {
+			cdpTaggedTransactionString = cdpTaggedTransactionString.replace(AppConstantsMetrics.CDP_TAG, ""); 
+		}
+		return cdpTaggedTransactionString;
+	}
 	
 }

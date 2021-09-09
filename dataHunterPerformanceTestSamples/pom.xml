@@ -4,7 +4,7 @@
 	
 	<groupId>com.mark59</groupId>
 	<artifactId>dataHunterPerformanceTestSamples</artifactId>
-	<version>3.3.0</version>
+	<version>4.0.0-rc-1</version>
 	<packaging>jar</packaging>
 	
 	<name>dataHunterPerformanceTestSamples</name>
@@ -17,18 +17,18 @@
 
 	<dependencies>
 
-		<dependency>
-			<groupId>com.mark59</groupId>
-			<artifactId>mark59-selenium-sample-dsl</artifactId>
-			<version>3.3.0</version>
-		</dependency>
-
-<!-- 	Not actually required for this project as it is already included as a dependency of mark59-selenium-sample-dsl (above). 
-		adding it anyway as an example for use in projects not referring the sample DSL project, so they will require it -->
+		<!-- Not required for this project as it is already included as a dependency of mark59-selenium-sample-dsl (above). 
+		     Including it example for use in projects not referring the sample DSL project, so they will require it -->
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-selenium-implementation</artifactId>
-			<version>3.3</version>
+			<version>4.0.0-rc-1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mark59</groupId>
+			<artifactId>mark59-selenium-sample-dsl</artifactId>
+			<version>4.0.0-rc-1</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/org.apache.jmeter/ApacheJMeter_core -->
@@ -53,64 +53,61 @@
 
 	</dependencies>
 
+
 	<build>
 		<plugins>
+
+		<!-- Maven Jar Plugin and Dependency Plugin
+		     phase/goals: clean package  
+		     The two plugins work in conjunction to produce an output Jar and a directory of its dependencies. 
+		     Both need to be copied to lib/ext of the target JMeter instance) -->
 		
-		<!-- Note that as this project has a dependency on the mark59-selenium-sample-dsl project (which is not in Central)
-		     to build this project you can run the mark59 'aggregation' pom, or first build mark59-selenium-sample-dsl,
-		     using Maven goals: clean package install -->
-
-		<!-- Maven Jar Plugin and Dependency Plugin -->
-		<!-- phase/goals: clean package dependency:copy-dependencies -->
-		<!-- The plugins work in conjunction here to produce an output Jar and a directory of its dependencies -->
-		<!-- (both to be copied to lib/ext of target Jmeter instance) -->
-		
-<!-- 			<plugin> -->
-<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
-<!-- 				<artifactId>maven-jar-plugin</artifactId> -->
-<!-- 				<version>3.2.0</version> -->
-<!-- 				<configuration> -->
-<!-- 					<archive> -->
-<!-- 						<manifest> -->
-<!-- 							<addClasspath>true</addClasspath> -->
-<!-- 							<classpathPrefix>./${project.artifactId}-dependencies</classpathPrefix> -->
-<!-- 						</manifest> -->
-<!-- 					</archive> -->
-<!-- 				</configuration> -->
-<!-- 			</plugin> -->
-<!-- 			<plugin> -->
-<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
-<!-- 				<artifactId>maven-dependency-plugin</artifactId> -->
-<!-- 				<version>3.1.2</version>				 -->
-<!-- 				<configuration> -->
-<!-- 					<outputDirectory>${project.build.directory}/${project.artifactId}-dependencies</outputDirectory> -->
-<!-- 					<excludeGroupIds>org.apache.jmeter</excludeGroupIds> -->
-<!-- 				</configuration> -->
-<!-- 			</plugin> -->
-
-
-			<!-- Maven Assembly Plugin   (alternative to Maven Jar Plugin and Dependency Plugin usage above) -->
-			<!-- phase/goals:  clean package  -->
-			<!-- Wraps all the project classes and their dependencies into an single Jar (to be copied to lib/ext of target Jmeter instance)  -->
-			<!-- Note that this is not a general solution. May not work for projects with complex dependency trees (version issues), JCE providers (like bouncy castle)  -->
-			<!-- In those projects use the Maven Jar and Dependency Plugins as described above  -->								
+		<!-- Previous versions of this POM had used the Maven Assembly Plugin to create a single jar, but unfortunately it's not a general
+		     solution, and calls to CDP (DevTools) now fail if you use this approach.
+		     
+		     This particular project (dataHunterPerformanceTestSamples) has a dependency on the mark59-selenium-sample-dsl project, which is not in Central.
+		     So to build this project you can run the mark59 'aggregation' pom, or first install mark59-selenium-sample-dsl (goals: clean package install -->
 		
 			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>
-			    <artifactId>maven-assembly-plugin</artifactId>
-			    <version>3.3.0</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
 				<configuration>
-					<appendAssemblyId>false</appendAssemblyId>
-					<descriptorRefs><descriptorRef>jar-with-dependencies</descriptorRef></descriptorRefs>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>./${project.artifactId}-dependencies</classpathPrefix>
+						</manifest>
+					</archive>
 				</configuration>
+			</plugin>
+		
+			<!-- When running from the Eclipse IDE if you receive this error attempting a Maven build:
+				 "Artifact has not been packaged yet. When used on reactor artifact, copy should be executed after packaging: see MDEP-187.",
+				 check that in your Maven Run Configuration for the project you have "Resolve Workspace Artifacts" unticked -->		
+					
+			<!-- The <?m2e ignore?> tag is just prevents an Error being displayed when using Eclipse, due to a long standing m2e bug.
+				 https://stackoverflow.com/questions/30642630/artifact-has-not-been-packaged-yet/68633437#68633437 -->
+			     			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
+						<?m2e ignore?>
 						<phase>package</phase>
-						<goals><goal>single</goal></goals>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/${project.artifactId}-dependencies</outputDirectory>
+							<excludeGroupIds>org.apache.jmeter</excludeGroupIds>
+						</configuration>
 					</execution>
-				</executions>
-			</plugin>				
-
+				</executions>				
+			</plugin>
+			
 		</plugins>
 		<finalName>${project.artifactId}</finalName>
 	</build>

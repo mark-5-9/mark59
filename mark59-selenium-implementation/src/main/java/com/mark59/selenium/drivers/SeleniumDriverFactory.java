@@ -20,28 +20,57 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
+import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.Proxy;
+import org.openqa.selenium.WebDriver;
 
 import com.mark59.core.DriverWrapper;
 import com.mark59.core.factories.DriverWrapperFactory;
+import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.PropertiesKeys;
 import com.mark59.core.utils.PropertiesReader;
 import com.mark59.core.utils.ScreenshotLoggingHelper;
-import com.mark59.selenium.utils.SeleniumUtils;
+import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
 
 /**
  * @author Michael Cohen
  * @author Philip Webb
  * Written: Australian Winter 2019  
+ * 
+ * <p>Defines and controls the matching of many of the parameters used in the creation of a Selenium Webdriver, 
+ * from an implementation of SeleniumAbstractJavaSamplerClient.
+ *
+ * @see SeleniumDriverFactory#makeDriverWrapper(Map)
+ * @see SeleniumDriverFactory#getDriverBuilderOfType  
+ * @see com.mark59.selenium.drivers.SeleniumDriverFactory#HEADLESS_MODE 
+ * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setHeadless(boolean)  
+ * @see com.mark59.selenium.drivers.SeleniumDriverFactory#PAGE_LOAD_STRATEGY 
+ * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setPageLoadStrategy(PageLoadStrategy) 
+ * @see com.mark59.selenium.drivers.SeleniumDriverFactory#BROWSER_DIMENSIONS 
+ * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setSize(int width, int height) 
+ * @see com.mark59.selenium.drivers.SeleniumDriverFactory#PROXY 
+ * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setProxy(org.openqa.selenium.Proxy) 
+ * @see com.mark59.selenium.drivers.SeleniumDriverFactory#ADDITIONAL_OPTIONS 
+ * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAdditionalOptions(java.util.List) 
+ * @see com.mark59.selenium.drivers.SeleniumDriverFactory#WRITE_FFOX_BROWSER_LOGFILE 
+ * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setWriteBrowserLogfile(boolean)
+ * @see com.mark59.selenium.drivers.SeleniumDriverFactory#BROWSER_EXECUTABLE  
+ * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAlternateBrowser(java.nio.file.Path) 
+ * @see com.mark59.selenium.drivers.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
+ * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
+ * @see JmeterFunctionsForSeleniumScripts
+ *
+ * @author Philip Webb
+ * Written: Australian Winter 2019  
+ * 
  */
 public class SeleniumDriverFactory implements DriverWrapperFactory {
 
@@ -118,12 +147,13 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	private static final String CHROME = "CHROME";
 	private static final String FIREFOX = "FIREFOX";
 	
-	String legacyChomeLocation = "";
 	PropertiesReader pr = null;
 
 	public SeleniumDriverFactory() {
-		// https://stackoverflow.com/questions/52975287/selenium-chromedriver-disable-logging-or-redirect-it-java 
+		// https://stackoverflow.com/questions/52975287/selenium-chromedriver-disable-logging-or-redirect-it-java
+		// Note: May not be a general solution (loggers can be re-created - they are "WeakReferences"), but it seems to works here.
 		java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.WARNING);
+			
 		
 		try {
 			pr = PropertiesReader.getInstance();
@@ -176,28 +206,6 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 			throw new IllegalArgumentException("No driver defined in arguments supplied for driver construction");
 
 		SeleniumDriverBuilder<?> builder = getDriverBuilderOfType(arguments.get(DRIVER));
-
-		// legacy Chromedriver hack		
-		Properties systemProperties = System.getProperties();
-		if (!"true".equals(systemProperties.get("mark59.check.for.legacy.chromedriver.done")) ) {
-			systemProperties.setProperty("mark59.check.for.legacy.chromedriver.done", "true");
-			systemProperties.setProperty("mark59.alternate.browser.for.legacy.chromedriver", "");
-			if (CHROME.equalsIgnoreCase(arguments.get(DRIVER)) 
-					&& systemProperties.getProperty("os.name").toLowerCase(java.util.Locale.ENGLISH).indexOf("win") >= 0  
-					&& SeleniumUtils.interogateChromedriverVersion(pr.getProperty(PropertiesKeys.MARK59_PROP_DRIVER_CHROME)).startsWith("2.") 
-				    && StringUtils.isBlank(arguments.get(BROWSER_EXECUTABLE))){
-				String updatedBrowserExecutable = SeleniumUtils.legacyChromedriverHack();
-				if (StringUtils.isNotBlank(updatedBrowserExecutable)) {
-					systemProperties.setProperty("mark59.alternate.browser.for.legacy.chromedriver", updatedBrowserExecutable);
-					arguments.put(BROWSER_EXECUTABLE, updatedBrowserExecutable);
-				}
-			}
-		}
-		
-		legacyChomeLocation = systemProperties.getProperty("mark59.alternate.browser.for.legacy.chromedriver"); 
-		if (StringUtils.isBlank(arguments.get(BROWSER_EXECUTABLE)) && StringUtils.isNotBlank(legacyChomeLocation))
-			builder.setAlternateBrowser(new File(legacyChomeLocation).toPath());
-		
 		
 		// Set an alternate browser executable. If not set will use the default installation (except for legacy hack above).
 		if (StringUtils.isNotBlank(arguments.get(BROWSER_EXECUTABLE)))

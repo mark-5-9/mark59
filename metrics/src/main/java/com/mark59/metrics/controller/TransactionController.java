@@ -70,27 +70,31 @@ public class TransactionController {
 		List<Transaction> transactionList = transactionDAO.getUniqueListOfTransactionsByType(reqApp);
 		
 		Map<String, Object> map = new HashMap<String, Object>(); 
+		map.put("applications",applicationList);
 		map.put("transactionList",transactionList);
 		map.put("reqApp",reqApp);
-		map.put("applications",applicationList);
 		return new ModelAndView("transactionList", "map", map);
 	}
 	
 	
 	@RequestMapping("/transactionRenameDataEntry") 
-	public Object renameTransactionEntry(@RequestParam String reqApp,  @RequestParam String reqTxnId, @RequestParam String reqTxnType,
+	public Object renameTransactionEntry(@RequestParam String reqApp, @RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam String reqTxnType, 
 			@ModelAttribute TransactionRenameForm transactionRenameForm  ) {
-//		System.out.println("@ transactionRenameDataEntry : reqTxnId=" + reqTxnId + "reqTxnType=" + reqTxnType + ", Form=" + transactionRenameForm);
 		transactionRenameForm.setApplication(reqApp); ;
 		transactionRenameForm.setFromTxnId(reqTxnId);
 		transactionRenameForm.setTxnType(reqTxnType);
-		return new ModelAndView("transactionRenameDataEntry", "transactionRenameForm", transactionRenameForm);
+		transactionRenameForm.setFromIsCdpTxn(reqIsCdpTxn);
+		transactionRenameForm.setToIsCdpTxn(reqIsCdpTxn);
+		
+		Map<String, Object> map = createMapOfDropdowns();
+		map.put("transactionRenameForm", transactionRenameForm);
+		return new ModelAndView("transactionRenameDataEntry",  "map", map);
 	}
 
 	
 	@RequestMapping("/transactionRenameValidate") 
 	public Object transactionRenameValidate(@ModelAttribute TransactionRenameForm transactionRenameForm){
-//		System.out.println("@ transactionRenameValidate : Form=" + transactionRenameForm  );		
+		System.out.println("@ transactionRenameValidate : Form=" + transactionRenameForm  );		
 		transactionRenameForm.setPassedValidation("Y");
 		
 		if (StringUtils.isBlank(transactionRenameForm.getToTxnId())){
@@ -99,7 +103,8 @@ public class TransactionController {
 			return new ModelAndView("transactionRenameValidate", "transactionRenameForm" , transactionRenameForm  );
 		}
 		
-		if (transactionRenameForm.getToTxnId().equals(transactionRenameForm.getFromTxnId())){
+		if (transactionRenameForm.getToTxnId().equals(transactionRenameForm.getFromTxnId())
+				&& transactionRenameForm.getToIsCdpTxn().equals(transactionRenameForm.getFromIsCdpTxn())) {
 			transactionRenameForm.setPassedValidation("N");
 			transactionRenameForm.setValidationMsg("<p style='color:red'>The transaction names must differ !</p>");
 			return new ModelAndView("transactionRenameValidate", "transactionRenameForm" , transactionRenameForm  );
@@ -108,7 +113,9 @@ public class TransactionController {
 		long clashOfTxns = transactionDAO.countRunsContainsBothTxnIds(transactionRenameForm.getApplication(), 
 																		transactionRenameForm.getTxnType(),
 																		transactionRenameForm.getFromTxnId(),
-																		transactionRenameForm.getToTxnId());
+																		transactionRenameForm.getToTxnId(),
+																		transactionRenameForm.getFromIsCdpTxn(),
+																		transactionRenameForm.getToIsCdpTxn()); 
 		if (clashOfTxns > 0 ){
 			
 			transactionRenameForm.setPassedValidation("N");
@@ -120,9 +127,11 @@ public class TransactionController {
 					   + " AND R.APPLICATION = T.APPLICATION AND R.RUN_TIME = T.RUN_TIME "   
 					   + " AND R.RUN_TIME IN ( SELECT RUN_TIME FROM TRANSACTION  WHERE APPLICATION = '" + transactionRenameForm.getApplication() + "' " 
 					   														+ " AND TXN_TYPE = '" + transactionRenameForm.getTxnType() + "'" 
+					   														+ " AND IS_CDP_TXN = '" + transactionRenameForm.getFromIsCdpTxn()+ "'" 
 					   														+ " AND TXN_ID = '" + transactionRenameForm.getFromTxnId() + "') " 
 					   + " AND R.RUN_TIME IN ( SELECT RUN_TIME FROM TRANSACTION  WHERE APPLICATION = '" + transactionRenameForm.getApplication() + "' " 
 					   														+ " AND TXN_TYPE = '" + transactionRenameForm.getTxnType() + "'" 
+							   												+ " AND IS_CDP_TXN = '" + transactionRenameForm.getFromIsCdpTxn()+ "'" 					   														
 					   														+ " AND TXN_ID = '" + transactionRenameForm.getToTxnId() + "') "; 			
 			String encodedClashSql = UtilsMetrics.encodeBase64urlParam(clashSql);
 
@@ -139,15 +148,15 @@ public class TransactionController {
 					graph = "MEMORY";
 				} else if  (Mark59Constants.DatabaseTxnTypes.DATAPOINT.name().equals(transactionRenameForm.getTxnType())){
 					graph = "DATAPOINT_AVE";
-				}  
+				} 
+				
 				String clashLink = baseUrl + "/trending?reqApp=" + transactionRenameForm.getApplication() + "&reqGraph=" + graph +
 						"&reqUseRawRunSQL=true&reqRunTimeSelectionSQL=" + encodedClashSql;
 				transactionRenameForm.setValidationMsg("<p style='color:red'><b>Invalid Rename. There are run(s) containing both transaction names.</b></p>" +
 						"<p>Please refer to the link below to examine these runs</p>" + 
-						"<p>Note for metric transaction types the Graph names that delpoy with Mark59 are assumed to exist.</p>" + 
+						"<p>Note for metric transaction types the CPU_UTIL, MEMORY and DATAPOINT_AVE Graphs that delpoy with Mark59 are assumed to exist.</p>" + 
 						"<p><a href='" + clashLink + "'>Trend Analysis Graph for Runs with both Transaction Names</a></p>" ); 			
 			}
-	
 			
 		} else {  // a valid rename
 			
@@ -164,12 +173,15 @@ public class TransactionController {
 			}
 			
 			long doesToTxnIdExist = transactionDAO.countRunsContainsBothTxnIds(transactionRenameForm.getApplication(), 
-																				transactionRenameForm.getTxnType(),
+																				transactionRenameForm.getTxnType(), 
+																				transactionRenameForm.getToTxnId(), // deliberate repeats:
 																				transactionRenameForm.getToTxnId(),
-																				transactionRenameForm.getToTxnId()); //repeated!
+																				transactionRenameForm.getToIsCdpTxn(),
+																				transactionRenameForm.getToIsCdpTxn()); 
 			if (doesToTxnIdExist > 0 ) {
 				validationOkMsg = validationOkMsg +
-				  	"<p>Some runs already contain transactions named " + transactionRenameForm.getToTxnId() + ".<br>" +
+				  	"<p>Some runs already contain transactions named " + transactionRenameForm.getToTxnId()
+				  		+ ", CDP = "+ transactionRenameForm.getToIsCdpTxn() + ".<br>" +
 				  	"This means that this rename action may <b>not be reversible</b> (you are doing a merge of two transaction Ids)." + 
 					"<p>Check everything is OK before you Rename !"; 
 			}
@@ -185,18 +197,21 @@ public class TransactionController {
 		transactionDAO.renameTransactions(transactionRenameForm.getApplication(), 
 											transactionRenameForm.getTxnType(),
 											transactionRenameForm.getFromTxnId(),
-											transactionRenameForm.getToTxnId());
+											transactionRenameForm.getToTxnId(),
+											transactionRenameForm.getFromIsCdpTxn(),
+											transactionRenameForm.getToIsCdpTxn()); 
 		
 		if (Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals(transactionRenameForm.getTxnType())){
 			
-			Sla slaFromTxnId = slaDAO.getSla(transactionRenameForm.getApplication(), transactionRenameForm.getFromTxnId()); 
-			Sla slaToTxnId   = slaDAO.getSla(transactionRenameForm.getApplication(), transactionRenameForm.getToTxnId()); 
+			Sla slaFromTxnId = slaDAO.getSla(transactionRenameForm.getApplication(), transactionRenameForm.getFromTxnId(), transactionRenameForm.getFromIsCdpTxn()); 
+			Sla slaToTxnId   = slaDAO.getSla(transactionRenameForm.getApplication(), transactionRenameForm.getToTxnId(), transactionRenameForm.getToIsCdpTxn()); 
 			
 			if (slaFromTxnId != null && slaToTxnId == null ){  // okay to rename the SLA 
 				slaToTxnId = new Sla(slaFromTxnId);
 				slaToTxnId.setTxnId(transactionRenameForm.getToTxnId());
+				slaToTxnId.setIsCdpTxn(transactionRenameForm.getToIsCdpTxn());
 				slaDAO.insertData(slaToTxnId);
-				slaDAO.deleteData(transactionRenameForm.getApplication(), transactionRenameForm.getFromTxnId());
+				slaDAO.deleteData(transactionRenameForm.getApplication(), transactionRenameForm.getFromTxnId(), transactionRenameForm.getFromIsCdpTxn());
 			}				
 		
 		} else { // a metric txn type	
@@ -221,10 +236,28 @@ public class TransactionController {
 	}
 
 	
+	private Map<String, Object> createMapOfDropdowns() {
+		Map<String, Object> map = new HashMap<String, Object>(); 
+		List<String> applicationList   = populateApplicationDropdown();		
+		List<String> isCdpTxnYesNo     = populateIsCdpTxnYesNoDropdown();	
+		map.put("applications",applicationList);		
+		map.put("isCdpTxnYesNo",isCdpTxnYesNo);				
+		return map;
+	}	
+	
+	
 	private List<String> populateApplicationDropdown() {
 		List<String> applicationList = new ArrayList<String>();
 		applicationList = runDAO.findApplications();
 		return applicationList;
 	}		
+	
+	
+	private List<String> populateIsCdpTxnYesNoDropdown() {
+		List<String> isCdpTxnYesNo = new ArrayList<String>();
+		isCdpTxnYesNo.add("N");
+		isCdpTxnYesNo.add("Y");
+		return isCdpTxnYesNo;
+	}	
 	
 }

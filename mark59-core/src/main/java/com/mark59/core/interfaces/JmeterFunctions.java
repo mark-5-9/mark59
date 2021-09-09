@@ -21,7 +21,7 @@ import org.apache.jmeter.samplers.SampleResult;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 
 /**
- * Defines methods that can be called throughout the lifecycle of the test in order to handle behaviour around recording timings and other metrics.
+ * Defines methods that can be called throughout the lifecycle of the test in order to handle behavior around recording timings and other metrics.
  * 
  * @author Philip Webb    
  * @author Michael Cohen
@@ -30,13 +30,27 @@ import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 public interface JmeterFunctions {
 
 	/**
-	 * Start monitoring the transaction / Begin the timer
-	 * <p>Adds a transaction with the supplied label name and commences the timer. </p>
-	 * <p>Should be paired with a call to this.endTransaction(String).</p>
-	 * @param transactionID label for the transaction
+	 * Starts timing a transaction.  Note you cannot start a transaction using the same name as one already running 
+	 * in a script (controlled using an internally created transactionMap holding a key of running transaction names)
+	 * and starts timing the transaction. 
+	 * <p>Should be paired with a call an endTransaction method</p>
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @throws IllegalArgumentException if the transaction name supplied is an illegal value (null or empty) or already in use.
 	 */
-	void startTransaction(String transactionID);
+	void startTransaction(String transactionLabel);
 
+	
+	/**
+	 * Starts timing a transaction.  Note you cannot start a transaction using the same name as one already running 
+	 * in a script (controlled using an internally created transactionMap holding a key of running transaction names)
+	 * and starts timing the transaction. 
+	 * <p>Should be paired with a call an endTransaction method</p>
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param jMeterFileDatatypes a {@link JMeterFileDatatypes} (it's text value will be written in the data type field of the JMeter results file)
+	 * @throws IllegalArgumentException if the transaction name supplied is an illegal value (null or empty) or already in use.
+	 */
+	void startTransaction(String transactionLabel, JMeterFileDatatypes jMeterFileDatatypes);	
+	
 	
 	/**
 	 * Stop monitoring the transaction / End the timer
@@ -55,7 +69,7 @@ public interface JmeterFunctions {
 	 * <p>This is independent of starting or stopping transactions, setting a specific value for the transaction duration.</p>
 	 * 
 	 * @param transactionLabel label for the transaction
-	 * @param transactionTime time taken for the transaction
+	 * @param transactionTime time taken for the transaction (ms)
 	 * @return SampleResult 
 	 */
 	SampleResult setTransaction(String transactionLabel, long transactionTime);
@@ -67,7 +81,7 @@ public interface JmeterFunctions {
 	 * <p>Allows for setting whether the transaction was a success or failure</p>
 	 * 
 	 * @param transactionLabel label for the transaction
-	 * @param transactionTime time taken for the transaction
+	 * @param transactionTime time taken for the transaction (ms)
 	 * @param success success state of the transaction
 	 * @return SampleResult
 	 */
@@ -81,13 +95,27 @@ public interface JmeterFunctions {
 	 * <p>Allows for a response message (which is printed in a JMeter report for error transactions)</p>
 	 * 
 	 * @param transactionLabel label for the transaction
-	 * @param transactionTime time taken for the transaction
+	 * @param transactionTime time taken for the transaction (ms)
 	 * @param success success state of the transaction
 	 * @param responseCode response message (useful for error transactions)
 	 * @return SampleResult
 	 */
 	SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode);
-	
+
+
+	/**
+	 * As per {@link #setTransaction(String, long, boolean, String)}, but with the additional option of setting the data type
+	 * field of the JMeter results file
+	 * 
+	 * @param transactionLabel label for the transaction
+	 * @param jMeterFileDatatypes  a {@link JMeterFileDatatypes} (it's text value will be written in the data type field of the JMeter results file)
+	 * @param transactionTime time taken for the transaction (ms)
+	 * @param success success state of the transaction
+	 * @param responseCode response message (useful for error transactions)
+	 * @return SampleResult
+	 */
+	SampleResult setTransaction(String transactionLabel, JMeterFileDatatypes jMeterFileDatatypes, long transactionTime,
+			boolean success, String responseCode);
 	
 	/**
 	 * Add a single datapoint.
@@ -130,4 +158,5 @@ public interface JmeterFunctions {
 	 * @return org.apache.jmeter.samplers.SampleResult
 	 */	
 	SampleResult getMainResult();
+
 }

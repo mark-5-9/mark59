@@ -8,20 +8,19 @@
 #   |  Source is also included for dataHunterPerformanceTestSamples and mark59-selenium-sample-dsl projects. 
 #   |   
 #   |  When a new version of mark59-core and mark59-selenium-implementation is being used that is yet to be uploaded to     
-#   |  Maven central those maven projects must also be incldued.   
+#   |  Maven central those maven projects must also be included.   
 #   --------------------------------------------------------------------------------------------------------------
 # SOURCE_DIR=~/gitrepo/mark-5-9/mark59-wip/
 # DEST_DIR=~/mark59-3.x_PRE_RELEASE"
 
 SOURCE_DIR=~/gitrepo/mark59-wip/
-DEST_DIR=~/mark59-3.3/ 
+DEST_DIR=~/mark59-4.0.0-rc-1/ 
 
 rm -rf ${DEST_DIR}
 mkdir -p ${DEST_DIR}
 cd ~/gitrepo/mark59-wip/
 
 rsync -av -m --exclude '.*' --exclude '*/src' --exclude '*/webapp' --exclude '*/test' --exclude '*/WEB-INF' --exclude '*/classes' --exclude '*/test-classes' --exclude 'TESTDATA' --exclude '*/maven*' --exclude 'archive-tmp' --exclude '*/m2e-wtp*' --exclude '*/surefire*' --exclude '*.log' --exclude '*.png' --exclude '*.gif' --exclude '*.original' --exclude '*.java' --exclude 'UtilityCreateMark59Zip.*' --exclude 'pom.xml' --exclude 'mark59-server-metrics-web.jar' --exclude 'metrics.jar' --exclude 'dataHunterPerformanceTestSamples' --exclude 'mark59-selenium-sample-dsl' --exclude 'mark59-core' --exclude 'mark59-selenium-implementation' "${SOURCE_DIR}" "${DEST_DIR}"
-
 
 # In the command below, for a _PRE_RELEASE version: do NOT include the directives "--exclude 'mark59-core' --exclude 'mark59-selenium-implementation' " 
 #     (that way core and selenium-implementation project jars are avaiable before they have been added in Maven Central)

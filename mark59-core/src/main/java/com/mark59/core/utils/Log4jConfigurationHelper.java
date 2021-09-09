@@ -78,6 +78,13 @@ public class Log4jConfigurationHelper {
 		console.add(standard);
 		builder.add(console);
 
+		// FYI how to add more loggers 
+		// import org.apache.logging.log4j.core.config.builder.api.LoggerComponentBuilder;
+//		LoggerComponentBuilder logger = builder.newLogger("org", Level.DEBUG);
+//		logger.add(builder.newAppenderRef("Stdout"));
+//		logger.addAttribute("additivity", true);
+//		builder.add(logger);
+
 		RootLoggerComponentBuilder rootLogger = builder.newRootLogger(level);
 		rootLogger.add(builder.newAppenderRef("Stdout"));
 		builder.add(rootLogger);

@@ -73,7 +73,7 @@ public class LrRun extends PerformanceTest  {
       		try {
       			transactionDAO.insert(eventTransaction);
       		} catch ( org.springframework.dao.DuplicateKeyException e ) {
-      			System.out.println("\n\nError :  Whoa!  This can happen if you try to match the same transaction name to two different LoadRunners events.\n"
+      			System.out.println("\n\nError :  Whoa!  This can happen if you try to match the same transaction name to two different LoadRunner events.\n"
       					+ "Review the Event Map Table (printed above) and your matching criteria to see if this is the issue.\n\n"
       					+ "The attempted transaction was : " + eventTransaction + "\n\n" );
       			throw new RuntimeException(e); 

@@ -21,7 +21,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Mark59 - Add New SLA</title>
+<title>Mark59 - Bulk Load SLAs</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
@@ -53,89 +53,95 @@
 
      <tr>
       <td>Application :</td>
-      <td><form:select path="application" items="${map.applications}" onchange="clearInnerHTML('errMsg');reloadSlaBulkLoadPage()" /></td>
+      <td colspan=2><form:select path="application" items="${map.applications}" onchange="clearInnerHTML('errMsg');reloadSlaBulkLoadPage()" /></td>
      </tr>
      <tr>
-      <td style="font-size: 12px">(with baselines only)</td>   
-       <td></td>  
+      <td colspan=2 style="font-size: 12px">(with baselines only)</td>   
      </tr>
  
      <tr>
       <td><br><br><b>DEFAULT VALUES</b><br><br></td>
-      <td style="font-size: 12px"><br><br>
-      	Will be applied to new Application SLAs rows only.<br>
-      	Enter <b>-1</b> for values you do not want to set an SLA against.
-      </td>     
+      <td style="font-size: 12px" width="10%"><br><br>Only applied to new SLAs.
+      		<br>Enter <b>-1</b> for values you do not<br>want to set an SLA against.<br></td>
+      <td style="font-size: 12px; padding-left: 20px;"><br><br>Check box(es) for the percentiles you <br>want copied from the baseline.
+      		<br>Otherwise the value in the text box is used.</td>   
      </tr>
   
      <tr>
       <td>Ignore Txn on Graphs? :</td>
-      <td><form:input path="isTxnIgnored"  value="N"  /></td>     
+      <td colspan=2><form:select path="isTxnIgnored" items="${map.isTxnIgnoredYesNo}" /></td>      
+         
      </tr>
      <tr>
       <td>90th percentile  :</td>
       <td><form:input path="sla90thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
+      <td style="padding-left: 20px;">
+      	<form:checkbox path="sla90thFromBaseline" onclick="resetElementAndReadonlyIfCheckboxTicked('sla90thFromBaseline1','sla90thResponse')" /></td>     
      </tr>
      <tr>
       <td>95th percentile  :</td>
-      <td><form:input path="sla95thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
+      <td><form:input path="sla95thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td> 
+      <td style="padding-left: 20px;">
+      	<form:checkbox path="sla95thFromBaseline" onclick="resetElementAndReadonlyIfCheckboxTicked('sla95thFromBaseline1','sla95thResponse')" /></td>     
      </tr> 
      <tr>
       <td>99th percentile  :</td>
       <td><form:input path="sla99thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
+      <td style="padding-left: 20px;">
+      	<form:checkbox path="sla99thFromBaseline" onclick="resetElementAndReadonlyIfCheckboxTicked('sla99thFromBaseline1','sla99thResponse')" /></td>     
      </tr>    
      <tr>
       <td>Pass count variance % :</td>
-      <td><form:input path="slaPassCountVariancePercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="10.0" /></td>     
+      <td colspan=2><form:input path="slaPassCountVariancePercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="10.0" /></td>     
      </tr>     
      <tr>
       <td>Fail count :</td>
-      <td><form:input path="slaFailCount" type="text" pattern="-?\d*" value="-1"/></td>     
+      <td colspan=2><form:input path="slaFailCount" type="text" pattern="-?\d*" value="-1"/></td>     
      </tr>
      <tr>
       <td>Fail percent :</td>
-      <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="2.0" /></td>     
+      <td colspan=2><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="2.0" /></td>     
      </tr>
      <tr>
       <td></td>
-      <td style="font-size: 12px"><br>
+      <td  colspan=2 style="font-size: 12px"><br>
       	Non SLA-related fields (the default values will be applied to new rows) :
       </td>     
      </tr>     
      <tr>
       <td>Txn delay :</td>
-      <td><form:input path="txnDelay" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
+      <td colspan=2><form:input path="txnDelay" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
      </tr>       
      <tr>
       <td>Xtra num :</td>
-      <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
+      <td colspan=2><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
      </tr>
      <tr>
       <td>Xtra int :</td>
-      <td><form:input path="xtraInt" type="text" pattern="-?\d*" value="0"/></td>      
+      <td colspan=2><form:input path="xtraInt" type="text" pattern="-?\d*" value="0"/></td>      
      </tr>      
       
      <tr>
       <td><br><br><b>SLA REFERENCE</b><br><br></td>
-      <td style="font-size: 12px"><br><br>If entered, will be applied to new or all Application SLAs (for transactions that exist on the baseline), as selected.<br><br></td>     
+      <td colspan=2 style="font-size: 12px"><br><br>If entered, will be applied to new or all Application SLAs (for transactions that exist on the baseline), as selected.<br><br></td>     
      </tr>
          
      <tr>
       <td>Reference :</td>
-      <td><form:textarea path="slaRefUrl" maxlength="1000" style="width:100%;height:50px" onkeyup="enableOrdisableApplyRefUrlOption()" /></td> 
+      <td colspan=2><form:textarea path="slaRefUrl" maxlength="1000" style="width:100%;height:50px" onkeyup="enableOrdisableApplyRefUrlOption()" /></td> 
      </tr>
      <tr>
       <td>Apply to :</td>
-      <td><form:select path="applyRefUrlOption" items="${map.applyRefUrlOptions}"  /></td>     
+      <td colspan=2><form:select path="applyRefUrlOption" items="${map.applyRefUrlOptions}"  /></td>     
      </tr>
 
      <tr>
-      <td> </td>
-      <td><br><input id=submit type="submit" value="Load" /></td>
+      <td></td>
+      <td colspan=2><br><input id=submit type="submit" value="Load" /></td>
      </tr>
       
      <tr>
-      <td colspan="2"><a href="slaList?reqApp=${reqApp}">Cancel</a></td>
+      <td colspan="3"><a href="slaList?reqApp=${reqApp}">Cancel</a></td>
      </tr>
     </table>
    </form:form>

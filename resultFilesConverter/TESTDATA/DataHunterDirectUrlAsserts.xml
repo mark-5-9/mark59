@@ -31,25 +31,25 @@
     <error>false</error>
     <failureMessage>The result was the wrong size: It was 0 bytes, but should have been greater than 1 bytes.</failureMessage>
   </assertionResult>
-  <sample t="159" it="0" lt="0" ct="0" ts="1563781634445" s="true" lb="DH-lifecycle-0100-deleteMultiplePolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="159" it="0" lt="0" ct="0" ts="1563781634445" s="true" lb="DH_lifecycle_0100_deleteMultiplePolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="310" it="0" lt="0" ct="0" ts="1563781635037" s="true" lb="DH-lifecycle-0200-addPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="310" it="0" lt="0" ct="0" ts="1563781635037" s="true" lb="DH_lifecycle_0200_addPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="0" it="0" lt="0" ct="0" ts="1563781637931" s="true" lb="DH-lifecycle-0299-sometimes-I-fail" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="0" it="0" lt="0" ct="0" ts="1563781637931" s="true" lb="DH_lifecycle_0299_sometimes_I_fail" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="100" it="0" lt="0" ct="0" ts="1563781638103" s="true" lb="DH-lifecycle-0300-countUnusedPolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="100" it="0" lt="0" ct="0" ts="1563781638103" s="true" lb="DH_lifecycle_0300_countUnusedPolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
@@ -79,13 +79,13 @@
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="143" it="0" lt="0" ct="0" ts="1563781639336" s="true" lb="DH-lifecycle-0500-useNextPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="143" it="0" lt="0" ct="0" ts="1563781639336" s="true" lb="DH_lifecycle_0500_useNextPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="86" it="0" lt="0" ct="0" ts="1563781639591" s="true" lb="DH-lifecycle-0100-deleteMultiplePolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="86" it="0" lt="0" ct="0" ts="1563781639591" s="true" lb="DH_lifecycle_0100_deleteMultiplePolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-1" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
@@ -103,31 +103,31 @@
     <error>false</error>
     <failureMessage>The result was the wrong size: It was 0 bytes, but should have been greater than 1 bytes.</failureMessage>
   </assertionResult>
-  <sample t="149" it="0" lt="0" ct="0" ts="1563781637712" s="true" lb="DH-lifecycle-0100-deleteMultiplePolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="149" it="0" lt="0" ct="0" ts="1563781637712" s="true" lb="DH_lifecycle_0100_deleteMultiplePolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="337" it="0" lt="0" ct="0" ts="1563781638346" s="true" lb="DH-lifecycle-0200-addPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="337" it="0" lt="0" ct="0" ts="1563781638346" s="true" lb="DH_lifecycle_0200_addPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="288" it="0" lt="0" ct="0" ts="1563781639045" s="true" lb="DH-lifecycle-0200-addPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="288" it="0" lt="0" ct="0" ts="1563781639045" s="true" lb="DH_lifecycle_0200_addPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="1" it="0" lt="0" ct="0" ts="1563781641210" s="true" lb="DH-lifecycle-0299-sometimes-I-fail" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="1" it="0" lt="0" ct="0" ts="1563781641210" s="true" lb="DH_lifecycle_0299_sometimes_I_fail" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="94" it="0" lt="0" ct="0" ts="1563781641364" s="true" lb="DH-lifecycle-0300-countUnusedPolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="94" it="0" lt="0" ct="0" ts="1563781641364" s="true" lb="DH_lifecycle_0300_countUnusedPolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
@@ -157,13 +157,13 @@
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="165" it="0" lt="0" ct="0" ts="1563781642529" s="true" lb="DH-lifecycle-0500-useNextPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="165" it="0" lt="0" ct="0" ts="1563781642529" s="true" lb="DH_lifecycle_0500_useNextPolicy" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>
     <responseFile class="java.lang.String"></responseFile>
   </sample>
-  <sample t="82" it="0" lt="0" ct="0" ts="1563781642833" s="true" lb="DH-lifecycle-0100-deleteMultiplePolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
+  <sample t="82" it="0" lt="0" ct="0" ts="1563781642833" s="true" lb="DH_lifecycle_0100_deleteMultiplePolicies" rc="200" rm="PASS" tn="DataHunterLifecycle 1-2" dt="" de="" by="0" sby="0" sc="1" ec="0" ng="3" na="4" hn="MyHostnm">
     <responseHeader class="java.lang.String"></responseHeader>
     <requestHeader class="java.lang.String"></requestHeader>
     <responseData class="java.lang.String">Non-TEXT response data, cannot record: ()</responseData>

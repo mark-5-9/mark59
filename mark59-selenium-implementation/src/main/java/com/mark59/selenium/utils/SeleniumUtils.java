@@ -17,7 +17,6 @@ package com.mark59.selenium.utils
  */
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -76,7 +75,7 @@ public class SeleniumUtils {
 	/**
 	 * Directly hits the chromedriver and reads the initial message to obtain it's version (intended for internal use only). 
 	 * @param seleniumDriverPath  the path of the selenium Driver
-	 * @return chomedriver version
+	 * @return chromedriver version
 	 */
 	public static String interogateChromedriverVersion (String seleniumDriverPath) {
 		String version = "NotFound";
@@ -96,30 +95,6 @@ public class SeleniumUtils {
 		} else {			
 			return version.trim();
 		}
-	}
-
-	
-	/**
-	 * On Win older versions of the chromedriver (2.x) expect Chrome to be installed within the C:/Program Files (x86)/ directory,
-	 * but more recent versions of Chrome now install at  C:/Program Files/
-	 * <p>This is a 'hacky' work-around to see if Chrome is now installed at the newer location.  Just meant to help make the 'demo'     
-	 * script run, and intended for internal use only.  
-	 * 
-	 * @return updated chrome.exe file location
-	 */
-	public static String legacyChromedriverHack() {
-		String legacyWinChromeLocation = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe";
-		String recentWinChromeLocation = "C:/Program Files/Google/Chrome/Application/chrome.exe";
-		
-		if ( ! new File(legacyWinChromeLocation).exists()) {
-			if (new File(recentWinChromeLocation).exists()) {
-				LOG.warn("\n\n The Mark59 framework has detected you are using an old (2.x) version of the chromedriver, " +
-						"and your Chrome instance is in a location that it cannot find by default.\n" +
-						" You are advised to change to a more recent version of the chromedriver.\n" );
-				return recentWinChromeLocation; 
-			}
-		}
-		return null;
 	}
 
 }

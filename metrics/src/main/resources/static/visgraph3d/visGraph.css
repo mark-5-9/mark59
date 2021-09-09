@@ -84,6 +84,19 @@ th, td
   padding: 4px;
 }
 
+td.novertpadding
+{
+  font: 12px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+  text-align: right;
+  vertical-align: top;
+  /*border: 1px solid #888;*/
+  padding: 0px;
+  padding-left: 2px;
+  padding-right: 2px;
+  white-space:nowrap;
+}
+
+
 th 
 {
   font-weight: bold;

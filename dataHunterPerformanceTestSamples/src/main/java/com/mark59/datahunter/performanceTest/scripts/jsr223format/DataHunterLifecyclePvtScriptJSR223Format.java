@@ -38,12 +38,12 @@ public static void main(String[] args) throws InterruptedException{
 class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	
 	final class TestConstants {
-		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = "/dataHunter/delete_multiple_policies";
-		public static final String COUNT_POLICIES_URL_PATH              = "/dataHunter/count_policies";	
-		public static final String ADD_POLICY_URL_PATH                  = "/dataHunter/add_policy";
-		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = "/dataHunter/print_selected_policies";
-		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = "/dataHunter/count_policies_breakdown";		
-		public static final String NEXT_POLICY_URL_PATH                 = "/dataHunter/next_policy";	
+		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = "/delete_multiple_policies";
+		public static final String COUNT_POLICIES_URL_PATH              = "/count_policies";	
+		public static final String ADD_POLICY_URL_PATH                  = "/add_policy";
+		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = "/print_selected_policies";
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = "/count_policies_breakdown";		
+		public static final String NEXT_POLICY_URL_PATH                 = "/next_policy";	
 		public static final String UNUSED                               = "UNUSED";  
 		public static final String EQUALS                               = "EQUALS";
 		public static final String SELECT_MOST_RECENTLY_ADDED           = "SELECT_MOST_RECENTLY_ADDED";  
@@ -124,7 +124,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	@Override
 	protected Map<String, String> additionalTestParameters() {
 		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<String, String>();
-		jmeterAdditionalParameters.put("DATAHUNTER_URL_HOST_PORT",	"http://localhost:8081");
+		jmeterAdditionalParameters.put("DATAHUNTER_URL",			"http://localhost:8081/dataHunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST");
 		jmeterAdditionalParameters.put("FORCE_TXN_FAIL_PERCENT", 	"20");
 		jmeterAdditionalParameters.put("USER", 	 "default_user");		
@@ -147,7 +147,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		
 		String thread = Thread.currentThread().getName();
 		String lifecycle = "thread_" + thread;
-		String dataHunterUrl 	= context.getParameter("DATAHUNTER_URL_HOST_PORT");
+		String dataHunterUrl 	= context.getParameter("DATAHUNTER_URL");
 		String application 		= context.getParameter("DATAHUNTER_APPLICATION_ID");
 		int forceTxnFailPercent = Integer.valueOf(context.getParameter("FORCE_TXN_FAIL_PERCENT").trim());
 		String user 			= context.getParameter("USER");
@@ -157,19 +157,19 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		DataHunterInputPages dataHunterInputPages = new DataHunterInputPages(driver); 
 
 // 		delete any existing policies for this application/thread combination
-		jm.startTransaction("DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl");
+		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
 		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		dataHunterInputPages.lifecycle().waitUntilClickable();
-		jm.endTransaction("DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl");	
+		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");	
 		
 		dataHunterInputPages.lifecycle().type(lifecycle);
 
 		DatatHunterActionPages resultsPage = new DatatHunterActionPages(driver);
 		
-		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
+		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");		
 		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );  
 		waitActionPageCheckSqlOk(new DatatHunterActionPages(driver));
-		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
+		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	
 //		add a set of policies 		
 		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + "?application=" + application);
@@ -182,30 +182,31 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			dataHunterInputPages.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
 //			jm.writeScreenshot("add_policy_TESTID" + i);
 
-			jm.startTransaction("DH-lifecycle-0200-addPolicy");
+			jm.startTransaction("DH_lifecycle_0200_addPolicy");
+			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay			
 			dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );   
 			waitActionPageCheckSqlOk(resultsPage);
-			jm.endTransaction("DH-lifecycle-0200-addPolicy");
+			jm.endTransaction("DH_lifecycle_0200_addPolicy");
 			
 			resultsPage.backLink().click().waitUntilClickable( dataHunterInputPages.submit() ).thenSleep();    
 		} 
 	
 //		dummy transaction just to test transaction failure behavior
-		jm.startTransaction("DH-lifecycle-0299-sometimes-I-fail");
+		jm.startTransaction("DH_lifecycle_0299_sometimes_I_fail");
 		int randomNum_1_to_100 = ThreadLocalRandom.current().nextInt(1, 101);
 		if ( randomNum_1_to_100 >= forceTxnFailPercent ) {
-			jm.endTransaction("DH-lifecycle-0299-sometimes-I-fail", Outcome.PASS);
+			jm.endTransaction("DH_lifecycle_0299_sometimes_I_fail", Outcome.PASS);
 		} else {
-			jm.endTransaction("DH-lifecycle-0299-sometimes-I-fail", Outcome.FAIL);
+			jm.endTransaction("DH_lifecycle_0299_sometimes_I_fail", Outcome.FAIL);
 		}
 		
 		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_URL_PATH + "?application=" + application);
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED).thenSleep();   // ** note 2
 
-		jm.startTransaction("DH-lifecycle-0300-countUnusedPolicies");
+		jm.startTransaction("DH_lifecycle_0300_countUnusedPolicies");
 		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );
 		waitActionPageCheckSqlOk(resultsPage);
-		jm.endTransaction("DH-lifecycle-0300-countUnusedPolicies");
+		jm.endTransaction("DH_lifecycle_0300_countUnusedPolicies");
 		
 		Long countPolicies = Long.valueOf( resultsPage.rowsAffected().getText());
 		LOG.debug( "countPolicies : " + countPolicies); 
@@ -216,10 +217,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		dataHunterInputPages.applicationStartsWithOrEquals().selectByVisibleText(TestConstants.EQUALS);
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED);
 
-		jm.startTransaction("DH-lifecycle-0400-countUnusedPoliciesCurrentThread");		
+		jm.startTransaction("DH_lifecycle_0400_countUnusedPoliciesCurrentThread");		
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(resultsPage);		
-		jm.endTransaction("DH-lifecycle-0400-countUnusedPoliciesCurrentThread");				
+		jm.endTransaction("DH_lifecycle_0400_countUnusedPoliciesCurrentThread");				
 		
 		// direct access to required row-column table element by computing the id:
 		int countUsedPoliciesCurrentThread = resultsPage.getCountForBreakdown(application, lifecycle, TestConstants.UNUSED); 
@@ -232,10 +233,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED);
 		dataHunterInputPages.selectOrder().selectByVisibleText(TestConstants.SELECT_MOST_RECENTLY_ADDED);
 		
-		jm.startTransaction("DH-lifecycle-0500-useNextPolicy");		
+		jm.startTransaction("DH_lifecycle_0500_useNextPolicy");		
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(resultsPage);			
-		jm.endTransaction("DH-lifecycle-0500-useNextPolicy");	
+		jm.endTransaction("DH_lifecycle_0500_useNextPolicy");	
 		
 		if (LOG.isDebugEnabled() ) {LOG.debug("useNextPolicy: " + application + "-" + lifecycle + " : " + resultsPage.identifier() );	}
 		
@@ -246,11 +247,11 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		driver.get(dataHunterUrl + TestConstants.PRINT_SELECTED_POLICIES_URL_PATH  + "?application=" + application);
 		dataHunterInputPages.submit().waitUntilClickable();
 		
-		jm.startTransaction("DH-lifecycle-0600-displaySelectedPolicies");	
+		jm.startTransaction("DH_lifecycle_0600_displaySelectedPolicies");	
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(resultsPage);
 		// demo how to extract a transaction time from with a running script 
-		org.apache.jmeter.samplers.SampleResult sr_0600 = jm.endTransaction("DH-lifecycle-0600-displaySelectedPolicies");
+		org.apache.jmeter.samplers.SampleResult sr_0600 = jm.endTransaction("DH_lifecycle_0600_displaySelectedPolicies");
 		LOG.debug("Transaction " + sr_0600.getSampleLabel() + " ran at " + sr_0600.getTimeStamp() + " and took " + sr_0600.getTime() + " ms." );
 		
 		HtmlTable printSelectedPoliciesTable = resultsPage.printSelectedPoliciesTable();
@@ -258,22 +259,22 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			if (tableRow.getColumnNumberOfExpectedColumns(4, 8).getText().equals("USED"))   used++;
 			if (tableRow.getColumnNumberOfExpectedColumns(4, 8).getText().equals("UNUSED")) unused++;
 		}	
-		jm.userDataPoint("USED-count-html-demo",   used );				
-		jm.userDataPoint("UNUSED-count-html-demo", unused );	
+		jm.userDataPoint("USED_count_html_demo",   used );				
+		jm.userDataPoint("UNUSED_count_html_demo", unused );	
 		LOG.debug("HTML demo: USED=" + used + ", UNUSED=" + unused); 
 		
 // 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
-		jm.startTransaction("DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl");		
+		jm.startTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");		
 		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		dataHunterInputPages.lifecycle().waitUntilClickable();		
-		jm.endTransaction("DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl");	
+		jm.endTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");	
 		
 		dataHunterInputPages.lifecycle().type(lifecycle);
 		
-		jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
+		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(new DatatHunterActionPages(driver));
-		jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies");	
+		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 		
 //		jm.writeBufferedArtifacts();
 	}
@@ -292,20 +293,11 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	private synchronized void PrintSomeMsgOnceAtStartUp(String dataHunterUrl, WebDriver driver) {
 		Properties sysprops = System.getProperties();
 		if (!"true".equals(sysprops.get("printedOnce")) ) {	
-			LOG.info("  using DataHunter with Url " + dataHunterUrl + "/dataHunter");
+			LOG.info(" Using DataHunter with Url " + dataHunterUrl + "/dataHunter");
 			Capabilities caps = ((ChromeDriver)driver).getCapabilities();
-			LOG.info(" Browser Name and Version : " + caps.getBrowserName() + " " + caps.getVersion());
+			LOG.info(" Browser Name and Version : " + caps.getBrowserName() + " " + caps.getBrowserVersion());
 			if ("chrome".equalsIgnoreCase(caps.getBrowserName()) && caps.getCapability("chrome") != null ){
-				String chromedriverVersion =  ((Map<String, String>)caps.getCapability("chrome")).get("chromedriverVersion");
 				LOG.info(" Chrome Driver Version    : " +  ((Map<String, String>)caps.getCapability("chrome")).get("chromedriverVersion"));
-				if (chromedriverVersion != null &&  chromedriverVersion.startsWith("2.44") ) {
-					String outDatedDriver = "\n\n You are using the outdated ChromeDriver that ships with the Mark59 Selenium test scripts " +
-							" project 'dataHunterPerformanceTestSamples'.  It may be unstable or not work at all." + 				
-							"\n - Please visit https://chromedriver.chromium.org/downloads and update to a ChomeDriver which supports " +
-							"Chrome browser version " + caps.getVersion() + "\n";
-					System.out.println(outDatedDriver);
-					LOG.warn(outDatedDriver);
-				}	
 			}
 			sysprops.put("printedOnce", "true");
 		}

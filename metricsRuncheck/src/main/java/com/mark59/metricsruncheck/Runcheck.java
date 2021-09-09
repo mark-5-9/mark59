@@ -108,13 +108,14 @@ public class Runcheck  implements CommandLineRunner
 
 	private PerformanceTest performanceTest;
 	private List<MetricSlaResult> metricSlaResults = new ArrayList<MetricSlaResult>();
-	private List<SlaTransactionResult> slaTransactionResults = new ArrayList<SlaTransactionResult>();
-	private List<String> slasWithMissingTxns = new ArrayList<String>(); 
+	private List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas = new ArrayList<SlaTransactionResult>();
+	private List<String> cdpTaggedMissingTransactions = new ArrayList<String>(); 
 	
 	public static void parseArguments(String[] args) {
 		Options options = new Options(); 
 		options.addRequiredOption("a", "application",	true, "Application Id, as it will appear in the Trending Graph Application dropdown selections");
-		options.addRequiredOption("i", "input",			true, "The directory or file containing the performance test results.  Multiple xml/csv/jtl results files allowed for Jmeter within a directory, a single .mdb file is required for Loadrunner");			
+		options.addRequiredOption("i", "input",			true, "The directory or file containing the performance test results.  Multiple xml/csv/jtl results files allowed for JMeter within a directory,"
+																+ " a single .mdb file is required for Loadrunner");			
 		options.addOption("d", "databasetype",			true, "Load data to a 'h2', 'pg' or 'mysql' database (defaults to 'mysql')");			
 		options.addOption("r", "reference",		 		true, "A reference.  Usual purpose would be to identify this run (possibly by a link). Eg <a href='http://ciServer/job/myJob/001/HTML_Report'>run 001</a>");
 		options.addOption("t", "tool",      			true, "Performance Tool used to generate the results to be processed { JMETER (default) | GATLING | LOADRUNNER }" );
@@ -127,21 +128,21 @@ public class Runcheck  implements CommandLineRunner
 		options.addOption("u", "dbUsername",   			true, "Username for the database (defaults to admin)" );				
 		options.addOption("w", "dbpassWord",   			true, "Password for the database" );				
 		options.addOption("y", "dbpassencrYpted",		true, "Encrypted Password for the database (value as per the encryption used by mark59-server-metrics-web application 'Edit Server Profile' page)");				
-		options.addOption("q", "dbxtraurlparms",		true, "Any special parameters to append to the end of the database URL (include the ?). Eg \"?allowPublicKeyRetrieval=truee&useSSL=false\" (the quotes are needed to escape the ampersand)");				
+		options.addOption("q", "dbxtraurlparms",		true, "Any special parameters to append to the end of the database URL (include the ?). Eg \"?allowPublicKeyRetrieval=truee&useSSL=false\" "
+																+ "(the quotes are needed to escape the ampersand)");				
 		options.addOption("x", "eXcludestart",     		true, "exclude results at the start of the test for the given number of minutes (defaults to 0)" );			
-		options.addOption("c", "captureperiod",    		true, "Only capture test results for the given number of minutes, from the excluded start period (default is all results except those skipped by the excludestart parm are included)" );			
-		options.addOption("k", "keeprawresults", 		true, "Keep Raw Test Resuts. If 'true' will keep each transaction for each run in the database (System metrics data is not capured for Loadrunner). "
+		options.addOption("c", "captureperiod",    		true, "Only capture test results for the given number of minutes, from the excluded start period "
+																+ "(default is all results except those skipped by the excludestart parm are included)" );			
+		options.addOption("k", "keeprawresults", 		true, "Keep Raw Test Results. If 'true' will keep each transaction for each run in the database (System metrics data is not captured for Loadrunner). "
 																+ "This can use a large amount of storage and is not recommended (defaults to false).");
-		options.addOption("e", "ignoredErrors",    		true, "Gatling, JMeter(csv) only. A list of pipe (|) delimited strings.  When an error msg starts with any of the strings in the list, it will be treated as a Passed transaction rather that an Error." );	
+		options.addOption("e", "ignoredErrors",    		true, "Gatling, JMeter(csv) only. A list of pipe (|) delimited strings.  When an error msg starts with any of the strings in the list, "
+																+ "it will be treated as a Passed transaction rather than an Error." );	
 		options.addOption("l", "simulationLog",			true, "Gatling only. Simulation log file name - must be in the Input directory (defaults to simulation.log)" );
-		options.addOption("m", "simlogcustoM",			true, "Gatling only. Simulation log comma-separated cumtomized 'REQUEST' field column positions in order : txn name, epoch start, epoch end, tnx OK, error msg. "
+		options.addOption("m", "simlogcustoM",			true, "Gatling only. Simulation log comma-separated customized 'REQUEST' field column positions in order : txn name, epoch start, epoch end, tnx OK, error msg. "
 																+ "The text 'REQUEST' is assumed in position 1. EG: for a 3.6.1 layout: '2,3,4,5,6,' (This parameter may assist with un-catered for Gatling versions)" );
-		options.addOption("z", "timeZone",    			true, "Loadrunner only. Required when running extract from zone other than where Analysis Report was generated. Also, internal raw stored time"
+		options.addOption("z", "timeZone",    			true, "Loadrunner only. Required when running ann extract from azone other than where the Analysis Report was generated. Also, internal raw stored time"
 																+ " may not take daylight saving into account.  Two format options 1) offset against GMT. Eg 'GMT+02:00' or 2) IANA Time Zone Database (TZDB) codes."
 																+ " Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. Eg 'Australia/Sydney' ");   	
-
-		
-		
 		HelpFormatter formatter = new HelpFormatter();
 		CommandLine commandLine = null;
 		CommandLineParser parser = new DefaultParser();
@@ -308,14 +309,14 @@ public class Runcheck  implements CommandLineRunner
 		System.out.println( "Sample usages");
 		System.out.println( "------------");
 		System.out.println( "   1. JMeter example ");
-		System.out.println( "   Process Jmeter xml formatted result in directory C:/jmeter-results/BIGAPP  (file/s ends in .xml)");
+		System.out.println( "   Process JMeter xml formatted result in directory C:/jmeter-results/BIGAPP  (file/s ends in .xml)");
 		System.out.println( "   The graph application name will be MY_COMPANY_BIG_APP, with a reference for this run of 'run ref 645'.");
 		System.out.println( "   The metricsdb database is hosted locally on a MySql instance assigned to port 3309 (default user/password of admin/admin) : "  );
 		System.out.println( "   java -jar metricsRuncheck.jar -a MY_COMPANY_BIG_APP -i C:/jmeter-results/BIGAPP -r \"run ref 645\" -p 3309  ");
 		System.out.println( "   2. Gatling example ");
 		System.out.println( "   Process Gatling simulation.log in directory C:/GatlingProjects/myBigApp");
 		System.out.println( "   The graph application name will be MY_COMPANY_BIG_APP, with a reference for this run of 'GatlingIsCool'.");
-		System.out.println( "   The metricsdb database is hosted locally on a Postgress instance using all defaults (but you want to disable sslmode) "  );
+		System.out.println( "   The metricsdb database is hosted locally on a Postgres instance using all defaults (but you want to disable sslmode) "  );
 		System.out.println( "   java -jar metricsRuncheck.jar -a MY_COMPANY_BIG_APP -i C:/GatlingProjects/myBigApp -d pg -q \"?sslmode=disable\" -t GATLING  -r \"GatlingIsCool\" ");		
 		System.out.println( "   3. Loadrunner example");		
 		System.out.println( "   Process Loadrunner analysis result at C:/templr/BIGAPP/AnalysisSession (containing file AnalysisSession.mdb).  ");
@@ -377,15 +378,15 @@ public class Runcheck  implements CommandLineRunner
 			performanceTest = new LrRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults, timeZone );
 		}
 		
-		slaTransactionResults = new SlaChecker().listTransactionsWithFailedSlas(application, performanceTest.getTransactionSummariesThisRun(), slaDAO);;
-		printTransactionalMetricSlaResults(slaTransactionResults);
+		cdpTaggedTransactionsWithFailedSlas = new SlaChecker().listCdpTaggedTransactionsWithFailedSlas(application, performanceTest.getTransactionSummariesThisRun(), slaDAO);
+		printTransactionalMetricSlaResults(cdpTaggedTransactionsWithFailedSlas);
 		
 		String runTime = performanceTest.getRunSummary().getRunTime(); 
 
-		slasWithMissingTxns  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, runTime, slaDAO  ); 
-		printSlasWitMissingTxnsInThisRun(slasWithMissingTxns);		
+		cdpTaggedMissingTransactions  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, runTime, slaDAO  ); 
+		printSlasWitMissingTxnsInThisRun(cdpTaggedMissingTransactions);		
 		
-		if (slasWithMissingTxns.isEmpty()  && slaTransactionResults.isEmpty() ){
+		if (cdpTaggedMissingTransactions.isEmpty()  && cdpTaggedTransactionsWithFailedSlas.isEmpty() ){
 			System.out.println( "Runcheck:  No transactional SLA has failed (as recorded on the SLA Reference Database)");
 		} 
 		
@@ -394,16 +395,16 @@ public class Runcheck  implements CommandLineRunner
 	}
 	
 
-	private void printSlasWitMissingTxnsInThisRun(List<String> slasWithMissingTxns) {
-		for (String slaWithMissingTxn : slasWithMissingTxns) {
+	private void printSlasWitMissingTxnsInThisRun(List<String> cdpTaggedMissingTransactions) {
+		for (String slaWithMissingTxn : cdpTaggedMissingTransactions) {
     		System.out.println( "Runcheck: SLA Failed : Error : an SLA exists for transaction " + slaWithMissingTxn + ", but that transaction does not appear in the run results ! "  );			
 		}
 	}
 
 	
-	private Boolean printTransactionalMetricSlaResults(List<SlaTransactionResult> slaTransactionResults) {
+	private Boolean printTransactionalMetricSlaResults(List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas) {
 		Boolean allPassed = true; 
-		for (SlaTransactionResult slaTransactionResult : slaTransactionResults) {
+		for (SlaTransactionResult slaTransactionResult : cdpTaggedTransactionsWithFailedSlas) {
 			if ( !slaTransactionResult.isPassedAllSlas()){
 				allPassed = false;
 			}
@@ -466,7 +467,7 @@ public class Runcheck  implements CommandLineRunner
 	 * @return metricSlaResults
 	 */
 	public List<SlaTransactionResult> getSlaTransactionResults() {
-		return slaTransactionResults;
+		return cdpTaggedTransactionsWithFailedSlas;
 	}
 	/**
 	 * for testing purposes
@@ -480,9 +481,7 @@ public class Runcheck  implements CommandLineRunner
 	 * @return metricSlaResults
 	 */
 	public List<String> getSlasWithMissingTxns() {
-		return slasWithMissingTxns;
+		return cdpTaggedMissingTransactions;
 	}
-
-	
 	
 }

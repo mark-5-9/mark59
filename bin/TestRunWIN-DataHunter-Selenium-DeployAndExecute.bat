@@ -21,19 +21,25 @@ REM   |
 REM   -------------------------------------------------------------------------------------------------------------------------------------------------
 CD /D "%~dp0"
 
+rem use SET "StartCdpListeners=true" to allow the cdp listeners in the test script to execute 
+SET "StartCdpListeners=false"
+rem SET "StartCdpListeners=true"
+
 REM copied from DeployDataHunterTestArtifactsToJmeter.bat in the dataHunterPerformanceTestSamples project ..
-
 cd  ..\dataHunterPerformanceTestSamples   
-
 DEL C:\apache-jmeter\bin\mark59.properties
 DEL C:\apache-jmeter\bin\chromedriver.exe
-DEL C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples.jar
 DEL C:\apache-jmeter\lib\ext\mark59-server-metrics.jar
+DEL C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples.jar
+
+RMDIR /S /Q "C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples-dependencies"
+MKDIR "C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples-dependencies"
 
 COPY .\mark59.properties C:\apache-jmeter\bin
 COPY .\chromedriver.exe  C:\apache-jmeter\bin
-COPY .\target\dataHunterPerformanceTestSamples.jar  C:\apache-jmeter\lib\ext
 COPY ..\mark59-server-metrics\target\mark59-server-metrics.jar  C:\apache-jmeter\lib\ext
+COPY .\target\dataHunterPerformanceTestSamples.jar  C:\apache-jmeter\lib\ext
+COPY .\target\dataHunterPerformanceTestSamples-dependencies  C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples-dependencies
 
 REM PAUSE
 REM execute JMeter in non-GUI mode ..

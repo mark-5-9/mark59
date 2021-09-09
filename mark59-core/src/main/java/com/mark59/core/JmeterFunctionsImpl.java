@@ -41,9 +41,9 @@ import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
  * 
  * <p>Typical usage from a scripting perspective is to time a transaction.  For example:
  * <pre><code>
- * jm.startTransaction("DH-lifecycle-0100-deleteMultiplePolicies");		
+ * jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");		
  * deleteMultiplePoliciesPage.submit().submit();
- * jm.endTransaction("DH-lifecycle-0100-deleteMultiplePolicies")
+ * jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies")
  * </code></pre>
  * 
  * <p>where '<code>jm</code>' is this class, or an extension of this class (eg SeleniumAbstractJavaSamplerClient)
@@ -64,6 +64,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	
 	protected SampleResult mainResult = new SampleResult();
 	protected Map<String, SampleResult> transactionMap = new ConcurrentHashMap<>();
+	protected String mostRecentTransactionStarted;
 	protected String threadName;
 
 	protected boolean isForcedFail;
@@ -117,7 +118,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	
 	/**
 	 * Completes the test main transaction - expected to be invoked at end of test script run.
-	 * Note from Jmeter 5.0 a call to set the end time of the main transaction is called as each  
+	 * Note from JMeter 5.0 a call to set the end time of the main transaction is called as each  
 	 * sub-result ends, so a call to the sampleEnd() method only needs to be made if no subResult 
 	 * has already set the main transaction end time 
 	 * 
@@ -139,7 +140,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	
 
 	/**
-	 * Starts timing a transaction.  Note cannot start a transaction using the same name as one already running 
+	 * Starts timing a transaction.  Note you cannot start a transaction using the same name as one already running 
 	 * in a script (controlled using an internally created transactionMap holding a key of running transaction names)
 	 * and starts timing the transaction. 
 	 * 
@@ -148,6 +149,22 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 */
 	@Override
 	public void startTransaction(String transactionLabel) {
+		startTransaction(transactionLabel, JMeterFileDatatypes.TRANSACTION);
+	}
+	
+	
+	
+	/**
+	 * Starts timing a transaction.  Note you cannot start a transaction using the same name as one already running 
+	 * in a script (controlled using an internally created transactionMap holding a key of running transaction names)
+	 * and starts timing the transaction. 
+	 * 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param jMeterFileDatatypes a {@link JMeterFileDatatypes} (it's text value will be written in the data type field of the JMeter results file)
+	 * @throws IllegalArgumentException if the transaction name supplied is an illegal value (null or empty) or already in use.
+	 */
+	@Override
+	public void startTransaction(String transactionLabel, JMeterFileDatatypes jMeterFileDatatypes) {
 		if (StringUtils.isBlank(transactionLabel)) {
 			throw new IllegalArgumentException("transactionLabel cannot be null or empty");
 		}
@@ -157,11 +174,13 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		}
 		SampleResult sampleResult = new SampleResult();
 		sampleResult.setSampleLabel(transactionLabel);
+		sampleResult.setDataType(jMeterFileDatatypes.getDatatypeText());   // eg "CDP" for DevTools, blank for standard txn.	
 		transactionMap.put(transactionLabel, sampleResult);
+		mostRecentTransactionStarted = transactionLabel;
 		sampleResult.sampleStart();
 	}
 
-	
+
 	/**
 	 * Ends an existing transaction (SampleResult), stopping the running timer.
 	 * 
@@ -180,6 +199,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	public SampleResult endTransaction(String transactionLabel) {
 		return endTransaction(transactionLabel, Outcome.PASS, null);
 	}
+
 	
 	
 	/**
@@ -266,6 +286,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		return setTransaction(transactionLabel, transactionTime, true);
 	}
 	
+	
 	/**
 	 * Adds a new SubResult directly to the main result, without the need to use timing methods 
 	 * startTransaction(txnName) and endTransaction(txnName).
@@ -285,6 +306,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success) {
 		return createSubResult(transactionLabel, transactionTime, success ? Outcome.PASS : Outcome.FAIL, JMeterFileDatatypes.TRANSACTION, null );		
 	}
+	
 
 	/**
 	 * Adds a new SubResult directly to the main result, without the need to use timing methods 
@@ -296,7 +318,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * is expected to be in milliseconds.
 	 * 
 	 * <p>Allows for a response message (which can be printed in a JMeter report for errored transactions).  This  will 
-	 * default to "200" or  "-1" for passed/failed transaction if a blank or null message is passed.
+	 * default to "200" / "-1" for passed/failed transaction if a blank or null message is passed.
 	 * 
 	 * @param transactionLabel label for the transaction
 	 * @param transactionTime time taken for the transaction
@@ -306,9 +328,27 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * @throws IllegalArgumentException if the transactionLabel is null or empty
 	 * @return SampleResult
 	 */
+	@Override
 	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode) {
 		return createSubResult(transactionLabel, transactionTime, success ? Outcome.PASS : Outcome.FAIL, JMeterFileDatatypes.TRANSACTION, responseCode );		
 	}
+	
+	/**
+	 *  As per {@link #setTransaction(String, long, boolean, String)} but with the additional option of setting the data type
+	 * field of the JMeter results file
+	 * 
+	 * @param transactionLabel label for the transaction
+	 * @param jMeterFileDatatypes  a {@link JMeterFileDatatypes} (it's text value will be written in the data type field of the JMeter results file)
+	 * @param transactionTime time taken for the transaction (ms)
+	 * @param success success state of the transaction
+	 * @param responseCode response message (useful for error transactions)
+	 * @return SampleResult
+	 */
+	@Override
+	public SampleResult setTransaction(String transactionLabel, JMeterFileDatatypes jMeterFileDatatypes, long transactionTime, boolean success, String responseCode) {
+		return createSubResult(transactionLabel, transactionTime, success ? Outcome.PASS : Outcome.FAIL, jMeterFileDatatypes, responseCode );		
+	}
+	
 	
 	
 	/**
@@ -323,9 +363,9 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * @return SampleResult
 	 */ 
 	@Override
-	public SampleResult userDatatypeEntry(String dataPointName, long dataPointValue,  JMeterFileDatatypes outputDatatype) {
-		if (LOG.isDebugEnabled()) LOG.debug(" userDatatypeEntry Name:Value [ " + dataPointName + ":" + dataPointValue + ":" +  outputDatatype.getDatatypeText() + "]");
-		return createSubResult(dataPointName, dataPointValue, Outcome.PASS, outputDatatype, null);		
+	public SampleResult userDatatypeEntry(String dataPointName, long dataPointValue,  JMeterFileDatatypes jMeterFileDatatypes) {
+		if (LOG.isDebugEnabled()) LOG.debug(" userDatatypeEntry Name:Value [ " + dataPointName + ":" + dataPointValue + ":" +  jMeterFileDatatypes.getDatatypeText() + "]");
+		return createSubResult(dataPointName, dataPointValue, Outcome.PASS, jMeterFileDatatypes, null);		
 	}
 	
 	
@@ -365,6 +405,10 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		return subResult;
 	}			
 	
+	
+	
+	
+	
 	/**
 	 *  Return results from running the test.  Specifically for the Mark59 implementation,
 	 *  it can be used to access the transaction results in a running script by 
@@ -374,6 +418,18 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	public SampleResult getMainResult() {
 		return mainResult;
 	}
+	
+	
+	/**
+	 * Returns the transaction id of the last (most recent) transaction started. 
+	 * Excludes SET transactions and DataPoints.
+	 * 
+	 * @return mostRecentTransactionStarted (txnId)
+	 */
+	public String getMostRecentTransactionStarted() {
+		return mostRecentTransactionStarted;
+	}
+	
 	
 	/**
 	 * Fetches the SampleResult from the transactionMap that matches the supplied label.

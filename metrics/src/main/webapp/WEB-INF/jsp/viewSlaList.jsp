@@ -41,6 +41,7 @@
   <table class="metricsTable">
    <tr>
     <th>Transaction</th>
+    <th>CDP<br>Txn</th>      
     <th>Application</th>
     <th>Txn Ignored<br>on Graphs</th>    
     <th>90th Res<br>Time</th>
@@ -59,6 +60,7 @@
    <c:forEach var="sla" items="${slaList}">
     <tr>
      <td>${sla.txnId}</td>
+     <td>${sla.isCdpTxn}</td>     
      <td>${sla.application}</td>
      <td>${sla.isTxnIgnored }</td>     
      <td>${sla.sla90thResponse}</td>

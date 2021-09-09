@@ -50,21 +50,28 @@ if ( OS_NAME_LC.indexOf(&quot;win&quot;) &gt;= 0 ) {
 	os = &quot;WINDOWS&quot;; 
 } 
 
-JMeterUtils.setProperty(&quot;localhost_OS_HOSTID&quot;, &quot;LOCALHOST_&quot; + os + &quot;_HOSTID&quot; );
+// System Properties vs JMeterUtils - please review the mark59 User Guide if using JSR223 for Mark59 scripts.
+// A bit of an oversight ..  profile called &apos;localhost_LINUX_HOSTID&apos; to all dbs in the next release (just use hostid?)
+
+if ( os == &quot;LINUX&quot; ){
+	System.getProperties().setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_LINUX&quot;);
+} else {
+	System.getProperties().setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_WINDOWS_HOSTID&quot;);
+}
 
 SampleResult.setIgnore();
  
-OUT.println(&quot;localhost_OS_HOSTID property has been set to : &quot; + &quot;localhost_&quot; + os + &quot;_HOSTID&quot; );
-log.info   (&quot;localhost_OS_HOSTID property has been set to : &quot; + &quot;localhost_&quot; + os + &quot;_HOSTID&quot; );</stringProp>
+OUT.println(&quot;OS property has been set to : &quot; + os );
+log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
           <stringProp name="scriptLanguage">groovy</stringProp>
         </JSR223Sampler>
         <hashTree/>
       </hashTree>
       <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="dataHunterUrlHostPort" elementType="Argument">
-            <stringProp name="Argument.name">dataHunterUrlHostPort</stringProp>
-            <stringProp name="Argument.value">${__P(DataHunterUrlHostPort,http://localhost:8081)}</stringProp>
+          <elementProp name="dataHunterUrl" elementType="Argument">
+            <stringProp name="Argument.name">dataHunterUrl</stringProp>
+            <stringProp name="Argument.value">${__P(DataHunterUrl,http://localhost:8081/dataHunter)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="pacing" elementType="Argument">
@@ -75,6 +82,13 @@ log.info   (&quot;localhost_OS_HOSTID property has been set to : &quot; + &quot;
           <elementProp name="mark59ServerMetricsWebUrl" elementType="Argument">
             <stringProp name="Argument.name">mark59ServerMetricsWebUrl</stringProp>
             <stringProp name="Argument.value">${__P(Mark59ServerMetricsWebUrl,http://localhost:8085/mark59-server-metrics-web)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">see ServerMetrics_localhost thread group</stringProp>
+          </elementProp>
+          <elementProp name="startCdpListeners" elementType="Argument">
+            <stringProp name="Argument.name">startCdpListeners</stringProp>
+            <stringProp name="Argument.value">${__P(StartCdpListeners,false)}</stringProp>
+            <stringProp name="Argument.desc">see DataHunterLifecyclePvtScript</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -175,11 +189,12 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle" enabled="true">
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/dataHunter</stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="DATAHUNTER_URL_HOST_PORT" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_URL_HOST_PORT</stringProp>
-                <stringProp name="Argument.value">${dataHunterUrlHostPort}</stringProp>
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
@@ -190,6 +205,11 @@ return 0;</stringProp>
               <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
                 <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
                 <stringProp name="Argument.value">${__P(ForceTxnFailPercent,25)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="START_CDP_LISTENERS" elementType="Argument">
+                <stringProp name="Argument.name">START_CDP_LISTENERS</stringProp>
+                <stringProp name="Argument.value">${startCdpListeners}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="USER" elementType="Argument">
@@ -229,7 +249,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
                 <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
-                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.value">--auto-open-devtools-for-tabs</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="WRITE_FFOX_BROWSER_LOGFILE" elementType="Argument">
@@ -289,7 +309,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.3</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 4.0.0-rc-1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -328,11 +348,12 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator" enabled="true">
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/dataHunter</stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="DATAHUNTER_URL_HOST_PORT" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_URL_HOST_PORT</stringProp>
-                <stringProp name="Argument.value">${dataHunterUrlHostPort}</stringProp>
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
@@ -472,7 +493,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.3</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 4.0.0-rc-1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -506,12 +527,12 @@ return 0;</stringProp>
         </ConstantThroughputTimer>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_excel" enabled="true">
-          <stringProp name="TestPlan.comments">will run the &apos;localhost_WINDOWS_HOSTID&apos;  or &apos; &apos;localhost_LINUX_HOSTID&apos;  proflle ( see &apos;setOperatingSystemProperty&apos; in the setUp Thread Group)   </stringProp>
+          <stringProp name="TestPlan.comments">will run the &apos;localhost_WINDOWS_HOSTID&apos;  or &apos; &apos;localhost_LINUX&apos;  proflle ( see the setUp Thread Group)   TODO: create a profile called &apos;localhost_LINUX_HOSTID&apos; for consistency !! </stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
                 <stringProp name="Argument.name">SERVER_PROFILE_NAME</stringProp>
-                <stringProp name="Argument.value">${__property(localhost_OS_HOSTID)}</stringProp>
+                <stringProp name="Argument.value">${__property(LOCALHOST_OS)}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: ____________________" elementType="Argument">
@@ -536,7 +557,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information: " elementType="Argument">
                 <stringProp name="Argument.name">build information: </stringProp>
-                <stringProp name="Argument.value">mark59-server-metrics version 3.3.0</stringProp>
+                <stringProp name="Argument.value">mark59-server-metrics version  4.0.0-rc-1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -618,7 +639,7 @@ return 0;</stringProp>
           </value>
         </objProp>
         <stringProp name="filename"></stringProp>
-        <stringProp name="TestPlan.comments">-- You would normally disable &apos;View Results Tree&apos; for a real test --     ( for this test remember to download and copy the Server Profiles Exel file into /bin before running ! )</stringProp>
+        <stringProp name="TestPlan.comments">-- You would normally disable &apos;View Results Tree&apos; for a real test --     ( for this test remember to download and copy the Server Profiles Excel file into /bin before running ! )</stringProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>

@@ -31,11 +31,15 @@ import com.mark59.core.utils.Mark59Constants;
  */
 public class AppConstantsMetrics {
 	
-	public static final String MARK59_TRENDING_VERSION = "3.3.0";		
+	public static final String MARK59_TRENDING_VERSION = "4.0.0-rc-1";		
 	
-	public static final String TXN_90TH_GRAPH  		= "TXN_90TH";
-	public static final String TXN_95TH_GRAPH  		= "TXN_95TH";
-	public static final String TXN_99TH_GRAPH  		= "TXN_99TH";
+	public static final String TXN_90TH_GRAPH = "TXN_90TH";
+	public static final String TXN_95TH_GRAPH = "TXN_95TH";
+	public static final String TXN_99TH_GRAPH = "TXN_99TH";
+
+	public static final String SHOW_HIDE_CDP = "HIDE_CDP";
+	public static final String SHOW_SHOW_CDP = "SHOW_CDP";
+	public static final String SHOW_ONLY_CDP = "ONLY_CDP";
 	
 	public static final int MAX_NUM_RUNS_DISPLAYABLE_ON_HTML_TABLE  = 10;
 	public static final int DEFAULT_NUM_RUNS_DISPLAYED       		= 10;  
@@ -47,6 +51,8 @@ public class AppConstantsMetrics {
 	public static final BigDecimal THOUSAND = new BigDecimal(1000);  
 	
 	public static final String ACTIVE  		= "Active";
+	
+	public static final String CDP_TAG 		= " (CDP)";
 	
 	public static final String LOADRUNNER 	= "Loadrunner";
 	public static final String JMETER		= "Jmeter";	

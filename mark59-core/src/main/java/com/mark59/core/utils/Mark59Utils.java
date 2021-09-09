@@ -119,19 +119,25 @@ public class Mark59Utils {
 	 * Maps JMeter file 'dt' (datatype) column to the TXN_TYPE values use in the Mark59 database tables
 	 *  <p><b>Mapping Summary  (JMeter file type 'maps to'  database TXN_TYPE) :</b>
 	 *  <table summary="">
-  	 *	<tr><td>'' (blank)</td><td> --&gt; </td><td>TRANSACTION</td></tr>
-  	 *	<tr><td>CPU_UTIL  </td><td> --&gt; </td><td>CPU_UTIL   </td></tr>
-  	 *	<tr><td>MEMORY    </td><td> --&gt; </td><td>MEMORY     </td></tr>
-  	 *	<tr><td>DATAPOINT </td><td> --&gt; </td><td>DATAPOINT  </td></tr>
-  	 *	<tr><td>(unmapped)</td><td> --&gt; </td><td>TRANSACTION</td></tr>
+  	 *	<tr><td>CPU_UTIL  </td><td> --&gt; </td><td>CPU_UTIL   		</td><td></td></tr>
+  	 *	<tr><td>MEMORY    </td><td> --&gt; </td><td>MEMORY     		</td><td></td></tr>
+  	 *	<tr><td>DATAPOINT </td><td> --&gt; </td><td>DATAPOINT  		</td><td></td></tr>
+  	 *	<tr><td>CDP       </td><td> --&gt; </td><td>TRANSACTION		</td><td>but will be tagged as a DevTools (CDP) transaction *</td></tr>
+  	 *	<tr><td>'' (blank)</td><td> --&gt; </td><td>TRANSACTION		</td><td>a standard transaction</td></tr>
+  	 *	<tr><td>(unmapped)</td><td> --&gt; </td><td>TRANSACTION		</td><td>default catch-all</td></tr>
   	 *  </table>
-	 * @see Mark59Constants 
+  	 *  <p>*  A separate check needs to be done when processing JMeter files for CDP tagging  
+  	 *  
+	 * @see Mark59Constants.DatabaseTxnTypes 
+	 * @see Mark59Constants.JMeterFileDatatypes 
 	 * @param jmeterFileDatatype on of the possible datatype (dt) values on the JMeter results file
 	 * @return DatabaseDatatypes (string value)
 	 */
 	public static String convertJMeterFileDatatypeToDbTxntype(String jmeterFileDatatype) {
-		if ( JMeterFileDatatypes.TRANSACTION.getDatatypeText().equals(jmeterFileDatatype)){    //maps any blank to transaction
+		if ( JMeterFileDatatypes.TRANSACTION.getDatatypeText().equals(jmeterFileDatatype)){    //expected to map any blank to transaction
 			return DatabaseTxnTypes.TRANSACTION.name();
+		} else if ( JMeterFileDatatypes.CDP.getDatatypeText().equals(jmeterFileDatatype)){    
+			return DatabaseTxnTypes.TRANSACTION.name();			
 		} else if ( JMeterFileDatatypes.CPU_UTIL.getDatatypeText().equals(jmeterFileDatatype)){    
 			return DatabaseTxnTypes.CPU_UTIL.name();
 		} else if ( JMeterFileDatatypes.MEMORY.getDatatypeText().equals(jmeterFileDatatype)){   
@@ -148,7 +154,7 @@ public class Mark59Utils {
 	 * Constructs metric transaction names based on server id and rules (using data that can be obtained from commandResponseParser) 
 	 * 
 	 * <p>A key element of creating metric transaction ids is the mapping of Mark59 Metric Transaction Types
-	 * to ther prefixes used in the metric transaction ids.  The table below summarizes the relationships.
+	 * as the transaction id prefix.  The table below summarizes the relationships.
 	 * 
 	 *  <p><b>Mapping Summary  (Meter Transaction Type 'maps to' transaction id prefix)</b>
 	 *  <table summary="">

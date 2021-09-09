@@ -25,11 +25,13 @@ import java.math.BigDecimal;
 public class BulkApplicationPassCountsForm {
 
 		String		application;
-		String		txnId;
 		String		isTxnIgnored;
 		BigDecimal	sla90thResponse;
+		boolean		sla90thFromBaseline;
 		BigDecimal	sla95thResponse;
+		boolean		sla95thFromBaseline;		
 		BigDecimal	sla99thResponse;
+		boolean		sla99thFromBaseline;		
 		Long		slaPassCount;
 		BigDecimal	slaPassCountVariancePercent;
 		Long		slaFailCount;
@@ -41,17 +43,12 @@ public class BulkApplicationPassCountsForm {
 		String		slaOriginalTxnId;
 		String      applyRefUrlOption;
 				
+		
 		public String getApplication() {
 			return application;
 		}
 		public void setApplication(String application) {
 			this.application = application;
-		}
-		public String getTxnId() {
-			return txnId;
-		}
-		public void setTxnId(String txnId) {
-			this.txnId = txnId;
 		}
 		public String getIsTxnIgnored() {
 			return isTxnIgnored;
@@ -65,17 +62,35 @@ public class BulkApplicationPassCountsForm {
 		public void setSla90thResponse(BigDecimal sla90thResponse) {
 			this.sla90thResponse = sla90thResponse;
 		}
+		public boolean isSla90thFromBaseline() {
+			return sla90thFromBaseline;
+		}
+		public void setSla90thFromBaseline(boolean sla90thFromBaseline) {
+			this.sla90thFromBaseline = sla90thFromBaseline;
+		}
 		public BigDecimal getSla95thResponse() {
 			return sla95thResponse;
 		}
 		public void setSla95thResponse(BigDecimal sla95thResponse) {
 			this.sla95thResponse = sla95thResponse;
 		}
+		public boolean isSla95thFromBaseline() {
+			return sla95thFromBaseline;
+		}
+		public void setSla95thFromBaseline(boolean sla95thFromBaseline) {
+			this.sla95thFromBaseline = sla95thFromBaseline;
+		}
 		public BigDecimal getSla99thResponse() {
 			return sla99thResponse;
 		}
 		public void setSla99thResponse(BigDecimal sla99thResponse) {
 			this.sla99thResponse = sla99thResponse;
+		}
+		public boolean isSla99thFromBaseline() {
+			return sla99thFromBaseline;
+		}
+		public void setSla99thFromBaseline(boolean sla99thFromBaseline) {
+			this.sla99thFromBaseline = sla99thFromBaseline;
 		}
 		public Long getSlaPassCount() {
 			return slaPassCount;
@@ -139,4 +154,28 @@ public class BulkApplicationPassCountsForm {
 			this.applyRefUrlOption = applyRefUrlOption;
 		}
 	
+		@Override
+		public String toString() {
+			String prettyPrint = "application="+application
+					+ ", isTxnIgnored="+isTxnIgnored		
+					+ ", sla90thResponse="+sla90thResponse		
+					+ ", sla90thFromBaseline="+sla90thFromBaseline		
+					+ ", sla95thResponse="+sla95thResponse		
+					+ ", sla95thFromBaseline="+sla95thFromBaseline		
+					+ ", sla99thResponse="+sla99thResponse		
+					+ ", sla99thFromBaseline="+sla99thFromBaseline		
+					+ ", slaPassCountVariancePercent="+slaPassCountVariancePercent		
+					+ ", slaFailCount="+slaFailCount		
+					+ ", slaFailPercent="+slaFailPercent		
+					+ ", isTxnIgnored="+isTxnIgnored		
+					+ ", txnDelay="+txnDelay		
+					+ ", xtraNum="+xtraNum		
+					+ ", xtraInt="+xtraInt		
+					+ ", slaRefUrl="+slaRefUrl		
+					+ ", slaOriginalTxnId="+slaOriginalTxnId		
+					+ ", applyRefUrlOption="+applyRefUrlOption		
+					;
+			return prettyPrint;
+		}
+		
 }

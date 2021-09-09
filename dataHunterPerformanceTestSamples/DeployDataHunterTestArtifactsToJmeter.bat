@@ -15,14 +15,19 @@ REM   --------------------------------------------------------------------------
 
 MODE con:cols=180 lines=60
 
+cd  ..\dataHunterPerformanceTestSamples   
 DEL C:\apache-jmeter\bin\mark59.properties
 DEL C:\apache-jmeter\bin\chromedriver.exe
-DEL C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples.jar
 DEL C:\apache-jmeter\lib\ext\mark59-server-metrics.jar
+DEL C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples.jar
+
+RMDIR /S /Q "C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples-dependencies"
+MKDIR "C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples-dependencies"
 
 COPY .\mark59.properties C:\apache-jmeter\bin
 COPY .\chromedriver.exe  C:\apache-jmeter\bin
-COPY .\target\dataHunterPerformanceTestSamples.jar  C:\apache-jmeter\lib\ext
 COPY ..\mark59-server-metrics\target\mark59-server-metrics.jar  C:\apache-jmeter\lib\ext
+COPY .\target\dataHunterPerformanceTestSamples.jar  C:\apache-jmeter\lib\ext
+COPY .\target\dataHunterPerformanceTestSamples-dependencies  C:\apache-jmeter\lib\ext\dataHunterPerformanceTestSamples-dependencies
 
 PAUSE

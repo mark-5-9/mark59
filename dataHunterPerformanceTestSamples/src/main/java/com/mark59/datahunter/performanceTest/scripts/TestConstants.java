@@ -22,15 +22,15 @@ package com.mark59.datahunter.performanceTest.scripts;
  */
 public class TestConstants {
 	
-	public static final String DELETE_MULTIPLE_POLICIES_URL_PATH	= "/dataHunter/delete_multiple_policies";
-	public static final String COUNT_POLICIES_URL_PATH 				= "/dataHunter/count_policies";	
-	public static final String ADD_POLICY_URL_PATH      			= "/dataHunter/add_policy";
-	public static final String PRINT_SELECTED_POLICIES_URL_PATH		= "/dataHunter/print_selected_policies";
-	public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH	= "/dataHunter/count_policies_breakdown";		
-	public static final String DELETE_POLICY_URL_PATH				= "/dataHunter/delete_policy";	
-	public static final String NEXT_POLICY_URL_PATH					= "/dataHunter/next_policy";	
-	public static final String ASYNC_MESSAGE_ANALYZER_URL_PATH		= "/dataHunter/async_message_analyzer";
-	public static final String UPDATE_POLICIES_USE_STATE_URL_PATH	= "/dataHunter/update_policies_use_state";		
+	public static final String DELETE_MULTIPLE_POLICIES_URL_PATH	= "/delete_multiple_policies";
+	public static final String COUNT_POLICIES_URL_PATH 				= "/count_policies";	
+	public static final String ADD_POLICY_URL_PATH      			= "/add_policy";
+	public static final String PRINT_SELECTED_POLICIES_URL_PATH		= "/print_selected_policies";
+	public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH	= "/count_policies_breakdown";		
+	public static final String DELETE_POLICY_URL_PATH				= "/delete_policy";	
+	public static final String NEXT_POLICY_URL_PATH					= "/next_policy";	
+	public static final String ASYNC_MESSAGE_ANALYZER_URL_PATH		= "/async_message_analyzer";
+	public static final String UPDATE_POLICIES_USE_STATE_URL_PATH	= "/update_policies_use_state";		
 	
 	public static final String REUSABLE 							= "REUSABLE";  
 	public static final String UNPAIRED    							= "UNPAIRED"; 

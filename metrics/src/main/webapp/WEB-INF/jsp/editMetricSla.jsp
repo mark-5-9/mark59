@@ -37,18 +37,17 @@
 
 <div class="content"> 
 
- <h1>Edit Metric SLA Details</h1> 
+ <h1>Edit Metric SLAt</h1> 
 
 <p>&nbsp;</p>
-  
-
+ 
   <div>
    <form:form method="post" action="updateMetricSla?reqApp=${map.reqApp}" modelAttribute="metricSla">
     <table>
-     <tr><td>Application      :</td><td> ${map.metricSla.application} </td>   </tr>     
-     <tr><td>Metric Name      :</td><td> ${map.metricSla.metricName} </td> </tr>
-     <tr><td>Metric Type      :</td><td> ${map.metricSla.metricTxnType} </td> </tr>
-     <tr><td>Value Derivation :</td><td> ${map.metricSla.valueDerivation} </td> </tr>
+     <tr><td>Application      :</td><td> ${map.metricSla.application} </td></tr>     
+     <tr><td>Metric Name      :</td><td> ${map.metricSla.metricName} </td></tr>
+     <tr><td>Metric Type      :</td><td> ${map.metricSla.metricTxnType} </td></tr>
+     <tr><td>Value Derivation :</td><td> ${map.metricSla.valueDerivation} </td></tr>
       
      <tr>
       <td>Sla Minimum Value:</td>
@@ -75,8 +74,8 @@
      <tr>
       <td colspan="2"><a href="metricSlaList?reqApp=${map.reqApp}">Cancel</a></td>
      </tr>     
-     
     </table>
+    
     <form:hidden path="application" 		value="${map.metricSla.application}" />
     <form:hidden path="metricName" 			value="${map.metricSla.metricName}" />
     <form:hidden path="metricTxnType" 		value="${map.metricSla.metricTxnType}" />

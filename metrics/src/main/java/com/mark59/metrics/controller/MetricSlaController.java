@@ -52,7 +52,7 @@ public class MetricSlaController {
 	@RequestMapping("/metricSlaList")
 	public ModelAndView getMetricSlaList(@RequestParam(required=false) String reqApp) {
 		List<String> applicationList = populateApplicationDropdown();
-		if (StringUtils.isBlank(reqApp)  && applicationList.size() > 1  ){
+		if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
 			// when no application request parameter has been sent, take the first application 
 			reqApp = (String)applicationList.get(1);
 		}		
@@ -74,51 +74,61 @@ public class MetricSlaController {
 	
 	
 	@RequestMapping("/registerMetricSla")
-	public String registerMetricSla(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr, @ModelAttribute MetricSla metricSla, Model model) { 
-		List<String> derivations = populateDerivationsDropdown();
-		List<String>metricTypes = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();
-		List<String> isActiveYesNo = populateIsActiveYesNoDropdown();
-		
-		model.addAttribute("derivations",derivations);		
-		model.addAttribute("metricTypes",metricTypes);	
-		model.addAttribute("isActiveYesNo", isActiveYesNo);		
-		model.addAttribute("reqApp", reqApp);	
-		return "registerMetricSla";
+	public ModelAndView registerMetricSla(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqMetricName, @RequestParam(required=false) String reqErr, @ModelAttribute MetricSla metricSla, Model model) {
+		Map<String, Object> map = createMapOfDropdowns();
+		map.put("metricSla",metricSla);		
+		map.put("reqApp", reqApp);	
+		return new ModelAndView("registerMetricSla", "map", map);
 	}
 	
 
 	@RequestMapping("/insertMetricSla")
-	public String insertData(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr,  @ModelAttribute MetricSla metricSla) {
-		MetricSla	existingMetricSla = new MetricSla();
+	public ModelAndView insertData(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr, @ModelAttribute MetricSla metricSla) {
+		MetricSla existingMetricSla = new MetricSla();
 		if (metricSla != null)
 			existingMetricSla = metricSlaDAO.getMetricSla(metricSla.getApplication(),metricSla.getMetricName(), metricSla.getMetricTxnType(), metricSla.getValueDerivation());   
 		
 		if (existingMetricSla == null ){  //not trying to add something already there, so go ahead..
 			metricSlaDAO.insertData(metricSla);
-			return "redirect:/metricSlaList?reqApp=" + reqApp;
+			List<String> applicationList = populateApplicationDropdown();
+			if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
+				// when no application request parameter has been sent, take the first application 
+				reqApp = (String)applicationList.get(1);
+			}		
+			
+			List<MetricSla> metricSlaList = new ArrayList<MetricSla>(); 
+			if (StringUtils.isBlank(reqApp) ){
+				metricSlaList = metricSlaDAO.getMetricSlaList();
+			} else {
+				metricSlaList = metricSlaDAO.getMetricSlaList(reqApp);			
+			}
+
+			Map<String, Object> map = new HashMap<String, Object>(); 
+			map.put("metricSlaList",metricSlaList);
+			map.put("reqApp",reqApp);
+			map.put("applications",applicationList);
+			return new ModelAndView("metricSlaList", "map", map);
+			
 		} else {
-			return "redirect:/registerMetricSla?reqApp=" + reqApp + "&reqErr=Oh, that metric for " + metricSla.getMetricName() + " AlreadyExists";
+			Map<String, Object> map = createMapOfDropdowns();			
+			map.put("metricSla",existingMetricSla);		
+			map.put("reqApp",reqApp);
+			map.put("reqErr","Oh, a metric for " + existingMetricSla.getMetricName() + " AlreadyExists");			
+			return new ModelAndView("registerMetricSla", "map", map);
 		}
 	}
 	
 	
 	@RequestMapping("/copyMetricSla")
-	public String copyMetricSla(@RequestParam String metricName,@RequestParam String metricTxnType, @RequestParam String valueDerivation, @RequestParam(required=false) String reqApp,  
+	public String copyMetricSla(@RequestParam String metricName, @RequestParam String metricTxnType, @RequestParam String valueDerivation, @RequestParam(required=false) String reqApp,  
 			@ModelAttribute MetricSla metricSla, Model model) {
 		metricSla = metricSlaDAO.getMetricSla(reqApp, metricName, metricTxnType,valueDerivation);   
 		metricSla.setOriginalMetricName(metricSla.getMetricName());
 		model.addAttribute("metricSla", metricSla);
 		
-		List<String> derivations = populateDerivationsDropdown();
-		List<String>metricTypes = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();
-		List<String> isActiveYesNo = populateIsActiveYesNoDropdown();
-		
-		Map<String, Object> map = new HashMap<String, Object>(); 
-		map.put("derivations",derivations);
-		map.put("metricTypes",metricTypes);	
-		map.put("isActiveYesNo",isActiveYesNo);			
+		Map<String, Object> map = createMapOfDropdowns();		
 		map.put("reqApp",reqApp);
-		map.put("metricName", metricName);	
+		map.put("metricSla",metricSla);		
 		model.addAttribute("map", map);
 		return "copyMetricSla";
 	}
@@ -131,21 +141,27 @@ public class MetricSlaController {
 		metricSla.setOriginalMetricName(metricSla.getMetricName());
 		model.addAttribute("metricSla", metricSla);
 		
-		List<String> derivations = populateDerivationsDropdown();
-		List<String>metricTypes = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();
-		List<String> isActiveYesNo = populateIsActiveYesNoDropdown();
-		
-		Map<String, Object> map = new HashMap<String, Object>(); 
-		map.put("metricSla",metricSla);
-		map.put("derivations",derivations);
-		map.put("metricTypes",metricTypes);	
-		map.put("isActiveYesNo",isActiveYesNo);			
+		Map<String, Object> map = createMapOfDropdowns();		
 		map.put("reqApp",reqApp);
-		map.put("metricName", metricName);	
+		map.put("metricSla",metricSla);		
 		model.addAttribute("map", map);
 		return "editMetricSla";
 	}
 
+	
+	@RequestMapping("/updateMetricSla")
+	public String updateMetricSla(@RequestParam(required=false) String reqApp, @ModelAttribute MetricSla metricSla) {
+		metricSlaDAO.updateData(metricSla);
+		return "redirect:/metricSlaList?reqApp=" + reqApp  ;
+	}
+
+	
+	@RequestMapping("/deleteMetricSla")
+	public String deleteSla(@RequestParam String metricName,@RequestParam String metricTxnType, @RequestParam String valueDerivation, @RequestParam(required=false) String reqApp) {
+		metricSlaDAO.deleteData(reqApp, metricName, metricTxnType,valueDerivation);
+		return "redirect:/metricSlaList?reqApp=" + reqApp;
+	}
+	
 	
 	@RequestMapping("/copyApplicationMetricSla") 
 	public Object copyApplicationMetricSla(@RequestParam(required=false) String reqApp,  @ModelAttribute CopyApplicationForm copyApplicationForm ) {
@@ -172,21 +188,12 @@ public class MetricSlaController {
 		}	
 	}
 
+
 	@RequestMapping("/updateApplicationMetricSla")	
 	public String updateApplicationMetricSla(@RequestParam(required=false) String reqApp, @ModelAttribute CopyApplicationForm copyApplicationForm) {
 //		System.out.println("@ updateApplicationMetricSla : reqApp=" + copyApplicationForm.getReqApp() + ", ReqToApp=" + copyApplicationForm.getReqToApp()  );
 		return "redirect:/metricSlaList?reqApp=" + reqApp  ;
 	}	
-	
-	
-		
-	@RequestMapping("/updateMetricSla")
-	public String updateMetricSla(@RequestParam(required=false) String reqApp, @ModelAttribute MetricSla metricSla) {
-//		System.out.println("@ updateSla : reqApp=" + reqApp + ", app=" + sla.getApplication() + ",  origTxn=" + sla.getSlaOriginalTxnId() + ", txnId=" + sla.getTxnId() + " ,90th=" + sla.getSla90thResponse()   );
-		metricSlaDAO.updateData(metricSla);
-		return "redirect:/metricSlaList?reqApp=" + reqApp  ;
-	}
-
 	
 
 	@RequestMapping("/deleteApplicationMetricSla")
@@ -196,15 +203,21 @@ public class MetricSlaController {
 		return "redirect:/metricSlaList?reqApp=";
 	}
 	
-
-	@RequestMapping("/deleteMetricSla")
-	public String deleteSla(@RequestParam String metricName,@RequestParam String metricTxnType, @RequestParam String valueDerivation, @RequestParam(required=false) String reqApp) {
-//		System.out.println("deleting sla for  app = " + reqApp + ", txnId = " + txnId);
-		metricSlaDAO.deleteData(reqApp, metricName, metricTxnType,valueDerivation);
-		return "redirect:/metricSlaList?reqApp=" + reqApp;
-	}
 	
+	private Map<String, Object> createMapOfDropdowns() {
+		Map<String, Object> map = new HashMap<String, Object>(); 
+		List<String> applicationList = populateApplicationDropdown();
+		List<String> derivations     = populateDerivationsDropdown();
+		List<String> isActiveYesNo   = populateIsActiveYesNoDropdown();
+		List<String> metricTypes     = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();
+		map.put("applications",applicationList);
+		map.put("derivations",derivations);
+		map.put("isActiveYesNo",isActiveYesNo);		
+		map.put("metricTypes",metricTypes);
+		return map;
+	}
 
+	
 	private List<String> populateApplicationDropdown() {
 		List<String> applicationList = new ArrayList<String>();
 		applicationList = metricSlaDAO.findApplications();
@@ -218,13 +231,12 @@ public class MetricSlaController {
 		return derivationsList;
 	}	
 	
+	
 	private List<String> populateIsActiveYesNoDropdown( ) {
 		List<String> isActiveYesNo =  new ArrayList<String>();
 		isActiveYesNo.add("Y");
 		isActiveYesNo.add("N");
 		return isActiveYesNo;
 	}		
-	
-	
-	
+
 }

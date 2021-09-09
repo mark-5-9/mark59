@@ -96,6 +96,8 @@ public class ResultFilesConverter {
 	
 	private static final String DEFAULT_OUTPUT_FOLDER 	= "MERGED";
 	private static final String DEFAULT_NO			  	= "NO";
+	
+	public static final String CDP_TAG 	= " (CDP)";
 		
 	private static String argInputdirectory;	
 	private static String argOutputdirectoy;	
@@ -288,7 +290,7 @@ public class ResultFilesConverter {
 
 	
 	/**
-	 * A validly name named jmeter results file is expected to be passed for conversion, now need determine the data format 
+	 * Determine the JMeter file data format . A validly named and structured JMeter results file is expected to be passed for conversion. 
 	 * 
 	 * @param jmeterResultsFile
 	 * @throws IOException
@@ -497,7 +499,7 @@ public class ResultFilesConverter {
 		String transactionNameLabel = nodeItems.getNamedItem("lb").getNodeValue();
 		String failureMessage = "";
 		String success = nodeItems.getNamedItem("s").getNodeValue();
-		String inputDatatype = nodeItems.getNamedItem("dt").getNodeValue();
+		String inputFileDatatype = nodeItems.getNamedItem("dt").getNodeValue();
 		
 		if (! "true".equalsIgnoreCase(success)) {
 			// the response message is used as the failure message 
@@ -516,7 +518,7 @@ public class ResultFilesConverter {
 			if (nodeItems.getNamedItem("rc")!=null) nextLine[3]  = nodeItems.getNamedItem("rc").getNodeValue(); 
 			if (nodeItems.getNamedItem("rm")!=null) nextLine[4]  = nodeItems.getNamedItem("rm").getNodeValue();
 			if (nodeItems.getNamedItem("tn")!=null) nextLine[5]  = nodeItems.getNamedItem("tn").getNodeValue(); 			
-			nextLine[6]  =  inputDatatype; 
+			nextLine[6]  =  inputFileDatatype; 
 			nextLine[7]  =  success;
 			nextLine[8]  =  failureMessage;
 			if (nodeItems.getNamedItem("by")!=null) nextLine[9]  = nodeItems.getNamedItem("by").getNodeValue(); 				
@@ -530,18 +532,18 @@ public class ResultFilesConverter {
 			if (nodeItems.getNamedItem("ct")!=null) nextLine[17] = nodeItems.getNamedItem("ct").getNodeValue(); 				
 			
 			if ("true".equalsIgnoreCase(success) || ERROR_TXNS_NO.equalsIgnoreCase(argErrortransactions)) {
-				writeCsvOuptput(inputDatatype, nextLine);	
+				writeCsvOuptput(inputFileDatatype, nextLine);	
 				samplesCreatedForLine++;
 			
 			} else {   // an error transaction that needs handling 
 
 				nextLine[2]  =  transactionNameLabel + "_ERRORED";		    			
-				writeCsvOuptput(inputDatatype, nextLine);
+				writeCsvOuptput(inputFileDatatype, nextLine);
 				samplesCreatedForLine++;
 				
 				if (ERROR_TXNS_DUPLICATE.equalsIgnoreCase(argErrortransactions)) {
 					nextLine[2]  =  transactionNameLabel;		    			
-					writeCsvOuptput(inputDatatype, nextLine);
+					writeCsvOuptput(inputFileDatatype, nextLine);
 					samplesCreatedForLine++;
 				} 
 			}
@@ -618,11 +620,11 @@ public class ResultFilesConverter {
 		    	//format all output csv files the same way (as the header is always the same) ...
 
 	    		String transactionNameLabel = csvDataLineFields[fieldPoslabel];
-	    		String inputDatatype 		= csvDataLineFields[fieldPosdataType];
+	    		String inputFileDatatype    = csvDataLineFields[fieldPosdataType];
 	    		String success 				= csvDataLineFields[fieldPossuccess];
 
 	    		if ( ! (transactionNameLabel.startsWith(IGNORE) || 
-	    			    inputDatatype.equals(JMeterFileDatatypes.PARENT.getDatatypeText()) && argeXcludeResultsWithSub.equalsIgnoreCase("TRUE")) ){
+	    			    inputFileDatatype.equals(JMeterFileDatatypes.PARENT.getDatatypeText()) && argeXcludeResultsWithSub.equalsIgnoreCase("TRUE")) ){
     			
 	    			System.arraycopy(blankLine, 0, nextLine, 0, blankLine.length);
     			
@@ -632,7 +634,7 @@ public class ResultFilesConverter {
 		    		if (fieldPosresponseCode>0) 	nextLine[3]  =  csvDataLineFields[fieldPosresponseCode]; 
 		    		if (fieldPosresponseMessage>0) 	nextLine[4]  =  csvDataLineFields[fieldPosresponseMessage]; 
 		    		if (fieldPosthreadName>0) 		nextLine[5]  =  csvDataLineFields[fieldPosthreadName];  
-		    		nextLine[6]  =  inputDatatype; 
+		    		nextLine[6]  =  inputFileDatatype; 
 		    		nextLine[7]  =  success;
 		    		if (fieldPosfailureMessage>0) 	nextLine[8]  =  csvDataLineFields[fieldPosfailureMessage];
 		    		if (fieldPosbytes>0) 			nextLine[9]  =  csvDataLineFields[fieldPosbytes];
@@ -647,18 +649,18 @@ public class ResultFilesConverter {
 		    		
 		    		
 					if ("true".equalsIgnoreCase(success) || ERROR_TXNS_NO.equalsIgnoreCase(argErrortransactions)) {
-						writeCsvOuptput(inputDatatype, nextLine);	
+						writeCsvOuptput(inputFileDatatype, nextLine);	
 						samplesCreated++;
 					
 					} else {   // an error transaction that needs handling 
 
 						nextLine[2]  =  transactionNameLabel + "_ERRORED";		    			
-						writeCsvOuptput(inputDatatype, nextLine);
+						writeCsvOuptput(inputFileDatatype, nextLine);
 						samplesCreated++;
 						
 						if (ERROR_TXNS_DUPLICATE.equalsIgnoreCase(argErrortransactions)) {
 							nextLine[2]  =  transactionNameLabel;		    			
-							writeCsvOuptput(inputDatatype, nextLine);
+							writeCsvOuptput(inputFileDatatype, nextLine);
 							samplesCreated++;
 						} 
 					}
@@ -721,10 +723,17 @@ public class ResultFilesConverter {
 		fieldPosConnect  		= 16; 		
 	}
 
-	private void writeCsvOuptput(String inputDatatype, String[] csvDataLine) throws IOException {
-//		System.out.println("writeCsvOuptput  inputDatatype=" + inputDatatype + ", csvDataLine=" + csvDataLine);
+	private void writeCsvOuptput(String inputFileDatatype, String[] csvDataLine) throws IOException {
+//		System.out.println("writeCsvOuptput  inputFileDatatype=" + inputFileDatatype + ", csvDataLine=" + csvDataLine);
 		
-		if (inputDatatype.equals(JMeterFileDatatypes.TRANSACTION.getDatatypeText())) {
+		if (inputFileDatatype.equals(JMeterFileDatatypes.TRANSACTION.getDatatypeText())) {
+			baseCsvFileNameWriter.writeNext( csvDataLine, false );
+			return;
+		}
+		
+		if (inputFileDatatype.equals(JMeterFileDatatypes.CDP.getDatatypeText())) {
+			// tag CDP transactions and write them to the Transactions Report 
+			csvDataLine[2] = csvDataLine[2] + CDP_TAG; 
 			baseCsvFileNameWriter.writeNext( csvDataLine, false );
 			return;
 		}
@@ -735,30 +744,30 @@ public class ResultFilesConverter {
 		}	
 		
 		if (METRICS_FILE_CREATE_METRICS_REPORT.equalsIgnoreCase(argMetricsfile)) {
-			if ( inputDatatype.equals(JMeterFileDatatypes.CPU_UTIL.getDatatypeText()) || 
-				 inputDatatype.equals(JMeterFileDatatypes.DATAPOINT.getDatatypeText()) || 
-				 inputDatatype.equals(JMeterFileDatatypes.MEMORY.getDatatypeText()) ) {
+			if ( inputFileDatatype.equals(JMeterFileDatatypes.CPU_UTIL.getDatatypeText()) || 
+				 inputFileDatatype.equals(JMeterFileDatatypes.DATAPOINT.getDatatypeText()) || 
+				 inputFileDatatype.equals(JMeterFileDatatypes.MEMORY.getDatatypeText()) ) {
 				metrics_CsvFileNameWriter.writeNext(csvDataLine, false);  
-			} else {											//assume its a (non-metric) normal Transaction
+			} else {	// should not get here (unresolved data type) Just assume its a (non-metric) normal Transaction
 				baseCsvFileNameWriter.writeNext( csvDataLine, false );
 			}	
 			return;
 		}
 		
 		if (METRICS_FILE_SPLIT_BY_DATATYPE.equalsIgnoreCase(argMetricsfile)) {
-			if ( inputDatatype.equals(JMeterFileDatatypes.CPU_UTIL.getDatatypeText() )) {
+			if ( inputFileDatatype.equals(JMeterFileDatatypes.CPU_UTIL.getDatatypeText() )) {
 				cpu_util_CsvFileNameWriter.writeNext( csvDataLine, false );
-			} else if ( inputDatatype.equals(JMeterFileDatatypes.DATAPOINT.getDatatypeText() )) {
+			} else if ( inputFileDatatype.equals(JMeterFileDatatypes.DATAPOINT.getDatatypeText() )) {
 				datapoint_CsvFileNameWriter.writeNext( csvDataLine, false );
-			} else if ( inputDatatype.equals(JMeterFileDatatypes.MEMORY.getDatatypeText() )) {
+			} else if ( inputFileDatatype.equals(JMeterFileDatatypes.MEMORY.getDatatypeText() )) {
 				memory_CsvFileNameWriter.writeNext( csvDataLine, false);
-			} else {											//assume its a (non-metric) normal Transaction
+			} else {	// should not get here (unresolved data type) Just assume its a (non-metric) normal Transaction
 				baseCsvFileNameWriter.writeNext( csvDataLine, false );
 			}	
 			return;
 		}
 		
-		throw new RuntimeException("Logic error in writeCsvOuptput : " + inputDatatype + ", argMetricsfile=" + argMetricsfile + ", csvDataLine=" + csvDataLine); 
+		throw new RuntimeException("Logic error in writeCsvOuptput : " + inputFileDatatype + ", argMetricsfile=" + argMetricsfile + ", csvDataLine=" + csvDataLine); 
 	}	
 
 	
@@ -806,7 +815,7 @@ public class ResultFilesConverter {
 	
     public static void main( String[] args ) throws IOException, SAXException, ParserConfigurationException
     {
-        System.out.println( "Result Files Converter starting .. (v3.3.0)" );
+        System.out.println( "Result Files Converter starting .. (v4.0.0-rc-1)" );
 
 //        for a quick and dirty test ...
 //        args = new String[]{"-i", "C:/Jmeter_Results/myapp", "-f", "myapp_TestResults_converted.csv", "-m", "SplitByDataType", "-e", "No", "-x", "True" };

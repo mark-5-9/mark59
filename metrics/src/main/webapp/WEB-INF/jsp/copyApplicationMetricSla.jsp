@@ -71,7 +71,6 @@
      </tr>
      
      <tr>
-      
       <td colspan="2"><a href="metricSlaList?reqApp=${copyApplicationForm.reqApp}">Cancel</a></td>
      </tr>     
      

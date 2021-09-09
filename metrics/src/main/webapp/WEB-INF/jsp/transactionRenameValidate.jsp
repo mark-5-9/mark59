@@ -51,11 +51,20 @@
       <td>Transaction Type</td><td>:</td><td> ${transactionRenameForm.txnType} </td>
      </tr>
      <tr>
-      <td>Current Transaction Id</td><td>:</td><td> ${transactionRenameForm.fromTxnId} </td>
+      <td>From Transaction Id</td><td>:</td><td> ${transactionRenameForm.fromTxnId} </td>
      </tr>  
      <tr>
-      <td>New Transaction Id</td><td>:</td><td> ${transactionRenameForm.toTxnId} </td>
+      <td>To Transaction Id</td><td>:</td><td> ${transactionRenameForm.toTxnId} </td>
      </tr> 
+
+     <c:if test = "${transactionRenameForm.txnType == 'TRANSACTION'}">
+	     <tr>
+	      <td>From CDP txn</td><td>:</td><td> ${transactionRenameForm.fromIsCdpTxn} </td>
+	     </tr> 
+	     <tr>
+	      <td>To CDP txn</td><td>:</td><td> ${transactionRenameForm.toIsCdpTxn} </td>
+	     </tr>  
+	 </c:if>   
 
      <tr>
       <td colspan="3">${transactionRenameForm.validationMsg} </td>
@@ -70,7 +79,7 @@
    	</c:if>
       
      <tr>
-      <td colspan="3"><a href="transactionList?reqApp=${transactionRenameForm.application}">Cancel</a></td>
+      <td colspan="3"><a href="transactionList?reqApp=${map.transactionRenameForm.application}">Cancel</a></td>
      </tr>     
      
     </table>
@@ -78,6 +87,8 @@
     <form:hidden path="txnType" />
     <form:hidden path="fromTxnId" />
     <form:hidden path="toTxnId" />
+    <form:hidden path="fromIsCdpTxn" />       
+    <form:hidden path="toIsCdpTxn" />       
     <form:hidden path="passedValidation" />
     <form:hidden path="validationMsg" />
    </form:form>

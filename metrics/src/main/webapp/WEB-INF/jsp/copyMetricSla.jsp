@@ -37,45 +37,36 @@
 
 <div class="content"> 
  
- <h1>Copy Metric SLA Details</h1>
+ <h1>Copy Metric SLA</h1>
 
 <p>&nbsp;</p>
   
   <div>
    <form:form method="post" action="insertMetricSla?reqApp=${map.reqApp}" modelAttribute="metricSla">
     <table>
-     <tr>
-      <td>Metric (name):</td><td> ${map.metricName} </td>
-     </tr>
+     <tr><td>Application      :</td><td> ${map.metricSla.application} </td></tr>   
        
      <tr>
       <td>Metric</td>
-      <td><form:input path="metricName" value="${map.metricName}"  size="100" />
+      <td><form:input path="metricName" value="${map.metricSla.metricName}"  size="100" />
       </td>
      </tr> 
      <tr>
-      <td>Application:</td>
-      <td><form:input path="application" value="${map.application}" />
-      </td>
-     </tr>     
-     <tr>
       <td>Metric Type:</td>
-      <td><form:select path="metricTxnType"  items="${map.metricTypes}" value="${map.metricTxnType}" /></td>
+      <td><form:select path="metricTxnType"  items="${map.metricTypes}" value="${map.metricSla.metricTxnType}" /></td>
      </tr>
- 
-          
      <tr>
       <td>Value Derivation:</td>
-        <td><form:select path="valueDerivation"  items="${map.derivations}" value="${map.valueDerivation}" /></td>
+        <td><form:select path="valueDerivation"  items="${map.derivations}" value="${map.metricSla.valueDerivation}" /></td>
      </tr>
        
-      <tr>
+     <tr>
       <td>Sla Minimum Value:</td>
-      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.slaMin}" /></td>
+      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.metricSla.slaMin}" /></td>
      </tr>  
      <tr>
       <td>Sla Maximum Value:</td>
-      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.slaMax}" /></td>
+      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.metricSla.slaMax}" /></td>
      </tr>
      <tr>
       <td>Is Active :</td>
@@ -83,7 +74,7 @@
      </tr>     
      <tr>
       <td>Comment:</td>
-      <td><form:input path="comment" value="${map.comment}" /></td>
+      <td><form:input path="comment" value="${map.metricSla.comment}" /></td>
      </tr> 
            
      <tr>
@@ -97,7 +88,9 @@
      </tr>     
      
     </table>
-    <form:hidden path="originalMetricName" />
+    
+    <form:hidden path="application" 		value="${map.metricSla.application}" />
+    <form:hidden path="originalMetricName"  value="${map.metricSla.originalMetricName}" />
    </form:form>
   </div>
 

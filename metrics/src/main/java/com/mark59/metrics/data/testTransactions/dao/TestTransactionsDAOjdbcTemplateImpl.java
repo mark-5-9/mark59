@@ -57,7 +57,11 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	GraphMappingDAO graphMappingDAO; 	
 	
 	
-	@Override
+	/**
+	 * Not in use. insertMultiple should be used.
+	 * @param testTransaction  
+	 */
+	@Deprecated
 	public void insert(TestTransaction testTransaction) {
 		String sql = "";
 		
@@ -99,9 +103,8 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		StringBuilder sqlSb = new StringBuilder();
 		
 		sqlSb.append("INSERT INTO TESTTRANSACTIONS "
-				+ "(APPLICATION, RUN_TIME, TXN_ID, TXN_TYPE, "
-				+ "TXN_RESULT, TXN_PASSED, TXN_EPOCH_TIME )"
-				+ " VALUES (?,?,?,?,?,?,?)");
+				+ "(APPLICATION,RUN_TIME,TXN_ID,TXN_TYPE,IS_CDP_TXN,TXN_RESULT,TXN_PASSED,TXN_EPOCH_TIME)"
+				+ " VALUES (?,?,?,?,?,?,?,?)");
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		ArrayList<Object> sqlBindParms = new ArrayList<Object>();		
@@ -115,6 +118,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				sqlBindParms.add(testTransaction.getRunTime());
 				sqlBindParms.add(testTransaction.getTxnId());
 				sqlBindParms.add(testTransaction.getTxnType());
+				sqlBindParms.add(testTransaction.getIsCdpTxn());
 				sqlBindParms.add(testTransaction.getTxnResult());
 				sqlBindParms.add(testTransaction.getTxnPassed());
 				sqlBindParms.add(testTransaction.getTxnEpochTime());
@@ -122,7 +126,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				if (yetToAddFirstRowToSqlStatement) {
 					yetToAddFirstRowToSqlStatement = false;
 				} else {
-					sqlSb.append( ",(?,?,?,?,?,?,?)" );
+					sqlSb.append( ",(?,?,?,?,?,?,?,?)" );
 				}
 			}
 		} //end for
@@ -179,26 +183,26 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	
 	
 	@Override
-	public List<TestTransaction> getUniqueListOfSystemMetricNamesByType(String application) {
-		List<TestTransaction> dataSampleTxnkeys  = new ArrayList<TestTransaction>();
+	public List<TestTransaction> getUniqueListOfSystemMetricTxnIdsByType(String application) {
+		List<TestTransaction> metricTypeAndTxnIds  = new ArrayList<TestTransaction>();
 		
 		String sql = "select distinct TXN_ID, TXN_TYPE  from TESTTRANSACTIONS "
 					+ "where APPLICATION = '"  + application + "' "
-					+ "  and TXN_TYPE <> 'TRANSACTION' "
-					+   "and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";					
+					+ "  and TXN_TYPE <> '" + Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() + "' "
+					+ "  and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";					
 
-//		System.out.println("TestTransactionsDAOjdbcTemplateImpl.getUniqueListOfSystemMetricNamesByType : " + sql );				
+//		System.out.println("TestTransactionsDAO...getUniqueListOfSystemMetricTxnIdsByType : " + sql );				
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 		for (Map<String, Object> row : rows) {
-			TestTransaction dataSampleKey = new TestTransaction();
-			dataSampleKey.setApplication(application); 
-			dataSampleKey.setTxnId((String)row.get("TXN_ID")); 
-			dataSampleKey.setTxnType((String)row.get("TXN_TYPE")); 
-			dataSampleTxnkeys.add(dataSampleKey);
-//			System.out.println("populating for TestTransactionsDAOjdbcTemplateImpl.getUniqueListOfSystemMetricNamesByType : " + row.get("TXN_ID") + ":" + row.get("TXN_TYPE") ) ;
+			TestTransaction metricTypeAndTxnId = new TestTransaction();
+			metricTypeAndTxnId.setApplication(application); 
+			metricTypeAndTxnId.setTxnId((String)row.get("TXN_ID")); 
+			metricTypeAndTxnId.setTxnType((String)row.get("TXN_TYPE")); 
+			metricTypeAndTxnIds.add(metricTypeAndTxnId);
+//			System.out.println("populating for TestTransactionsDAO...getUniqueListOfSystemMetricTxnIdsByType : " + row.get("TXN_ID") + ":" + row.get("TXN_TYPE") ) ;
 		}	
-		return dataSampleTxnkeys;
+		return metricTypeAndTxnIds;
 	}	
 	
 
@@ -234,11 +238,14 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	    return Long.valueOf (latestTimestamp);
 	}
 
-	/* 
+
+	/**
 	 * Extracts all data for an application data type (transaction or data sample).
 	 * 
-	 * NOTE: When this method is called currently assumed the run being processed will have a  
-	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 
+	 * <p>NOTE 1: When this method is called currently assumed the run being processed will have a  
+	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONSMark59Constants.DatabaseTxnTypes.TRANSACTION.name()
+	 * 
+	 * <p>NOTE 2: Currently only tested and implemented for DatabaseTxnType of TRANSACTION (see {@link Mark59Constants.DatabaseTxnTypes} ).
 	 */
 	@Override
 	public List<Transaction> extractTransactionResponsesSummary(String application, String txnType) {
@@ -273,7 +280,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		}
 		
 		String sql = 
-				"select APPLICATION, RUN_TIME,TXN_ID, " + 
+				"select APPLICATION, RUN_TIME, TXN_ID, IS_CDP_TXN, " + 
 				"       sum(txnMinimum) txnMinimum, " + 
 				"       sum(txnAverage) txnAverage, " + 
 				"       sum(txnMedian)  txnMedian, " + 
@@ -286,7 +293,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				"       sum(txnFail) txnFail, " + 
 				"       sum(txnStop) txnStop "+ 
 				"from ( " +
-					"select APPLICATION, RUN_TIME,TXN_ID, " +
+					"select APPLICATION, RUN_TIME, TXN_ID, IS_CDP_TXN, " +
 					 " min(TXN_RESULT) txnMinimum, " +
 					 " avg(TXN_RESULT) txnAverage, " +
 					 dbDependentMedian +					 
@@ -302,11 +309,11 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 					 "   and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' " +
 			   		 "   and TXN_TYPE = '" + txnType + "' " +
 			   		 "   and TXN_PASSED = 'Y' " + 		   		
-			   		 " group by APPLICATION, RUN_TIME,TXN_ID" +
+			   		 " group by APPLICATION, RUN_TIME, TXN_ID, IS_CDP_TXN " +
 			   		 
 			   		 " union " + 
 			   		 
-			   		"select APPLICATION, RUN_TIME,TXN_ID, " + 
+			   		 "select APPLICATION, RUN_TIME, TXN_ID, IS_CDP_TXN, " + 
 			   		 " 0 txnMinimum, " + 
 			   		 " 0 txnAverage, " + 
 			   		 " 0 txnMedian, " + 
@@ -323,10 +330,10 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 					 "   and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' " +			   		 
 			   		 "   and TXN_TYPE = '" + txnType + "' " +
 			   		 "   and TXN_PASSED != 'Y' " + 		   		
-			   		 " group by APPLICATION, RUN_TIME,TXN_ID" +
+			   		 " group by APPLICATION, RUN_TIME,TXN_ID, IS_CDP_TXN " +
 			   		 
 			   	") as txnSummary " + 
-			   	"  group by APPLICATION, RUN_TIME, TXN_ID "	 ;
+			   	"  group by APPLICATION, RUN_TIME, TXN_ID, IS_CDP_TXN "	 ;
 		
 //		System.out.println("*** extractTransactionResponsesSummary sql : " + sql);
 		
@@ -343,7 +350,8 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 			transaction.setApplication(application);
 			transaction.setRunTime((String)row.get("RUN_TIME"));
 			transaction.setTxnId((String)row.get("TXN_ID"));
-			transaction.setTxnType(Mark59Constants.DatabaseTxnTypes.TRANSACTION.name());			
+			transaction.setTxnType(txnType);				// see javadoc		
+			transaction.setIsCdpTxn((String)row.get("IS_CDP_TXN")); 	
 			transaction.setTxnMinimum((BigDecimal)row.get("txnMinimum"));
 			transaction.setTxnAverage((BigDecimal)row.get("txnAverage"));
 			transaction.setTxnMaximum((BigDecimal)row.get("txnMaximum"));
@@ -384,29 +392,30 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 
 
 
+	/**
+	 * Used to find and summarize 'metric' transactions for the run being processed.
+	 * <p>NOTE 1. At the point this method is all called it is assumed the run being processed will have  
+	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 
+	 * <p>NOTE 2. IS_CDP_TXN should always be 'N' for  metric transactions.  
+	 */
 	@Override
-	public Transaction extractEventSummaryStats(String application, String txnType, String dataSampleLablel, EventMapping eventMapping) {
+	public Transaction extractEventSummaryStats(String application, String metricTxnType, String txnId, EventMapping eventMapping) {
 		Run run = new Run();
 		run.setApplication(application);
 		run.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED );
-		return extractEventSummaryStats(run, txnType, dataSampleLablel, eventMapping);
+		return extractEventSummaryStats(run, metricTxnType, txnId, eventMapping);
 	}	
 	
 
-	/*
-	 * used to finds and computes 'metric' transactions for the run being processed.
-	 * At the point this method is all called it is assumed the run being processed will have  
-	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 
-	 */
-	private Transaction extractEventSummaryStats(Run run, String txnType, String dataSampleLablel, EventMapping eventMapping) {
-		
+	private Transaction extractEventSummaryStats(Run run, String metricTxnType, String txnId, EventMapping eventMapping) {
 //		System.out.println("extractEventSummaryStats txnType: " + txnType + "\n  lablel:" + dataSampleLablel + "\n  eventMapping: " + eventMapping  );
 		
 		String sql = "select TXN_RESULT from TESTTRANSACTIONS "
 				+ " where APPLICATION = '" + run.getApplication() + "' "
 				+ "   and RUN_TIME = '" + run.getRunTime() + "'"
-				+ "   and TXN_ID = '" + dataSampleLablel + "'"		   		
-		   		+ "   and TXN_TYPE = '" + txnType + "' "
+				+ "   and TXN_ID = '" + txnId + "'"		   		
+		   		+ "   and TXN_TYPE = '" + metricTxnType + "' "
+		   		+ "   and IS_CDP_TXN = 'N' "
 		   		+ " order by TXN_EPOCH_TIME ";
 		   				
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -469,7 +478,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		
 		//form the transaction id for the system metric by removing from the JMeter file label any unwanted characters using the event mapping left and right boundaries.
 		
-		String eventTxnId = UtilsMetrics.deriveEventTxnIdUsingEventMappingBoundaryRules(dataSampleLablel, eventMapping);
+		String eventTxnId = UtilsMetrics.deriveEventTxnIdUsingEventMappingBoundaryRules(txnId, eventMapping);
 		
 				
 		//average
@@ -488,7 +497,8 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		metricTransaction.setApplication(run.getApplication());
 		metricTransaction.setRunTime(run.getRunTime()); 
 		metricTransaction.setTxnId(eventTxnId); 
-		metricTransaction.setTxnType(eventMapping.getTxnType());   //DATAPOINT, CPU_UTIL, MEMORY .. 
+		metricTransaction.setTxnType(eventMapping.getTxnType());   // DATAPOINT, CPU_UTIL, MEMORY  
+		metricTransaction.setIsCdpTxn("N");                        // as its a metric txn   
 		metricTransaction.setTxnMinimum(txnMinimum); 		      		
 		metricTransaction.setTxnAverage(tnxAverage); 
 		metricTransaction.setTxnMedian(new BigDecimal(-1.0)); 

@@ -48,6 +48,44 @@ public class EventMappingController {
 	@Autowired
 	EventMappingDAO eventMappingDAO; 
 
+	/**
+	 * Note that for the selectors 'Metric Source' and 'Tool' simply wipe each other out (i.e. the are not additive ) 
+	 */
+	@RequestMapping("/eventMappingList")
+	public ModelAndView eventMappingList(@RequestParam(required=false) String reqPerformanceTool, @RequestParam(required=false) String reqMetricSource) {
+//		System.out.println("eventMappingList reqPerformanceTool=" + reqPerformanceTool + ",reqMetricSource=" + reqMetricSource  );
+
+		// note 'Metric Source' has precedence  and will wipe out any 'tool' selector, as at this point the Metric Source value is unique and determines the tool   
+		List<EventMapping> eventMappingList = new ArrayList<EventMapping>(); 
+
+		if (StringUtils.isEmpty(reqPerformanceTool) && StringUtils.isEmpty(reqMetricSource) ){
+			eventMappingList = eventMappingDAO.findEventMappings();
+			
+		} else if (!StringUtils.isEmpty(reqMetricSource)){
+			eventMappingList = eventMappingDAO.findEventMappings("METRIC_SOURCE", reqMetricSource);	
+			reqPerformanceTool = "";
+			
+		} else if ( !StringUtils.isEmpty(reqPerformanceTool)){
+			eventMappingList = eventMappingDAO.findEventMappings("PERFORMANCE_TOOL", reqPerformanceTool);	
+			reqMetricSource = "";
+		}
+			
+		List<String>metricSources    = populateMetricSourceDropdown();
+		metricSources.add(0, "");			
+		
+		List<String>performanceTools = populatePerformanceToolsDropdown();		
+		performanceTools.add(0, "");
+		
+		Map<String, Object> parmsMap = new HashMap<String, Object>(); 
+		parmsMap.put("eventMappingList",eventMappingList);
+		parmsMap.put("metricSources",metricSources);
+		parmsMap.put("reqMetricSource",reqMetricSource);
+		parmsMap.put("performanceTools",performanceTools);			
+		parmsMap.put("reqPerformanceTool",reqPerformanceTool);				
+		return new ModelAndView("eventMappingList", "parmsMap", parmsMap);
+	}
+
+	
 	@RequestMapping("/registerEventMapping")
 	public ModelAndView registerEventMapping(@RequestParam(required=false) String reqMetricSource, @RequestParam(required=false) String reqErr, @ModelAttribute EventMapping eventMapping) { 
 		Map<String, Object> map = createMapOfDropdowns();
@@ -95,45 +133,6 @@ public class EventMappingController {
 		}
 	}
 	
-
-
-	/**
-	 * Note that for the selectors 'Metric Source' and 'Tool' simply wipe each other out (i.e. the are not additive ) 
-	 */
-	@RequestMapping("/eventMappingList")
-	public ModelAndView eventMappingList(@RequestParam(required=false) String reqPerformanceTool, @RequestParam(required=false) String reqMetricSource) {
-//		System.out.println("eventMappingList reqPerformanceTool=" + reqPerformanceTool + ",reqMetricSource=" + reqMetricSource  );
-
-		// note 'Metric Source' has precedence  and will wipe out any 'tool' selector, as at this point the Metric Source value is unique and determines the tool   
-		List<EventMapping> eventMappingList = new ArrayList<EventMapping>(); 
-
-		if (StringUtils.isEmpty(reqPerformanceTool) && StringUtils.isEmpty(reqMetricSource) ){
-			eventMappingList = eventMappingDAO.findEventMappings();
-			
-		} else if (!StringUtils.isEmpty(reqMetricSource)){
-			eventMappingList = eventMappingDAO.findEventMappings("METRIC_SOURCE", reqMetricSource);	
-			reqPerformanceTool = "";
-			
-		} else if ( !StringUtils.isEmpty(reqPerformanceTool)){
-			eventMappingList = eventMappingDAO.findEventMappings("PERFORMANCE_TOOL", reqPerformanceTool);	
-			reqMetricSource = "";
-		}
-			
-		List<String>metricSources    = populateMetricSourceDropdown();
-		metricSources.add(0, "");			
-		
-		List<String>performanceTools = populatePerformanceToolsDropdown();		
-		performanceTools.add(0, "");
-		
-		Map<String, Object> parmsMap = new HashMap<String, Object>(); 
-		parmsMap.put("eventMappingList",eventMappingList);
-		parmsMap.put("metricSources",metricSources);
-		parmsMap.put("reqMetricSource",reqMetricSource);
-		parmsMap.put("performanceTools",performanceTools);			
-		parmsMap.put("reqPerformanceTool",reqPerformanceTool);				
-		return new ModelAndView("eventMappingList", "parmsMap", parmsMap);
-	}
-
 	
 	@RequestMapping("/copyEventMapping")
 	public String copyEventMapping(@RequestParam String txnType ,@RequestParam String metricSource, @RequestParam String matchWhenLike, @RequestParam(required=false) String reqMetricSource,  
@@ -156,12 +155,11 @@ public class EventMappingController {
 		model.addAttribute("eventMapping", eventMapping);
 		
 		Map<String, Object> map = createMapOfDropdowns();  
-		map.put("reqMetricSource",reqMetricSource);
 		map.put("eventMapping",eventMapping);	
+		map.put("reqMetricSource",reqMetricSource);
 		model.addAttribute("map", map);	
 		return "editEventMapping";
 	}
-
 
 	
 	@RequestMapping("/updateEventMapping")
@@ -213,6 +211,7 @@ public class EventMappingController {
 																			AppConstantsMetrics.METRIC_SOURCE_GATLING_TRANSACTION ));
 		return metricSourceList;
 	}	
+	
 	
 	private List<String> populateYesNoDropdown( ) {
 		List<String> yesNo =  new ArrayList<String>();

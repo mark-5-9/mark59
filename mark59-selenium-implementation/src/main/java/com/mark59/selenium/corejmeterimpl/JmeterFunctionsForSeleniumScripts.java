@@ -17,6 +17,7 @@
 package com.mark59.selenium.corejmeterimpl;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 
 import com.mark59.core.JmeterFunctionsImpl;
 import com.mark59.core.Outcome;
+import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 import com.mark59.selenium.drivers.SeleniumDriverWrapper;
 
 /**
@@ -71,14 +73,6 @@ import com.mark59.selenium.drivers.SeleniumDriverWrapper;
  * 
  * @author Philip Webb
  * Written: Australian Winter 2019  
- */
-/**
- * @author s62991
- *
- */
-/**
- * @author s62991
- *
  */
 public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 
@@ -154,18 +148,33 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	
 	@Override
 	public void startTransaction(String transactionLabel) {
-		startTransaction(transactionLabel, true);	
+		startTransaction(transactionLabel, JMeterFileDatatypes.TRANSACTION, true);	
 	}
 	
 	
 	/**
-	 * As per {@link #startTransaction(String)}, but also allows for forcing switch-off of screenshot logging for this
-	 * transaction (set to false). 
+	 * As per {@link #startTransaction(String)}, but will tag the transaction as a DevTools (CDP) transaction.
+	 * <p>You can end the transaction with any of the <code>endTransaction</code> methods or {@link #endCdpTransaction(String)}
+	 * (which is functionally equivalent to {@link #endTransaction(String)}).  This is because the transaction is marked 
+	 * as a DevTools (CDP) transaction when it is started by this method.   
 	 * 
-	 * @param transactionLabel transaction name
-	 * @param includeInStartOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction ends 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @throws IllegalArgumentException if the transaction name supplied is an illegal value (null or empty) or already in use.
 	 */
-	public void startTransaction(String transactionLabel, boolean includeInStartOfTransactionScreenshotLogs) {
+	public void startCdpTransaction(String transactionLabel) {
+		startTransaction(transactionLabel, JMeterFileDatatypes.CDP, true);
+	}
+	
+
+	/**
+	 * As per  {@link #startTransaction(String)}, but with the additional options specifying what type of transaction this is, and switching
+	 * off all screenshot writing or buffering for the start of this transaction, regardless of the current {@link Mark59LogLevels} settings  
+	 * 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param jMeterFileDatatypes a {@link JMeterFileDatatypes} (it's text value will be written in the data type field of the JMeter results file)
+	 * @param includeInStartOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction starts (for this txn) 
+	 */
+	public void startTransaction(String transactionLabel, JMeterFileDatatypes jMeterFileDatatypes, boolean includeInStartOfTransactionScreenshotLogs ) {
 		if (includeInStartOfTransactionScreenshotLogs) {
 			if 	(bufferScreenshotsAtStartOfTransactions) {
 				bufferScreenshot(transactionLabel + "_before" );
@@ -180,9 +189,8 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 				writePageSource(transactionLabel + "_source_before" );
 			}
 		}
-		super.startTransaction(transactionLabel);
+		super.startTransaction(transactionLabel, jMeterFileDatatypes);
 	}
-
 	
 	
 	@Override
@@ -192,11 +200,25 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 
 	
 	/**
+	 * Identical to {@link #endTransaction(String)}.  Included as convenience to explicitly mark the end of DetTools (CDP) 
+	 * transactions if you wish to do so. 
+	 * 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @throws IllegalArgumentException if the transactionLabel supplied is an illegal value (null or empty)
+	 * @throws NoSuchElementException   if the transactionLabel doesn't exist in the  transactionMap
+	 * @return the JMeter subresult for this transaction - which includes the transaction time (getTime) 
+	 */
+	public SampleResult endCdpTransaction(String transactionLabel) {
+		return endTransaction(transactionLabel, Outcome.PASS, null);
+	}
+	
+	
+	/**
 	 * As per {@link #endTransaction(String)}, but also allows for forcing switch-off of screenshot logging for this
 	 * transaction (set to false). 
 	 * 
-	 * @param transactionLabel transaction name
-	 * @param includeInEndOfTransactionshots boolean option to switch on/off screenshot logs for transaction ends 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param includeInEndOfTransactionshots boolean option to switch on/off screenshot logs for transaction ends (for this txn) 
 	 * @return the JMeter sub-result for this transaction (which includes the transaction time)
 	 */
 	public SampleResult endTransaction(String transactionLabel, boolean includeInEndOfTransactionshots) {
@@ -214,16 +236,16 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	 * As per {@link #endTransaction(String, Outcome)}, but also allows for forcing switch-off of screenshot logging for this
 	 * transaction (set to false). 
 	 * 
-	 * @param transactionLabel transaction name
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
 	 * @param result transaction pass or fail as Outcome
-	 * @param includeInEndOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction ends 
+	 * @param includeInEndOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction ends (for this txn) 
 	 * @return the JMeter sub-result for this transaction (which includes the transaction time)
 	 */
 	public SampleResult endTransaction(String transactionLabel, Outcome result, boolean includeInEndOfTransactionScreenshotLogs) {
 		return endTransaction(transactionLabel, result, null, includeInEndOfTransactionScreenshotLogs);
 	}
 	
-	
+
 	public SampleResult endTransaction(String transactionLabel, Outcome result, String responseCode) {
 		return endTransaction(transactionLabel, result, responseCode, true);
 	}
@@ -233,10 +255,10 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	 * As per {@link #endTransaction(String, Outcome, String)}, but also allows for forcing switch-off of screenshot logging for this
 	 * transaction (includeInEndOfTransactionshots set to false). 
 	 * 
-	 * @param transactionLabel transaction name
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
 	 * @param result transaction pass or fail as Outcome
 	 * @param responseCode response code text
-	 * @param includeInEndOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction ends 
+	 * @param includeInEndOfTransactionScreenshotLogs boolean option to switch on/off screenshot logs for transaction ends (for this txn) 
 	 * 
 	 * @return SampleResult the JMeter sub-result for this transaction (which includes the transaction time)
 	 */
@@ -272,55 +294,116 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 			}			
 		}
 		return sampleResult;
-	
 	}
 
 
 	@Override
 	public SampleResult setTransaction(String transactionLabel, long transactionTime){
-		return setTransaction(transactionLabel, transactionTime, true, null, true);
+		return setTransaction(transactionLabel, transactionTime, true);
 	}
+	
+	/**
+	 * As per {@link #setTransaction(String, long)} but will tag the transaction as a DevTools (CDP) transaction 
+	 * 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param transactionTime time taken for the transaction. Expects Milliseconds.
+	 * 
+	 * @throws IllegalArgumentException if the transactionLabel is null or empty
+	 * @return SampleResult
+	 */
+	public SampleResult setCdpTransaction(String transactionLabel, long transactionTime){
+		return setCdpTransaction(transactionLabel, transactionTime, true);
+	}
+	
+	
 	
 	@Override
 	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success) {
-		return setTransaction(transactionLabel, transactionTime, success, null, true);
+		return setTransaction(transactionLabel, JMeterFileDatatypes.TRANSACTION, transactionTime, success, null, true);
 	}
 
+	/**
+	 * As per {@link #setTransaction(String, long, boolean)} but will tag the transaction as a DevTools (CDP) transaction 
+	 * 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param transactionTime time taken for the transaction. Expects Milliseconds.
+	 * @param success pass or fail transaction
+	 * 
+	 * @throws IllegalArgumentException if the transactionLabel is null or empty
+	 * @return SampleResult
+	 */
+	public SampleResult setCdpTransaction(String transactionLabel, long transactionTime, boolean success) {
+		return setTransaction(transactionLabel, JMeterFileDatatypes.CDP, transactionTime, success, null, true );		
+	}
+	
+	
 	
 	/**
 	 * As per {@link #setTransaction(String, long, boolean)}, but also allows for forcing switch-off of screenshot logging for this
 	 * transaction (includeInEndOfTransactionshots set to false).  
 	 * 
-	 * @param transactionLabel transaction name
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
 	 * @param transactionTime transaction time (ms)
 	 * @param success  pass or fail transaction
-	 * @param includeInEndOfTransactionshots boolean option to switch on/off screenshot logs for transaction ends 
+	 * @param includeInEndOfTransactionshots boolean option to switch on/off screenshot logs for transaction ends (for this txn) 
 	 * @return SampleResult
 	 */
 	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, boolean includeInEndOfTransactionshots) {
-		return setTransaction(transactionLabel, transactionTime, success, null, includeInEndOfTransactionshots);
+		return setTransaction(transactionLabel, JMeterFileDatatypes.TRANSACTION, transactionTime, success, null, includeInEndOfTransactionshots);
 	}
-
+	
+	/**
+	 * As per {@link #setTransaction(String, long, boolean, boolean)  }, but will tag the transaction as a DevTools (CDP) transaction
+	 * 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param transactionTime transaction time (ms)
+	 * @param success  pass or fail transaction
+	 * @param includeInEndOfTransactionshots boolean option to switch on/off screenshot logs for transaction ends (for this txn)  
+	 * @return SampleResult
+	 */
+	public SampleResult setCdpTransaction(String transactionLabel, long transactionTime, boolean success, boolean includeInEndOfTransactionshots) {
+		return setTransaction(transactionLabel, JMeterFileDatatypes.CDP, transactionTime, success, null, includeInEndOfTransactionshots);
+	}
+	
+		
 	@Override
 	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode) {
-		return setTransaction(transactionLabel, transactionTime, success, responseCode, true);
+		return setTransaction(transactionLabel, JMeterFileDatatypes.TRANSACTION, transactionTime, success, responseCode, true);
+	}
+
+	/**
+	 * As per {@link #setTransaction(String, long, boolean, String)}, but will tag the transaction as a DevTools (CDP) transaction
+	 * 
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param transactionTime time taken for the transaction
+	 * @param success  the success (true) or failure (false) state of the transaction
+	 * @param responseCode response message (useful for error transactions)
+	 *   
+	 * @throws IllegalArgumentException if the transactionLabel is null or empty
+	 * @return SampleResult
+	 */
+	public SampleResult setCdpTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode) {
+		return setTransaction(transactionLabel, JMeterFileDatatypes.CDP , transactionTime, success, responseCode, true);
 	}
 
 	
 	/**
 	 * As per {@link #setTransaction(String, long, boolean, String)}, but also allows for forcing switch-off of screenshot logging for this
-	 * transaction (includeInEndOfTransactionshots set to false).  
+	 * transaction (includeInEndOfTransactionshots set to false), and also  additional option of setting the data type
+	 * field of the JMeter results file
 	 * 
-	 * @param transactionLabel transaction name
+	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
+	 * @param jMeterFileDatatypes  a {@link JMeterFileDatatypes} (it's text value will be written in the data type field of the JMeter results file)	 * 
 	 * @param transactionTime  transaction time (ms)
 	 * @param success   pass or fail transaction
 	 * @param responseCode  text response code
-	 * @param includeInEndOfTransactionshots  boolean option to switch on/off screenshot logs for transaction ends 
+	 * @param includeInEndOfTransactionshots boolean option to switch on/off screenshot logs for transaction ends (for this txn) 
 	 * @return SampleResult
 	 */
-	public SampleResult setTransaction(String transactionLabel, long transactionTime, boolean success, String responseCode, boolean includeInEndOfTransactionshots) {
+	public SampleResult setTransaction(String transactionLabel, JMeterFileDatatypes jMeterFileDatatypes,
+			long transactionTime, boolean success, String responseCode, boolean includeInEndOfTransactionshots) {
 		
-		SampleResult sampleResult = super.setTransaction(transactionLabel, transactionTime, success, responseCode);
+		SampleResult sampleResult = super.setTransaction(transactionLabel, jMeterFileDatatypes, transactionTime, success, responseCode);
 		
 		if (includeInEndOfTransactionshots) {
 			if 	(bufferScreenshotsAtEndOfTransactions) {
@@ -343,7 +426,7 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	
 	/**
 	 * Capture and immediately save screenshot. Use with caution! in a Performance and Volume context, misuse of this method may produce many more screenshots
-	 * than intended. Instead, we recommend using bufferScreenshot(String) and writeBufferedScreenshots() for any threads with interesting behaviour, such
+	 * than intended. Instead, we recommend using bufferScreenshot(String) and writeBufferedScreenshots() for any threads with interesting behavior, such
 	 * as an exception.
 	 * 
 	 * @param imageName filename to use for the screenshot
@@ -506,7 +589,5 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 		logScreenshotsAtStartOfTransactions(screenshotLoggingValue);
 		logPageSourceAtStartOfTransactions(screenshotLoggingValue);
 	}	
-	
-	
-	
+		
 }

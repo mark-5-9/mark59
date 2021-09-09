@@ -76,7 +76,8 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 		//workaround for Chrome 76 ?
 		// https://stackoverflow.com/questions/56558361/driver-manage-logs-getloglogtype-browser-no-longer-working-in-chromedriver-v/56596616#56596616
 		// https://stackoverflow.com/questions/56507652/selenium-chrome-cant-see-browser-logs-invalidargumentexception
-		options.setExperimentalOption("w3c", false);
+		// selenium 4.x never include this line:
+		//options.setExperimentalOption("w3c", false);
 	}
 
 		
@@ -177,9 +178,10 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 	public SeleniumDriverWrapper build(Map<String, String> arguments) { 
 		ChromeDriver driver = null;
 		
-		if (LOG.isDebugEnabled()) LOG.debug("chrome options : " + Arrays.toString(options.asMap().entrySet().toArray()));			
+		if (LOG.isDebugEnabled()) LOG.debug("chrome options : " + Arrays.toString(options.asMap().entrySet().toArray()));	
 		
 		try {
+			
 			ChromeDriverService chromeDriverService = (ChromeDriverService)serviceBuilder.build(); 
 			chromeDriverService.sendOutputTo(new OutputStream(){@Override public void write(int b){}});  // send to null		
 			
@@ -188,14 +190,13 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 			
 			if (LOG.isDebugEnabled()) {
 				Capabilities caps = driver.getCapabilities();
-				LOG.debug("  Browser Name and Version : " + caps.getBrowserName() + " " + caps.getVersion());
+				LOG.debug("  Browser Name and Version : " + caps.getBrowserName() + " " + caps.getBrowserVersion());
 				@SuppressWarnings("unchecked")
 				Map<String, String> chromeReturnedCapsMap = (Map<String, String>) caps.getCapability("chrome");
 				LOG.debug("  Chrome Driver Version    : " + chromeReturnedCapsMap.get("chromedriverVersion"));
 				LOG.debug("  Chrome Driver Temp Dir   : " + chromeReturnedCapsMap.get("userDataDir"));
 			}
 			
-	
 			String emulateNetworkConditions = arguments.get(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS);
 			if (StringUtils.isNotBlank(emulateNetworkConditions)) {
 				List<String> emulateNetworkConditionsArray = Mark59Utils.commaDelimStringToStringList(emulateNetworkConditions);
@@ -226,12 +227,12 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 			String thread =Thread.currentThread().getName();
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
-			LOG.error("An error has occured during the creation of the ChromeDriver : "  + e.getMessage() );	
-			System.err.println("An error has occured during the creation of the ChromeDriver : "  + e.getMessage() );				
+			LOG.error("An error has occurred during the creation of the ChromeDriver : "  + e.getMessage() );	
+			System.err.println("An error has occurred during the creation of the ChromeDriver : "  + e.getMessage() );				
 			LOG.error(" ERROR : " + this.getClass() + ". Stack trace: \n  " + sw.toString());
 			System.err.println("["+ thread + "]  ERROR : " + this.getClass() + ". Stack trace: \n  " + sw.toString());
 			if (driver != null) {driver.quit();};
-			throw new RuntimeException("An error has occured during the creation of the ChromeDriver (throwing a RuntimeException" );
+			throw new RuntimeException("An error has occurred during the creation of the ChromeDriver (throwing a RuntimeException" );
 		}
 		return new ChromeDriverWrapper(driver);
 	}

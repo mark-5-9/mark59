@@ -33,7 +33,6 @@
 	function resendSlaListURL(){
 
 		var selectedApplication = document.getElementById("application").value;
-		//alert("selectedApplication=<" + selectedApplication + ">"); 
 		window.location.href = 	"./slaList?reqApp=" + selectedApplication;
 	}	
 	
@@ -58,7 +57,6 @@
   
  <div align="right">
    <p><b>SLA Bulk Edit Functions:</b></p>
-   <input type="hidden" id="passedReqApp" value="${map.reqApp}" />
    <p>
    <c:if test="${map.reqApp != null && map.reqApp != ''}"><a href="copyApplicationSla?reqApp=${map.reqApp}">[ Copy All ${map.reqApp} ]</a>&nbsp;&nbsp;</c:if>
    <c:if test="${map.reqApp != null && map.reqApp != ''}"><a href="deleteApplicationSla?reqApp=${map.reqApp}"  onclick="return confirm('Are you sure (applicaton=${map.reqApp})?');" >[ Delete All ${map.reqApp} ]</a>&nbsp;&nbsp;</c:if>
@@ -74,6 +72,7 @@
     <th></th>
     <th></th>
     <th>Transaction</th>
+    <th>CDP<br>Txn</th>    
     <th>Application<br><form:select id='application' path="map" items="${map.applications}"  onChange="resendSlaListURL()" /></th>
     <th>Txn Ignored<br>on Graphs</th>    
     <th>90th Res<br>Time</th>
@@ -91,10 +90,12 @@
    </tr>
    <c:forEach var="sla" items="${map.slaList}">
     <tr>
-     <td><a href="copySla?reqTxnId=${sla.txnIdURLencoded}&reqApp=${sla.application}"   title="Copy"><img src="images/copy.png"/></a></td>  
-     <td><a href="editSla?reqTxnId=${sla.txnIdURLencoded}&reqApp=${sla.application}"   title="Edit"><img src="images/edit.png"/></a></td>
-     <td><a href="deleteSla?reqTxnId=${sla.txnIdURLencoded}&reqApp=${sla.application}" onclick="return confirm('Are you sure (transaction=${sla.txnId})?');" title=deleteLink><img src="images/delete.png"/></a></td>
+     <td><a href="copySla?reqTxnId=${sla.txnIdURLencoded}&reqIsCdpTxn=${sla.isCdpTxn}&reqApp=${sla.application}"   title="Copy"><img src="images/copy.png"/></a></td>  
+     <td><a href="editSla?reqTxnId=${sla.txnIdURLencoded}&reqIsCdpTxn=${sla.isCdpTxn}&reqApp=${sla.application}"   title="Edit"><img src="images/edit.png"/></a></td>
+     <td><a href="deleteSla?reqTxnId=${sla.txnIdURLencoded}&reqIsCdpTxn=${sla.isCdpTxn}&reqApp=${sla.application}"
+     							 onclick="return confirm('Are you sure (transaction=${sla.txnId}), CDP txn=${sla.isCdpTxn} ?');" title=deleteLink><img src="images/delete.png"/></a></td>
      <td>${sla.txnId}</td>
+     <td>${sla.isCdpTxn}</td>
      <td>${sla.application}</td>
      <td>${sla.isTxnIgnored }</td>     
      <td>${sla.sla90thResponse}</td>
@@ -112,7 +113,8 @@
     </tr>
    </c:forEach>
   </table>
-  
+  <input type="hidden" id="passedReqApp" value="${map.reqApp}" />
+    
   </div>
 
 </body>

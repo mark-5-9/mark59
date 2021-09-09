@@ -24,9 +24,10 @@ import com.mark59.metrics.data.beans.GraphMapping;
  * @author Philip Webb
  * Written: Australian Autumn 2020
  * 
- * Convenience interface to allow Spring Injection for VisGraphicDataProduction   
+ * Interface to allow Spring Injection for VisGraphicDataProduction   
  */
 public interface VisGraphicDataProductionInterface 
 {
-	public String createDataPoints(String application, GraphMapping graphMapping, String runDatesToGraph, List<String> orderedTxnsToGraphIdList);	  
+	public String createDataPoints(String application, GraphMapping graphMapping, String runDatesToGraph,
+			List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph, List<String> listOfTransactionNamesToGraphTagged);
 }

@@ -14,9 +14,14 @@
     <hashTree>
       <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="dataHunterUrlHostPort" elementType="Argument">
-            <stringProp name="Argument.name">dataHunterUrlHostPort</stringProp>
-            <stringProp name="Argument.value">${__P(DataHunterUrlHostPort,http://localhost:8081)}</stringProp>
+          <elementProp name="dataHunterUrl" elementType="Argument">
+            <stringProp name="Argument.name">dataHunterUrl</stringProp>
+            <stringProp name="Argument.value">${__P(DataHunterUrl,http://localhost:8081/dataHunter)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="dataHunterApplicationId" elementType="Argument">
+            <stringProp name="Argument.name">dataHunterApplicationId</stringProp>
+            <stringProp name="Argument.value">${__P(DataHunterApplicationId,DATAHUNTER_PV_TEST)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="pacing" elementType="Argument">
@@ -28,6 +33,7 @@
             <stringProp name="Argument.name">mark59ServerMetricsWebUrl</stringProp>
             <stringProp name="Argument.value">${__P(Mark59ServerMetricsWebUrl,http://localhost:8085/mark59-server-metrics-web)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">see ServerMetrics_localhost thread group</stringProp>
           </elementProp>
           <elementProp name="runningInDocker" elementType="Argument">
             <stringProp name="Argument.name">runningInDocker</stringProp>
@@ -43,6 +49,13 @@
             <stringProp name="Argument.name">headlessModeIteratorTG</stringProp>
             <stringProp name="Argument.value">${__P(HeadlessModeIteratorTG,false)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">see DataHunterLifecycleIteratorPvtScript</stringProp>
+          </elementProp>
+          <elementProp name="startCdpListeners" elementType="Argument">
+            <stringProp name="Argument.name">startCdpListeners</stringProp>
+            <stringProp name="Argument.value">${__P(StartCdpListeners,false)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">see DataHunterLifecyclePvtScript</stringProp>
           </elementProp>
         </collectionProp>
       </Arguments>
@@ -98,7 +111,7 @@ if (&quot;true&quot;.equalsIgnoreCase(runningInDocker)){
 
 	Properties systemProperties = System.getProperties();
 	systemProperties.setProperty(&quot;mark59.screenshot.directory&quot;       , &quot;/var/Mark59_Runs/Jmeter_ScreenshotLogs/DataHunter&quot;);
-	systemProperties.setProperty(&quot;mark59.selenium.driver.path.chrome&quot;, &quot;/var/mark59/dataHunterPerformanceTestSamples/chromedriver&quot;);
+	systemProperties.setProperty(&quot;mark59.selenium.driver.path.chrome&quot;, &quot;/var/mark59/dataHunterPerformanceTestSamples/_chromedriverforDockerUse&quot;);
 	
 	OUT.println (&quot;DataHunter Selenium Test Plan:  Mark59 properties directly set within the test plan : &quot;);
 	OUT.println (&quot;mark59.screenshot.directory        : &quot; + systemProperties.getProperty(&quot;mark59.screenshot.directory&quot;));
@@ -227,22 +240,27 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle" enabled="true">
-          <stringProp name="TestPlan.comments">${dataHunterUrlHostPort}</stringProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/dataHunter</stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="DATAHUNTER_URL_HOST_PORT" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_URL_HOST_PORT</stringProp>
-                <stringProp name="Argument.value">${dataHunterUrlHostPort}</stringProp>
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
                 <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
-                <stringProp name="Argument.value">DATAHUNTER_PV_TEST</stringProp>
+                <stringProp name="Argument.value">${dataHunterApplicationId}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
                 <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
                 <stringProp name="Argument.value">${__P(ForceTxnFailPercent,25)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="START_CDP_LISTENERS" elementType="Argument">
+                <stringProp name="Argument.name">START_CDP_LISTENERS</stringProp>
+                <stringProp name="Argument.value">${startCdpListeners}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="USER" elementType="Argument">
@@ -342,7 +360,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.3</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 4.0.0-rc-1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -381,17 +399,17 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator" enabled="true">
-          <stringProp name="TestPlan.comments">HEADLESS_MODE to parmaterize </stringProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/dataHunter</stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="DATAHUNTER_URL_HOST_PORT" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_URL_HOST_PORT</stringProp>
-                <stringProp name="Argument.value">${dataHunterUrlHostPort}</stringProp>
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
                 <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
-                <stringProp name="Argument.value">DATAHUNTER_PV_TEST</stringProp>
+                <stringProp name="Argument.value">${dataHunterApplicationId}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
@@ -526,7 +544,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 3.3</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 4.0.0-rc-1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -608,7 +626,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information: " elementType="Argument">
                 <stringProp name="Argument.name">build information: </stringProp>
-                <stringProp name="Argument.value">mark59-server-metrics version 3.3.0</stringProp>
+                <stringProp name="Argument.value">mark59-server-metrics version 4.0.0-rc-1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -663,12 +681,12 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	
 	@SuppressWarnings(&quot;unused&quot;)
 	final class TestConstants {
-		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = &quot;/dataHunter/delete_multiple_policies&quot;;
-		public static final String COUNT_POLICIES_URL_PATH              = &quot;/dataHunter/count_policies&quot;;	
-		public static final String ADD_POLICY_URL_PATH                  = &quot;/dataHunter/add_policy&quot;;
-		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = &quot;/dataHunter/print_selected_policies&quot;;
-		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/dataHunter/count_policies_breakdown&quot;;		
-		public static final String NEXT_POLICY_URL_PATH                 = &quot;/dataHunter/next_policy&quot;;	
+		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = &quot;/delete_multiple_policies&quot;;
+		public static final String COUNT_POLICIES_URL_PATH              = &quot;/count_policies&quot;;	
+		public static final String ADD_POLICY_URL_PATH                  = &quot;/add_policy&quot;;
+		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = &quot;/print_selected_policies&quot;;
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/count_policies_breakdown&quot;;		
+		public static final String NEXT_POLICY_URL_PATH                 = &quot;/next_policy&quot;;	
 		public static final String UNUSED                               = &quot;UNUSED&quot;;  
 		public static final String EQUALS                               = &quot;EQUALS&quot;;
 		public static final String SELECT_MOST_RECENTLY_ADDED           = &quot;SELECT_MOST_RECENTLY_ADDED&quot;;  
@@ -678,7 +696,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	@Override
 	protected Map&lt;String, String&gt; additionalTestParameters() {
 		Map&lt;String, String&gt; jmeterAdditionalParameters = new LinkedHashMap&lt;String, String&gt;();
-		jmeterAdditionalParameters.put(&quot;DATAHUNTER_URL_HOST_PORT&quot;,	&quot;http://localhost:8081&quot;);
+		jmeterAdditionalParameters.put(&quot;DATAHUNTER_URL&quot;,			&quot;http://localhost:8081/dataHunter&quot;);
 		jmeterAdditionalParameters.put(&quot;DATAHUNTER_APPLICATION_ID&quot;, &quot;DATAHUNTER_PV_TEST_BASIC&quot;);
 		jmeterAdditionalParameters.put(&quot;USER&quot;, 	 &quot;default_user&quot;);		
 		jmeterAdditionalParameters.put(&quot;DRIVER&quot;, &quot;CHROME&quot;);
@@ -707,22 +725,22 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		String lifecycle = &quot;thread_&quot; + thread;
 //		System.out.println(&quot;Thread &quot; + thread + &quot; is running with LOG level &quot; + LOG.getLevel());
 
-		String dataHunterUrl 	= context.getParameter(&quot;DATAHUNTER_URL_HOST_PORT&quot;);
+		String dataHunterUrl 	= context.getParameter(&quot;DATAHUNTER_URL&quot;);
 		String application 		= context.getParameter(&quot;DATAHUNTER_APPLICATION_ID&quot;);
 		String user 			= context.getParameter(&quot;USER&quot;);
 
 // 		delete any existing policies for this application/thread combination
 		
-		jm.startTransaction(&quot;DH-basic-0001-gotoDeleteMultiplePoliciesUrl&quot;);
+		jm.startTransaction(&quot;DH_lifecycle_0001_loadInitialPage&quot;);
 		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
-		jm.endTransaction(&quot;DH-basic-0001-gotoDeleteMultiplePoliciesUrl&quot;);	
+		jm.endTransaction(&quot;DH_lifecycle_0001_loadInitialPage&quot;);
 		
 		driver.findElement(By.id(&quot;lifecycle&quot;)).sendKeys(lifecycle);  ; 
 		
-		jm.startTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);
+		jm.startTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);
 		driver.findElement(By.id(&quot;submit&quot;)).submit();
 		checkSqlOk(driver.findElement(By.id(&quot;sqlResult&quot;)));
-		jm.endTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);	
+		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);	
 	
 //		add a policy 		
 		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + &quot;?application=&quot; + application);
@@ -737,10 +755,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		driver.findElement(By.id(&quot;epochtime&quot;)).sendKeys(new String(Long.toString(System.currentTimeMillis()))); 
 //		jm.writeScreenshot(&quot;add_policy_DH-BASIC-POLICY&quot;);
 		
-		jm.startTransaction(&quot;DH-lifecycle-0200-addPolicy&quot;);
+		jm.startTransaction(&quot;DH_lifecycle_0200_addPolicy&quot;);
 		driver.findElement(By.id(&quot;submit&quot;)).submit();
 		checkSqlOk(driver.findElement(By.id(&quot;sqlResult&quot;)));
-		jm.endTransaction(&quot;DH-lifecycle-0200-addPolicy&quot;);
+		jm.endTransaction(&quot;DH_lifecycle_0200_addPolicy&quot;);
 		
 //		set a Data Point		
 		Long rowsAffected = Long.valueOf(driver.findElement(By.id(&quot;rowsAffected&quot;)).getText());
@@ -825,12 +843,12 @@ import com.mark59.seleniumDSL.pageElements.*;
 class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	
 	final class TestConstants {
-		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = &quot;/dataHunter/delete_multiple_policies&quot;;
-		public static final String COUNT_POLICIES_URL_PATH              = &quot;/dataHunter/count_policies&quot;;	
-		public static final String ADD_POLICY_URL_PATH                  = &quot;/dataHunter/add_policy&quot;;
-		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = &quot;/dataHunter/print_selected_policies&quot;;
-		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/dataHunter/count_policies_breakdown&quot;;		
-		public static final String NEXT_POLICY_URL_PATH                 = &quot;/dataHunter/next_policy&quot;;	
+		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = &quot;/delete_multiple_policies&quot;;
+		public static final String COUNT_POLICIES_URL_PATH              = &quot;/count_policies&quot;;	
+		public static final String ADD_POLICY_URL_PATH                  = &quot;/add_policy&quot;;
+		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = &quot;/print_selected_policies&quot;;
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/count_policies_breakdown&quot;;		
+		public static final String NEXT_POLICY_URL_PATH                 = &quot;/next_policy&quot;;	
 		public static final String UNUSED                               = &quot;UNUSED&quot;;  
 		public static final String EQUALS                               = &quot;EQUALS&quot;;
 		public static final String SELECT_MOST_RECENTLY_ADDED           = &quot;SELECT_MOST_RECENTLY_ADDED&quot;;  
@@ -911,7 +929,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	@Override
 	protected Map&lt;String, String&gt; additionalTestParameters() {
 		Map&lt;String, String&gt; jmeterAdditionalParameters = new LinkedHashMap&lt;String, String&gt;();
-		jmeterAdditionalParameters.put(&quot;DATAHUNTER_URL_HOST_PORT&quot;,	&quot;http://localhost:8081&quot;);
+		jmeterAdditionalParameters.put(&quot;DATAHUNTER_URL&quot;,			&quot;http://localhost:8081/dataHunter&quot;);
 		jmeterAdditionalParameters.put(&quot;DATAHUNTER_APPLICATION_ID&quot;, &quot;DATAHUNTER_PV_TEST&quot;);
 		jmeterAdditionalParameters.put(&quot;FORCE_TXN_FAIL_PERCENT&quot;, 	&quot;20&quot;);
 		jmeterAdditionalParameters.put(&quot;USER&quot;, 	 &quot;default_user&quot;);		
@@ -934,7 +952,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		
 		String thread = Thread.currentThread().getName();
 		String lifecycle = &quot;thread_&quot; + thread;
-		String dataHunterUrl 	= context.getParameter(&quot;DATAHUNTER_URL_HOST_PORT&quot;);
+		String dataHunterUrl 	= context.getParameter(&quot;DATAHUNTER_URL&quot;);
 		String application 		= context.getParameter(&quot;DATAHUNTER_APPLICATION_ID&quot;);
 		int forceTxnFailPercent = Integer.valueOf(context.getParameter(&quot;FORCE_TXN_FAIL_PERCENT&quot;).trim());
 		String user 			= context.getParameter(&quot;USER&quot;);
@@ -944,19 +962,19 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		DataHunterInputPages dataHunterInputPages = new DataHunterInputPages(driver); 
 
 // 		delete any existing policies for this application/thread combination
-		jm.startTransaction(&quot;DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl&quot;);
+		jm.startTransaction(&quot;DH_lifecycle_0001_loadInitialPage&quot;);
 		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
 		dataHunterInputPages.lifecycle().waitUntilClickable();
-		jm.endTransaction(&quot;DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl&quot;);	
+		jm.endTransaction(&quot;DH_lifecycle_0001_loadInitialPage&quot;);	
 		
 		dataHunterInputPages.lifecycle().type(lifecycle);
 
 		DatatHunterActionPages resultsPage = new DatatHunterActionPages(driver);
 		
-		jm.startTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);		
+		jm.startTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);		
 		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );  
 		waitActionPageCheckSqlOk(new DatatHunterActionPages(driver));
-		jm.endTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);	
+		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);	
 	
 //		add a set of policies 		
 		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + &quot;?application=&quot; + application);
@@ -969,30 +987,31 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			dataHunterInputPages.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
 //			jm.writeScreenshot(&quot;add_policy_TESTID&quot; + i);
 
-			jm.startTransaction(&quot;DH-lifecycle-0200-addPolicy&quot;);
+			jm.startTransaction(&quot;DH_lifecycle_0200_addPolicy&quot;);
+			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay			
 			dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );   
 			waitActionPageCheckSqlOk(resultsPage);
-			jm.endTransaction(&quot;DH-lifecycle-0200-addPolicy&quot;);
+			jm.endTransaction(&quot;DH_lifecycle_0200_addPolicy&quot;);
 			
 			resultsPage.backLink().click().waitUntilClickable( dataHunterInputPages.submit() ).thenSleep();    
 		} 
 	
 //		dummy transaction just to test transaction failure behavior
-		jm.startTransaction(&quot;DH-lifecycle-0299-sometimes-I-fail&quot;);
+		jm.startTransaction(&quot;DH_lifecycle_0299_sometimes_I_fail&quot;);
 		int randomNum_1_to_100 = ThreadLocalRandom.current().nextInt(1, 101);
 		if ( randomNum_1_to_100 &gt;= forceTxnFailPercent ) {
-			jm.endTransaction(&quot;DH-lifecycle-0299-sometimes-I-fail&quot;, Outcome.PASS);
+			jm.endTransaction(&quot;DH_lifecycle_0299_sometimes_I_fail&quot;, Outcome.PASS);
 		} else {
-			jm.endTransaction(&quot;DH-lifecycle-0299-sometimes-I-fail&quot;, Outcome.FAIL);
+			jm.endTransaction(&quot;DH_lifecycle_0299_sometimes_I_fail&quot;, Outcome.FAIL);
 		}
 		
 		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_URL_PATH + &quot;?application=&quot; + application);
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED).thenSleep();   // ** note 2
 
-		jm.startTransaction(&quot;DH-lifecycle-0300-countUnusedPolicies&quot;);
+		jm.startTransaction(&quot;DH_lifecycle_0300_countUnusedPolicies&quot;);
 		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );
 		waitActionPageCheckSqlOk(resultsPage);
-		jm.endTransaction(&quot;DH-lifecycle-0300-countUnusedPolicies&quot;);
+		jm.endTransaction(&quot;DH_lifecycle_0300_countUnusedPolicies&quot;);
 		
 		Long countPolicies = Long.valueOf( resultsPage.rowsAffected().getText());
 		LOG.debug( &quot;countPolicies : &quot; + countPolicies); 
@@ -1003,10 +1022,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		dataHunterInputPages.applicationStartsWithOrEquals().selectByVisibleText(TestConstants.EQUALS);
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED);
 
-		jm.startTransaction(&quot;DH-lifecycle-0400-countUnusedPoliciesCurrentThread&quot;);		
+		jm.startTransaction(&quot;DH_lifecycle_0400_countUnusedPoliciesCurrentThread&quot;);		
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(resultsPage);		
-		jm.endTransaction(&quot;DH-lifecycle-0400-countUnusedPoliciesCurrentThread&quot;);				
+		jm.endTransaction(&quot;DH_lifecycle_0400_countUnusedPoliciesCurrentThread&quot;);				
 		
 		// direct access to required row-column table element by computing the id:
 		int countUsedPoliciesCurrentThread = resultsPage.getCountForBreakdown(application, lifecycle, TestConstants.UNUSED); 
@@ -1019,10 +1038,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED);
 		dataHunterInputPages.selectOrder().selectByVisibleText(TestConstants.SELECT_MOST_RECENTLY_ADDED);
 		
-		jm.startTransaction(&quot;DH-lifecycle-0500-useNextPolicy&quot;);		
+		jm.startTransaction(&quot;DH_lifecycle_0500_useNextPolicy&quot;);		
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(resultsPage);			
-		jm.endTransaction(&quot;DH-lifecycle-0500-useNextPolicy&quot;);	
+		jm.endTransaction(&quot;DH_lifecycle_0500_useNextPolicy&quot;);	
 		
 		if (LOG.isDebugEnabled() ) {LOG.debug(&quot;useNextPolicy: &quot; + application + &quot;-&quot; + lifecycle + &quot; : &quot; + resultsPage.identifier() );	}
 		
@@ -1033,11 +1052,11 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		driver.get(dataHunterUrl + TestConstants.PRINT_SELECTED_POLICIES_URL_PATH  + &quot;?application=&quot; + application);
 		dataHunterInputPages.submit().waitUntilClickable();
 		
-		jm.startTransaction(&quot;DH-lifecycle-0600-displaySelectedPolicies&quot;);	
+		jm.startTransaction(&quot;DH_lifecycle_0600_displaySelectedPolicies&quot;);	
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(resultsPage);
 		// demo how to extract a transaction time from with a running script 
-		org.apache.jmeter.samplers.SampleResult sr_0600 = jm.endTransaction(&quot;DH-lifecycle-0600-displaySelectedPolicies&quot;);
+		org.apache.jmeter.samplers.SampleResult sr_0600 = jm.endTransaction(&quot;DH_lifecycle_0600_displaySelectedPolicies&quot;);
 		LOG.debug(&quot;Transaction &quot; + sr_0600.getSampleLabel() + &quot; ran at &quot; + sr_0600.getTimeStamp() + &quot; and took &quot; + sr_0600.getTime() + &quot; ms.&quot; );
 		
 		HtmlTable printSelectedPoliciesTable = resultsPage.printSelectedPoliciesTable();
@@ -1045,22 +1064,22 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			if (tableRow.getColumnNumberOfExpectedColumns(4, 8).getText().equals(&quot;USED&quot;))   used++;
 			if (tableRow.getColumnNumberOfExpectedColumns(4, 8).getText().equals(&quot;UNUSED&quot;)) unused++;
 		}	
-		jm.userDataPoint(&quot;USED-count-html-demo&quot;,   used );				
-		jm.userDataPoint(&quot;UNUSED-count-html-demo&quot;, unused );	
+		jm.userDataPoint(&quot;USED_count_html_demo&quot;,   used );				
+		jm.userDataPoint(&quot;UNUSED_count_html_demo&quot;, unused );	
 		LOG.debug(&quot;HTML demo: USED=&quot; + used + &quot;, UNUSED=&quot; + unused); 
 		
 // 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
-		jm.startTransaction(&quot;DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl&quot;);		
+		jm.startTransaction(&quot;DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl&quot;);		
 		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
 		dataHunterInputPages.lifecycle().waitUntilClickable();		
-		jm.endTransaction(&quot;DH-lifecycle-0001-gotoDeleteMultiplePoliciesUrl&quot;);	
+		jm.endTransaction(&quot;DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl&quot;);	
 		
 		dataHunterInputPages.lifecycle().type(lifecycle);
 		
-		jm.startTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);		
+		jm.startTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(new DatatHunterActionPages(driver));
-		jm.endTransaction(&quot;DH-lifecycle-0100-deleteMultiplePolicies&quot;);	
+		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);	
 		
 //		jm.writeBufferedArtifacts();
 	}
@@ -1074,25 +1093,15 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		}
 	}
 	
-
 	@SuppressWarnings(&quot;unchecked&quot;)
 	private synchronized void PrintSomeMsgOnceAtStartUp(String dataHunterUrl, WebDriver driver) {
 		Properties sysprops = System.getProperties();
 		if (!&quot;true&quot;.equals(sysprops.get(&quot;printedOnce&quot;)) ) {	
-			LOG.info(&quot;  using DataHunter with Url &quot; + dataHunterUrl + &quot;/dataHunter&quot;);
+			LOG.info(&quot; Using DataHunter with Url &quot; + dataHunterUrl + &quot;/dataHunter&quot;);
 			Capabilities caps = ((ChromeDriver)driver).getCapabilities();
-			LOG.info(&quot; Browser Name and Version : &quot; + caps.getBrowserName() + &quot; &quot; + caps.getVersion());
+			LOG.info(&quot; Browser Name and Version : &quot; + caps.getBrowserName() + &quot; &quot; + caps.getBrowserVersion());
 			if (&quot;chrome&quot;.equalsIgnoreCase(caps.getBrowserName()) &amp;&amp; caps.getCapability(&quot;chrome&quot;) != null ){
-				String chromedriverVersion =  ((Map&lt;String, String&gt;)caps.getCapability(&quot;chrome&quot;)).get(&quot;chromedriverVersion&quot;);
 				LOG.info(&quot; Chrome Driver Version    : &quot; +  ((Map&lt;String, String&gt;)caps.getCapability(&quot;chrome&quot;)).get(&quot;chromedriverVersion&quot;));
-				if (chromedriverVersion != null &amp;&amp;  chromedriverVersion.startsWith(&quot;2.44&quot;) ) {
-					String outDatedDriver = &quot;\n\n You are using the outdated ChromeDriver that ships with the Mark59 Selenium test scripts &quot; +
-							&quot; project &apos;dataHunterPerformanceTestSamples&apos;.  It may be unstable or not work at all.&quot; + 				
-							&quot;\n - Please visit https://chromedriver.chromium.org/downloads and update to a ChomeDriver which supports &quot; +
-							&quot;Chrome browser version &quot; + caps.getVersion() + &quot;\n&quot;;
-					System.out.println(outDatedDriver);
-					LOG.warn(outDatedDriver);
-				}	
 			}
 			sysprops.put(&quot;printedOnce&quot;, &quot;true&quot;);
 		}

@@ -223,12 +223,14 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 
 
 	/**
-	 * Sets the path to an alternate version of the target browser, such as a
-	 * development version of chrome.
+	 * Sets the path to an alternate version of the target browser, such as a development version of chrome. 
+	 * If not set, will use the main installation of the expected browser.
 	 * 
-	 * <p>
-	 * If not set, will use the main installation of the expected browser
-	 * </p>
+	 * <p>For example, if you have downloaded Chromium directly onto your C: drive on a Win machine, you would set 
+	 * the "BROWSER_EXECUTABLE" parameter as : 
+	 * 
+	 * <br><br><b>C:/Chromium/Application/chrome.exe</b> </p>
+	 * 
 	 * @param <T> of T 
 	 * @param browserExecutablePath executable path to the browser executable to be used
 	 * @return this

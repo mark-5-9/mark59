@@ -25,6 +25,8 @@ public class TransactionRenameForm {
 	private String  application;
 	private String  fromTxnId;
 	private String  toTxnId;
+	private String	fromIsCdpTxn;	
+	private String	toIsCdpTxn;		
 	private String  txnType;
 	private String  passedValidation;
 	private String  validationMsg;
@@ -46,6 +48,18 @@ public class TransactionRenameForm {
 	}
 	public void setToTxnId(String toTxnId) {
 		this.toTxnId = toTxnId;
+	}
+	public String getFromIsCdpTxn() {
+		return fromIsCdpTxn;
+	}
+	public void setFromIsCdpTxn(String fromIsCdpTxn) {
+		this.fromIsCdpTxn = fromIsCdpTxn;
+	}
+	public String getToIsCdpTxn() {
+		return toIsCdpTxn;
+	}
+	public void setToIsCdpTxn(String toIsCdpTxn) {
+		this.toIsCdpTxn = toIsCdpTxn;
 	}
 	public String getTxnType() {
 		return txnType;
@@ -71,9 +85,11 @@ public class TransactionRenameForm {
 		String prettyPrint = "application="+application
 				+ ", fromTxnId="+fromTxnId
 				+ ", toTxnId="+toTxnId
+				+ ", fromIsCdpTxn="+fromIsCdpTxn				
+				+ ", toIsCdpTxn="+toIsCdpTxn				
 				+ ", txnType="+txnType
-				+ ", fromTxnId="+fromTxnId
 				+ ", passedValidation="+passedValidation
+				+ ", validationMsg="+validationMsg
 				;
 		return prettyPrint;
 	}

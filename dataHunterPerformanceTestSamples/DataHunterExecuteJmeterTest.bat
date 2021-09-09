@@ -14,11 +14,16 @@ REM   --------------------------------------------------------------------------
 @echo off
 MODE con:cols=180 lines=500
 
- mkdir C:\Mark59_Runs
- mkdir C:\Mark59_Runs\Jmeter_Results
- mkdir C:\Mark59_Runs\Jmeter_Results\DataHunter
+rem SET "StartCdpListeners=true"
+rem SET "StartCdpListeners=false"
+
+ECHO StartCdpListeners has been set to %StartCdpListeners% 
+
+mkdir C:\Mark59_Runs
+mkdir C:\Mark59_Runs\Jmeter_Results
+mkdir C:\Mark59_Runs\Jmeter_Results\DataHunter
 
 set path=%path%;C:\Windows\System32;C:\windows\system32\wbem
 
-C:\apache-jmeter\bin\jmeter -n -X -f -t ./test-plans/DataHunterSeleniumTestPlan.jmx -l C:\Mark59_Runs\Jmeter_Results\DataHunter\DataHunterTestResults.csv -j C:\apache-jmeter\bin\jmeter.log  -JForceTxnFailPercent=0 -JDataHunterUrlHostPort=http://localhost:8081
+C:\apache-jmeter\bin\jmeter -n -X -f -t ./test-plans/DataHunterSeleniumTestPlan.jmx -l C:\Mark59_Runs\Jmeter_Results\DataHunter\DataHunterTestResults.csv -j C:\apache-jmeter\bin\jmeter.log -JDataHunterUrl=http://localhost:8081/dataHunter -JForceTxnFailPercent=0 -JStartCdpListeners=%StartCdpListeners%
 PAUSE

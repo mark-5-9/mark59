@@ -56,7 +56,7 @@ public class MetricSlaChecker {
 				
 	//			System.out.println("metricSla name:type:deriv = " + metricSla.getMetricName() + ":" + metricSla.getMetricTxnType() + ":"  + metricSla.getValueDerivation() + ", transactionField = " +  transactionField  );
 				
-				Object txnValueObj = transactionDAO.getTransactionValue(application,  metricSla.getMetricTxnType(), runTime, metricSla.getMetricName(), transactionField ); 
+				Object txnValueObj = transactionDAO.getTransactionValue(application,  metricSla.getMetricTxnType(), "N", runTime, metricSla.getMetricName(), transactionField ); 
 				
 				if ( txnValueObj == null ){
 					String messageText = "Metric SLA Failed Warning  : no metric has been found but was expected for " + metricSla.getMetricTxnType() + " " +  metricSla.getValueDerivation() + " on " + metricSla.getMetricName();   

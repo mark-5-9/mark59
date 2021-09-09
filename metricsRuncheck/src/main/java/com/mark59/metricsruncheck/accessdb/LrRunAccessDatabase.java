@@ -229,6 +229,7 @@ public class LrRunAccessDatabase {
 			
 		    		testTransaction.setApplication(application);
 		    		testTransaction.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);	
+		    		testTransaction.setIsCdpTxn("N");	
 		    		testTransactionList.add(testTransaction);
 				}
 
@@ -460,6 +461,7 @@ public class LrRunAccessDatabase {
 		serverTransaction.setRunTime(run.getRunTime()); 
 		serverTransaction.setTxnId(eventAttributes.getTxnId()); 
 		serverTransaction.setTxnType(eventAttributes.getEventMapping().getTxnType());  
+		serverTransaction.setIsCdpTxn("N");  
 		serverTransaction.setTxnMinimum(txnMinimum); 		      		
 		serverTransaction.setTxnAverage(tnxAverage); 
 		serverTransaction.setTxnMedian(new BigDecimal(-1.0));

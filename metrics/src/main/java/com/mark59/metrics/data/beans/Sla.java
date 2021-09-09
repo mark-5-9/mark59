@@ -27,6 +27,7 @@ public class Sla {
 	String		application;
 	String		txnId;
 	String		txnIdURLencoded;
+	String		isCdpTxn;
 	String		isTxnIgnored;	
 	BigDecimal	sla90thResponse;
 	BigDecimal	sla95thResponse;
@@ -52,6 +53,7 @@ public class Sla {
 		this.application = copy.application;
 		this.txnId = copy.txnId;
 		this.txnIdURLencoded  = copy.txnIdURLencoded;
+		this.isCdpTxn = copy.isCdpTxn;
 		this.isTxnIgnored = copy.isTxnIgnored;
 		this.sla90thResponse = copy.sla90thResponse;
 		this.sla95thResponse = copy.sla95thResponse;
@@ -87,14 +89,18 @@ public class Sla {
 	public void setTxnIdURLencoded(String txnIdURLencoded) {
 		this.txnIdURLencoded = txnIdURLencoded;
 	}
-	
+	public String getIsCdpTxn() {
+		return isCdpTxn;
+	}
+	public void setIsCdpTxn(String isCdpTxn) {
+		this.isCdpTxn = isCdpTxn;
+	}
 	public String getIsTxnIgnored() {
 		return isTxnIgnored;
 	}
 	public void setIsTxnIgnored(String isTxnIgnored) {
 		this.isTxnIgnored = isTxnIgnored;
 	}
-	
 	public BigDecimal getSla90thResponse() {
 		return sla90thResponse;
 	}

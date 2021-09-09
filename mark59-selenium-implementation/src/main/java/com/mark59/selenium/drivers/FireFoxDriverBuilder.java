@@ -163,7 +163,7 @@ public class FireFoxDriverBuilder extends SeleniumDriverBuilder<FirefoxOptions> 
 
 		if (LOG.isDebugEnabled()) {
 			Capabilities caps = driver.getCapabilities();
-			LOG.debug("Firefox driver created. Browser Name+Version : " + caps.getBrowserName() + " " + caps.getVersion());
+			LOG.debug("Firefox driver created. Browser Name+Version : " + caps.getBrowserName() + " " + caps.getBrowserVersion());
 			LOG.debug("  geckodriver version  : " + caps.getCapability("moz:geckodriverVersion"));
 			LOG.debug("  moz profile          : " + caps.getCapability("moz:profile"));
 		}		
