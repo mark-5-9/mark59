@@ -19,9 +19,8 @@ package com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-import com.mark59.seleniumDSL.pageElements.DropdownList;
-import com.mark59.seleniumDSL.pageElements.InputTextElement;
 import com.mark59.seleniumDSL.pageElements.Link;
+import com.mark59.seleniumDSL.pageElements.PageTextElement;
 
 
 /**
@@ -34,30 +33,35 @@ public class NextPolicyActionPage extends _GenericDatatHunterActionPage {
 		super(driver);
 	}
 	
-	public InputTextElement application() {
-		return new InputTextElement(driver, By.id("application"));
+	public PageTextElement application() {
+		return new PageTextElement(driver, By.id("application"));
 	};	
-	public InputTextElement identifier() {
-		return new InputTextElement(driver, By.id("identifier"));
+	public PageTextElement identifier() {
+		return new PageTextElement(driver, By.id("identifier"));
 	};	
-	public InputTextElement lifecycle() {
-		return new InputTextElement(driver, By.id("lifecycle"));
+	public PageTextElement lifecycle() {
+		return new PageTextElement(driver, By.id("lifecycle"));
 	};
-	public DropdownList useability() {
-		return new DropdownList(driver, By.id("useability"));
+	public PageTextElement useability() {
+		return new PageTextElement(driver, By.id("useability"));
 	};
-	public InputTextElement otherdata() {
-		return new InputTextElement(driver, By.id("otherdata"));
+	public PageTextElement otherdata() {
+		return new PageTextElement(driver, By.id("otherdata"));
 	};
-	public InputTextElement epochtime() {
-		return new InputTextElement(driver, By.id("epochtime"));
+	public PageTextElement epochtime() {
+		return new PageTextElement(driver, By.id("epochtime"));
 	};
-	public InputTextElement created() {
-		return new InputTextElement(driver, By.id("created"));
+	public PageTextElement created() {
+		return new PageTextElement(driver, By.id("created"));
 	};
-	public InputTextElement updated() {
-		return new InputTextElement(driver, By.id("updated"));
-	};	
+	public PageTextElement updated() {
+		return new PageTextElement(driver, By.id("updated"));
+	};
+	
+	public PageTextElement prettyidentifier() {
+		return new PageTextElement(driver, By.id("prettyidentifier"));
+	};
+	
 	public Link backLink() {
 		return new Link(driver, "Back");
 	};	

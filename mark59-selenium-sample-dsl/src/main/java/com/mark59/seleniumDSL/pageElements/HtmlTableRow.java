@@ -50,11 +50,11 @@ public class HtmlTableRow {
 		return webElementsForRow.get(columnNumber-1) ;
 	}	
 	
-	private List<WebElement> getWebElementsForRow(){
+	public List<WebElement> getWebElementsForRow(){
 		return tableRow.findElements(By.tagName("td"));
 	}
 	
-	private List<WebElement> getWebElementsForRow(int ofExpectedNumberOfColumns){
+	public List<WebElement> getWebElementsForRow(int ofExpectedNumberOfColumns){
 		List<WebElement> webElementsForRow = getWebElementsForRow();
 		if (webElementsForRow.size() != ofExpectedNumberOfColumns ){
 			throw new RuntimeException("HtmlTableRow : invalid columns number. " + webElementsForRow.size() + " cols exist in row, but expected was " + ofExpectedNumberOfColumns );

@@ -21,9 +21,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
@@ -33,6 +33,7 @@ import org.openqa.selenium.support.ui.Select;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.SafeSleep;
+import com.mark59.datahunter.performanceTest.dsl.helpers.DslConstants;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
 import com.mark59.selenium.corejmeterimpl.KeepBrowserOpen;
 import com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient;
@@ -106,7 +107,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 // 		delete any existing policies for this application/thread combination
 		
 		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
-		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");
 		
 		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);  ; 
@@ -117,13 +118,13 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	
 //		add a policy 		
-		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.ADD_POLICY_URL_PATH + "?application=" + application);
 
 		driver.findElement(By.id("identifier")).sendKeys("DH-BASIC-POLICY"); 		
 		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle); 		
 		
 		Select dropdown = new Select(driver.findElement(By.id("useability")));
-		dropdown.selectByVisibleText(TestConstants.UNUSED);
+		dropdown.selectByVisibleText(DslConstants.UNUSED);
 
 		driver.findElement(By.id("otherdata")).sendKeys(user); 
 		driver.findElement(By.id("epochtime")).sendKeys(new String(Long.toString(System.currentTimeMillis()))); 

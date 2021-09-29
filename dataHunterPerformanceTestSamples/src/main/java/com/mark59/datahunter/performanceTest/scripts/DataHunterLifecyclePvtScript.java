@@ -50,6 +50,7 @@ import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.NextPol
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.PrintSelectedPoliciesActionPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.PrintSelectedPoliciesPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages._GenericDatatHunterActionPage;
+import com.mark59.datahunter.performanceTest.dsl.helpers.DslConstants;
 import com.mark59.devtoolsDSL.DevToolsDSL;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
 import com.mark59.selenium.corejmeterimpl.KeepBrowserOpen;
@@ -146,7 +147,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 
 // 		delete any existing policies for this application/thread combination
 		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
-		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		deleteMultiplePoliciesPage.lifecycle().waitUntilClickable();
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");	
 		
@@ -160,13 +161,13 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	
 //		add a set of policies 		
-		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.ADD_POLICY_URL_PATH + "?application=" + application);
 		AddPolicyPage addPolicyPage = new AddPolicyPage(driver);
 		
 		for (int i = 1; i <= 5; i++) {
 			addPolicyPage.identifier().type("TESTID" + i);
 			addPolicyPage.lifecycle().type(lifecycle);
-			addPolicyPage.useability().selectByVisibleText(TestConstants.UNUSED) ;
+			addPolicyPage.useability().selectByVisibleText(DslConstants.UNUSED) ;
 			addPolicyPage.otherdata().type(user);		
 			addPolicyPage.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
 //			jm.writeScreenshot("add_policy_TESTID" + i);
@@ -191,9 +192,9 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 			jm.endTransaction("DH_lifecycle_0299_sometimes_I_fail", Outcome.FAIL);
 		}
 		
-		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.COUNT_POLICIES_URL_PATH + "?application=" + application);
 		CountPoliciesPage countPoliciesPage = new CountPoliciesPage(driver); 
-		countPoliciesPage.useability().selectByVisibleText(TestConstants.UNUSED).thenSleep();   // ** note 2
+		countPoliciesPage.useability().selectByVisibleText(DslConstants.UNUSED).thenSleep();   // ** note 2
 		
 		CountPoliciesActionPage countPoliciesActionPage = new CountPoliciesActionPage(driver);	
 
@@ -207,10 +208,10 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jm.userDataPoint(application + "_Total_Unused_Policy_Count", countPolicies);
 		
 // 		count breakdown (count for unused DATAHUNTER_PV_TEST policies for this thread )
-		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_BREAKDOWN_URL_PATH + "?application=" + application);		
+		driver.get(dataHunterUrl + DslConstants.COUNT_POLICIES_BREAKDOWN_URL_PATH + "?application=" + application);		
 		CountPoliciesBreakdownPage countPoliciesBreakdownPage = new CountPoliciesBreakdownPage(driver);
-		countPoliciesBreakdownPage.applicationStartsWithOrEquals().selectByVisibleText(TestConstants.EQUALS);
-		countPoliciesBreakdownPage.useability().selectByVisibleText(TestConstants.UNUSED);
+		countPoliciesBreakdownPage.applicationStartsWithOrEquals().selectByVisibleText(DslConstants.EQUALS);
+		countPoliciesBreakdownPage.useability().selectByVisibleText(DslConstants.UNUSED);
 		
 		CountPoliciesBreakdownActionPage countPoliciesBreakdownActionPage = new CountPoliciesBreakdownActionPage(driver);	
 
@@ -220,16 +221,16 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jm.endTransaction("DH_lifecycle_0400_countUnusedPoliciesCurrentThread");				
 		
 		// direct access to required row-column table element by computing the id:
-		int countUsedPoliciesCurrentThread = countPoliciesBreakdownActionPage.getCountForBreakdown(application, lifecycle, TestConstants.UNUSED); 
+		int countUsedPoliciesCurrentThread = countPoliciesBreakdownActionPage.getCountForBreakdown(application, lifecycle, DslConstants.UNUSED); 
 		LOG.debug( "countUsedPoliciesCurrentThread : " + countUsedPoliciesCurrentThread); 
 		jm.userDataPoint(application + "_This_Thread_Unused_Policy_Count", countUsedPoliciesCurrentThread);	
 
 //		use next policy
-		driver.get(dataHunterUrl + TestConstants.NEXT_POLICY_URL_PATH + "?application=" + application + "&pUseOrLookup=use");		
+		driver.get(dataHunterUrl + DslConstants.NEXT_POLICY_URL_PATH + "?application=" + application + "&pUseOrLookup=use");		
 		NextPolicyPage nextPolicyPage = new NextPolicyPage(driver); 
 		nextPolicyPage.lifecycle().type(lifecycle);
-		nextPolicyPage.useability().selectByVisibleText(TestConstants.UNUSED);
-		nextPolicyPage.selectOrder().selectByVisibleText(TestConstants.SELECT_MOST_RECENTLY_ADDED);
+		nextPolicyPage.useability().selectByVisibleText(DslConstants.UNUSED);
+		nextPolicyPage.selectOrder().selectByVisibleText(DslConstants.SELECT_MOST_RECENTLY_ADDED);
 
 		NextPolicyActionPage nextPolicyActionPage = new NextPolicyActionPage(driver);		
 		
@@ -244,7 +245,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		long used=0;
 		long unused=0;
 		
-		driver.get(dataHunterUrl + TestConstants.PRINT_SELECTED_POLICIES_URL_PATH  + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.PRINT_SELECTED_POLICIES_URL_PATH  + "?application=" + application);
 		PrintSelectedPoliciesPage printSelectedPoliciesPage = new PrintSelectedPoliciesPage(driver);
 		printSelectedPoliciesPage.submit().waitUntilClickable();
 
@@ -269,7 +270,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		
 // 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
 		jm.startTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");		
-		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		deleteMultiplePoliciesPage.lifecycle().waitUntilClickable();		
 		jm.endTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");	
 		

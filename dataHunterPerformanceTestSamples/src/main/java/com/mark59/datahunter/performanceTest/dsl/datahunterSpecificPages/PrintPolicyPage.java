@@ -19,26 +19,33 @@ package com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-import com.mark59.seleniumDSL.pageElements.Link;
-import com.mark59.seleniumDSL.pageElements.PageTextElement;
+import com.mark59.seleniumDSL.core._GenericPage;
+import com.mark59.seleniumDSL.pageElements.InputTextElement;
+import com.mark59.seleniumDSL.pageElements.SubmitBtn;
 
 
 /**
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class CountPoliciesActionPage extends _GenericDatatHunterActionPage {
-
-	public CountPoliciesActionPage(WebDriver driver) {
+public class PrintPolicyPage extends _GenericPage  {
+	
+	public PrintPolicyPage( WebDriver driver) {
 		super(driver);
 	}
 
-	public PageTextElement prettyCount() {
-		return new PageTextElement(driver, By.id("prettyCount"));
+	public InputTextElement application() {
+		return new InputTextElement(driver, By.id("application"));
 	};
-	
-	public Link backLink() {
-		return new Link(driver, "Back");
+	public InputTextElement identifier() {
+		return new InputTextElement(driver, By.id("identifier"));
+	};	
+	public InputTextElement lifecycle() {
+		return new InputTextElement(driver, By.id("lifecycle"));
+	};
+		
+	public SubmitBtn submit() {
+		return new SubmitBtn(driver, By.id("submit"));
 	};		
 	
 }

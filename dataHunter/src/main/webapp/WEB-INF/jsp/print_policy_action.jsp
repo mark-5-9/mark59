@@ -43,7 +43,7 @@
  <table >
      <tr>
       <td>Application </td><td>:</td>
-      <td>${modelMap.policies.application}</td>
+      <td id=application>${modelMap.policies.application}</td>
      </tr>
      
      <tr>
@@ -85,11 +85,19 @@
 
  </center>
 
-<br><br>
-statement executed : ${modelMap.sql}<br>
-<br><br>
- result: [${modelMap.sqlResult}]  &nbsp;&nbsp; ${modelMap.sqlResultText}
-<br><br><br>
+<br><br><br><br>
+
+ <table >
+     <tr><td>sql statement</td>	<td>:</td><td id=sql>${modelMap.sql}</td></tr> 
+     <tr><td>result</td>		<td>:</td><td id=sqlResult>${modelMap.sqlResult}</td></tr>
+     <tr><td>rows affected</td>	<td>:</td><td id=rowsAffected>${modelMap.rowsAffected}</td></tr>
+     <tr><td>details</td>		<td>:</td><td id=sqlResultText>${modelMap.sqlResultText}</td></tr>     
+ </table>
+
+ <br><br><br><br>
+  
+ <br><br>
+
  <a href='print_policy?application=${modelMap.policies.application}'>Back</a>
  
 </body>

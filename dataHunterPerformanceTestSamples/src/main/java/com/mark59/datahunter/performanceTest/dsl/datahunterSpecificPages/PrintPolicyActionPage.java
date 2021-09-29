@@ -27,13 +27,12 @@ import com.mark59.seleniumDSL.pageElements.PageTextElement;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class AddPolicyActionPage  extends _GenericDatatHunterActionPage  {
+public class PrintPolicyActionPage extends _GenericDatatHunterActionPage {
 	
-
-	public AddPolicyActionPage( WebDriver driver) {
+	public PrintPolicyActionPage( WebDriver driver) {
 		super(driver);
 	}
-		
+	
 	public PageTextElement application() {
 		return new PageTextElement(driver, By.id("application"));
 	};	
@@ -52,7 +51,13 @@ public class AddPolicyActionPage  extends _GenericDatatHunterActionPage  {
 	public PageTextElement epochtime() {
 		return new PageTextElement(driver, By.id("epochtime"));
 	};
+	public PageTextElement created() {
+		return new PageTextElement(driver, By.id("created"));
+	};
+	public PageTextElement updated() {
+		return new PageTextElement(driver, By.id("updated"));
+	};	
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};		
+	};	
 }

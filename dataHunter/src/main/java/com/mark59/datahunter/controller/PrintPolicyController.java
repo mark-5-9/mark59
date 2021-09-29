@@ -68,6 +68,7 @@ public class PrintPolicyController {
 
 		ModelMap modelMap = new ModelMap();
 		modelMap.addAttribute("sql", sql);
+		modelMap.addAttribute("rowsAffected", policiesList.size());
 		
 		if (policiesList.size() == 1 ){
 			modelMap.addAttribute("sqlResult", "PASS");			
