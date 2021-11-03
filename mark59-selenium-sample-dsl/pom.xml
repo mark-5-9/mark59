@@ -5,15 +5,15 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-selenium-sample-dsl</artifactId>
-	<version>4.0.0-rc-1</version>
+	<version>4.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-selenium-sample-dsl</name>
 
 	<properties>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<maven.compiler.target>1.8</maven.compiler.target>
+	<maven.compiler.source>1.8</maven.compiler.source>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
@@ -21,8 +21,17 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-selenium-implementation</artifactId>
-			<version>4.0.0-rc-1</version>
+			<version>4.0.0</version>
 		</dependency>
+
+		<!--if you want to pick up a later version of devtools than provided, you can add the dep here .. -->
+		
+		<!--https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-devtools -->
+<!-- 	    <dependency> -->
+<!-- 	      <groupId>org.seleniumhq.selenium</groupId> -->
+<!-- 	      <artifactId>selenium-devtools-vXX</artifactId> -->
+<!-- 	      <version>4.x.x</version> -->
+<!-- 	    </dependency> -->
 		
 		<!-- https://mvnrepository.com/artifact/org.apache.jmeter/ApacheJMeter_core -->
 		<dependency>
@@ -44,10 +53,9 @@
 	<build>
 		<plugins>
 		
-			<!--TODO: what about selenium 4 usage -->	
-			<!--local build goals: clean package -->	
-			<!--the target  mark59-selenium-sample-dsl-{version}-for-JSR223 jar can be placed
-			    in the JMeter lib/ext directory for jsr223 'GROOVY' scripting in JMeter -->			
+			<!-- local build goals: clean package -->	
+			<!-- this plugin is for JMeter JSR223 'Groovy' scripting purposes :  mark59-selenium-sample-dsl-{version}-for-JSR223 jar 
+			     (created in the target folder) can be placed in a JMeter lib/ext directory to obtain the necessary Mark59 classes -->			
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-assembly-plugin</artifactId>

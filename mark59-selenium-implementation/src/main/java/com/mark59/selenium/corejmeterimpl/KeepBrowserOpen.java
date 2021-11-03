@@ -33,7 +33,10 @@ package com.mark59.selenium.corejmeterimpl;
  * Written: Australian Winter 2019    
  */
 public enum KeepBrowserOpen {
+	/** NEVER - always close the browser  */
 	NEVER,
+	/** ONFAILURE - keep open on failure if running headed  */
 	ONFAILURE,
+	/** ALWAYS - always keep open if running headed  */
 	ALWAYS
 }

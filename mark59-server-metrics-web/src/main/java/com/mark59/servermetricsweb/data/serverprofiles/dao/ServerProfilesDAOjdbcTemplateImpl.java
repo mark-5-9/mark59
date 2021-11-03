@@ -25,6 +25,8 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -45,23 +47,25 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		
 
 	@Override
-	@SuppressWarnings("rawtypes")
 	public ServerProfile  findServerProfile(String serverProfileName){
-
-		List<ServerProfile> serversList = new ArrayList<ServerProfile>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
 		String selectServerSQL = "select EXECUTOR, SERVER, ALTERNATE_SERVER_ID, USERNAME, "
 				+ "PASSWORD, PASSWORD_CIPHER, CONNECTION_PORT, CONNECTION_TIMEOUT, COMMENT, PARAMETERS "
-				+ "from SERVERPROFILES where SERVER_PROFILE_NAME = '" + serverProfileName + "'"
+				+ "from SERVERPROFILES where SERVER_PROFILE_NAME = :serverProfileName "
 				+ " order by SERVER_PROFILE_NAME ";
-		
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL);
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("serverProfileName", serverProfileName);
+
+//		System.out.println(" findServerProfile : " + selectServerSQL + " : " + serverProfileName);
+		List<ServerProfile> serversList = new ArrayList<ServerProfile>();
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL, sqlparameters);
 		
 		if (rows.size() == 0 ){
 			return null;
 		}
-		Map row = rows.get(0);
+		Map<String, Object>  row = rows.get(0);
 		ServerProfile server = new ServerProfile();
 		server.setServerProfileName(serverProfileName); 
 		server.setExecutor((String)row.get("EXECUTOR")); 
@@ -88,10 +92,21 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 	@Override
 	public List<ServerProfile> findServerProfiles(String selectionCol, String selectionValue){
 
-		List<ServerProfile> serversList = new ArrayList<ServerProfile>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "select SERVER_PROFILE_NAME, EXECUTOR, SERVER, ALTERNATE_SERVER_ID, USERNAME, "
+				+ "PASSWORD, PASSWORD_CIPHER, CONNECTION_PORT, CONNECTION_TIMEOUT, COMMENT, PARAMETERS from SERVERPROFILES ";
+		
+		if (!selectionValue.isEmpty()  ) {			
+			sql += "  where " + selectionCol + " like :selectionValue ";
+		} 
+		sql += " order by SERVER_PROFILE_NAME ";		
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("selectionValue", selectionValue);
 
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(getServersListSelectionSQL(selectionCol, selectionValue));
+//		System.out.println(" findServerProfiles : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		List<ServerProfile> serversList = new ArrayList<ServerProfile>();
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		for (Map<String, Object> row : rows) {
 			ServerProfile server = new ServerProfile();
@@ -111,16 +126,16 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		return  serversList;
 	}
 	
-	private String getServersListSelectionSQL(String selectionCol, String selectionValue){	
-		String serversListSelectionSQL = "select SERVER_PROFILE_NAME, EXECUTOR, SERVER, ALTERNATE_SERVER_ID, USERNAME, "
-				+ "PASSWORD, PASSWORD_CIPHER, CONNECTION_PORT, CONNECTION_TIMEOUT, COMMENT, PARAMETERS from SERVERPROFILES ";
-		
-		if (!selectionValue.isEmpty()  ) {			
-			serversListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
-		} 
-		serversListSelectionSQL += " order by SERVER_PROFILE_NAME ";
-		return  serversListSelectionSQL;
-	}
+//	private String getServersListSelectionSQL(String selectionCol, String selectionValue){	
+//		String serversListSelectionSQL = "select SERVER_PROFILE_NAME, EXECUTOR, SERVER, ALTERNATE_SERVER_ID, USERNAME, "
+//				+ "PASSWORD, PASSWORD_CIPHER, CONNECTION_PORT, CONNECTION_TIMEOUT, COMMENT, PARAMETERS from SERVERPROFILES ";
+//		
+//		if (!selectionValue.isEmpty()  ) {			
+//			serversListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
+//		} 
+//		serversListSelectionSQL += " order by SERVER_PROFILE_NAME ";
+//		return  serversListSelectionSQL;
+//	}
 	
 	
 	
@@ -179,17 +194,23 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 	@Override
 	public void deleteServerProfile(String serverProfileName) {
 		
-		String sql = "delete from SERVERCOMMANDLINKS where SERVER_PROFILE_NAME ='" + serverProfileName	+ "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);		
+		String sql = "delete from SERVERCOMMANDLINKS where SERVER_PROFILE_NAME = :serverProfileName ";
 		
-		sql = "delete from SERVERPROFILES where SERVER_PROFILE_NAME ='" + serverProfileName	+ "'";
-		jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("serverProfileName", serverProfileName);		
+
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
+		
+		sql = "delete from SERVERPROFILES where SERVER_PROFILE_NAME = :serverProfileName ";
+		jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}	
 	
 	
 	public static void main(String[] args) throws JsonProcessingException {		
+		
+		// to move to test cases..
 		
 		Map<String, String> map = new HashMap<>();
 		map.put("key1", "value1");

@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
 
@@ -63,14 +64,14 @@ public class UpdatePoliciesUseStateController {
 		DataHunterUtils.expireSession(httpServletRequest);
 		
 		int rowsAffected = -1;
-		String sql = policiesDAO.constructUpdatePoliciesUseStateSql(updateUseStateAndEpochTime);	   
-		model.addAttribute("sql", sql);			
+		SqlWithParms sqlWithParms = policiesDAO.constructUpdatePoliciesUseStateSql(updateUseStateAndEpochTime);	   
+		model.addAttribute("sql", sqlWithParms);			
 		
 		try {
-			rowsAffected = policiesDAO.runDatabaseUpdateSql(sql);
+			rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 		} catch (Exception e) {
 			model.addAttribute("sqlResult", "FAIL");
-			model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );
+			model.addAttribute("sqlResultText", "sql exception caught: " + e.getMessage() );
 			return new ModelAndView("/update_policies_use_state_action", "model", model);	
 		}	
 			

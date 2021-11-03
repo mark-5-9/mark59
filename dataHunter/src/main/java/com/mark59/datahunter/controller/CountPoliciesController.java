@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
 
@@ -63,11 +64,11 @@ public class CountPoliciesController {
 
 		policySelectionCriteria.setSelectClause(" count(*)  as counter ");
 		policySelectionCriteria.setSelectOrder(DataHunterConstants.SELECT_UNORDERED);
-		String sql = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
-		int rowsAffected = policiesDAO.runCountSql(sql);
+		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
+		int rowsAffected = policiesDAO.runCountSql(sqlWithParms);
 //		System.out.println("countPoliciesAction" + policySelectionCriteria +  " count=" + rowsAffected);
 
-		model.addAttribute("sql", sql);
+		model.addAttribute("sql", sqlWithParms);
 		model.addAttribute("sqlResult", "PASS");
 		model.addAttribute("rowsAffected", rowsAffected);
 		model.addAttribute("sqlResultText", "sql exection completed");

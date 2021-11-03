@@ -24,6 +24,9 @@ import org.openqa.selenium.WebDriver;
  */
 public class FireFoxDriverWrapper extends SeleniumDriverWrapper {
 
+	/**
+	 * @param dataPackage to FireFox WebDriver to be 'packaged'
+	 */
 	public FireFoxDriverWrapper(WebDriver dataPackage) {
 		super(dataPackage);
 	}

@@ -26,6 +26,13 @@ import com.mark59.core.DriverWrapper;
 */
 public interface DriverBuilder<T extends DriverWrapper<?>>{
 
+	/**
+	 * Creates a Selenium web driver, returning it in a 'wrapper'.
+	 * @param arguments an key value that my be need in the final creation of the selenium driver 
+	 * @return a class which extends com.mark59.core.DriverWrapper (eg a Selenium driver wrapper)
+	 * 
+	 * @see com.mark59.core.DriverWrapper
+	 */
 	public abstract T build(Map<String, String> arguments);
 	
 }

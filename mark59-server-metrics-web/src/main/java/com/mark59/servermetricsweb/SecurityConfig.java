@@ -49,13 +49,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
+		//https://www.yawintutor.com/how-to-enable-and-disable-csrf
         http.authorizeRequests()
         .antMatchers("/login").permitAll()
+        .antMatchers("/logout").permitAll()
         .antMatchers("/api/**").permitAll()
         .antMatchers("/**").hasRole("USER")
         .and().formLogin().loginPage("/login").defaultSuccessUrl("/serverProfileList", true)
-        .and().logout().logoutSuccessUrl("/login").permitAll()
-        .and().csrf().disable();		
+        .and().logout().logoutSuccessUrl("/login").permitAll();
 	}
 	
    @Override

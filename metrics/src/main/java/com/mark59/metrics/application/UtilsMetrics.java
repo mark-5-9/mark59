@@ -28,7 +28,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
+import com.mark59.core.utils.Mark59Utils;
 import com.mark59.metrics.data.beans.EventMapping;
 import com.mark59.metrics.data.beans.Transaction;
 import com.mark59.metrics.data.transaction.dao.TransactionDAO;
@@ -231,7 +233,6 @@ public class UtilsMetrics  {
 		}
 		return listOfTxnIds;
 	}
-
 	
 
 	public static String removeCdpTags(String cdpTaggedTransactionString) {
@@ -239,6 +240,14 @@ public class UtilsMetrics  {
 			cdpTaggedTransactionString = cdpTaggedTransactionString.replace(AppConstantsMetrics.CDP_TAG, ""); 
 		}
 		return cdpTaggedTransactionString;
+	}
+
+	/**
+	 * @param sqlparameters  the parameters used in a NamedParameterJdbcTemplate 
+	 * @return formatted string representation of the parameter map
+	 */
+	public static String prettyPrintParms(MapSqlParameterSource sqlparameters) {
+	    return Mark59Utils.prettyPrintMap(sqlparameters.getValues());	
 	}
 	
 }

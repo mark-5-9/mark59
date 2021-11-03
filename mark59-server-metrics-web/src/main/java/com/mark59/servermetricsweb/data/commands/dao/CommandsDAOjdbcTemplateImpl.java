@@ -24,6 +24,8 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.servermetricsweb.data.beans.Command;
 
@@ -36,26 +38,27 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 	
 	@Autowired  
 	private DataSource dataSource;
-
 		
 
 	@Override
-	@SuppressWarnings("rawtypes")
 	public Command findCommand(String commandName){
 
-		List<Command> commandList = new ArrayList<Command>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		
-		String selectServerSQL   = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES "
-				+ "from COMMANDS where COMMAND_NAME = '" + commandName + "'"
+		String sql   = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES "
+				+ "from COMMANDS where COMMAND_NAME = :commandName "
 				+ " order by COMMAND_NAME asc;";
-		
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL);
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("commandName", commandName);
+
+//		System.out.println(" findCommand : " + sql + " : " + commandName);
+		List<Command> commandList = new ArrayList<Command>();
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		if (rows.size() == 0 ){
 			return null;
 		}
-		Map row = rows.get(0);
+		Map<String, Object> row = rows.get(0);
 		
 		Command command = new Command();
 		command.setCommandName((String)row.get("COMMAND_NAME"));
@@ -74,13 +77,24 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		return  findCommands("","");
 	}
 
+	
 	@Override
 	public List<Command> findCommands(String selectionCol, String selectionValue){
+		
+		String sql = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES from COMMANDS ";
+		
+		if (!selectionValue.isEmpty()  ) {			
+			sql += "  where " + selectionCol + " like :selectionValue ";
+		} 
+		sql += " order by COMMAND_NAME ";		
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("selectionValue", selectionValue);
 
+//		System.out.println(" findCommands : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
 		List<Command> commandList = new ArrayList<Command>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(getCommandListSelectionSQL(selectionCol, selectionValue));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		for (Map<String, Object> row : rows) {
 			Command command = new Command();
@@ -95,17 +109,6 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		}	
 		return commandList;
 	}
-	
-	private String getCommandListSelectionSQL(String selectionCol, String selectionValue){	
-		String commandListSelectionSQL = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES from COMMANDS ";
-		
-		if (!selectionValue.isEmpty()  ) {			
-			commandListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
-		} 
-		commandListSelectionSQL += " order by COMMAND_NAME ";
-		return  commandListSelectionSQL;
-	}
-	
 	
 	
 	@Override
@@ -152,21 +155,22 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 	@Override
 	public void deleteCommand(String commandName) {
 		
-		String sql = "delete from SERVERCOMMANDLINKS where COMMAND_NAME ='" + commandName	+ "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);		
+		String sql = "delete from SERVERCOMMANDLINKS where COMMAND_NAME = :commandName ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("commandName", commandName);		
+
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
+						
+		sql = "delete from COMMANDPARSERLINKS where COMMAND_NAME = :commandName ";
+		jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 				
-		sql = "delete from COMMANDPARSERLINKS where COMMAND_NAME ='" + commandName	+ "'";
-		jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);		
-		
-		sql = "delete from COMMANDS where COMMAND_NAME ='" + commandName	+ "'";
-		System.out.println("delete deleteCommand sql: " + sql);
-		jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+		sql = "delete from COMMANDS where COMMAND_NAME = :commandName ";
+		jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
+
 	}	
-
-	
-
 	
 }

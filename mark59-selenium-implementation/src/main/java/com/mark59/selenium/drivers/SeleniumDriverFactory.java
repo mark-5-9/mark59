@@ -24,12 +24,10 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.Proxy;
-import org.openqa.selenium.WebDriver;
 
 import com.mark59.core.DriverWrapper;
 import com.mark59.core.factories.DriverWrapperFactory;
@@ -77,7 +75,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	private static final Logger LOG = LogManager.getLogger(SeleniumDriverFactory.class);
 
 	/**
-	 *  "DRIVER"- required, must be 'CHROME' or 'FIREFOX'  
+	 *  "DRIVER"- 'CHROME' or 'FIREFOX'  
 	 *  @see SeleniumDriverFactory#getDriverBuilderOfType  
 	 */
 	public static final String DRIVER = "DRIVER";
@@ -89,8 +87,11 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	public static final String HEADLESS_MODE = "HEADLESS_MODE";
 	
 	/**
-	 * "BROWSER_EXECUTABLE" - Set an alternate browser executable (eg to a Chrome Beta or Chromium instance)
-	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAlternateBrowser(java.nio.file.Path)
+	 * "BROWSER_EXECUTABLE" - Set an alternate browser executable (eg to a Chrome Beta or Chromium instance).
+	 * Will over-ride the mark59 property <code>mark59.browser.executable</code> (if set). 
+	 * If neither the "BROWSER_EXECUTABLE" JMeter parameter or <code>mark59.browser.executable</code> property 
+	 * are set, the default installation of the expected browser is assumed. 
+	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAlternateBrowser
 	 */
 	public static final String BROWSER_EXECUTABLE = "BROWSER_EXECUTABLE";
 	
@@ -149,11 +150,13 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	
 	PropertiesReader pr = null;
 
+	/**
+	 *  Reads the mark59 properties file on instantiation, initializing the Screenshot logging directory.
+	 */
 	public SeleniumDriverFactory() {
 		// https://stackoverflow.com/questions/52975287/selenium-chromedriver-disable-logging-or-redirect-it-java
 		// Note: May not be a general solution (loggers can be re-created - they are "WeakReferences"), but it seems to works here.
 		java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.WARNING);
-			
 		
 		try {
 			pr = PropertiesReader.getInstance();
@@ -170,8 +173,6 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 			e.printStackTrace();			
 			System.exit(1);
 		}	
-
-		
 	}
 
 	
@@ -181,7 +182,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	 *  entered / overridden by a script       
 	 *  
 	 *  <p>The following parameters are catered for here:
-	 *  <br><b>SeleniumDriverFactory.DRIVER</b>&emsp;("DRIVER") - required (must be 'CHROME' or 'FIREFOX')  
+	 *  <br><b>SeleniumDriverFactory.DRIVER</b>&emsp;("DRIVER") ('CHROME' or 'FIREFOX') - defaults to 'CHROME'  
 	 *  <br><b>SeleniumDriverFactory.HEADLESS_MODE</b>&emsp;("HEADLESS_MODE") - default true  
 	 *  <br><b>SeleniumDriverFactory.PAGE_LOAD_STRATEGY</b>&emsp;("PAGE_LOAD_STRATEGY") - PageLoadStrategy.NONE / PageLoadStrategy.NORMAL
 	 *  <br><b>SeleniumDriverFactory.BROWSER_DIMENSIONS</b>&emsp;("BROWSER_DIMENSIONS") - sets the browser size (eg "800,600") default is 1920 x 1080  
@@ -207,7 +208,12 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 
 		SeleniumDriverBuilder<?> builder = getDriverBuilderOfType(arguments.get(DRIVER));
 		
-		// Set an alternate browser executable. If not set will use the default installation (except for legacy hack above).
+		// Set an alternate browser executable. If mark59.property contains mark59.brower.exectuable, that will be used
+		// but can overriden by the BROWSER_EXECUTABLE augument. If neither is present the default installation is used.
+		
+		if (StringUtils.isNotBlank(pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE)))
+			builder.setAlternateBrowser(new File(pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE)).toPath());
+		
 		if (StringUtils.isNotBlank(arguments.get(BROWSER_EXECUTABLE)))
 			builder.setAlternateBrowser(new File(arguments.get(BROWSER_EXECUTABLE)).toPath());
 		
@@ -298,7 +304,8 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	
 	/**
 	 * <p>Sets the selenium driver to be used for the test.  In a selenium script, the driverType parameter is set via the
-	 * '<b>DRIVER</b>' parameter.  Current options are '<b>CHROME</b> or '<b>FIREFOX</b>'.</p>    
+	 * '<b>DRIVER</b>' parameter, for which for the current options are '<b>CHROME</b> or '<b>FIREFOX</b>', with CHROME as default (can be 
+	 * used to drive either a Chrome or Chromium browser)</p>    
 	 * <p>This method uses the driverType to do a properties lookup to get the driver path (usually set in mark59.properties)</p>
 	 * 
 	 * @param driverType

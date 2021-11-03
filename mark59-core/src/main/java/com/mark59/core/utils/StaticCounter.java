@@ -43,6 +43,11 @@ public class StaticCounter {
 		return instance;
 	}
 
+	/**
+	 * Create a new or get existing Count for passed counter 
+	 * @param counter counter
+	 * @return count for the counter
+	 */
 	public static synchronized Integer readCount(String counter) {
 		StaticCounter instance = getInstance();
 		if (!instance.counterMap.containsKey(counter)) {
@@ -51,10 +56,18 @@ public class StaticCounter {
 		return instance.counterMap.get(counter);
 	}
 
+	/**
+	 * increment count for the passed counter
+	 * @param counter counter
+	 */
 	public static synchronized void incrementCount(String counter) {
 		getInstance().counterMap.put(counter, readCount(counter) + 1);
 	}
 
+	/**
+	 * @param counter counter
+	 * @return next increment and read Count for the counter
+	 */
 	public static synchronized Integer getNext(String counter) {
 		incrementCount(counter);
 		return readCount(counter);

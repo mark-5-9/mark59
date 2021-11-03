@@ -25,6 +25,8 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.servermetricsweb.data.beans.ServerCommandLink;
 
@@ -38,26 +40,27 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 	@Autowired  
 	private DataSource dataSource;
 
-		
 
 	@Override
-	@SuppressWarnings("rawtypes")
 	public ServerCommandLink findServerCommandLink(String commandName, String serverProfileName){
-
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
 		String selectServerSQL   = "select SERVER_PROFILE_NAME, COMMAND_NAME  from SERVERCOMMANDLINKS"
-				+ " where SERVER_PROFILE_NAME = '"  + serverProfileName  + "'"
-				+ "   and COMMAND_NAME = '" + commandName + "'"
+				+ " where SERVER_PROFILE_NAME = :serverProfileName "
+				+ "   and COMMAND_NAME = :commandName "
 				+ " order by SERVER_PROFILE_NAME;";
 		
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL);
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("serverProfileName", serverProfileName)
+				.addValue("commandName", commandName);
+
+//		System.out.println(" findServerCommandLink : " + selectServerSQL + " : " + serverProfileName);
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL, sqlparameters);
 		
 		if (rows.size() == 0 ){
 			return null;
 		}
-		Map row = rows.get(0);
-		
+		Map<String, Object> row = rows.get(0);
 		ServerCommandLink serverCommandLink = new ServerCommandLink();
 		serverCommandLink.setServerProfileName((String)row.get("SERVER_PROFILE_NAME"));
 		serverCommandLink.setCommandName((String)row.get("COMMAND_NAME"));
@@ -80,10 +83,20 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 	@Override
 	public List<ServerCommandLink> findServerCommandLinks(String selectionCol, String selectionValue){
 
-		List<ServerCommandLink> serverCommandLinkList = new ArrayList<ServerCommandLink>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "select SERVER_PROFILE_NAME, COMMAND_NAME from SERVERCOMMANDLINKS ";
+		
+		if (!selectionValue.isEmpty()  ) {			
+			sql += "  where " + selectionCol + " like :selectionValue ";
+		} 
+		sql += " order by SERVER_PROFILE_NAME ";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("selectionValue", selectionValue);
 
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(getServerCommandLinkListSelectionSQL(selectionCol, selectionValue));
+//		System.out.println(" findServerProfiles : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		List<ServerCommandLink> serverCommandLinkList = new ArrayList<ServerCommandLink>();
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		for (Map<String, Object> row : rows) {
 			ServerCommandLink serverCommandLink = new ServerCommandLink();
@@ -93,18 +106,6 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 		}
 		return serverCommandLinkList;
 	}
-	
-	
-	private String getServerCommandLinkListSelectionSQL(String selectionCol, String selectionValue){	
-		String commandListSelectionSQL = "select SERVER_PROFILE_NAME, COMMAND_NAME from SERVERCOMMANDLINKS ";
-		
-		if (!selectionValue.isEmpty()  ) {			
-			commandListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
-		} 
-		commandListSelectionSQL += " order by SERVER_PROFILE_NAME ";
-		return  commandListSelectionSQL;
-	}
-	
 	
 	
 	@Override
@@ -140,31 +141,43 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 	
 	@Override
 	public void deleteServerCommandLinksForCommandName(String commandName) {
-		String sql = "delete from SERVERCOMMANDLINKS "
-				+ " where COMMAND_NAME = '" + commandName + "'";
-		System.out.println("delete deleteCommand sql: " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+		
+		String sql = "delete from SERVERCOMMANDLINKS  where COMMAND_NAME = :commandName ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("commandName", commandName);		
+
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 
 	
 	@Override
 	public void deleteServerCommandLink(ServerCommandLink serverCommandLink) {
+
 		String sql = "delete from SERVERCOMMANDLINKS "
-				+ " where COMMAND_NAME = '" + serverCommandLink.getCommandName() + "'"
-				+ "   and SERVER_PROFILE_NAME = '"  + serverCommandLink.getServerProfileName()  + "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+				+ " where COMMAND_NAME = :commandName "
+				+ "   and SERVER_PROFILE_NAME = :serverProfileName ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("commandName", serverCommandLink.getCommandName())
+				.addValue("serverProfileName", serverCommandLink.getServerProfileName());		
+
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 
+	
 	@Override
 	public void deleteServerCommandLinksForServerProfile(String serverProfileName) {
-		String sql = "delete from SERVERCOMMANDLINKS "
-				+ " where SERVER_PROFILE_NAME = '" + serverProfileName + "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
 		
-	}
+		String sql = "delete from SERVERCOMMANDLINKS where SERVER_PROFILE_NAME = :serverProfileName";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("serverProfileName", serverProfileName);		
 
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
+	}
 
 }

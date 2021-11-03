@@ -24,6 +24,8 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.metrics.application.AppConstantsMetrics;
 import com.mark59.metrics.data.beans.Application;
@@ -102,12 +104,16 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 
 	@Override
 	public Application findApplication(String applicationId) {
+
+		String sql = "select APPLICATION, ACTIVE, COMMENT from APPLICATIONS where APPLICATION = :applicationId " ;
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("applicationId", applicationId);	
+
 		Application application = new Application();
-		
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		
-		String sql    = "select APPLICATION, ACTIVE, COMMENT from APPLICATIONS where APPLICATION = '" + applicationId + "'" ;
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+//		System.out.println("runsDao findRuns : " + runsListSelectionSQL +  UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		if (rows.isEmpty()){
 			System.out.println("application " + applicationId + " does not exist on application table " );
@@ -118,10 +124,7 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 			application.setActive((String)row.get("ACTIVE"));
 			application.setComment((String)row.get("COMMENT"));
 		}
-
 		return  application;
 	}
-
-
 	
 }

@@ -59,6 +59,9 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 	private int width  = Mark59Constants.DEFAULT_BROWSER_WIDTH;
 	private int height = Mark59Constants.DEFAULT_BROWSER_HEIGHT;
 
+	/**
+	 * creates a ChromeDriverService Builder, and sets up ChromeOptions found necessary over time 
+	 */
 	public ChromeDriverBuilder() {
 		//https://stackoverflow.com/questions/52975287/selenium-chromedriver-disable-logging-or-redirect-it-java
 		serviceBuilder = new ChromeDriverService.Builder().withSilent(true);

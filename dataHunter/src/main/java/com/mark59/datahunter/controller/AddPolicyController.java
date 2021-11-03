@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 
@@ -63,18 +64,18 @@ public class AddPolicyController {
 			policies.setEpochtime(System.currentTimeMillis());
 		}
 		
-		String sql = policiesDAO.constructInsertDataSql(policies);
+		SqlWithParms sqlWithParms = policiesDAO.constructInsertDataSql(policies);
 		int rowsAffected = 0;
 		
 		try {
-			rowsAffected = policiesDAO.runDatabaseUpdateSql(sql);
+			rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 		} catch (Exception e) {
 			model.addAttribute("sqlResult", "FAIL");
 			model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );
 			return new ModelAndView("/add_policy_action", "model", model);	
 		}	
 		
-		model.addAttribute("sql", sql);
+		model.addAttribute("sql", sqlWithParms);
 		model.addAttribute("rowsAffected", rowsAffected);
 		
 		if (rowsAffected == 1 ){

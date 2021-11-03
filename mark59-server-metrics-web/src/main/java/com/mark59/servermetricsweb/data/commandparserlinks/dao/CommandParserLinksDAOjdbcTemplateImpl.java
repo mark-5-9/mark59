@@ -24,6 +24,8 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.servermetricsweb.data.beans.CommandParserLink;
 
@@ -36,11 +38,9 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 	
 	@Autowired  
 	private DataSource dataSource;
-
 		
 
 	@Override
-	@SuppressWarnings("rawtypes")
 	public CommandParserLink findCommandParserLink(String commandName, String scriptName){
 
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -55,8 +55,7 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 		if (rows.size() == 0 ){
 			return null;
 		}
-		Map row = rows.get(0);
-		
+		Map<String, Object> row = rows.get(0);
 		CommandParserLink commandParserLink = new CommandParserLink();
 		commandParserLink.setCommandName((String)row.get("COMMAND_NAME"));
 		commandParserLink.setScriptName((String)row.get("SCRIPT_NAME"));
@@ -79,10 +78,20 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 	@Override
 	public List<CommandParserLink> findCommandParserLinks(String selectionCol, String selectionValue){
 
-		List<CommandParserLink> commandParserLinkList = new ArrayList<CommandParserLink>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "SELECT COMMAND_NAME, SCRIPT_NAME FROM COMMANDPARSERLINKS ";
+		
+		if (!selectionValue.isEmpty()  ) {			
+			sql += "  where " + selectionCol + " like :selectionValue ";
+		} 
+		sql += " order by COMMAND_NAME ";
 
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(getCommandParserLinkListSelectionSQL(selectionCol, selectionValue));
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("selectionValue", selectionValue);
+
+//		System.out.println(" ..CommandParserLinks: "+sql+Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		List<CommandParserLink> commandParserLinkList = new ArrayList<CommandParserLink>();
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		for (Map<String, Object> row : rows) {
 			CommandParserLink commandParserLink = new CommandParserLink();
@@ -92,17 +101,6 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 		}	
 		return commandParserLinkList;
 	}
-	
-	private String getCommandParserLinkListSelectionSQL(String selectionCol, String selectionValue){	
-		String commandListSelectionSQL = "SELECT COMMAND_NAME, SCRIPT_NAME FROM COMMANDPARSERLINKS ";
-		
-		if (!selectionValue.isEmpty()  ) {			
-			commandListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
-		} 
-		commandListSelectionSQL += " order by COMMAND_NAME ";
-		return  commandListSelectionSQL;
-	}
-	
 	
 	
 	@Override
@@ -135,29 +133,41 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 	
 	@Override
 	public void deleteCommandParserLinksForCommandName(String commandName) {
-		String sql = "delete from COMMANDPARSERLINKS "
-				+ " where COMMAND_NAME = '" + commandName + "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+		
+		String sql = "delete from COMMANDPARSERLINKS where COMMAND_NAME = :commandName ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("commandName", commandName);		
+
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 
 	
 	@Override
 	public void deleteCommandParserLink(CommandParserLink commandParserLink) {
 		String sql = "delete from COMMANDPARSERLINKS "
-				+ " where COMMAND_NAME = '" + commandParserLink.getCommandName() + "'"
-				+ "   and SCRIPT_NAME = '"  + commandParserLink.getScriptName()  + "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+				+ " where COMMAND_NAME = :commandName "
+				+ "   and SCRIPT_NAME = :scriptName ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("commandName", commandParserLink.getCommandName())
+				.addValue("scriptName", commandParserLink.getScriptName());		
+
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 
 	@Override
 	public void deleteCommandParserLinksForScriptName(String scriptName) {
-		String sql = "delete from COMMANDPARSERLINKS "
-				+ " where SCRIPT_NAME = '" + scriptName + "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
 		
+		String sql = "delete from COMMANDPARSERLINKS where SCRIPT_NAME = :scriptName ";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("scriptName", scriptName);		
+
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 
 

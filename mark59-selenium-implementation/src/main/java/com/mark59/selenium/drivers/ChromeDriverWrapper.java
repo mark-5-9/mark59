@@ -37,6 +37,9 @@ public class ChromeDriverWrapper extends SeleniumDriverWrapper {
 	
 	private static final Logger LOG = LogManager.getLogger(ChromeDriverWrapper.class);
 
+	/**
+	 * @param dataPackage the WebDrive to be 'packaged'
+	 */
 	public ChromeDriverWrapper(WebDriver dataPackage) {
 		super(dataPackage);
 	}

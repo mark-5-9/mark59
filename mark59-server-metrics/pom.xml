@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-server-metrics</artifactId>
-	<version>4.0.0-rc-1</version>
+	<version>4.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-server-metrics</name>
@@ -36,7 +36,7 @@
 				    <artifactId>groovy-all</artifactId>
 				</exclusion>				
 			</exclusions>				
-			<version>4.0.0-rc-1</version>
+			<version>4.0.0</version>
 		</dependency>
 	
 		<!-- https://mvnrepository.com/artifact/org.apache.jmeter/ApacheJMeter_core -->

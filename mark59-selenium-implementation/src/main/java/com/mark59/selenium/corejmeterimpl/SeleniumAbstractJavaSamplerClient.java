@@ -17,7 +17,9 @@
 package com.mark59.selenium.corejmeterimpl;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -28,7 +30,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
@@ -41,12 +46,16 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 
+import com.mark59.core.Outcome;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
+import com.mark59.core.utils.SafeSleep;
 import com.mark59.selenium.drivers.SeleniumDriverFactory;
 import com.mark59.selenium.drivers.SeleniumDriverWrapper;
+
+import jodd.util.CsvUtil;
 
 
 
@@ -86,34 +95,35 @@ import com.mark59.selenium.drivers.SeleniumDriverWrapper;
  */
 public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamplerClient {
 	
-	static {  // block websocket closed warnings in JMeter   
+	static {  // block CDP websocket closed warnings in JMeter   
 		org.apache.logging.log4j.core.config.Configurator.setLevel("org.asynchttpclient.netty.handler", Level.ERROR);
 		org.apache.logging.log4j.core.config.Configurator.setLevel("org.openqa.selenium.remote.http", Level.ERROR);
 		
-		String logConfig = "handlers= java.util.logging.ConsoleHandler\n" + ".level= WARNING\n";
-		logConfig += "java.util.logging.ConsoleHandler.level = WARNING\n";
-		logConfig += "org.openqa.selenium.remote.http.level = SEVERE\n";
-		logConfig += "org.asynchttpclient.netty.handler.level = SEVERE\n";
-
+		String logConfig = "handlers = java.util.logging.ConsoleHandler\n" + 
+				".level = WARNING\n" +
+				"java.util.logging.ConsoleHandler.level = WARNING\n" +
+				"org.openqa.selenium.remote.http.level = SEVERE\n" +
+				"org.asynchttpclient.netty.handler.level = SEVERE\n";
 		try {
 			java.util.logging.LogManager.getLogManager().readConfiguration(new java.io.ByteArrayInputStream(logConfig.getBytes("UTF-8")));
 		} catch (IOException e) {
 			System.err.println("Failed to configure override java.util.logging : " + logConfig + "\nError : " + e.getMessage());
 		}
 	}
-	
-	public static Logger LOG = LogManager.getLogger(SeleniumAbstractJavaSamplerClient.class);	
 
-	protected Arguments jmeterArguments = new Arguments();
-	protected JmeterFunctionsForSeleniumScripts jm;	
+	/** log4J class logger */
+	public static final Logger LOG = LogManager.getLogger(SeleniumAbstractJavaSamplerClient.class);	
+		
+	/**  the mark59 JmeterFunctionsForSeleniumScripts for the test  */		
+	protected JmeterFunctionsForSeleniumScripts jm;
+	/**  the Selenium driver 'Wrapper' for the test  */	
 	protected SeleniumDriverWrapper seleniumDriverWrapper; 
+	/**  the Selenium Web Driver for the test  */
 	protected WebDriver driver;
-	protected String thread = Thread.currentThread().getName();
-	protected String tgName = null; 
-	protected AbstractThreadGroup tg = null;
-	
-	private KeepBrowserOpen keepBrowserOpen = KeepBrowserOpen.NEVER;
 
+	/**
+	 *  Default arguments for Selenium scripts
+	 */
 	protected static final Map<String,String> defaultArgumentsMap; 	
 	static {
 		Map<String,String> staticMap = new LinkedHashMap<String,String>();
@@ -128,11 +138,11 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		staticMap.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, String.valueOf(false));		
 		
 		staticMap.put("______________________ logging settings: _______________________", "Expected values: 'default', 'buffer', 'write' or 'off' ");		
-		staticMap.put(SeleniumDriverWrapper.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	SeleniumDriverWrapper.DEFAULT);
-		staticMap.put(SeleniumDriverWrapper.LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS, 	SeleniumDriverWrapper.DEFAULT);
-		staticMap.put(SeleniumDriverWrapper.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,	SeleniumDriverWrapper.DEFAULT);
-		staticMap.put(SeleniumDriverWrapper.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	SeleniumDriverWrapper.DEFAULT);
-		staticMap.put(SeleniumDriverWrapper.LOG_PERF_LOG_AT_END_OF_TRANSACTIONS, 		SeleniumDriverWrapper.DEFAULT);
+		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName() );
+		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
+		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
+		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
+		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_PERF_LOG_AT_END_OF_TRANSACTIONS, 		Mark59LogLevels.DEFAULT.getName());
 		
 		staticMap.put("______________________ miscellaneous: __________________________", "");				
 		staticMap.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");
@@ -145,7 +155,15 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	}
 	
 	
+	/**  used to output results table when running from a script Main() */
+	protected static Map<String, List<Long>> resultsSummaryTable = new TreeMap<String, List<Long>>();
+	private static final int POS_0_NUM_SAMPLES  		= 0;	
+	private static final int POS_1_NUM_FAIL  			= 1;	
+	private static final int POS_2_SUM_RESPONSE_TIME 	= 2;	
+	private static final int POS_3_RESPONSE_TIME_MIN 	= 3;	
+	private static final int POS_4_RESPONSE_TIME_MAX	= 4;	
 	
+	private KeepBrowserOpen keepBrowserOpen = KeepBrowserOpen.NEVER;
 	
 	/** 
 	 * Creates the list of parameters with default values, as they would appear on the JMeter GUI for the JavaSampler being implemented.
@@ -164,7 +182,6 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	public void setupTest(JavaSamplerContext context) {
 		super.setupTest(context);
 	}
-
 
 	
 	/**
@@ -196,17 +213,20 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @return the updated map of JMeter arguments with any required changes
 	 */
 	protected abstract Map<String, String> additionalTestParameters();
-	
-	
+		
 
 	/**
 	 * {@inheritDoc}
 	 * 
-	 *  Note the use of the catch on  AssertionError - as this is NOT an Exception but an Error, and therefore need to be explicitly caught. 
+	 *  Note the use of the catch on AssertionError - as this is NOT an Exception but an Error, and therefore needs
+	 *  to be explicitly caught. 
 	 */
 	@Override
 	public SampleResult runTest(JavaSamplerContext context) {
 		if (LOG.isDebugEnabled()) LOG.debug(this.getClass().getName() +  " : exectuing runTest" );
+		
+		AbstractThreadGroup tg = null;
+		String tgName = null;
 
 		if ( context.getJMeterContext() != null  && context.getJMeterContext().getThreadGroup() != null ) {
 			tg     = context.getJMeterContext().getThreadGroup();
@@ -328,6 +348,10 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 
 	
 	
+	/**
+	 * @param context the JavaSamplerContext (used by JMeter)
+	 * @return a map of the script arguments (retrieved from the context 'parameters')
+	 */
 	protected Map<String,String> convertJmeterArgumentsToMap(JavaSamplerContext context) {
 		Map<String, String> jmeterArgumentsAsMap = new HashMap<>();
 		
@@ -341,6 +365,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	}
 
 	
+	/**
+	 * @return the keepBrowserOpen value in use 
+	 */
 	public KeepBrowserOpen getKeepBrowserOpen() {
 		return keepBrowserOpen;
 	}
@@ -365,10 +392,15 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * <p>You can control if the browser closes at the end of the test. 
 	 * EG: <b>KeepBrowserOpen.ONFAILURE</b> will keep the browser open at test end if the test fails (unless running in headless mode). 
 	 * 
+	 * @see #runSeleniumTest()
+	 * @see #runMultiThreadedSeleniumTest(int, int)
+	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
+	 * 
 	 * @see com.mark59.selenium.corejmeterimpl.KeepBrowserOpen
 	 * @see Log4jConfigurationHelper
-	 * @see #runMultiThreadedSeleniumTest(int, int)
-	 * @see #runMultiThreadedSeleniumTest(int, int, Map)
 	 * @param keepBrowserOpen  see KeepBrowserOpen
 	 * @return {@link SampleResult} 
 	 */
@@ -391,7 +423,10 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	/**
 	 * @see #runSeleniumTest(KeepBrowserOpen)
 	 * @see #runMultiThreadedSeleniumTest(int, int)
-	 * @see #runMultiThreadedSeleniumTest(int, int, Map)	  
+	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
 	 * @return {@link SampleResult}
 	 */
 	protected SampleResult runSeleniumTest() {
@@ -403,14 +438,18 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * For example: <br><br>
 	 * <code>thisTest.runMultiThreadedSeleniumTest(2, 2000);</code>
 	 * 
+	 * @see #runSeleniumTest()
 	 * @see #runSeleniumTest(KeepBrowserOpen)
-	 * @see #runMultiThreadedSeleniumTest(int, int, Map)	 
+	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
 	 * 
 	 * @param numberOfThreads number Of Java Threads
 	 * @param threadStartGapMs time between start of each thread in milliseconds
 	 */
 	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs) {
-		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>(), KeepBrowserOpen.NEVER);
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>(), KeepBrowserOpen.NEVER, 1, 0, false, null);
 	}
 
 	/**
@@ -418,15 +457,19 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * For example: <br><br>
 	 * <code>thisTest.runMultiThreadedSeleniumTest(2, 2000, KeepBrowserOpen.ONFAILURE);</code>
 	 * 
+	 * @see #runSeleniumTest()
 	 * @see #runSeleniumTest(KeepBrowserOpen)
-	 * @see #runMultiThreadedSeleniumTest(int, int, Map)	 
+	 * @see #runMultiThreadedSeleniumTest(int, int)
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
 	 * 
 	 * @param numberOfThreads number Of Java Threads
 	 * @param threadStartGapMs time between start of each thread in milliseconds
 	 * @param keepBrowserOpen  see KeepBrowserOpen
 	 */
 	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, KeepBrowserOpen keepBrowserOpen) {
-		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>(), keepBrowserOpen);
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>(), keepBrowserOpen, 1, 0, false, null);
 		
 	}
 	
@@ -441,15 +484,19 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 *	thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters);
 	 * </code>  
 	 *  
+	 * @see #runSeleniumTest()
 	 * @see #runSeleniumTest(KeepBrowserOpen)
 	 * @see #runMultiThreadedSeleniumTest(int, int)
+	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
 	 * 
 	 * @param numberOfThreads number Of Java Threads
 	 * @param threadStartGapMs  time between start of each thread in milliseconds
 	 * @param threadParameters  parameter key and list of values to be passed to each thread (needs to be at least as many entries as number of threads) 
 	 */
 	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters) {
-		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, threadParameters, KeepBrowserOpen.NEVER);
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, threadParameters, KeepBrowserOpen.NEVER, 1, 0, false, null );
 	}	
 	
 	
@@ -463,8 +510,12 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 *	thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE);
 	 * </code>  
 	 *  
+	 * @see #runSeleniumTest()
 	 * @see #runSeleniumTest(KeepBrowserOpen)
 	 * @see #runMultiThreadedSeleniumTest(int, int)
+	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
 	 * 
 	 * @param numberOfThreads number Of Java Threads
 	 * @param threadStartGapMs  time between start of each thread in milliseconds
@@ -472,29 +523,115 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param keepBrowserOpen  see KeepBrowserOpen	 
 	 */
 	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters, KeepBrowserOpen keepBrowserOpen) {
-		mockJmeterProperties();
-		Map<String, String> thisThreadParameters = new LinkedHashMap<String,String>();
-		
-		
-		for (int i = 1; i <= numberOfThreads; i++) {
-
-			for (Entry<String, List<String>> entry : threadParameters.entrySet()) {
-				if ( entry.getValue().size() >= i) {
-					thisThreadParameters.put(entry.getKey() , entry.getValue().get(i-1));
-				}
-			}	
-			if (!thisThreadParameters.isEmpty()){
-				LOG.info(" Thread Override Parameters for thread " + String.format("%03d", i) + " : " +  Arrays.toString(thisThreadParameters.entrySet().toArray()));
-			}
-			
-			new Thread(new SeleniumTestThread(this.getClass(), thisThreadParameters, keepBrowserOpen), String.format("%03d", i)).start();
-			
-			if (i<numberOfThreads) {
-				try { Thread.sleep(threadStartGapMs);} catch (InterruptedException e){e.printStackTrace();}
-			}
-		}
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, threadParameters, KeepBrowserOpen.NEVER, 1, 0, false, null);
 	}
 
+	
+	
+	/**
+	 * 'Full Monty' convenience method to directly execute multiple script threads.  The threads can be set to run a given number of iterations, 
+	 * with a timed gap between each iteration.   Additionally you can print a transactions summary table, and/or output a CSV file with the results
+	 * of the run. 
+	 * <p>As the CSV file is in JMeter format, you can use it to generate a JMeter report or load into Trend Analysis. Note the intention here is not 
+	 * to try to replace a proper JMeter test, but you may find a low-volume use case where this is a useful trick.
+	 * <p><b>Sample usage</b>         
+	 * <p> For example,
+	 * if you want to user a user-defined parameter called "<code>USER</code>", and switch off headless mode for one of four threads running, you need
+	 * to create a map:  
+	 * <br><br><code>
+	 *  Map&lt;String, java.util.List&lt;String&gt;&gt;threadParameters = new java.util.LinkedHashMap&lt;String,java.util.List&lt;String&gt;&gt;();<br>
+	 *	threadParameters.put("USER",                              java.util.Arrays.asList( "USER-MATTHEW", "USER-MARK", "USER-LUKE", "USER-JOHN"));<br>
+	 *	threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "true"));<br>
+	 * </code>
+	 * <p>Then, to run the 4 threads starting 2000ms apart, with each thread iterating the script 3 times having a 1500ms gap between each iteration, 
+	 * and printing out a summary report and the CSV file to 'C:/Mark59_Runs/csvSample.csv' (Win machine) at the end : <br><br>
+	 * <b><code>  		
+	 * thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE, 3, 1500, true, new File("C:/Mark59_Runs/csvSample.csv"));
+	 * </code></b> 
+	 * @see #runSeleniumTest()
+	 * @see #runSeleniumTest(KeepBrowserOpen)
+	 * @see #runMultiThreadedSeleniumTest(int, int)
+	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
+	 * 
+	 * @param numberOfThreads number Of Java Threads
+	 * @param threadStartGapMs  time between start of each thread in milliseconds
+	 * @param threadParameters  parameter key and list of values to be passed to each thread (override existing or create new parameters). 
+	 * Needs to be at least as many entries as number of threads, or set to null when no extra parameterization required
+	 * @param keepBrowserOpen  see KeepBrowserOpen	 
+	 * @param iterateEachThreadCount  number of times to iterate each of the threads	 
+	 * @param iteratePacingGapMs  gap between script iterations in milliseconds	
+	 * @param printResultsSummary <code>true</code> to print the summary report, <code>false</code> to not.	  
+	 * @param jmeterResultsFile  output file name.  Set to <code>null</code> if a file is not required.    
+	 */
+	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters, KeepBrowserOpen keepBrowserOpen,
+			int iterateEachThreadCount, int iteratePacingGapMs, boolean printResultsSummary, File jmeterResultsFile) {
+		
+		mockJmeterProperties();
+		Thread[] threadAry = new Thread[numberOfThreads];
+		PrintWriter csvPrintWriter = null;
+		
+		if (jmeterResultsFile != null ) {
+			try {
+				FileOutputStream jmeterResultsFOS = FileUtils.openOutputStream(jmeterResultsFile);
+				csvPrintWriter = new PrintWriter(new OutputStreamWriter(jmeterResultsFOS));
+				
+				String csvLine = CsvUtil.toCsvString("timeStamp","elapsed","label","responseCode","responseMessage","threadName","dataType","success",
+						"failureMessage","bytes","sentBytes", "grpThreads","allThreads","URL","Latency","Hostname","IdleTime","Connect");
+				csvPrintWriter.println(csvLine);
+				
+			} catch (IOException e) {
+				System.err.println(" Unable to open/create csv file " + jmeterResultsFile.getName() + " : " + e.getMessage() );
+				e.printStackTrace();
+			}
+		}
+		
+		for (int i = 1; i <= numberOfThreads; i++) {
+			
+			Map<String, String> thisThreadParameters = new LinkedHashMap<String,String>();
+
+			if (threadParameters != null ) {  // null means no parameters passed
+				for (Entry<String, List<String>> entry : threadParameters.entrySet()) {
+					if ( entry.getValue().size() >= i) {
+						thisThreadParameters.put(entry.getKey() , entry.getValue().get(i-1));
+					}
+				}	
+			}
+			
+			if (!thisThreadParameters.isEmpty()){
+				LOG.info(" Thread Override Parameters for thread " + String.format("%03d", i) +" : "+ Arrays.toString(thisThreadParameters.entrySet().toArray()));
+			}
+
+			Thread thread = new Thread(new SeleniumTestThread(this.getClass(), thisThreadParameters, keepBrowserOpen, iterateEachThreadCount, iteratePacingGapMs,
+					printResultsSummary, csvPrintWriter), String.format("%03d", i));			
+			
+			thread.start();
+			threadAry[i-1] = thread;
+			
+			if (i<numberOfThreads) {
+				SafeSleep.sleep(threadStartGapMs);
+			}
+		}
+
+		for(int i = 0; i < numberOfThreads; i++) {
+			assert threadAry.length == numberOfThreads; 
+			try {
+				threadAry[i].join();
+			} catch (InterruptedException e) {
+				System.err.println("Interrupted thread join : " + e.getMessage()); e.printStackTrace();
+			}
+		} // all threads have completed when loop ends
+
+		if (csvPrintWriter != null ) {
+			csvPrintWriter.flush();
+			csvPrintWriter.close();
+		}
+		if (printResultsSummary) {
+			printResultsSummary(resultsSummaryTable);
+		}
+	}
+	
 	
 	/**
 	 * Sets JMeter properties if a jmeter.properties file is provided.  Only meant for use 
@@ -518,23 +655,41 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 
 		private Class<? extends SeleniumAbstractJavaSamplerClient> testClass;
 		private Map<String, String> thisThreadParametersOverride;  
-		private KeepBrowserOpen keepBrowserOpen;  
-
+		private KeepBrowserOpen keepBrowserOpen;
+		private int iterateEachThreadCount;
+		private int iteratePacingGapMs;
+		private boolean printResultsSummary;
+		private PrintWriter csvPrintWriter;
 		
-		public SeleniumTestThread(Class<? extends SeleniumAbstractJavaSamplerClient> testClass, Map<String, String> thisThreadParametersOverride, KeepBrowserOpen keepBrowserOpen) {
+		/**
+		 * @param testClass testClass
+		 * @param thisThreadParametersOverride map of parm overrides
+		 * @param keepBrowserOpen keep browser open enum
+		 * @param iterateEachThreadCount count of thread iterations
+		 * @param iteratePacingGapMs gap between iterations
+		 * @param printResultsSummary choose to print summary
+		 * @param csvPrintWriter print results to csv format file 
+		 */
+		public SeleniumTestThread(Class<? extends SeleniumAbstractJavaSamplerClient> testClass,	Map<String, String> thisThreadParametersOverride, 
+				KeepBrowserOpen keepBrowserOpen, int iterateEachThreadCount, int iteratePacingGapMs, boolean printResultsSummary, PrintWriter csvPrintWriter) {
 			this.testClass = testClass;
 			this.thisThreadParametersOverride = thisThreadParametersOverride;
 			this.keepBrowserOpen = keepBrowserOpen;
+			this.iterateEachThreadCount = iterateEachThreadCount; 
+			this.iteratePacingGapMs = iteratePacingGapMs;
+			this.printResultsSummary = printResultsSummary; 
+			this.csvPrintWriter = csvPrintWriter;
 		}
 
 		/**
-		 *
+		 * run a SeleniumTestThread
 		 */
 		public void run() {
+
 			SeleniumAbstractJavaSamplerClient testInstance = null;
 			try {
 				testInstance = testClass.getDeclaredConstructor().newInstance();
-			} catch (Exception e) {	e.printStackTrace(); System.out.println(" Error " + e.getMessage()  ); } 
+			} catch (Exception e) {	e.printStackTrace(); System.out.println(" Error " + e.getMessage()); } 
 			
 			Arguments thisThreadParameterAuguments = Mark59Utils.mergeMapWithAnOverrideMap(getDefaultParameters().getArgumentsAsMap(), thisThreadParametersOverride);
 			
@@ -546,8 +701,118 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 			
 			testInstance.setKeepBrowserOpen(keepBrowserOpen);
 			testInstance.setupTest(context);
-			testInstance.runTest(context);
+			
+			for (int i = 1; i <= iterateEachThreadCount; i++) {
+				SampleResult testInstanceSampleResult = testInstance.runTest(context);
+				if (csvPrintWriter != null){
+					writeTestInstanceSampleResult(testInstanceSampleResult, csvPrintWriter, Thread.currentThread().getName());
+				}
+				if (printResultsSummary){
+					addResultsToSummaryTable(testInstanceSampleResult);
+				}
+				if (i<iterateEachThreadCount) {
+					SafeSleep.sleep(iteratePacingGapMs);
+				}
+			}
+		}
+
+	}
+	
+	
+	private synchronized static void writeTestInstanceSampleResult(SampleResult testInstanceSampleResult, PrintWriter csvPrintWriter, String originatingThread) {
+		
+		for (SampleResult subResult : testInstanceSampleResult.getSubResults()) {
+			
+			Boolean success = false; 
+			if (Outcome.PASS.getOutcomeText().equalsIgnoreCase(subResult.getResponseMessage())){
+				success = true; 
+			};
+
+			String csvLine = CsvUtil.toCsvString(String.valueOf(subResult.getTimeStamp()) , String.valueOf(subResult.getTime()),
+					subResult.getSampleLabel(),	subResult.getResponseCode(),subResult.getResponseMessage(), "localthread_" + originatingThread, 
+					subResult.getDataType(), String.valueOf(success), "", "0", "0", String.valueOf(subResult.getGroupThreads()),
+					String.valueOf(subResult.getAllThreads()), "null", "0", "local", "0", "0" );
+			
+			csvPrintWriter.println(csvLine);
+		}
+		csvPrintWriter.flush();
+	}
+
+	
+	private synchronized static void addResultsToSummaryTable(SampleResult testInstanceSampleResult) {
+		List<Long> summaryTableTxnData; 
+		
+		for (SampleResult subResult : testInstanceSampleResult.getSubResults()) {
+
+			String summaryTableTxn = subResult.getSampleLabel();
+			
+			if (StringUtils.isNotBlank(subResult.getDataType())){
+				summaryTableTxn = summaryTableTxn + " (" + subResult.getDataType() + ")";
+			}		
+		
+			summaryTableTxnData = resultsSummaryTable.get(summaryTableTxn);
+			if (summaryTableTxnData == null) {
+				summaryTableTxnData = Arrays.asList(0L, 0L, 0L, null, 0L);
+			}
+			
+			if (Outcome.PASS.getOutcomeText().equalsIgnoreCase(subResult.getResponseMessage())){
+				summaryTableTxnData.set(POS_0_NUM_SAMPLES,       summaryTableTxnData.get(POS_0_NUM_SAMPLES)+1 );
+				summaryTableTxnData.set(POS_2_SUM_RESPONSE_TIME, summaryTableTxnData.get(POS_2_SUM_RESPONSE_TIME) + subResult.getTime());
+				
+				if  (summaryTableTxnData.get(POS_3_RESPONSE_TIME_MIN) == null || 
+						subResult.getTime() < summaryTableTxnData.get(POS_3_RESPONSE_TIME_MIN)){
+					summaryTableTxnData.set(POS_3_RESPONSE_TIME_MIN, subResult.getTime());
+				}
+				if  (subResult.getTime() > summaryTableTxnData.get(POS_4_RESPONSE_TIME_MAX)){
+					summaryTableTxnData.set(POS_4_RESPONSE_TIME_MAX, subResult.getTime());
+				}
+			} else {
+				summaryTableTxnData.set(POS_1_NUM_FAIL, summaryTableTxnData.get(POS_1_NUM_FAIL)+1);
+			}
+			
+			resultsSummaryTable.put(summaryTableTxn, summaryTableTxnData);
 		}
 	}
 	
+
+	private static void printResultsSummary(Map<String, List<Long>> resultsSummaryTable) {
+		
+		LOG.info("\n\n\n"); 
+		LOG.info(StringUtils.repeat(" ", 56) + "Results Summary Table");
+		LOG.info(StringUtils.repeat(" ", 56) + "---------------------");
+		LOG.info(""); 
+		LOG.info(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", "Transaction", "#Samples", "FAIL", "Average", "Min", "Max" ));
+		LOG.info(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", "-----------", "--------", "----", "-------", "---", "---" ));
+
+		resultsSummaryTable.forEach((k, v) -> {
+			if (k.length() < 76) {
+				k = (k.length() % 2 == 0) ? k + "  " + StringUtils.repeat(" .", 38 - k.length()/2) : k + "  " + StringUtils.repeat(". ", 39 - (k.length()+1)/2 );
+			}
+			long average = (v.get(POS_0_NUM_SAMPLES) > 0) ? v.get(POS_2_SUM_RESPONSE_TIME) / v.get(POS_0_NUM_SAMPLES) : 0L;
+			
+			LOG.info(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", k, 
+					v.get(POS_0_NUM_SAMPLES),v.get(POS_1_NUM_FAIL),average,v.get(POS_3_RESPONSE_TIME_MIN),v.get(POS_4_RESPONSE_TIME_MAX)));
+		});
+		LOG.info(StringUtils.repeat("-", 132)); 		
+		
+		
+		System.out.println("\n\n\n"); 
+		System.out.println(StringUtils.repeat(" ", 56) + "Results Summary Table");
+		System.out.println(StringUtils.repeat(" ", 56) + "---------------------");
+		System.out.println(""); ;
+		System.out.println(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", "Transaction", "#Samples", "FAIL", "Average", "Min", "Max" ));
+		System.out.println(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", "-----------", "--------", "----", "-------", "---", "---" ));
+
+		resultsSummaryTable.forEach((k, v) -> {
+			if (k.length() < 76) {
+				k = (k.length() % 2 == 0) ? k + "  " + StringUtils.repeat(" .", 38 - k.length()/2) : k + "  " + StringUtils.repeat(". ", 39 - (k.length()+1)/2 );
+			}
+			long average = (v.get(POS_0_NUM_SAMPLES) > 0) ? v.get(POS_2_SUM_RESPONSE_TIME) / v.get(POS_0_NUM_SAMPLES) : 0L;
+			
+			System.out.println(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", k, 
+					v.get(POS_0_NUM_SAMPLES),v.get(POS_1_NUM_FAIL),average,v.get(POS_3_RESPONSE_TIME_MIN),v.get(POS_4_RESPONSE_TIME_MAX)));
+		});
+		System.out.println(StringUtils.repeat("-", 132));   // 132 because I'm a COBOL programmer really
+	}
+
 }

@@ -48,9 +48,6 @@ public class Policies {
 		this.otherdata = otherdata;
 		this.epochtime = epochtime;
 	}
-
-	
-	
 	
 	public String getApplication() {
 		return application;

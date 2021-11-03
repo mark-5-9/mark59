@@ -26,32 +26,85 @@ import java.util.List;
  */
 public class Mark59Constants {
 	
-	public static final String MARK59_VERSION  = "3.3";	
+	/**
+	 * current Mark59 version
+	 */
+	public static final String MARK59_VERSION  = "4.0.0";	
 		
+	/**
+	 * TRUE
+	 */
 	public static final String TRUE = "TRUE";
+	
+	/**
+	 * FALSE
+	 */
 	public static final String FALSE = "FALSE";
+	
+	/**
+	 * the default driver (used if DRIVER not specified as a script argument)  - CHROME 
+	 */
 	public static final String DEFAULT_DRIVER = "CHROME";
 	
+	/**
+	 * CHROME
+	 */
+	public static final String CHROME = "CHROME";
+	
+	/**
+	 * FIREFOX
+	 */
+	public static final String FIREFOX= "FIREFOX";
+	
+	/**
+	 * Browser default width
+	 */
 	public static final int DEFAULT_BROWSER_WIDTH  = 1920;
+	
+	/**
+	 * Browser default height
+	 */
 	public static final int DEFAULT_BROWSER_HEIGHT = 1080;
+	
+	/**
+	 * Browser default dimensions (width by height) 
+	 */
 	public static final String DEFAULT_BROWSER_DIMENSIONS ="1920,1080";
     
+	/**
+	 * REFERENCE
+	 */
 	public static final String REFERENCE  = "__Mark59.com____";
 
+    /**
+     * H2 (file based) database
+     */
     public static final String H2     		= "h2";
+    /**
+     * MySQL database
+     */
     public static final String MYSQL  		= "mysql";
+    /**
+     * Postgres database
+     */
     public static final String PG     		= "pg";
+    /**
+     *  H2 'in memory' database
+     */
     public static final String H2MEM  		= "h2mem";
+    /**
+     * a H2 database acting as a 'client' server (useful in Docker for communication a H2 database over Docker instances) 
+     */
     public static final String H2TCPCLIENT	= "h2tcpclient";
     
     /**
      * Defines an enumeration of values used in the Mark59 framework that are used in to populate the JMeter
      *  results file data type (the 'dt' column in a csv formatted file) 
      * 
-     * <p>The current list of types, and their corresponding text values (as would appear in a JMeter csv Results file)
-     *  are:<br>
-	 * <table summary="">
-  	 *	<tr><td>Mark59 JMeterFileDatatypes<br>enumeration<br></td><td> --&gt; </td><td>JMeter file 'dt' value</td></tr>
+     * <p>The current list of types, and their corresponding text values (as would appear in a JMeter csv Results file) are:<br>
+	 * <table>
+	 * 	<caption> __________________________________________________________________________________________________ </caption>
+	 * 	<tr><td>Mark59 JMeterFileDatatypes<br>enumeration<br></td><td> --&gt; </td><td>JMeter file 'dt' value</td></tr>
   	 *	<tr><td>CPU_UTIL  	</td><td> --&gt; </td><td>CPU_UTIL 		</td><td></td></tr>
   	 *	<tr><td>MEMORY    	</td><td> --&gt; </td><td>MEMORY     	</td><td></td></tr>
   	 *	<tr><td>DATAPOINT 	</td><td> --&gt; </td><td>DATAPOINT  	</td><td></td></tr>
@@ -64,8 +117,18 @@ public class Mark59Constants {
      */
     public static enum JMeterFileDatatypes {
 
-		DATAPOINT("DATAPOINT", true), CPU_UTIL("CPU_UTIL", true), MEMORY("MEMORY", true), 
-		TRANSACTION("", false),	CDP("CDP", false), PARENT("PARENT", false);
+		/** DATAPOINT */
+		DATAPOINT("DATAPOINT", true), 
+		/** CPU_UTIL */
+		CPU_UTIL("CPU_UTIL", true),
+		/** MEMORY */
+		MEMORY("MEMORY", true), 
+		/** TRANSACTION */		
+		TRANSACTION("", false),
+		/** CDP */
+		CDP("CDP", false),
+		/** PARENT */
+		PARENT("PARENT", false);
     	
     	private final String datatypeText;
     	private final boolean metricDataType;
@@ -74,12 +137,21 @@ public class Mark59Constants {
     		this.datatypeText = datatypeText;
     		this.metricDataType = metricDataType;
     	}
+    	/**
+    	 * @return value of text as used in the JMeter file
+    	 */
     	public String getDatatypeText() {
     		return datatypeText;
     	}
+		/**
+		 * @return true if it is a 'metric' type 
+		 */
 		public boolean isMetricDataType() {
 			return this.metricDataType;
 		}    	
+		/**
+		 * @return a string list of all transaction data types as used in the JMeter file   
+		 */
 		public static List<String> listOfJMeterFileDatatypes() {
 			List<String> listOfJMeterFileDatatypes = new ArrayList<String>();
 			for (JMeterFileDatatypes jMeterFileDatatype : JMeterFileDatatypes.values()) {
@@ -87,6 +159,9 @@ public class Mark59Constants {
 			}
 			return listOfJMeterFileDatatypes;
 		}
+		/**
+		 * @return a string list of metrics data types as used in the JMeter file   
+		 */
 		public static List<String> listOfMetricJMeterFileDatatypes() {
 			List<String> listOfMetricJMeterFileDatatypes = new ArrayList<String>();
 			for (Mark59Constants.JMeterFileDatatypes jMeterFileDatatype : JMeterFileDatatypes.values()) {
@@ -106,15 +181,28 @@ public class Mark59Constants {
      */
     public static enum DatabaseTxnTypes { 
 
-    	DATAPOINT(true), CPU_UTIL(true), MEMORY(true), TRANSACTION(false);
+		/** DATAPOINT */
+    	DATAPOINT(true),
+		/** CPU_UTIL */
+    	CPU_UTIL(true), 
+		/** MEMORY */
+    	MEMORY(true), 
+		/** TRANSACTION */
+    	TRANSACTION(false);
 		
     	private final boolean metricTxnType;   
 		private DatabaseTxnTypes(boolean metricTxnType) {
 			this.metricTxnType = metricTxnType;  
 		}
+		/**
+		 * @return true if it is a 'metric' transaction type 
+		 */
 		public boolean isMetricTxnType() {
 			return this.metricTxnType;
 		}
+		/**
+		 * @return string list of all transaction types as used in the database  
+		 */
 		public static List<String> listOfDatabaseTxnTypes(){
 			List<String> listOfDatabaseTxnTypes = new ArrayList<String>();
 			for (DatabaseTxnTypes databaseTxnType : DatabaseTxnTypes.values()) {
@@ -122,6 +210,9 @@ public class Mark59Constants {
 			}
 			return listOfDatabaseTxnTypes;
 		}
+		/**
+		 * @return a string list of metrics types as used in the database   
+		 */
 		public static List<String> listOfMetricDatabaseTxnTypes() {
 			List<String> listOfMetricDatabaseTxnTypes = new ArrayList<String>();
 			for (DatabaseTxnTypes databaseTxntypes : DatabaseTxnTypes.values()) {

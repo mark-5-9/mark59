@@ -24,6 +24,8 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.servermetricsweb.data.beans.CommandResponseParser;
 
@@ -39,22 +41,24 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 		
 
 	@Override
-	@SuppressWarnings("rawtypes")
 	public CommandResponseParser findCommandResponseParser(String scriptName){
 
-		List<CommandResponseParser> commandResponseParsersList = new ArrayList<CommandResponseParser>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		
-		String selectServerSQL   = "select SCRIPT_NAME, METRIC_TXN_TYPE, METRIC_NAME_SUFFIX, SCRIPT, COMMENT, SAMPLE_COMMAND_RESPONSE "
-				+ "from COMMANDRESPONSEPARSERS where SCRIPT_NAME = '" + scriptName + "'"
+		String sql = "select SCRIPT_NAME, METRIC_TXN_TYPE, METRIC_NAME_SUFFIX, SCRIPT, COMMENT, SAMPLE_COMMAND_RESPONSE "
+				+ "from COMMANDRESPONSEPARSERS where SCRIPT_NAME = :scriptName "
 				+ " order by SCRIPT_NAME asc;";
 		
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL);
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("scriptName", scriptName);
+
+//		System.out.println(" findCommandResponseParser : " + sql + " : " + scriptName);
+		List<CommandResponseParser> commandResponseParsersList = new ArrayList<CommandResponseParser>();
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		if (rows.size() == 0 ){
 			return null;
 		}
-		Map row = rows.get(0);
+		Map<String, Object> row = rows.get(0);
 		
 		CommandResponseParser commandResponseParser = new CommandResponseParser();
 		commandResponseParser.setScriptName((String)row.get("SCRIPT_NAME"));
@@ -64,10 +68,8 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 		commandResponseParser.setComment((String)row.get("COMMENT"));
 		commandResponseParser.setSampleCommandResponse((String)row.get("SAMPLE_COMMAND_RESPONSE"));
 		commandResponseParser.setScriptName((String)row.get("SCRIPT_NAME"));
-
 		commandResponseParsersList.add(commandResponseParser);
-//		System.out.println("ServerCommandLinksDAOjdbcTemplateImpl.findCommandResponseParser  : " + commandResponseParser.toString()  ) ;		
-		
+//		System.out.println("ServerCommandLinksDAO..findCommandResponseParser : " + commandResponseParser.toString());		
 		return  commandResponseParser;
 	}
 
@@ -80,10 +82,20 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 	@Override
 	public List<CommandResponseParser> findCommandResponseParsers(String selectionCol, String selectionValue){
 
-		List<CommandResponseParser> commandResponseParsersList = new ArrayList<CommandResponseParser>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "select SCRIPT_NAME, METRIC_TXN_TYPE, METRIC_NAME_SUFFIX, SCRIPT, COMMENT, SAMPLE_COMMAND_RESPONSE from COMMANDRESPONSEPARSERS ";
+		
+		if (!selectionValue.isEmpty()  ) {			
+			sql += "  where " + selectionCol + " like :selectionValue ";
+		} 
+		sql += " order by SCRIPT_NAME ";		
 
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(getCommandResponseParserListSelectionSQL(selectionCol, selectionValue));
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("selectionValue", selectionValue);
+
+//		System.out.println(" findCommandResponseParsers : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		List<CommandResponseParser> commandResponseParsersList = new ArrayList<CommandResponseParser>();
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		for (Map<String, Object> row : rows) {
 			CommandResponseParser commandResponseParser = new CommandResponseParser();
@@ -94,24 +106,12 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 			commandResponseParser.setComment((String)row.get("COMMENT"));
 			commandResponseParser.setSampleCommandResponse((String)row.get("SAMPLE_COMMAND_RESPONSE"));			
 			commandResponseParser.setScriptName((String)row.get("SCRIPT_NAME"));
-
 			commandResponseParsersList.add(commandResponseParser);
 //			System.out.println("ServerCommandLinksDAOjdbcTemplateImpl.findCommandResponseParsers  : " + commandResponseParser.toString()  ) ;		
 		}	
 		return commandResponseParsersList;
 	}
-	
-	private String getCommandResponseParserListSelectionSQL(String selectionCol, String selectionValue){	
-		String commandResponseParserListSelectionSQL = "select SCRIPT_NAME, METRIC_TXN_TYPE, METRIC_NAME_SUFFIX, SCRIPT, COMMENT, SAMPLE_COMMAND_RESPONSE from COMMANDRESPONSEPARSERS ";
-		
-		if (!selectionValue.isEmpty()  ) {			
-			commandResponseParserListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
-		} 
-		commandResponseParserListSelectionSQL += " order by SCRIPT_NAME ";
-		return  commandResponseParserListSelectionSQL;
-	}
-	
-	
+
 	
 	@Override
 	public void insertCommandResponseParser(CommandResponseParser commandResponseParser) {
@@ -156,15 +156,18 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 	
 	@Override
 	public void deleteCommandResponseParser(String scriptName) {
-		String sql = "delete from COMMANDPARSERLINKS where SCRIPT_NAME ='" + scriptName	+ "'";
-		System.out.println("delete commandResponseParser sql: " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);		
+
+		String sql = "delete from COMMANDPARSERLINKS where SCRIPT_NAME = :scriptName ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("scriptName", scriptName);		
+
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 		
-		sql = "delete from COMMANDRESPONSEPARSERS where SCRIPT_NAME ='" + scriptName	+ "'";
-		System.out.println("delete commandResponseParser sql: " + sql);
-		jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+		sql = "delete from COMMANDRESPONSEPARSERS where SCRIPT_NAME = :scriptName ";
+		jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}	
 
 }

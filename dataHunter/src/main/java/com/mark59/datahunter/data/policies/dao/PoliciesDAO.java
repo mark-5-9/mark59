@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.model.AsyncMessageaAnalyzerResult;
 import com.mark59.datahunter.model.CountPoliciesBreakdown;
@@ -33,25 +34,25 @@ import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
  */
 public interface PoliciesDAO 
 {
-	public String constructSelectPolicySql(PolicySelectionCriteria policySelect);
+	public SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect);
 
-	public String constructSelectPoliciesSql(PolicySelectionCriteria policySelectionCriteria);		
-	public String constructCountPoliciesBreakdownSql(PolicySelectionCriteria policySelectionCriteria);
-	public String constructAsyncMessageaAnalyzerSql(PolicySelectionCriteria policySelectionCriteria);
+	public SqlWithParms constructSelectPoliciesSql(PolicySelectionCriteria policySelectionCriteria);		
+	public SqlWithParms constructCountPoliciesBreakdownSql(PolicySelectionCriteria policySelectionCriteria);
+	public SqlWithParms constructAsyncMessageaAnalyzerSql(PolicySelectionCriteria policySelectionCriteria);
 	
-	public int runCountSql(String sql);	
-	public List<Policies> runSelectPolicieSql(String sql);		
-	public List<CountPoliciesBreakdown> runCountPoliciesBreakdownSql(String sql);
-	public List<AsyncMessageaAnalyzerResult> runAsyncMessageaAnalyzerSql(String sql);
+	public int runCountSql(SqlWithParms sqlWithParms);	
+	public List<Policies> runSelectPolicieSql(SqlWithParms sqlWithParms);		
+	public List<CountPoliciesBreakdown> runCountPoliciesBreakdownSql(SqlWithParms sqlWithParms);
+	public List<AsyncMessageaAnalyzerResult> runAsyncMessageaAnalyzerSql(SqlWithParms sqlWithParms);
 	
-	public String constructInsertDataSql(Policies policies);	
-	public String constructDeletePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
-	public String constructDeleteMultiplePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
+	public SqlWithParms constructInsertDataSql(Policies policies);	
+	public SqlWithParms constructDeletePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
+	public SqlWithParms constructDeleteMultiplePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
 	
-	public String constructUpdatePoliciesUseStateSql(UpdateUseStateAndEpochTime updateUse);
-	public String constructUpdatePolicyToUsedSql(Policies nextPolicy);
+	public SqlWithParms constructUpdatePoliciesUseStateSql(UpdateUseStateAndEpochTime updateUse);
+	public SqlWithParms constructUpdatePolicyToUsedSql(Policies nextPolicy);
 
-	public int runDatabaseUpdateSql(String sql);
+	public int runDatabaseUpdateSql(SqlWithParms sqlWithParms);
 
 	public void getLock(JdbcTemplate singleConnectionJdbcTemplate, String lockResouceString, int timeout);
 	public void releaseLock(JdbcTemplate singleConnectionJdbcTemplate, String lockResouceString) throws SQLException;

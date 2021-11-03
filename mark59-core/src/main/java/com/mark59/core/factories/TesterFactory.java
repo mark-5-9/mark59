@@ -32,6 +32,17 @@ public class TesterFactory {
 	private TesterFactory() {
 	}
 
+	/**
+	 * no longer used - to be removed future release
+	 * @param testerClassName testerClassName
+	 * @param threadName threadName
+	 * @return  JmeterFunctions 
+	 * @throws ClassNotFoundException ClassNotFoundException
+	 * @throws NoSuchMethodException NoSuchMethodException
+	 * @throws InstantiationException InstantiationException
+	 * @throws IllegalAccessException IllegalAccessException
+	 * @throws InvocationTargetException InvocationTargetException
+	 */
 	public static JmeterFunctions getTester(String testerClassName, String threadName) throws ClassNotFoundException,
 			NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		

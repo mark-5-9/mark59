@@ -95,6 +95,7 @@ public class PropertiesReader {
 		setMark59property(PropertiesKeys.MARK59_PROP_DRIVER_CHROME, true);
 		setMark59property(PropertiesKeys.MARK59_PROP_DRIVER_FIREFOX, true);	
 		setMark59property(PropertiesKeys.MARK59_PROP_SERVER_PROFILES_EXCEL_FILE_PATH);	
+		setMark59property(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE, true);	
 		LOG.info("    ----------------------- " );			
 	}
 	
@@ -214,11 +215,19 @@ public class PropertiesReader {
 	}
 
 	
+	/**
+	 * @param key property name
+	 * @return property value
+	 */
 	public String getProperty(String key) {
 		if(!properties.containsKey(key)) return null;
 		return properties.getProperty(key);
 	}
 	
+	/**
+	 * @return exist or otherwise new instance of PropertiesReader
+	 * @throws IOException when attempting to read mark59.properties
+	 */
 	public static synchronized PropertiesReader getInstance() throws IOException {
 		if(instance == null) {
 			instance = new PropertiesReader(MARK59_PROPERTIES);

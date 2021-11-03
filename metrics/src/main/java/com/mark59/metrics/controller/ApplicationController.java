@@ -162,9 +162,8 @@ public class ApplicationController {
 	private String computeSlaTransactionResultIconColour(String application, String lastRunDateStr) {	
 		String iconColour = "green";
 
-		String transactionIdsSQL = transactionDAO.transactionIdsSQL(application, AppConstantsMetrics.TXN_90TH_GRAPH, AppConstantsMetrics.SHOW_SHOW_CDP, 
-				"%", "", false, "", lastRunDateStr, false, null);
-		List<Transaction> transactions = transactionDAO.returnListOfTransactionsToGraph(transactionIdsSQL, AppConstantsMetrics.ALL);
+		List<Transaction> transactions = transactionDAO.returnListOfTransactionsToGraph(application, AppConstantsMetrics.TXN_90TH_GRAPH, 
+				AppConstantsMetrics.SHOW_SHOW_CDP,"%", "", false, "", lastRunDateStr, false, null, AppConstantsMetrics.ALL);
 		
 		List<SlaTransactionResult> slaTransactionResultList =  new SlaChecker().listCdpTaggedTransactionsWithFailedSlas(application, transactions, slaDAO);
 		

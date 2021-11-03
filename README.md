@@ -7,6 +7,16 @@ This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT 
 
 ## Releases 
 
+<p>Release 4.0.0<br>
+  <ul>
+    <li>Selenium dependency to 4.0.0</li>	  
+    <li>New mark59.browser.executable property</li>	  
+    <li>Legacy Server Metrics JMeter Java Requests removed</li>	
+    <li>Metrics graphics available vars change to colon (:) prefix</li>	
+    <li>Expanded script Main() option (csv file, summary, multiple iterations and threads)</li>		
+    <li>JavaDocs and code scans cleanup</li>	
+    <li>Version number to emphasize the relationship of this release to Selenium</li>
+  </ul>  
 
 
 <p>Release 4.0.0-rc-1<br>

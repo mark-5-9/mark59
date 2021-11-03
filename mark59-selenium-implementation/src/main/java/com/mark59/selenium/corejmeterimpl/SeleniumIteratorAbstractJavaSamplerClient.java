@@ -25,6 +25,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.threads.AbstractThreadGroup;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.openqa.selenium.WebDriver;
@@ -97,7 +98,8 @@ import com.mark59.selenium.drivers.SeleniumDriverFactory;
  */
 public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  SeleniumAbstractJavaSamplerClient {
 
-	public static Logger LOG = LogManager.getLogger(SeleniumIteratorAbstractJavaSamplerClient.class);
+	/** log4J class logger */
+	public static final Logger LOG = LogManager.getLogger(SeleniumIteratorAbstractJavaSamplerClient.class);
 
 	/**
 	 * At the end of each iteration, a check is made to see if the time in seconds the script has been iterating has reached this.
@@ -164,7 +166,6 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 	public Arguments getDefaultParameters() {
 		return Mark59Utils.mergeMapWithAnOverrideMap(defaultIterArgumentsMap, additionalTestParameters());
 	}
-	
 		
 
 	/**
@@ -174,9 +175,11 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 	 */
 	@Override
 	public SampleResult runTest(JavaSamplerContext context) {
-		
 		if (LOG.isDebugEnabled()) LOG.debug(this.getClass().getName() +  " : exectuing runTest (iterator)" );
-
+		
+		AbstractThreadGroup tg = null;
+		String tgName = null;
+		
 		if ( context.getJMeterContext() != null  && context.getJMeterContext().getThreadGroup() != null ) {
 			tg     = context.getJMeterContext().getThreadGroup();
 			tgName = tg.getName();
@@ -216,7 +219,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 		}
 		
 		driver =  (WebDriver)seleniumDriverWrapper.getDriverPackage() ;
-		jm = new JmeterFunctionsForSeleniumScripts(thread, seleniumDriverWrapper, jmeterRuntimeArgumentsMap);   	
+		jm = new JmeterFunctionsForSeleniumScripts(Thread.currentThread().getName(), seleniumDriverWrapper, jmeterRuntimeArgumentsMap);   	
 				
 		try {
 			LOG.debug(">> initiateSeleniumTest");			
@@ -230,7 +233,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			long scriptIterationStartTimeMs;
 			long delay = 0;
 			
-			if (LOG.isDebugEnabled()) LOG.debug(thread + ": tgName = " + tgName + ", scriptStartTimeMs = " + scriptStartTimeMs 
+			if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + ": tgName = " + tgName + ", scriptStartTimeMs = " + scriptStartTimeMs 
 					+ ", iteratePeriodMs = " + iterateForPeriodMs + ", iterateNumberOfTimes = " + iterateNumberOfTimes );
 		
 			if (iterateForPeriodMs==0 && iterateNumberOfTimes==0 && stopThreadAfterTestStartMs==0 ) {
@@ -241,7 +244,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			}
 			int i=0;
 			
-			while ( ! isAnyIterateEndConditionMet(scriptStartTimeMs, iterateForPeriodMs, iterateNumberOfTimes, i, jMeterTestStartMs,  stopThreadAfterTestStartMs)) {
+			while ( ! isAnyIterateEndConditionMet(tgName, scriptStartTimeMs, iterateForPeriodMs, iterateNumberOfTimes, i, jMeterTestStartMs,  stopThreadAfterTestStartMs)) {
 				i++;
 				LOG.debug(">> iterateSeleniumTest (" + i + ")");
 				scriptIterationStartTimeMs =  System.currentTimeMillis();
@@ -303,7 +306,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 		return convertedInt;
 	}
 
-	private boolean isAnyIterateEndConditionMet(Long scriptStartTimeMs, Long iterateForPeriodMs, 
+	private boolean isAnyIterateEndConditionMet(String tgName, Long scriptStartTimeMs, Long iterateForPeriodMs, 
 			Integer iterateNumberOfTimes, Integer alreadyIterated, Long jMeterTestStartMs, Long stopThreadAfterTestStartMs) {
 		
 		if ( iterateNumberOfTimes > 0 && alreadyIterated >= iterateNumberOfTimes ){
@@ -342,8 +345,25 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 	protected void runSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm, WebDriver driver) {}
 	
 	
+	/**
+	 * @param context JavaSamplerContext
+	 * @param jm JmeterFunctionsForSeleniumScripts
+	 * @param driver WebDriver
+	 */
 	protected abstract void initiateSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm, WebDriver driver);
-	protected abstract void iterateSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm, WebDriver driver);	
+	
+	/**
+	 * @param context JavaSamplerContext
+	 * @param jm JmeterFunctionsForSeleniumScripts
+	 * @param driver WebDriver
+	 */
+	protected abstract void iterateSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm, WebDriver driver);
+	
+	/**
+	 * @param context JavaSamplerContext
+	 * @param jm JmeterFunctionsForSeleniumScripts
+	 * @param driver WebDriver
+	 */
 	protected abstract void finalizeSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm, WebDriver driver);	
 
 }

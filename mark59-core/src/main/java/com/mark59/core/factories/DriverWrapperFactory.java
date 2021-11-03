@@ -26,6 +26,16 @@ import com.mark59.core.DriverWrapper;
 */
 public interface DriverWrapperFactory {
 
+	/**
+	 * Used to create an object to encapsulate an arbitrary Driver object, where the Driver object knows 
+	 * how to perform an arbitrary set of functions necessary to execute the test.Drivers can be custom, 
+	 * such as theau.com.iag.mark59.server.metrics.driver.NewRelicServerMetricsDriver used within this 
+	 * framework, or come from a third party, such as one of theSeleniumWebDrivers
+	 *  
+	 * @param <T> Concrete Driver to be wrapped
+	 * @param arguments map of key value pairs known to the implementation 
+	 * @return DriverWrapper
+	 */
 	public abstract <T extends DriverWrapper<?>> T makeDriverWrapper(Map<String, String> arguments);
 
 }

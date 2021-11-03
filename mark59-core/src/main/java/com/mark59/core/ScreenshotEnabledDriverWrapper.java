@@ -44,14 +44,23 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 
 	private static final Logger LOG = LogManager.getLogger(ScreenshotEnabledDriverWrapper.class);
 
+	/**
+	 * map of captured screenshot as a byte array (keyed by name)
+	 */
 	protected Map<String, byte[]> bufferedArtifacts = new HashMap<>();
 
 
+	/**
+	 * @param driverPackage driverPackage (concrete Driver to be wrapped)
+	 */
 	public ScreenshotEnabledDriverWrapper(T driverPackage) {
 		super(driverPackage);
 	}
 
 
+	/**
+	 * @return captured screenshot as a byte array (abstract)
+	 */
 	protected abstract byte[] driverTakeScreenshot();
 
 
@@ -91,7 +100,7 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 	 * If you want to immediately write a screenshot to file, use takeScreenshot instead.
 	 * 
 	 * @param imageName filename to use for the screenshot
-	 * @return this
+	 * @return this (ScreenshotEnabledDriverWrapper)
 	 */
 	public ScreenshotEnabledDriverWrapper<T> bufferScreenshot(String imageName) {
 		if (LOG.isDebugEnabled()) LOG.debug(MessageFormat.format("Buffering screenshot {0} for thread {1}", imageName,	Thread.currentThread().getName()));
@@ -104,7 +113,7 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 	/**
 	 * Writes all buffered screenshots to disk
 	 * 
-	 * @return this
+	 * @return this (ScreenshotEnabledDriverWrapper)
 	 */
 	public ScreenshotEnabledDriverWrapper<T> writeBufferedArtifacts() {
 		LOG.info(MessageFormat.format("Writing {0} buffered data to disk for thread {1}", bufferedArtifacts.size(), Thread.currentThread().getName()));
@@ -119,6 +128,9 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 
 
 	
+	/**
+	 * log an exception state
+	 */
 	@Override
 	public void documentExceptionState(Exception e) {
 		bufferScreenshot("EXCEPTION");
@@ -134,6 +146,9 @@ public abstract class ScreenshotEnabledDriverWrapper<T> extends DriverWrapper<T>
 
 
 	
+	/**
+	 * @return a map of the buffered screenshots (keyed by name) 
+	 */
 	public Map<String, byte[]> getBufferedScreenshots() {
 		return bufferedArtifacts;
 	}

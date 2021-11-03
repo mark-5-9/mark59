@@ -16,6 +16,7 @@
 
 package com.mark59.datahunter.performanceTest.scripts;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -30,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import com.mark59.core.Outcome;
 import com.mark59.core.utils.IpUtilities;
@@ -62,7 +63,7 @@ import com.mark59.seleniumDSL.pageElements.HtmlTableRow;
 
 /**
  * This selenium test uses a style of DSL which we suggest would be suitable for most performance tests.<br><br>
- * For simple html pages (insignificant client-side javascript or ajax), a DSL not having element "wait until"s may suffice.
+ * For simple html pages a DSL not having element "wait until"s may suffice.
  * 
  * <p>Note the use of a <b>PAGE_LOAD_STRATEGY</b> of <b>NONE</b>.  This means you must control all page load timing in the script, usually
  * by waiting for an element on the next page to become available (for example by waiting for the first item on the page that you 
@@ -93,20 +94,18 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST");
 		jmeterAdditionalParameters.put("FORCE_TXN_FAIL_PERCENT", 	"20");
 		jmeterAdditionalParameters.put("START_CDP_LISTENERS",		String.valueOf(false));
-//		jmeterAdditionalParameters.put("START_CDP_LISTENERS",		String.valueOf(true));
 		jmeterAdditionalParameters.put("USER", 	 "default_user");				
-		// required
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, "CHROME");
-		// optional (defaults values available)
+		// optional (defaults apply)
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, Mark59Constants.CHROME);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.HEADLESS_MODE, String.valueOf(false));
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_DIMENSIONS, Mark59Constants.DEFAULT_BROWSER_DIMENSIONS);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PAGE_LOAD_STRATEGY, PageLoadStrategy.NONE.toString());
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_DIMENSIONS, Mark59Constants.DEFAULT_BROWSER_DIMENSIONS);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, "");
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, "");
-//		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, "--auto-open-devtools-for-tabs");		
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, String.valueOf(false));
 		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");			
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, "");			
+//		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_EXECUTABLE, "C:/win_chrom_ium_install_path/chrome.exe");		
 		return jmeterAdditionalParameters;			
 	}
 	
@@ -127,7 +126,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		String lifecycle = "thread_" + thread;
 //		System.out.println("Thread " + thread + " is running with LOG level " + LOG.getLevel());
 
-		// Start browser to cater for initial launch time 
+		// Start browser to cater for initial launch time (for Firefox try "about:preferences") 
 		driver.get("chrome://version/");
 		SafeSleep.sleep(1000);
         
@@ -285,12 +284,12 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	}
 
 
-
 	/**
 	 *	Alternative code for the addListenerResponseReceived method below, splitting out a long lambda into a separate function
+	 *  (forces explicit import statements for ..devtools.vxx ... classes) 
 	 *  
 	 *	//  import java.util.function.BiFunction;	
-	 *	//  import org.openqa.selenium.devtools.v91.network.model.ResponseReceived;  // 'v91' will change over devtools releases)
+	 *	//  import org.openqa.selenium.devtools.v95.network.model.ResponseReceived;  // 'v95' will change over devtools releases)
 	 *	
 	 *	BiFunction<RequestWillBeSent, ResponseReceived, String> computeTxnId = (req, res) -> {
 	 *		String urlAction = StringUtils.substringBeforeLast(StringUtils.substringAfter(res.getResponse().getUrl(), "dataHunter/"), "?");
@@ -341,7 +340,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		Properties sysprops = System.getProperties();
 		if (!"true".equals(sysprops.get("printedOnce")) ) {	
 			LOG.info(" Using DataHunter Url     : " + dataHunterUrl);
-			Capabilities caps = ((ChromeDriver)driver).getCapabilities();
+			Capabilities caps = ((RemoteWebDriver)driver).getCapabilities();
 			LOG.info(" Browser Name and Version : " + caps.getBrowserName() + " " + caps.getBrowserVersion());
 			if ("chrome".equalsIgnoreCase(caps.getBrowserName()) && caps.getCapability("chrome") != null ){
 				LOG.info(" Chrome Driver Version    : " +  ((Map<String, String>)caps.getCapability("chrome")).get("chromedriverVersion"));
@@ -357,15 +356,18 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	 * 2.  Run multiple instances of the script, without extra thread-based parameterization <br> 
 	 * 3.  Run multiple instances of the script, with extra thread-based parameterization, represented as a map with parameter name as key,
 	 *     and values for each instance to be executed<br>  
-	 * 
+	 * 4.  As for 3, but allows for the threads to iterate, and optionally to print a summary and/or output a CSV file in JMeter format. 
+	 *     See method {@link #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File)} JavaDocs for more..
+	 *     
 	 * For logging details see @Log4jConfigurationHelper 
 	 */
 	public static void main(String[] args) throws InterruptedException{
-		Log4jConfigurationHelper.init(Level.INFO) ;
+		Log4jConfigurationHelper.init(Level.INFO ) ;
 		DataHunterLifecyclePvtScript thisTest = new DataHunterLifecyclePvtScript();
 
 		//1: single
-		thisTest.runSeleniumTest(KeepBrowserOpen.ALWAYS);
+		thisTest.runSeleniumTest(KeepBrowserOpen.ONFAILURE);
+		
 		
 		//2: multi-thread  (a. with and b. without KeepBrowserOpen option) 
 //		thisTest.runMultiThreadedSeleniumTest(2, 500);
@@ -375,11 +377,17 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		//3: multi-thread with parms
 //		Map<String, java.util.List<String>>threadParameters = new java.util.LinkedHashMap<String,java.util.List<String>>();
 //		threadParameters.put("USER",                              java.util.Arrays.asList( "USER-MATTHEW", "USER-MARK", "USER-LUKE", "USER-JOHN"));
-//		threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "true"));	
+//		threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "false"));	
 //		//  (a. with and b. without KeepBrowserOpen option)
 //		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters);
 //		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE);	
 		
-	}
 		
+		//4: multi-thread with parms, each thread iterating, optional summary printout and/or CSV file in JMeter format. See JavaDocs for details. 
+//		Map<String, java.util.List<String>>threadParameters = new java.util.LinkedHashMap<String,java.util.List<String>>();
+//		threadParameters.put("USER",                              java.util.Arrays.asList( "USER-MATTHEW", "USER-MARK", "USER-LUKE", "USER-JOHN"));
+//		threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "false"));	
+//		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE, 3, 1500, true, new File("C:/Mark59_Runs/csvSample.csv"));
+	}
+	
 }

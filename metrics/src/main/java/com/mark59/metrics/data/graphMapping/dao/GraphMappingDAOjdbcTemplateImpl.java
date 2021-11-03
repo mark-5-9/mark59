@@ -26,6 +26,8 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.metrics.data.beans.BarRange;
 import com.mark59.metrics.data.beans.GraphMapping;
@@ -39,21 +41,24 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 	
 	@Autowired  
 	private DataSource dataSource;
-
 		
 
 	@Override
 	@SuppressWarnings("rawtypes")
 	public GraphMapping  findGraphMapping(String graph){
-
-		List<GraphMapping> graphMappingList = new ArrayList<GraphMapping>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
-		String selectGraphsSQL   = "select LISTORDER, GRAPH, TXN_TYPE, VALUE_DERIVATION, UOM_DESCRIPTION, BAR_RANGE_SQL, BAR_RANGE_LEGEND, COMMENT "
-				+ "from GRAPHMAPPING where GRAPH = '" + graph + "'"
+		String selectGraphsSQL = "select LISTORDER, GRAPH, TXN_TYPE, VALUE_DERIVATION, UOM_DESCRIPTION, "
+				+ "BAR_RANGE_SQL, BAR_RANGE_LEGEND, COMMENT "
+				+ " from GRAPHMAPPING where GRAPH = :graph "
 				+ " order by GRAPH asc;";
 		
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectGraphsSQL);
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("graph", graph);
+		
+		List<GraphMapping> graphMappingList = new ArrayList<GraphMapping>();
+//		System.out.println(" findGraphMapping : " + selectGraphsSQL + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectGraphsSQL, sqlparameters);	
 		
 		if (rows.size() == 0 ){
 			return null;
@@ -84,7 +89,10 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 		List<GraphMapping> graphMappingList = new ArrayList<GraphMapping>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
-		String selectGraphsSQL   = "select LISTORDER, GRAPH, TXN_TYPE, VALUE_DERIVATION, UOM_DESCRIPTION, BAR_RANGE_SQL, BAR_RANGE_LEGEND, COMMENT from GRAPHMAPPING order by LISTORDER asc;";
+		String selectGraphsSQL   = "select LISTORDER, GRAPH, TXN_TYPE, VALUE_DERIVATION, UOM_DESCRIPTION, "
+				+ "BAR_RANGE_SQL, BAR_RANGE_LEGEND, COMMENT "
+				+ "from GRAPHMAPPING order by LISTORDER asc;";
+		
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectGraphsSQL);
 		
 		for (Map row : rows) {
@@ -109,7 +117,8 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 	@Override
 	public void inserttGraphMapping(GraphMapping graphMapping) {
 		String sql = "INSERT INTO GRAPHMAPPING "
-				+ "(LISTORDER, GRAPH, TXN_TYPE, VALUE_DERIVATION, UOM_DESCRIPTION,  BAR_RANGE_SQL, BAR_RANGE_LEGEND, COMMENT) VALUES (?,?,?,?,?,?,?,?)";
+				+ "(LISTORDER, GRAPH, TXN_TYPE, VALUE_DERIVATION, UOM_DESCRIPTION,  BAR_RANGE_SQL, BAR_RANGE_LEGEND, COMMENT) "
+				+ "VALUES (?,?,?,?,?,?,?,?)";
 //		System.out.println("performing : " + sql + " " +  graphMapping.getGraph() );
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -124,72 +133,80 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 	@Override
 	public void updateGraphMapping(GraphMapping graphMapping){
 
-		String sql = "UPDATE GRAPHMAPPING set LISTORDER = ?, TXN_TYPE = ?, VALUE_DERIVATION = ?, UOM_DESCRIPTION = ?, BAR_RANGE_SQL = ?, BAR_RANGE_LEGEND = ?, COMMENT = ?"
+		String sql = "UPDATE GRAPHMAPPING set LISTORDER = ?, TXN_TYPE = ?, VALUE_DERIVATION = ?, UOM_DESCRIPTION = ?, "
+				+ "BAR_RANGE_SQL = ?, BAR_RANGE_LEGEND = ?, COMMENT = ?"
 				+ "where GRAPH = ? ";
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-		jdbcTemplate.update(sql,
-				new Object[] { graphMapping.getListOrder(), graphMapping.getTxnType(), graphMapping.getValueDerivation(), graphMapping.getUomDescription(),
-								graphMapping.getBarRangeSql(), graphMapping.getBarRangeLegend(),graphMapping.getComment(), graphMapping.getGraph()  });
+		jdbcTemplate.update(sql, new Object[] { 
+				graphMapping.getListOrder(), graphMapping.getTxnType(), graphMapping.getValueDerivation(), graphMapping.getUomDescription(),
+				graphMapping.getBarRangeSql(), graphMapping.getBarRangeLegend(),graphMapping.getComment(), graphMapping.getGraph()  });
 	}	
 	
 	
 	@Override
 	public void deleteGraphMapping(String graph) {
-		String sql = "delete from GRAPHMAPPING where GRAPH='" + graph	+ "'";
-		System.out.println("deleteRun sql: " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+		
+		String sql = "delete from GRAPHMAPPING where GRAPH = :graph ";
+				
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("graph", graph);
+
+//		System.out.println("deleteGraphMapping : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}	
 
 	
 	
 	@Override
 	public List<BarRange> getTransactionRangeBarDataForGraph(String application, String runTime, String graph) { 
-
-		List<BarRange> trxnIdsSlaRanges = new ArrayList<BarRange>();
 		
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		String  sqlObtainBarRangeSql = "SELECT BAR_RANGE_SQL FROM GRAPHMAPPING where graph = '" + graph + "'";
-		List<Map<String, Object>> onerows = jdbcTemplate.queryForList(sqlObtainBarRangeSql);
+		String  sqlObtainBarRangeSql = "SELECT BAR_RANGE_SQL FROM GRAPHMAPPING where graph = :graph ";
 		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("graph", graph);
+		
+//		System.out.println(" ..txnRangeBarDataForGraph : " + sqlObtainBarRangeSql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		
+		List<Map<String, Object>> onerows = jdbcTemplate.queryForList(sqlObtainBarRangeSql, sqlparameters);	
 		if (onerows.size() == 0 ){
-			return trxnIdsSlaRanges;
+			return new ArrayList<BarRange>();
 		}
 
 		Map<String, Object> onerow = onerows.get(0);
-		String rangeSql = (String)onerow.get("BAR_RANGE_SQL"); 		
+		String rangeSql = (String)onerow.get("BAR_RANGE_SQL"); 
+		
 		if (StringUtils.isBlank(rangeSql) ){
-			return trxnIdsSlaRanges;
-		}		
+			return new ArrayList<BarRange>();
+		} else {
+			return transactionsRangeBars(application, runTime, rangeSql);
+		}
+	}
+
+	
+	private List<BarRange> transactionsRangeBars(String application, String runTime, String rangeSql) {
+		List<BarRange> trxnIdsSlaRanges = new ArrayList<BarRange>();
 		
-		rangeSql = rangeSql.replaceAll("@runTime","'" + runTime + "'"  ).replaceAll("@application", "'" + application + "'" )  ; 
-//		System.out.println("getSlaRangesForGraph: sql = " + rangeSql);
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource ()
+				.addValue("application", application)
+				.addValue("runTime", runTime);
 		
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(rangeSql);
+//		System.out.println("transactionsRangeBars : " + rangeSql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = namedJdbcTemplate.queryForList(rangeSql, sqlparameters);
+		
 		for (Map<String, Object> row : rows) {
 			BarRange slaRange = new BarRange();
 			slaRange.setTxnId((String)row.get("TXN_ID"));
-			
-//			if ( row.get("BAR_MIN").getClass().toString().contains("BigDecimal")  ){
-//				slaRange.setBarMin((BigDecimal)row.get("BAR_MIN"));	
-//			} else { // assume Double
-//				slaRange.setBarMin(new BigDecimal((Double)row.get("BAR_MIN")));	   
-//			}	
-//			if ( row.get("BAR_MAX").getClass().toString().contains("BigDecimal")  ){
-//				slaRange.setBarMax((BigDecimal)row.get("BAR_MAX"));	
-//			} else { // assume Double
-//				slaRange.setBarMax(new BigDecimal((Double)row.get("BAR_MAX")));	   
-//			}	
-
 			slaRange.setBarMin((BigDecimal)row.get("BAR_MIN"));		
 			slaRange.setBarMax((BigDecimal)row.get("BAR_MAX"));				
 			trxnIdsSlaRanges.add(slaRange);
-//			System.out.println("getSlaRangesForGraph: txn=" + slaRange.getTxnId() + " min= " + slaRange.getBarMin() + " max=" + slaRange.getBarMax() ); 
+//			System.out.println(" bars: txn="+slaRange.getTxnId()+" min=" + slaRange.getBarMin()+" max="+slaRange.getBarMax()); 
 		}
-		return  trxnIdsSlaRanges;
+		return trxnIdsSlaRanges;
 	}
-	
 	
 }

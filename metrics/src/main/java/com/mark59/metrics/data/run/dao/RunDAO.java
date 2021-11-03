@@ -32,8 +32,6 @@ public interface RunDAO
 
 	public void deleteRun(String application, String runTime);
 
-	public void deleteMultiple(String applicationSelectionCriteria, String runTimeSelectionCriteria);
-	
 	public void deleteAllForApplication(String application);
 	
 	public Run findRun(String application, String runTime);
@@ -54,7 +52,7 @@ public interface RunDAO
 
 	public String determineRunDatesToGraph(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean isManuallySelectRuns, String chosenRuns, boolean isUseRawRunSQL, String runTimeSelectionSQL,  String maxRun, String maxBaselineRun);
 	
-	public String getRunTimeSelectionSQL(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike);
+	public String runsSQL(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean useRawRunSQL, String rawRunTimeSelectionSQL);
 
 
 }

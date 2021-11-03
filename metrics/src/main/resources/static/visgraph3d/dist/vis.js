@@ -321,7 +321,13 @@ function copyOrDelete(a, b, prop, allowDeletion) {
   if (doDeletion) {
     delete a[prop];
   } else {
-    a[prop] = b[prop]; // Remember, this is a reference copy!
+  
+    //PW new if condition "b.hasOwnProperty(prop)" inserted around original line (SEC "Prototype-polluting function")   
+  
+	if (b.hasOwnProperty(prop)){  
+    	a[prop] = b[prop]; // Remember, this is a reference copy!
+  	} 
+    
   }
 }
 
@@ -30371,9 +30377,12 @@ function getParseRegexForToken (token, config) {
 
 // Code from http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
 function unescapeFormat(s) {
-    return regexEscape(s.replace('\\', '').replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (matched, p1, p2, p3, p4) {
-        return p1 || p2 || p3 || p4;
-    }));
+//PW unused code triggers SEC - commenting out
+//    return regexEscape(s.replace('\\', '').replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (matched, p1, p2, p3, p4) {
+//        return p1 || p2 || p3 || p4;
+//    }));
+//PW - add line to just return input
+    return s; 
 }
 
 function regexEscape(s) {
@@ -31167,11 +31176,14 @@ function localeWeekdaysParse (weekdayName, format, strict) {
         // make the regex if we don't have it already
 
         mom = createUTC([2000, 1]).day(i);
-        if (strict && !this._fullWeekdaysParse[i]) {
-            this._fullWeekdaysParse[i] = new RegExp('^' + this.weekdays(mom, '').replace('.', '\.?') + '$', 'i');
-            this._shortWeekdaysParse[i] = new RegExp('^' + this.weekdaysShort(mom, '').replace('.', '\.?') + '$', 'i');
-            this._minWeekdaysParse[i] = new RegExp('^' + this.weekdaysMin(mom, '').replace('.', '\.?') + '$', 'i');
-        }
+        
+        //PW INSERTION (unused code reomoved due to SEC FLAG)
+        // if (strict && !this._fullWeekdaysParse[i]) {
+        //     this._fullWeekdaysParse[i] = new RegExp('^' + this.weekdays(mom, '').replace('.', '\.?') + '$', 'i');
+        //     this._shortWeekdaysParse[i] = new RegExp('^' + this.weekdaysShort(mom, '').replace('.', '\.?') + '$', 'i');
+        //    this._minWeekdaysParse[i] = new RegExp('^' + this.weekdaysMin(mom, '').replace('.', '\.?') + '$', 'i');
+        // }
+        
         if (!this._weekdaysParse[i]) {
             regex = '^' + this.weekdays(mom, '') + '|^' + this.weekdaysShort(mom, '') + '|^' + this.weekdaysMin(mom, '');
             this._weekdaysParse[i] = new RegExp(regex.replace('.', ''), 'i');

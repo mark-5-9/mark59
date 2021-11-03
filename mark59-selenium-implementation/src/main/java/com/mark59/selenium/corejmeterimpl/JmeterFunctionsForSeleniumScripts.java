@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.jmeter.samplers.SampleResult;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mark59.core.JmeterFunctionsImpl;
 import com.mark59.core.Outcome;
@@ -75,9 +75,21 @@ import com.mark59.selenium.drivers.SeleniumDriverWrapper;
  * Written: Australian Winter 2019  
  */
 public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
+	/**	log4j class logger */
+	public  static final Logger LOG = LogManager.getLogger(JmeterFunctionsForSeleniumScripts.class);
 
-	private static final Logger LOG = LogManager.getLogger(JmeterFunctionsForSeleniumScripts.class);
-
+	/**	@see #logScreenshotsAtStartOfTransactions  */
+	public static final String LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS = "Log_Screenshots_At_Start_Of_Transactions";
+	/**	@see #logScreenshotsAtEndOfTransactions */
+	public static final String LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS 	= "Log_Screenshots_At_End_Of_Transactions";
+	/**	@see #logPageSourceAtStartOfTransactions   */
+	public static final String LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS = "Log_Page_Source_At_Start_Of_Transactions";
+	/**	@see #logPageSourceAtEndOfTransactions  */
+	public static final String LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS	= "Log_Page_Source_At_End_Of_Transactions";
+	/**	@see #logPerformanceLogAtEndOfTransactions  */
+	public static final String LOG_PERF_LOG_AT_END_OF_TRANSACTIONS 		= "Log_Perf_Log_At_End_Of_Transactions";	
+		
+	
 	private SeleniumDriverWrapper seleniumDriverWrapper;
 	
 	private boolean writeScreenshotsAtStartOfTransactions = false;
@@ -123,23 +135,23 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	private void overrideScreenShotTxnLoggingUsingJmeterParameters(Map<String,String> jmeterRuntimeArgumentsMap) {
 		Mark59LogLevels logging;
 		
-		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(SeleniumDriverWrapper.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS));
+		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS));
 		if (logging != null) {
 			logScreenshotsAtStartOfTransactions(logging);
 		}
-		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(SeleniumDriverWrapper.LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS));
+		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS));
 		if (logging != null) { 
 			logScreenshotsAtEndOfTransactions(logging);
 		}
-		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(SeleniumDriverWrapper.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS));
+		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS));
 		if (logging != null) { 
 			logPageSourceAtStartOfTransactions(logging);
 		}
-		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(SeleniumDriverWrapper.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS));
+		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS));
 		if (logging != null) {
 			logPageSourceAtEndOfTransactions(logging);
 		}
-		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(SeleniumDriverWrapper.LOG_PERF_LOG_AT_END_OF_TRANSACTIONS));
+		logging = Mark59LogLevels.fromString(jmeterRuntimeArgumentsMap.get(LOG_PERF_LOG_AT_END_OF_TRANSACTIONS));
 		if (logging != null) {
 			logPerformanceLogAtEndOfTransactions(logging);
 		}
@@ -437,8 +449,8 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 
 	
 	/**
-	 * Stores screenshot in memory, ready to be written to file later.  If you want to immediately write a screenshot to file, use takeScreenshot instead.
-	 * 
+	 * Stores screenshot in memory, ready to be written to file later.  
+	 * If you want to immediately write a screenshot to file, use takeScreenshot instead.
 	 * @param imageName filename to use for the screenshot
 	 */
 	public void bufferScreenshot(String imageName) {
@@ -446,11 +458,18 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	}
 
 	
+	/**
+	 * Writes the html page source
+	 * @param imageName filename to use for the screenshot
+	 */
 	public void writePageSource(String imageName) {
 		seleniumDriverWrapper.writePageSource(imageName);
 	}	
 	
-	
+	/**
+	 * Buffers the html page source
+	 * @param imageName filename to use for the screenshot
+	 */	
 	public void bufferPageSource(String imageName) {
 		seleniumDriverWrapper.bufferPageSource(imageName);
 	}
@@ -465,6 +484,10 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	}
 
 
+	/**
+	 * Screenshots to be written or buffered at the start transactions
+	 * @param screenshotLoggingValue  Used to set actions when writing screenshots/logs 
+	 */
 	public void logScreenshotsAtStartOfTransactions(Mark59LogLevels screenshotLoggingValue) {
 		bufferScreenshotsAtStartOfTransactions = false;
 		writeScreenshotsAtStartOfTransactions = false;
@@ -481,6 +504,10 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 		}
 	}
 
+	/**
+	 * Screenshots to be written or buffered at the end of transactions
+	 * @param screenshotLoggingValue Used to set actions when writing screenshots/logs  
+	 */
 	public void logScreenshotsAtEndOfTransactions(Mark59LogLevels screenshotLoggingValue) {
 		bufferScreenshotsAtEndOfTransactions = false; 
 		writeScreenshotsAtEndOfTransactions = false;
@@ -499,6 +526,10 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 		}
 	}
 	
+	/**
+	 * PageSource to be written or buffered at the start of transactions
+	 * @param screenshotLoggingValue Used to set actions when writing screenshots/logs  
+	 */
 	public void logPageSourceAtStartOfTransactions(Mark59LogLevels screenshotLoggingValue) {
 		bufferPageSourceAtStartOfTransactions = false; 
 		writePageSourceAtStartOfTransactions = false;	
@@ -515,6 +546,10 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 		}
 	}
 
+	/**
+	 * PageSource to be written or buffered at the end of transactions
+	 * @param screenshotLoggingValue Used to set actions when writing screenshots/logs  
+	 */
 	public void logPageSourceAtEndOfTransactions(Mark59LogLevels screenshotLoggingValue) {
 		bufferPageSourceAtEndOfTransactions = false; 
 		writePageSourceAtEndOfTransactions = false;
@@ -533,6 +568,10 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 		}
 	}
 	
+	/**
+	 * PerformanceLog to be written or buffered at the end of transactions (chrome)
+	 * @param screenshotLoggingValue Used to set actions when writing screenshots/logs  
+	 */
 	public void logPerformanceLogAtEndOfTransactions(Mark59LogLevels screenshotLoggingValue) {
 		bufferPerformanceLogAtEndOfTransactions = false; 
 		writePerformanceLogAtEndOfTransactions = false;

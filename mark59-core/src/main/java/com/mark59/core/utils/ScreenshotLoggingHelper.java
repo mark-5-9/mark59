@@ -38,6 +38,9 @@ import org.apache.logging.log4j.LogManager;
 public class ScreenshotLoggingHelper {
 	private static final Logger LOG = LogManager.getLogger(ScreenshotLoggingHelper.class);	
 	
+	/**
+	 * incremented counter used as part of the screenshot name
+	 */
 	protected static final String SCREENSHOT_COUNTER = "SCREENSHOT_COUNTER";
 	
 	private static ScreenshotLoggingHelper instance;
@@ -138,6 +141,9 @@ public class ScreenshotLoggingHelper {
 	}
 	
 	
+	/**
+	 * @return path of screenshotDirectory
+	 */
 	public static String getScreenshotDirectory() {
 		if (screenshotDirectory == null)
 			return null;
@@ -145,6 +151,11 @@ public class ScreenshotLoggingHelper {
 	}
 
 			
+	/**
+	 * @param pr PropertiesReader
+	 * @return an existing or otherwise new ScreenshotLoggingHelper
+	 * @throws IOException when trying to read the properties file
+	 */
 	public static synchronized ScreenshotLoggingHelper initialiseDirectory(PropertiesReader pr) throws IOException {
 		if(instance == null) {
 			instance = new ScreenshotLoggingHelper(pr);

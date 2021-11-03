@@ -18,10 +18,12 @@ package com.mark59.core.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -118,11 +120,12 @@ public class Mark59Utils {
 	/**
 	 * Maps JMeter file 'dt' (datatype) column to the TXN_TYPE values use in the Mark59 database tables
 	 *  <p><b>Mapping Summary  (JMeter file type 'maps to'  database TXN_TYPE) :</b>
-	 *  <table summary="">
+	 *  <table>
+	 *  <caption>__________________________________________________________________________________</caption>  
   	 *	<tr><td>CPU_UTIL  </td><td> --&gt; </td><td>CPU_UTIL   		</td><td></td></tr>
   	 *	<tr><td>MEMORY    </td><td> --&gt; </td><td>MEMORY     		</td><td></td></tr>
   	 *	<tr><td>DATAPOINT </td><td> --&gt; </td><td>DATAPOINT  		</td><td></td></tr>
-  	 *	<tr><td>CDP       </td><td> --&gt; </td><td>TRANSACTION		</td><td>but will be tagged as a DevTools (CDP) transaction *</td></tr>
+  	 *	<tr><td>CDP       </td><td> --&gt; </td><td>TRANSACTION		</td><td>but tagged as a DevTools (CDP) transaction *</td></tr>
   	 *	<tr><td>'' (blank)</td><td> --&gt; </td><td>TRANSACTION		</td><td>a standard transaction</td></tr>
   	 *	<tr><td>(unmapped)</td><td> --&gt; </td><td>TRANSACTION		</td><td>default catch-all</td></tr>
   	 *  </table>
@@ -157,7 +160,8 @@ public class Mark59Utils {
 	 * as the transaction id prefix.  The table below summarizes the relationships.
 	 * 
 	 *  <p><b>Mapping Summary  (Meter Transaction Type 'maps to' transaction id prefix)</b>
-	 *  <table summary="">
+	 *  <table>
+	 *  <caption>_________________________________</caption>
   	 *	<tr><td>CPU_UTIL </td><td> --&gt; </td><td>CPU_</td></tr>	   
   	 *	<tr><td>MEMORY   </td><td> --&gt; </td><td>Memory_</td></tr>	   
   	 *	<tr><td>DATAPOINT</td><td> --&gt; </td><td>no prefix</td></tr>
@@ -189,6 +193,19 @@ public class Mark59Utils {
 	}
 	
 	
+	/**
+	 * @param commaDelimitedString string with comma(",") being used as a field delimiter 
+	 * @return the Set of split strings 
+	 */
+	public static Set<String> commaDelimStringToStringSet(String commaDelimitedString) {
+		List<String> listOfStrings = commaDelimStringToStringList(commaDelimitedString);
+		return new HashSet<String>(listOfStrings);
+	}
+	
+	/**
+	 * @param commaDelimitedString string with comma(",") being used as a field delimiter 
+	 * @return the split list of strings
+	 */
 	public static List<String> commaDelimStringToStringList(String commaDelimitedString) {
 		List<String> listOfStrings = new ArrayList<String>();
 		// when an empty string is passed to the split, it creates a empty first element ... not what we want .. 
@@ -198,6 +215,10 @@ public class Mark59Utils {
 		return listOfStrings;
 	}
 	
+	/**
+	 * @param pipeDelimitedString string with pipe char ("|") being used as a field delimiter 
+	 * @return the split list of strings 
+	 */
 	public static List<String> pipeDelimStringToStringList(String pipeDelimitedString) {
 		List<String> listOfStrings = new ArrayList<String>();
 		// when an empty string is passed to the split, it creates a empty first element ... not what we want .. 

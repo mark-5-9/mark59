@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
 
@@ -60,10 +61,10 @@ public class DeleteMultiplePoliciesController {
 	@RequestMapping("/delete_multiple_policies_action")
 	public ModelAndView deleteMultiplePoliciesAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model, HttpServletRequest httpServletRequest) {
 
-		String sql = policiesDAO.constructDeleteMultiplePoliciesSql(policySelectionCriteria);
-		int rowsAffected = policiesDAO.runDatabaseUpdateSql(sql);
+		SqlWithParms sqlWithParms = policiesDAO.constructDeleteMultiplePoliciesSql(policySelectionCriteria);
+		int rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 
-		model.addAttribute("sql", sql);
+		model.addAttribute("sql", sqlWithParms);
 		model.addAttribute("sqlResult", "PASS");
 		model.addAttribute("rowsAffected", rowsAffected);	
 

@@ -18,14 +18,8 @@ package com.mark59.selenium.utils
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.config.Arguments;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * General catch-all class for useful functions related to Selenium
@@ -35,45 +29,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class SeleniumUtils {
 	
-	private static final Logger LOG = LogManager.getLogger(SeleniumUtils.class);
-
 	/**
-	 * Allows a map with additional or entries that exist in a base map to be combined, or where the same key exists in both maps, the 
-	 * value in the override map will be used.  
-	 * <p>returned as Jmeter Arguments 
-	 * 
-	 * @param baseMap  Map of base key values 
-	 * @param additionalEntriesMap  additional of override key values
-	 * @return jmeterArguments
-	 */
-	public static Arguments mergeMapWithAnOverrideMap(Map<String,String> baseMap, Map<String, String> additionalEntriesMap) {
-		Arguments jmeterArguments = new Arguments();
-		Map<String, String> jmeterArgumentsMap = new LinkedHashMap<String,String>();
-		Map<String,String> baseMapMergedWithAdditionalEntriesMap = new LinkedHashMap<String,String>(); 
-		
-		for (Map.Entry<String, String> defaultEntry : baseMap.entrySet()) {
-			if (additionalEntriesMap.containsKey(defaultEntry.getKey())){
-				baseMapMergedWithAdditionalEntriesMap.put(defaultEntry.getKey(), additionalEntriesMap.get(defaultEntry.getKey()));
-				additionalEntriesMap.remove(defaultEntry.getKey());
-			} else {
-				baseMapMergedWithAdditionalEntriesMap.put(defaultEntry.getKey(), baseMap.get(defaultEntry.getKey()));
-			}
-		}
-		
-		jmeterArgumentsMap.putAll(additionalEntriesMap);
-		jmeterArgumentsMap.putAll(baseMapMergedWithAdditionalEntriesMap);
-		
-		for (Map.Entry<String, String> parameter : jmeterArgumentsMap.entrySet()) {
-			jmeterArguments.addArgument(parameter.getKey(), parameter.getValue());
-		}
-		
-		if (LOG.isDebugEnabled()){LOG.debug("jmeter arguments at end of mergeMapWithAnOverrideMap : " + Arrays.toString(jmeterArguments.getArgumentsAsMap().entrySet().toArray()));} 
-		return jmeterArguments;
-	}
-	
-	
-	/**
-	 * Directly hits the chromedriver and reads the initial message to obtain it's version (intended for internal use only). 
+	 * Directly hits the chromedriver and reads the initial message to obtain it's version (intended for internal use only).
+	 * (Not in use - just delete it ?) 
 	 * @param seleniumDriverPath  the path of the selenium Driver
 	 * @return chromedriver version
 	 */

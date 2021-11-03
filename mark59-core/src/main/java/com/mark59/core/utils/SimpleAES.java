@@ -36,6 +36,10 @@ public class SimpleAES {
 	private static SecretKeySpec secretKey;
 	private static byte[] key;
 
+	/**
+	 * sets the class key 
+	 * @param myKey passed key
+	 */
 	public static void setKey(String myKey) {
 		MessageDigest sha = null;
 		try {
@@ -49,10 +53,15 @@ public class SimpleAES {
 		secretKey = new SecretKeySpec(key, "AES");
 	}
 
+	/**
+	 * @param strToEncrypt string to encrypt
+	 * @param secret secret
+	 * @return encrypted string
+	 */
 	public static String encrypt(String strToEncrypt, String secret) {
 		try {
 			setKey(secret);
-			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
 		} catch (Exception e) {
@@ -61,14 +70,23 @@ public class SimpleAES {
 		return null;
 	}
 
+	/**
+	 * @param strToDecrypt string to decrypt
+	 * @return decrypted string
+	 */
 	public static String decrypt(String strToDecrypt) {
 		return decrypt(strToDecrypt, Mark59Constants.REFERENCE);
 	}
 	
+	/**
+	 * @param strToDecrypt  string to decrypt
+	 * @param secret secret
+	 * @return decrypted string
+	 */
 	public static String decrypt(String strToDecrypt, String secret) {
 		try {
 			setKey(secret);
-			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 			return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
 		} catch (Exception e) {
@@ -77,9 +95,12 @@ public class SimpleAES {
 		return null;
 	}
 
-// uncomment and run this main to see how encrypt/decrypt works on a given string.       	
 	
-//	public static void main(String[] args) {
+	/**
+	 * uncomment and run this main to see how encrypt/decrypt works on a given string.
+	 * @param args no args required
+	 */
+	public static void main(String[] args) {
 //		String originalString = "My test string!";
 //		String encryptedString = SimpleAES.encrypt(originalString, Mark59Constants.REFERENCE );
 //		String decryptedString = SimpleAES.decrypt(encryptedString, Mark59Constants.REFERENCE);
@@ -87,6 +108,6 @@ public class SimpleAES {
 //		System.out.println(originalString);
 //		System.out.println(encryptedString);
 //		System.out.println(decryptedString);
-//	}
+	}
 
 }

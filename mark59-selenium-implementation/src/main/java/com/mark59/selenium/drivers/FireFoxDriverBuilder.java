@@ -47,6 +47,9 @@ public class FireFoxDriverBuilder extends SeleniumDriverBuilder<FirefoxOptions> 
 	private int width  = Mark59Constants.DEFAULT_BROWSER_WIDTH;
 	private int height = Mark59Constants.DEFAULT_BROWSER_HEIGHT;
 
+	/**
+	 * creates the GeckoDriverService Builder and FirefoxOptions object to be built
+	 */
 	public FireFoxDriverBuilder() {
 		serviceBuilder = new GeckoDriverService.Builder();
 		options = new FirefoxOptions();

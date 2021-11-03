@@ -23,7 +23,9 @@ package com.mark59.core;
  * Written: Australian Winter 2019
  */
 public enum Outcome {
+	/**	 * PASS (successful test) */
 	PASS ("PASS", true, "200"),
+	/**	 * FAIL (failed test) */	
 	FAIL ("FAIL", false, "-1");
 	
 	private String outcomeText;
@@ -36,14 +38,23 @@ public enum Outcome {
 		this.outcomeResponseCode = outcomeResponseCode;
 	}
 	
+	/**
+	 * @return PASS or FAIL
+	 */
 	public String getOutcomeText() {
 		return outcomeText;
 	}
 	
+	/**
+	 * @return true for passed, false for failed
+	 */
 	public boolean isOutcomeSuccess() {
 		return outcomeSuccess;
 	}
 	
+	/**
+	 * @return response code currently 200 (good) or -1 (bad)
+	 */
 	public String getOutcomeResponseCode() {
 		return outcomeResponseCode;
 	}

@@ -37,7 +37,7 @@
 
 <div class="content"> 
 
- <h1>Edit Metric SLAt</h1> 
+ <h1>Edit Metric SLA</h1> 
 
 <p>&nbsp;</p>
  

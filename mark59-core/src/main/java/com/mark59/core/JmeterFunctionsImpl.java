@@ -59,16 +59,32 @@ import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 public class JmeterFunctionsImpl implements JmeterFunctions {
 
 	private static final Logger LOG = LogManager.getLogger(JmeterFunctionsImpl.class);
-
-	public static final String DATAPOINT = "DATAPOINT";  
 	
+	/**
+	 * the JMeter main sample result for the script
+	 */
 	protected SampleResult mainResult = new SampleResult();
+	/**
+	 * the executed and in-flight transactions   
+	 */
 	protected Map<String, SampleResult> transactionMap = new ConcurrentHashMap<>();
+	/**
+	 * holds most Recent Transaction Started  (used in the sample script by the DevTools DSL)
+	 */
 	protected String mostRecentTransactionStarted;
+	/**
+	 * holds thread Name
+	 */
 	protected String threadName;
 
+	/**
+	 * used to the the result of a test as a failure
+	 */
 	protected boolean isForcedFail;
 	
+	/**
+	 * @param threadName  thread name (eg, obtained via<code>Thread.currentThread().getName()</code> )
+	 */
 	public JmeterFunctionsImpl(String threadName) {
 		this.threadName = threadName;
 		mainResult.sampleStart();

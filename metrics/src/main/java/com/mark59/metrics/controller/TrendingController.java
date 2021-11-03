@@ -189,7 +189,13 @@ public class TrendingController {
 		
 		System.out.println("TrendingController trendingForm : " + trendingForm  );
 		
-		String runDatesToGraphId = runDAO.determineRunDatesToGraph(	trendingForm.getApplication(),
+		trendingForm.setRunTimeSelectionSQL(runDAO.runsSQL(	trendingForm.getApplication(),
+															trendingForm.getSqlSelectRunLike(),
+															trendingForm.getSqlSelectRunNotLike(),				
+															trendingForm.isUseRawRunSQL(), 
+															trendingForm.getRunTimeSelectionSQL()));
+		
+		String runDatesToGraphId = runDAO.determineRunDatesToGraph( trendingForm.getApplication(),
 																	trendingForm.getSqlSelectRunLike(),
 																	trendingForm.getSqlSelectRunNotLike(),				
 																	trendingForm.isManuallySelectRuns(),
@@ -222,11 +228,21 @@ public class TrendingController {
 																				UtilsMetrics.removeCdpTags(trendingForm.getChosenTxns()), 
 																				trendingForm.getChosenRuns(),
 																				trendingForm.isUseRawSQL(), 
-																				trendingForm.getTransactionIdsSQL()));
+																				trendingForm.getTransactionIdsSQL())); // used when using raw SQL from form 
 			
 			List<Transaction> listOfTransactionsToGraph = transactionDAO.returnListOfTransactionsToGraph(
+																				trendingForm.getApplication(), 
+																				trendingForm.getGraph(), 
+																				trendingForm.getShowCdpOption(), 
+																				trendingForm.getSqlSelectLike(),
+																				trendingForm.getSqlSelectNotLike(),
+																				trendingForm.isManuallySelectTxns(),
+																				UtilsMetrics.removeCdpTags(trendingForm.getChosenTxns()), 
+																				trendingForm.getChosenRuns(),
+																				trendingForm.isUseRawSQL(), 
 																				trendingForm.getTransactionIdsSQL(), 
 																				trendingForm.getNthRankedTxn());
+			
 			List<Transaction> listOfTransactionsToGraphTagged = UtilsMetrics.returnOrderedListOfTransactionsToGraphTagged(listOfTransactionsToGraph);
 			
 			List<String> listOfStdTransactionNamesToGraph    = UtilsMetrics.returnFilteredListOfTransactionNamesToGraph(listOfTransactionsToGraph, "N");			
@@ -250,13 +266,7 @@ public class TrendingController {
 		
 			String trxnIdsRangeBarId = populateRangeBarData(trendingForm.getApplication(), latestRunTime, graphMapping.getGraph());	
 			model.addAttribute("trxnIdsRangeBarId", trxnIdsRangeBarId );
-					
-			if ( !trendingForm.isUseRawRunSQL()){
-				trendingForm.setRunTimeSelectionSQL(runDAO.getRunTimeSelectionSQL(trendingForm.getApplication(),
-																				  trendingForm.getSqlSelectRunLike(), 
-																				  trendingForm.getSqlSelectRunNotLike()));
-			}
-			
+		
 			String csvTextarea = visGraphicDataProduction.createDataPoints(trendingForm.getApplication(), graphMapping, runDatesToGraphId,
 					listOfStdTransactionNamesToGraph, listOfCdpTransactionNamesToGraph, listOfTransactionNamesToGraphTagged ); 
 			model.addAttribute("csvTextarea", csvTextarea );

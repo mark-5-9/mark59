@@ -21,13 +21,6 @@ package com.mark59.core;
  * Driver object knows how to perform an arbitrary set of functions necessary to
  * execute the test.
  * 
- * <p>
- * Drivers can be custom, such as the
- * au.com.iag.mark59.server.metrics.driver.NewRelicServerMetricsDriver used
- * within this framework, or come from a third party, such as one of the
- * SeleniumWebDrivers
- * </p>
- * 
  * @param <T> Concrete Driver to be wrapped
  * @author Michael Cohen
  * Written: Australian Winter 2019

@@ -35,20 +35,13 @@ import com.mark59.core.utils.ScreenshotLoggingHelper;
  * Written: Australian Winter 2019  
  */
 public abstract class SeleniumDriverWrapper extends ScreenshotEnabledDriverWrapper<WebDriver> {
-	
+
 	private static final Logger LOG = LogManager.getLogger(SeleniumDriverWrapper.class);
 	
-	public static final String LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS = "Log_Screenshots_At_Start_Of_Transactions";
-	public static final String LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS 	= "Log_Screenshots_At_End_Of_Transactions";
-	public static final String LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS = "Log_Page_Source_At_Start_Of_Transactions";
-	public static final String LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS	= "Log_Page_Source_At_End_Of_Transactions";
-	public static final String LOG_PERF_LOG_AT_END_OF_TRANSACTIONS 		= "Log_Perf_Log_At_End_Of_Transactions";
-	
-	public static final String DEFAULT = "default";
-	public static final String WRITE   = "write";
-	public static final String BUFFER  = "buffer";	
-	public static final String OFF     = "off";	
 
+	/**
+	 * @param dataPackage the WebDriver to package
+	 */
 	public SeleniumDriverWrapper(WebDriver dataPackage) {
 		super(dataPackage);
 	}
@@ -88,15 +81,14 @@ public abstract class SeleniumDriverWrapper extends ScreenshotEnabledDriverWrapp
 	@Override
 	public void documentExceptionState(Exception e) {
 		super.documentExceptionState(e);
-		writeDriverLogs();
+		writeDriverLogs("PERFLOG");
 		writePageSource("source_at_EXCEPTION");
 	}
 	
-	public void writeDriverLogs() {
-		writeDriverLogs("PERFLOG");
-	}
-
 	
+	/**
+	 * @param htmlFileName name of file contain the html page source to write
+	 */
 	public void writePageSource(String htmlFileName) {
 		if (LOG.isTraceEnabled()) LOG.trace(Thread.currentThread().getName() + " : writing html source, (partial) filename " + htmlFileName );		
 		
@@ -105,6 +97,9 @@ public abstract class SeleniumDriverWrapper extends ScreenshotEnabledDriverWrapp
 	}
 
 	
+	/**
+	 * @param htmlFileName name of file contain the html page source to buffer
+	 */
 	public void bufferPageSource(String htmlFileName){
 		String sourceWithUrlComment = getCurrentUrlAndtHtmlPageSource(this.getDriverPackage());				
 		bufferedArtifacts.put(ScreenshotLoggingHelper.buildFullyQualifiedImageName(htmlFileName, "html"), sourceWithUrlComment.getBytes() );
@@ -134,9 +129,14 @@ public abstract class SeleniumDriverWrapper extends ScreenshotEnabledDriverWrapp
 	}
 
 	
-	
+	/**
+	 * @param textFileName name of log file to write
+	 */	
 	public abstract void writeDriverLogs(String textFileName);
 		
+	/**
+	 * @param textFileName name of log file to buffered
+	 */
 	public abstract void bufferDriverLogs(String textFileName);	
 	
 }

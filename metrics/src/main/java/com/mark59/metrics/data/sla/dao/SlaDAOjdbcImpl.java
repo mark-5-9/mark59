@@ -26,6 +26,8 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.metrics.application.AppConstantsMetrics;
@@ -67,14 +69,16 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 		
 		String sql =  "SELECT DISTINCT TXN_ID, IS_CDP_TXN, TXN_90TH, TXN_95TH, TXN_99TH, TXN_PASS, RUN_TIME"
 				+ " FROM TRANSACTION TX WHERE"
-				+ " TX.APPLICATION =  '" + application + "' AND"
-				+ " TX.TXN_TYPE =  '" + Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() + "'  and"
-				+ " TX.RUN_TIME = ( select max(RUN_TIME) from RUNS where RUNS.APPLICATION =  '" + application + "' AND RUNS.BASELINE_RUN = 'Y' )";
+				+ " TX.APPLICATION =  :application AND"
+				+ " TX.TXN_TYPE =  :txnType AND"
+				+ " TX.RUN_TIME = ( select max(RUN_TIME) from RUNS where RUNS.APPLICATION = :application AND RUNS.BASELINE_RUN = 'Y' )";
 
-//		System.out.println("SlaDAOjdbcImpl.bulkInsertOrUpdateApplication sql: "  + sql );		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("txnType", Mark59Constants.DatabaseTxnTypes.TRANSACTION.name());
 		
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+		NamedParameterJdbcTemplate namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = namedJdbcTemplate.queryForList(sql, sqlparameters);
 		
 		String passedSlaRefUrl =  bulkApplication.getSlaRefUrl();
 		int rowCount = rows.size();
@@ -133,7 +137,7 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 					existingSla.setSlaPassCount(new Long(-1));
 				}				
 				sql = "UPDATE SLA set SLA_PASS_COUNT = ?, SLA_REF_URL = ? where APPLICATION=? and TXN_ID = ? and IS_CDP_TXN = ?";
-				jdbcTemplate = new JdbcTemplate(dataSource);
+				JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 				jdbcTemplate.update(sql, new Object[] { existingSla.getSlaPassCount(), existingSla.getSlaRefUrl(),
 						existingSla.getApplication(), existingSla.getTxnId(), existingSla.getIsCdpTxn() });
 			}
@@ -144,28 +148,43 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 
 	@Override
 	public void deleteAllSlasForApplication(String application) {
-		String sql = "delete from SLA where  APPLICATION='" + application + "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
-
+		
+		String sql = "delete from SLA where  APPLICATION = :application ";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application);		
+		
+//		System.out.println("deleteAllSlasForApplication : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
+	
 	
 	@Override
 	public void deleteData(String application, String txnId, String isCdpTxn) {
-		String sql = "delete from SLA where  APPLICATION='" + application + "' and TXN_ID='" + txnId + "' and IS_CDP_TXN='" + isCdpTxn + "'";	
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
-
+		
+		String sql = "delete from SLA where APPLICATION = :application and TXN_ID= :txnId and IS_CDP_TXN= :isCdpTxn ";	
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)		
+				.addValue("txnId", txnId)		
+				.addValue("isCdpTxn", isCdpTxn);		
+		
+//		System.out.println(" SlaDao deleteData : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 
+	
 	/*
-	 * delete/insert (i.e. rename) if transaction does not exist within the given application,  otherwise update the new values for the passed transaction name
+	 * delete/insert (i.e. rename) if transaction does not exist within the given application,  otherwise update the new values
+	 * for the passed transaction name
 	 */
 	@Override
 	public void updateData(Sla sla) {
 
 		Sla existingSla =  getSla(sla.getApplication(), sla.getTxnId(), sla.getIsCdpTxn()); 
-//		System.out.println("SlaDAOjdbcImpl.updateData: app=" + sla.getApplication() + ", TxnId=" + sla.getTxnId() + ",  existingSla? = " + existingSla);	
+//		System.out.println("SlaDAOjdbcImpl.updateData: app="+sla.getApplication()+", TxnId="+sla.getTxnId()+", existingSla?="+existingSla);	
 		
 		if (existingSla == null ){  //a transaction 'rename'
 			deleteData(sla.getApplication(), sla.getSlaOriginalTxnId(), sla.getIsCdpTxn());
@@ -193,11 +212,17 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 
 	@Override
 	public Sla getSla(String application, String txnId, String isCdpTxn) { 
-		List<Sla> slaList = new ArrayList<Sla>();
-		String sql = "select * from SLA where APPLICATION='" + application + "' and TXN_ID='" + txnId + "' and IS_CDP_TXN='" + isCdpTxn + "'";
-//		System.out.println("getSla sql = " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		slaList = jdbcTemplate.query(sql, new SlaRowMapper());
+
+		String sql = "select * from SLA where APPLICATION = :application and TXN_ID = :txnId and IS_CDP_TXN = :isCdpTxn ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)		
+				.addValue("txnId", txnId)		
+				.addValue("isCdpTxn", isCdpTxn);		
+		
+//		System.out.println(" getSla : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Sla> slaList = jdbcTemplate.query(sql, sqlparameters, new SlaRowMapper());	
 		
 		if (slaList.isEmpty() )
 			return null;			
@@ -206,22 +231,25 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 	}
 	
 	
-	
 	@Override
 	public List<Sla> getSlaList(String application) {
-		List<Sla> slaList = new ArrayList<Sla>();
-		String sql = "select * from SLA where APPLICATION='" + application	+ "' order by TXN_ID"   ;
-//		System.out.println("getSla sql = " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		slaList = jdbcTemplate.query(sql, new SlaRowMapper());
+		
+		String sql = "select * from SLA where APPLICATION= :application order by TXN_ID"   ;
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application);		
+		
+//		System.out.println(" getSlaList : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Sla> slaList = jdbcTemplate.query(sql, sqlparameters, new SlaRowMapper());			
 		return slaList;
 	}
 	
+	
 	public List<Sla> getSlaList() {
-		List<Sla> slaList = new ArrayList<Sla>();
 		String sql = "select * from SLA order by APPLICATION, TXN_ID";
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		slaList = jdbcTemplate.query(sql, new SlaRowMapper());
+		List<Sla> slaList = jdbcTemplate.query(sql, new SlaRowMapper());
 		return slaList;
 	}
 
@@ -229,6 +257,7 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public List<String> findApplications() {
+		
 		String sql = "SELECT distinct APPLICATION FROM SLA order by APPLICATION";
 
 		List<String> applications = new ArrayList<String>();
@@ -253,24 +282,28 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 	public List<String> getSlasWithMissingTxnsInThisRunCdpTags(String application, String runTime) {
 		
 		String sql = "SELECT TXN_ID, IS_CDP_TXN FROM SLA S"
-					+ " where APPLICATION='" + application	+ "' " 
+					+ " where APPLICATION = :application " 
 					+ "  and TXN_ID not in ( "
 					+ "     SELECT TXN_ID FROM TRANSACTION T"
-					+ "     where APPLICATION = '" + application + "' "
-					+ "       and RUN_TIME = '" + runTime + "' " 
+					+ "     where APPLICATION = :application "
+					+ "       and RUN_TIME = :runTime " 
 					+ "       and TXN_TYPE = 'TRANSACTION' " 						
 					+ "       and S.IS_CDP_TXN = T.IS_CDP_TXN) " 					
-					+ "  and TXN_ID != '-" + application + "-DEFAULT-SLA-' "
+					+ "  and TXN_ID != :applicationDefaultSla "
 					+ "  and (not SLA_90TH_RESPONSE < 0.0 or not SLA_95TH_RESPONSE < 0 or not SLA_99TH_RESPONSE < 0 "
 					+ "        or not SLA_PASS_COUNT < 0 or not SLA_FAIL_COUNT < 0 or not SLA_FAIL_PERCENT < 0.0 )"
 					+ " order by TXN_ID, IS_CDP_TXN";
-
-//		System.out.println("getSlasWithMissingTxnsInThisRun sql : " + sql  );
 		
 		List<String> cdpTaggedMissingTransactions = new ArrayList<String>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("runTime", runTime)
+				.addValue("applicationDefaultSla", "-" + application + "-DEFAULT-SLA-' ");
+		
+//		System.out.println(" getSlasWithMissingTxnsInThisRunCdpTags : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);	
+		
 		for (Map row : rows) {
 			String txnId =  (String)row.get("TXN_ID");
 			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
@@ -284,17 +317,21 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 	}
 
 
-
 	@Override
 	public List<String> getListOfIgnoredTransactionsCdpTags(String application) {
 		
 		String sql =  "SELECT TXN_ID, IS_CDP_TXN FROM SLA "
-					+ " WHERE APPLICATION = '" + application + "' AND IS_TXN_IGNORED = 'Y' "
+					+ " WHERE APPLICATION = :application AND IS_TXN_IGNORED = 'Y' "
 					+ " ORDER BY TXN_ID, IS_CDP_TXN";
+		
 		List<String> cdpTaggedIgnoredTransactions = new ArrayList<String>();
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application);
+		
+//		System.out.println(" getListOfIgnoredTransactionsCdpTags : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);	
+		
 		for (Map<String, Object> row : rows) {
 			String txnId =  (String)row.get("TXN_ID");
 			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
@@ -305,6 +342,7 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 		}	
 		return  cdpTaggedIgnoredTransactions;
 	}
+	
 	
 	/*
 	 *   To prevent null exceptions during SLA processing

@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
@@ -70,25 +71,15 @@ public class NextPolicyController {
 		List<Policies> policiesList = new ArrayList<Policies>();
 		
 		policySelectionCriteria.setSelectClause(" application, identifier, lifecycle, useability, otherdata, created, updated, epochtime ");
-		String sql = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
-		model.addAttribute("sql", sql);
+		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
+		model.addAttribute("sql", sqlWithParms);
 		
-		if (lookupOrUsePathVariable.equals("use")){
-			 synchronized (this){
-				return nextPolicyAccessAndUpdate(policySelectionCriteria, model, lookupOrUsePathVariable, policiesList, sql);	
-			 }
-		} else {
-			return nextPolicyAccessAndUpdate(policySelectionCriteria, model, lookupOrUsePathVariable, policiesList, sql);	
-		}
-		
-	}
-
-
-
-	private ModelAndView nextPolicyAccessAndUpdate(PolicySelectionCriteria policySelectionCriteria, Model model,
-			String lookupOrUsePathVariable, List<Policies> policiesList, String sql) {
 		try {
-			policiesList = policiesDAO.runSelectPolicieSql(sql);
+			if (lookupOrUsePathVariable.equals("use")){
+				synchronized (this){ policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms); }
+			} else {
+				policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
+			}
 		} catch (Exception e) {
 			model.addAttribute("sqlResult", "FAIL");
 			model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );
@@ -112,7 +103,6 @@ public class NextPolicyController {
 		Policies nextPolicy = (Policies)policiesList.get(0);
 		model.addAttribute("policies", nextPolicy);		
 		
-		
 		if (lookupOrUsePathVariable.equals("use")){
 
 			if (DataHunterConstants.REUSABLE.equalsIgnoreCase(nextPolicy.getUseability())){
@@ -122,10 +112,10 @@ public class NextPolicyController {
 			} 			
 
 			try {
-				String updateSql = policiesDAO.constructUpdatePolicyToUsedSql(nextPolicy);
-				model.addAttribute("sql", "SELECT STMT : " + sql + "  UPDATE STMT : " + updateSql + ".");
+				SqlWithParms updateSqlWithParms = policiesDAO.constructUpdatePolicyToUsedSql(nextPolicy);
+				model.addAttribute("sql", "SELECT STMT : " + sqlWithParms + "<br>  UPDATE STMT : " + updateSqlWithParms + ".");
 				
-				int rowsUpdated = policiesDAO.runDatabaseUpdateSql(updateSql);
+				int rowsUpdated = policiesDAO.runDatabaseUpdateSql(updateSqlWithParms);
 				model.addAttribute("rowsAffected", rowsUpdated);
 				
 				if (rowsUpdated == 1){
@@ -148,6 +138,5 @@ public class NextPolicyController {
 		
 		return new ModelAndView("/next_policy_action", "model", model);
 	}
-	
 	
 }

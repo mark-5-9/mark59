@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-selenium-implementation</artifactId>
-	<version>4.0.0-rc-1</version>
+	<version>4.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>4.0.0-rc-1</version>
+			<version>4.0.0</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.jmeter/ApacheJMeter_java -->
@@ -39,7 +39,7 @@
 		<dependency>
 		    <groupId>org.seleniumhq.selenium</groupId>
 		    <artifactId>selenium-java</artifactId>
-		    <version>4.0.0-rc-1</version>
+		    <version>4.0.0</version>
 		</dependency>
 	
 		<dependency>
@@ -92,6 +92,18 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
+						<goals><goal>jar</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
+<!-- 				<configuration><doclint>none</doclint></configuration> -->
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
 						<goals><goal>jar</goal></goals>
 					</execution>
 				</executions>

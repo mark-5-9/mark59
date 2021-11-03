@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
@@ -59,15 +60,15 @@ public class PrintPolicyController {
 		DataHunterUtils.expireSession(httpServletRequest);
 		
 		policySelectionCriteria.setSelectClause(" application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ");
-		String sql = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
+		SqlWithParms sqlWithParms = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
 		
 		List<Policies> policiesList = new ArrayList<Policies>();
-		policiesList = policiesDAO.runSelectPolicieSql(sql);
+		policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
 
 		//System.out.println("printPolicyAction" + policySelectionCriteria +  "policies count=" + policiesList.size() );
 
 		ModelMap modelMap = new ModelMap();
-		modelMap.addAttribute("sql", sql);
+		modelMap.addAttribute("sql", sqlWithParms);
 		modelMap.addAttribute("rowsAffected", policiesList.size());
 		
 		if (policiesList.size() == 1 ){

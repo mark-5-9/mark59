@@ -39,6 +39,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
@@ -140,8 +141,8 @@ public class UploadFileController implements HandlerExceptionResolver  {
 
 
 	private boolean policyAlreadyExsits(PolicySelectionCriteria policySelectionCriteria) {
-		String sql = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
-		int policyFound = policiesDAO.runCountSql(sql);
+		SqlWithParms sqlWithParms = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
+		int policyFound = policiesDAO.runCountSql(sqlWithParms);
 		return ( policyFound > 0 );
 	}
 
@@ -154,8 +155,8 @@ public class UploadFileController implements HandlerExceptionResolver  {
 		policies.setUseability(useability);
 		policies.setOtherdata("");
 		policies.setEpochtime(System.currentTimeMillis());
-		String sql = policiesDAO.constructInsertDataSql(policies);
-		return policiesDAO.runDatabaseUpdateSql(sql);
+		SqlWithParms sqlWithParms = policiesDAO.constructInsertDataSql(policies);
+		return policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 	}
 
 	
@@ -167,8 +168,8 @@ public class UploadFileController implements HandlerExceptionResolver  {
 		updateUse.setUseability(null);  // any 'from usability'
 		updateUse.setToUseability(useability);
 		updateUse.setToEpochTime(System.currentTimeMillis());
-		String sql = policiesDAO.constructUpdatePoliciesUseStateSql(updateUse);
-		return policiesDAO.runDatabaseUpdateSql(sql);
+		SqlWithParms sqlWithParms = policiesDAO.constructUpdatePoliciesUseStateSql(updateUse);
+		return policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 	}
 
 

@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
@@ -63,14 +64,14 @@ public class CountPoliciesBreakdownController {
 	public ModelAndView countPoliciesBreakdownAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model, HttpServletRequest httpServletRequest) {
 //		System.out.println("countPoliciesBreakdownAction PolicySelectionCriteria="  + policySelectionCriteria );
 		
-		String sql = policiesDAO.constructCountPoliciesBreakdownSql(policySelectionCriteria);
+		SqlWithParms sqlWithParms = policiesDAO.constructCountPoliciesBreakdownSql(policySelectionCriteria);
 		List<CountPoliciesBreakdown> countPoliciesBreakdownList = new ArrayList<CountPoliciesBreakdown>();
-		countPoliciesBreakdownList = policiesDAO.runCountPoliciesBreakdownSql(sql);
+		countPoliciesBreakdownList = policiesDAO.runCountPoliciesBreakdownSql(sqlWithParms);
 
 		model.addAttribute("countPoliciesBreakdownList", countPoliciesBreakdownList);		
 		int rowsAffected = countPoliciesBreakdownList.size();
 
-		model.addAttribute("sql", sql);
+		model.addAttribute("sql", sqlWithParms);
 		model.addAttribute("sqlResult", "PASS");
 		model.addAttribute("rowsAffected", rowsAffected);	
 

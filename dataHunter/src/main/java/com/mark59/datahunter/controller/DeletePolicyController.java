@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
 
@@ -53,16 +54,14 @@ public class DeletePolicyController {
 	public ModelAndView deletePolicyAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model, HttpServletRequest httpServletRequest) {
 		DataHunterUtils.expireSession(httpServletRequest);
 		
-		String sql = policiesDAO.constructDeletePoliciesSql(policySelectionCriteria);
+		SqlWithParms sqlWithParms = policiesDAO.constructDeletePoliciesSql(policySelectionCriteria);
 		int rowsAffected = 0;
 		
-		model.addAttribute("sql", sql);
+		model.addAttribute("sql", sqlWithParms);
 		
 		try {
-			
-			rowsAffected = policiesDAO.runDatabaseUpdateSql(sql);
+			rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 			model.addAttribute("rowsAffected", rowsAffected);	
-			
 		} catch (Exception e) {
 			model.addAttribute("sqlResult", "FAIL");
 			model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );

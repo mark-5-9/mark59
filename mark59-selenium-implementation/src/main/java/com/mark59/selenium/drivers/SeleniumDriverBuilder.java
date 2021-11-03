@@ -40,12 +40,15 @@ import com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient;
 public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 		implements DriverBuilder<SeleniumDriverWrapper> {
 
-	protected static final String HEADLESS = "HEADLESS";
-	protected static final String ALTERNATE = "ALTERNATE";
-	protected static final String VERBOSE = "VERBOSE";
-	protected static final String NORMALLOAD = "NORMALLOAD";
 
+	/**
+	 * Web Driver builder (used to build FireFox and Chrome services)
+	 */
 	protected DriverService.Builder<?, ?> serviceBuilder;
+	
+	/**
+	 * Web Driver builder (used to build FireFox and Chrome options)
+	 */	
 	protected O options;
 
 	
@@ -174,7 +177,7 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 	
 	
 	/**
-	 * <p>Caters for the direct setting of any additional driver options from the jmeter additional parameters.
+	 * <p>Caters for the direct setting of any additional driver options from the JMeter additional parameters.
 	 * Intended for use with the Chrome Driver.</p>
 	 * 
 	 * <p>The input string needs to be a comma delimited list for multiple options.  
@@ -209,7 +212,7 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 	/**
 	 * 
 	 * <p>Only implemented for Firefox.  Primary purpose is to redirect gekodriver's copious error logging off the console..</p> 
-	 * <p>From a selenium script, the only implemented jmeter parameter is '<b>WRITE_FFOX_BROWSER_LOGFILE</b>'.  Values are:
+	 * <p>From a selenium script, the only implemented JMeter parameter is '<b>WRITE_FFOX_BROWSER_LOGFILE</b>'.  Values are:
 	 * <ul>
 	 * <li><b>false</b> : suppresses Firefox error logging (the default)</li>
 	 * <li><b>true</b> : depending on log setting, logs may to written to the 
@@ -223,24 +226,26 @@ public abstract class SeleniumDriverBuilder<O extends MutableCapabilities>
 
 
 	/**
-	 * Sets the path to an alternate version of the target browser, such as a development version of chrome. 
-	 * If not set, will use the main installation of the expected browser.
+	 * Sets the path to an alternate version of the target browser, such as a Chromium browser or a  development 
+	 * version of Chrome. 
 	 * 
 	 * <p>For example, if you have downloaded Chromium directly onto your C: drive on a Win machine, you would set 
-	 * the "BROWSER_EXECUTABLE" parameter as : 
-	 * 
+	 * the "BROWSER_EXECUTABLE" as : 
 	 * <br><br><b>C:/Chromium/Application/chrome.exe</b> </p>
 	 * 
+	 * <p>This over-rides the mark59 property <code>mark59.browser.executable</code> (if set).
+	 * <p>If neither the  "BROWSER_EXECUTABLE" JMeter parameter or <code>mark59.browser.executable</code> property are
+	 * set, the default installation of the expected browser is assumed.      
+	 * 
 	 * @param <T> of T 
-	 * @param browserExecutablePath executable path to the browser executable to be used
+	 * @param browserExecutablePath executable path to the browser executable to be used (java.nio.file.Path)
 	 * @return this
 	 */
 	public abstract <T extends SeleniumDriverBuilder<?>> T setAlternateBrowser(Path browserExecutablePath);
 	
 	
 	/**
-	 * Sets whether or not the Selenium WebDriver will have performance logging
-	 * turned on.
+	 * Sets whether or not the Selenium WebDriver will have performance logging turned on.
 	 * 
 	 * <p> By default, WebDriver performance logging is turned off. </p>
 	 * 

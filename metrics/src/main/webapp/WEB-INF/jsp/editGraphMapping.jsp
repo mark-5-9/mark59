@@ -80,7 +80,7 @@
   
      <tr>
       <td><br></td>
-      <td style="font-size: 12px"><b>Format:</b> select ...as txn_id,..as bar_min,...as bar_max ..   <b>Available MySQL vars:</b> @runTime @application</td>
+      <td style="font-size: 12px"><b>Format:</b> select ...as txn_id,..as bar_min,...as bar_max ..   <b>Available MySQL vars:</b> :runTime :application</td>
       <td></td>
      </tr>  
      

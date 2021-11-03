@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,8 +32,11 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.core.utils.Mark59Constants;
+import com.mark59.core.utils.Mark59Utils;
 import com.mark59.metrics.application.AppConstantsMetrics;
 import com.mark59.metrics.data.beans.Datapoint;
 import com.mark59.metrics.data.beans.GraphMapping;
@@ -74,10 +78,9 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 				transaction.getTxnFirst(), transaction.getTxnLast(), transaction.getTxnSum(), transaction.getTxnDelay() });
 	}
 	
+	
 	@Override
 	public Transaction getTransaction(String application, String txnType, String isCdpTxn, String runTime, String txnId ) {
-
-		List<Transaction> transactionList = new ArrayList<Transaction>();
 
 		String sql = "SELECT * FROM TRANSACTION WHERE APPLICATION = '" + application + "' AND " +
 				                                        "RUN_TIME = '" + runTime + "' AND " +
@@ -85,9 +88,17 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 				                                        "TXN_TYPE = '" + txnType + "' AND " +
 				                                        "IS_CDP_TXN = '" + isCdpTxn + "' ";
 
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		transactionList = jdbcTemplate.query(sql, new TransactionRowMapper());
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("runTime", runTime)
+				.addValue("txnType", txnType)
+				.addValue("isCdpTxn", isCdpTxn)
+				.addValue("txnId", txnId);
 		
+//		System.out.println(" getTransaction sql : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Transaction> transactionList = jdbcTemplate.query(sql, sqlparameters, new TransactionRowMapper());			
+
 		if (transactionList.isEmpty() )
 			return null;
 		else
@@ -99,14 +110,20 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	public List<Transaction> getUniqueListOfTransactionsByType(String application) {
 		// bit of a hack using the 'transaction' bean (should be a new form bean really...)
 		List<Transaction> transactionKeyList = new ArrayList<Transaction>();
+		
 		String sql = "SELECT DISTINCT TXN_ID, TXN_TYPE, IS_CDP_TXN, MAX(RUN_TIME) AS MAX_RUN_TIME, COUNT(*) AS TXN_COUNT "
 					+ "FROM TRANSACTION "
-					+ "WHERE APPLICATION = '" + application + "' "
+					+ "WHERE APPLICATION = :application " 
 					+ "GROUP BY TXN_ID, TXN_TYPE, IS_CDP_TXN "
 					+ "ORDER BY TXN_TYPE DESC, TXN_ID ASC, IS_CDP_TXN ASC"; 
 				
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application);
+//		System.out.println(" getUniqueListOfTransactionsByType sql : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);	
+		
 		for (Map<String, Object> row : rows) {
 			Transaction transactionKey = new Transaction();
 			transactionKey.setApplication(application); 
@@ -114,7 +131,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 			transactionKey.setTxnType((String)row.get("TXN_TYPE")); 
 			transactionKey.setIsCdpTxn((String)row.get("IS_CDP_TXN")); 
 			transactionKey.setRunTime((String)row.get("MAX_RUN_TIME")); 
-			transactionKey.setTxnPass((Long)row.get("TXN_COUNT"));   // big hack 
+			transactionKey.setTxnPass((Long)row.get("TXN_COUNT"));   // hack 
 			try {
 				transactionKey.setTxnIdURLencoded(URLEncoder.encode(transactionKey.getTxnId(), "UTF-8")) ;
 			} catch (UnsupportedEncodingException e) {	e.printStackTrace();	}	  
@@ -130,17 +147,21 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	@Override	
 	public long countRunsWithCdpTransactions(String application) {
 		Long rowCount;
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
 		String sql =  "SELECT COUNT(DISTINCT R.RUN_TIME) FROM RUNS R, TRANSACTION T "    
-				   + " WHERE R.APPLICATION = '" + application + "' " 
-				   + " AND T.TXN_TYPE = '" + Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() + "'" 
+				   + " WHERE R.APPLICATION = :application " 
+				   + " AND T.TXN_TYPE = :txnType " 
 				   + " AND T.IS_CDP_TXN = 'Y'" 
 				   + " AND R.APPLICATION = T.APPLICATION AND R.RUN_TIME = T.RUN_TIME "   
 				   + " AND R.IS_RUN_IGNORED <> 'Y'"; 
 
-		rowCount = Long.valueOf(jdbcTemplate.queryForObject(sql, String.class));
-		// System.out.println("countRunsWithCdpTransactions sql = " + sql + "\n - rowCount = " + rowCount );
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("txnType", Mark59Constants.DatabaseTxnTypes.TRANSACTION.name());
+		
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		rowCount = Long.valueOf(jdbcTemplate.queryForObject(sql, sqlparameters, String.class));
+//		System.out.println("countRunsWithCdpTransactions sql = " + sql + ", rowCount = " + rowCount );
 		return rowCount;
 	}
 	
@@ -151,21 +172,29 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	@Override	
 	public long countRunsContainsBothTxnIds(String application, String txnType, String fromTxnId, String toTxnId, String fromIsCdpTxn, String toIsCdpTxn){
 		Long rowCount;
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
 		String sql =  "SELECT COUNT(DISTINCT R.RUN_TIME) FROM RUNS R, TRANSACTION T "    
-				   + " WHERE R.APPLICATION = '" + application + "' " 
-				   + " AND T.TXN_TYPE = '" + txnType + "'" 
+				   + " WHERE R.APPLICATION = :application " 
+				   + " AND T.TXN_TYPE = :txnType " 
 				   + " AND R.APPLICATION = T.APPLICATION AND R.RUN_TIME = T.RUN_TIME "   
-				   + " AND R.RUN_TIME IN ( SELECT RUN_TIME FROM TRANSACTION  WHERE APPLICATION = '" + application + "' " 
-				   														+ " AND TXN_TYPE = '" + txnType + "'" 
-				   														+ " AND TXN_ID = '" + fromTxnId + "'" 
-				   														+ " AND IS_CDP_TXN = '" + fromIsCdpTxn + "') " 
-				   + " AND R.RUN_TIME IN ( SELECT RUN_TIME FROM TRANSACTION  WHERE APPLICATION = '" + application + "' " 
-				   														+ " AND TXN_TYPE = '" + txnType + "'" 
-				   														+ " AND TXN_ID = '" + toTxnId + "'" 
-				   														+ " AND IS_CDP_TXN = '" + toIsCdpTxn + "') "; 
-		rowCount = Long.valueOf(jdbcTemplate.queryForObject(sql, String.class));
+				   + " AND R.RUN_TIME IN ( SELECT RUN_TIME FROM TRANSACTION  WHERE APPLICATION = :application " 
+				   														+ " AND TXN_TYPE = :txnType " 
+				   														+ " AND TXN_ID = :fromTxnId " 
+				   														+ " AND IS_CDP_TXN = :fromIsCdpTxn ) " 
+				   + " AND R.RUN_TIME IN ( SELECT RUN_TIME FROM TRANSACTION  WHERE APPLICATION = :application " 
+				   														+ " AND TXN_TYPE = :txnType " 
+				   														+ " AND TXN_ID = :toTxnId " 
+				   														+ " AND IS_CDP_TXN = :toIsCdpTxn ) "; 
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("txnType", txnType)
+				.addValue("fromTxnId", fromTxnId)
+				.addValue("fromIsCdpTxn", fromIsCdpTxn)
+				.addValue("toTxnId", toTxnId)
+				.addValue("toIsCdpTxn", toIsCdpTxn);
+		
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		rowCount = Long.valueOf(jdbcTemplate.queryForObject(sql, sqlparameters, String.class));
 //		System.out.println("countRunsContainsBothTxnIds sql = " + sql + ", rowCount = " + rowCount );
 		return rowCount;
 	}	
@@ -177,82 +206,145 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	@Override
 	public void renameTransactions(String application, String txnType, String fromTxnId, String toTxnId, String fromIsCdpTxn, String toIsCdpTxn) {
 		String sql = "UPDATE TRANSACTION"
-					+ " SET TXN_ID = '" + toTxnId + "', IS_CDP_TXN = '" + toIsCdpTxn + "' "  
-					+ " WHERE APPLICATION ='" + application + "'"  
-					+ "   AND TXN_TYPE ='"    + txnType + "'"
-					+ "   AND TXN_ID ='"      + fromTxnId + "'"
-					+ "   AND IS_CDP_TXN ='"  + fromIsCdpTxn + "'";
-//		System.out.println("TransactionDAOjdbcTemplateImpl.renameTransactions : " + sql );
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);	
+					+ " SET TXN_ID = :toTxnId, IS_CDP_TXN = :toIsCdpTxn "  
+					+ " WHERE APPLICATION = :application "  
+					+ "   AND TXN_TYPE    = :txnType "
+					+ "   AND TXN_ID      = :fromTxnId"
+					+ "   AND IS_CDP_TXN  = :fromIsCdpTxn ";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("toTxnId", toTxnId)
+				.addValue("toIsCdpTxn", toIsCdpTxn)
+				.addValue("application", application)
+				.addValue("txnType", txnType)
+				.addValue("fromTxnId", fromTxnId)
+				.addValue("fromIsCdpTxn", fromIsCdpTxn);
+
+//		System.out.println(" getTransactionValue sql : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);		
 	}
 	
 
 	@Override
 	public Object getTransactionValue(String application, String txnType, String isCdpTxn, String runTime, String txnId, String transactionField) {
-
 		List<Object> transactionValues =  new ArrayList<Object>();  
-		String sql = "SELECT " + transactionField + " FROM TRANSACTION " +
-										  	   "WHERE APPLICATION = '" + application + "' AND " +
-				                                        "RUN_TIME = '" + runTime + "' AND " +
-				                                        "TXN_TYPE = '" + txnType + "' AND " +
-				                                      "IS_CDP_TXN = '" + isCdpTxn + "' AND " +
-				                                          "TXN_ID = '" + txnId + "' ";
 
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+		String sql = "SELECT " + transactionField + " FROM TRANSACTION " +
+										  	   "WHERE APPLICATION = :application AND " +
+				                                        "RUN_TIME = :runTime AND " +
+				                                        "TXN_TYPE = :txnType AND " +
+				                                      "IS_CDP_TXN = :isCdpTxn AND " +
+				                                          "TXN_ID = :txnId";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("runTime", runTime)
+				.addValue("txnType", txnType)
+				.addValue("isCdpTxn", isCdpTxn)
+				.addValue("txnId", txnId);
+
+//		System.out.println(" getTransactionValue sql : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);		
 		
 		for (Map<String, Object> row : rows) {
 			transactionValues.add( row.get(transactionField) );
-//			System.out.println("populating " + transactionField + " for getTransactionValue " + transactionValues.get(  transactionValues.size() - 1 )   ) ;
+//			System.out.println("populating " + transactionField + " for getTransactionValue " + transactionValues.get( transactionValues.size() - 1 )) ;
 		}	
 		
 		if (transactionValues.isEmpty() ){
-//			System.out.println("TransactionDAOjdbcTemplateImpl : no txn row for [" + application + " : " + txnType + " : "   + runTime + " : " + txnId + " - "   + transactionField + "]" ) ;
+//			System.out.println("TransactionDAOjdbcTemplateImpl.getTransactionValue : no txn rows" ) ;
 			return null;
 		} else {
-//			System.out.println("TransactionDAOjdbcTemplateImpl : [" + application + " : " + txnType + " : " + runTime + " : " + txnId + " - " + transactionField + " returns " + transactionValues.get(0) + "]" ) ;			
+//			System.out.println("TransactionDAOjdbcTemplateImpl : [ " + transactionField + " returns " + transactionValues.get(0) + "]" ) ;			
 			return transactionValues.get(0);
 		}	
 	}
-	
+
 	
 	@Override
 	public void deleteAllForRun(Run run) {
 		deleteAllForRun(run.getApplication(), run.getRunTime());
 	}
 	
-	@Override
-	public void deleteAllForRun(String application,  String runTime) {
-		String sql = "delete from TRANSACTION where APPLICATION='" + application + "' "
-												+ "and RUN_TIME='" + runTime + "'";
-//		System.out.println("performing : " + sql );
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
-	}
 	
 	@Override
-	public void deleteAllForApplication(String application) {
-		String sql = "delete from TRANSACTION where APPLICATION='" + application + "' ";
-		System.out.println("delete all transactions for application : " + sql );
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+	public void deleteAllForRun(String application,  String runTime) {
+		String sql = "delete from TRANSACTION where APPLICATION = :application and RUN_TIME = :runTime ";
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("runTime", runTime );
+//		System.out.println("TransactionDAO.deleteAllForRun : "+ sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);		
 	}
 
 	
+	@Override
+	public void deleteAllForApplication(String application) {
+		String sql = "delete from TRANSACTION where APPLICATION = :application ";
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource().addValue("application", application);			
+//		System.out.println("deleteAllForApplication : "+ sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
+	}
+
+
+	@Override
+	public String transactionIdsSQL(String application, String graph, String showCdpOption, String sqlSelectLike, String sqlSelectNotLike, 
+			boolean manuallySelectTxns, String chosenTxns, String chosenRuns, boolean useRawSQL, String rawTransactionIdsSQL) {
+		
+		GraphMapping graphMapping = graphMappingDAO.findGraphMapping(graph);
+		
+		String sql = transactionIdsSqlNamedParms(showCdpOption, sqlSelectLike, sqlSelectNotLike, manuallySelectTxns, useRawSQL,
+				rawTransactionIdsSQL, graphMapping);	
+		
+		sql = sql.replace(":application", "'" + application + "' ")
+				 .replace(":graphMappingGetTxnType", "'" + graphMapping.getTxnType() + "' ")
+				 .replace(":chosenRuns", "'" + chosenRuns.replaceAll(",", "','") + "' " )
+				 .replace(":sqlSelectLike", "'%" +  sqlSelectLike + "%'" )
+				 .replace(":sqlSelectNotLike", "'%" +  sqlSelectNotLike + "%'" )
+				 .replace(":chosenTxns",   "'" +  chosenTxns.replaceAll("," , "','") + "'" );
+
+		// System.out.println("TransactionDAOjdbcTemplateImpl.transactionIdsSQL 'raw'sql : \n" + sql );
+		return sql;
+	}
+
 	
 	/**
 	 *  The returned list of Transactions is ordered by the ranking of the target values
 	 */
 	@Override
 	@SuppressWarnings("rawtypes")
-	public List<Transaction> returnListOfTransactionsToGraph(String transactionIdsSQL, String nthRankedTxn){
+	public List<Transaction> returnListOfTransactionsToGraph(String application, String graph,String showCdpOption, String sqlSelectLike, 
+			String sqlSelectNotLike, boolean manuallySelectTxns, String chosenTxns, String chosenRuns, 
+			boolean useRawSQL, String rawTransactionIdsSQL, String nthRankedTxn){
+		
+		GraphMapping graphMapping = graphMappingDAO.findGraphMapping(graph);
+		
+		String sql = transactionIdsSqlNamedParms(showCdpOption, sqlSelectLike, sqlSelectNotLike, manuallySelectTxns, useRawSQL,
+				rawTransactionIdsSQL, graphMapping);	
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource();
+		sqlparameters.addValue("application", application);
+		sqlparameters.addValue("graphMappingGetTxnType", graphMapping.getTxnType());
+		sqlparameters.addValue("chosenRuns", Mark59Utils.commaDelimStringToStringSet(chosenRuns));
+		sqlparameters.addValue("sqlSelectLike", "%" + sqlSelectLike + "%" );
+		sqlparameters.addValue("sqlSelectNotLike", "%" + sqlSelectNotLike + "%" );
+		sqlparameters.addValue("chosenTxns", Mark59Utils.commaDelimStringToStringSet(chosenTxns));
+
+//		System.out.println(">>> *********************************************************** "  );
+//		System.out.println(" returnListOfTransactionsToGraph : " + sql +  Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
+//		System.out.println("<<< *********************************************************** "  );		
+		
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		Map<Transaction, BigDecimal> transactionListOrderedByValue = new LinkedHashMap<Transaction, BigDecimal>();
 		BigDecimal rankedValue = null;
-				
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(transactionIdsSQL);
 		
 		for (Map row : rows) {
 			Transaction transaction = getTransaction((String)row.get("APPLICATION"),
@@ -271,6 +363,55 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		
 		List<Transaction> listOfTransactionsToGraph = selectTopNthRankedTransactionsByValue(transactionListOrderedByValue, nthRankedTxn);  
 		return listOfTransactionsToGraph;
+	}
+
+	
+	private String transactionIdsSqlNamedParms(String showCdpOption, String sqlSelectLike, String sqlSelectNotLike,
+			boolean manuallySelectTxns, boolean useRawSQL, String rawTransactionIdsSQL, GraphMapping graphMapping) {
+		
+		String sql;
+		if (useRawSQL){
+			sql = rawTransactionIdsSQL; 
+		
+		} else {
+			sql = "SELECT APPLICATION, RUN_TIME, TXN_ID, TXN_TYPE, IS_CDP_TXN, "
+				+ 	"( " + transactionDBColNameOrDerivationForRequestedValues(graphMapping) + " ) as rankedValue "
+				+ "FROM TRANSACTION T "
+				+ "WHERE APPLICATION = :application "
+				+ "  AND TXN_TYPE =  :graphMappingGetTxnType "
+				+ "  AND RUN_TIME =  ( SELECT MAX(RUN_TIME)"
+										+ " FROM TRANSACTION WHERE APPLICATION = :application "
+										+ "  AND TXN_TYPE = :graphMappingGetTxnType "				
+										+ "  AND RUN_TIME in ( :chosenRuns ) ) ";
+
+			if (AppConstantsMetrics.SHOW_HIDE_CDP.equals(showCdpOption) ){
+				sql = sql + "  AND IS_CDP_TXN = 'N' "; 
+				
+			} else if (AppConstantsMetrics.SHOW_ONLY_CDP.equals(showCdpOption) ){
+				sql = sql + "  AND IS_CDP_TXN = 'Y' "; 
+			} 
+			
+			if (! manuallySelectTxns ){
+
+				if (sqlSelectLike != "%" ){
+					sql = sql + " AND TXN_ID LIKE :sqlSelectLike ";  
+				}
+				if (sqlSelectNotLike != "" ){
+					sql = sql + " AND NOT (TXN_ID LIKE :sqlSelectNotLike ) ";  
+				}
+				if (Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals( graphMapping.getTxnType() )){ 
+					sql = sql + " AND NOT EXISTS ( SELECT TXN_ID, IS_CDP_TXN FROM SLA S "
+												+ "WHERE S.APPLICATION = T.APPLICATION "
+												+ "  AND S.TXN_ID = T.TXN_ID "
+												+ "  AND S.IS_CDP_TXN = T.IS_CDP_TXN "
+												+ "  AND S.IS_TXN_IGNORED = 'Y' ) ";
+				}
+			} else {
+				sql = sql + " AND TXN_ID IN ( :chosenTxns ) ";
+			}
+			sql =  sql + " ORDER BY rankedValue DESC";
+		}
+		return sql;
 	}
 	 
 	
@@ -318,58 +459,6 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	}
 
 	
-	@Override
-	public String transactionIdsSQL(String application, String graph, String showCdpOption, String sqlSelectLike, String sqlSelectNotLike, 
-			boolean manuallySelectTxns, String chosenTxns, String chosenRuns, boolean useRawSQL, String rawTransactionIdsSQL) {
-		
-		String sql;
-		
-		if (useRawSQL){
-			
-			sql = rawTransactionIdsSQL; 
-			
-		} else {
-			
-			GraphMapping graphMapping = graphMappingDAO.findGraphMapping(graph);
-
-			sql = "SELECT APPLICATION, RUN_TIME, TXN_ID, TXN_TYPE, IS_CDP_TXN, "
-				+ 	"( " + transactionDBColNameOrDerivationForRequestedValues(graphMapping) + " ) as rankedValue "
-				+ "FROM TRANSACTION T "
-				+ "WHERE APPLICATION = '" + application + "' "
-				+ "  AND TXN_TYPE =  '" + graphMapping.getTxnType() + "' "
-				+ "  AND RUN_TIME = " + " ( SELECT MAX(RUN_TIME)"
-										+ " FROM TRANSACTION WHERE APPLICATION = '" + application + "' "
-										+ "  AND TXN_TYPE = '" + graphMapping.getTxnType() + "' "				
-										+ "  AND RUN_TIME in ( '" + chosenRuns.replaceAll(",", "','") + "' ) "										
-										+ ") ";
-
-			if (AppConstantsMetrics.SHOW_HIDE_CDP.equals(showCdpOption) ){
-				sql = sql + "  AND IS_CDP_TXN = 'N' "; 
-			} else if (AppConstantsMetrics.SHOW_ONLY_CDP.equals(showCdpOption) ){
-				sql = sql + "  AND IS_CDP_TXN = 'Y' "; 
-			} 
-			
-			if (! manuallySelectTxns ){
-				sql = sql + constructSqlTxnIdsLikeNotLike(sqlSelectLike, sqlSelectNotLike );
-				
-				if (Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals( graphMapping.getTxnType() )){ 
-				
-					sql = sql + " AND NOT EXISTS ( SELECT TXN_ID, IS_CDP_TXN FROM SLA S "
-												+ "WHERE S.APPLICATION = T.APPLICATION "
-												+ "  AND S.TXN_ID = T.TXN_ID "
-												+ "  AND S.IS_CDP_TXN = T.IS_CDP_TXN "
-												+ "  AND S.IS_TXN_IGNORED = 'Y' ) ";
-				}
-			} else {
-				sql = sql + constructSqlIn(chosenTxns);
-			}
-			sql =  sql + " ORDER BY 2 DESC";
-		}
-//		System.out.println("TransactionDAOjdbcTemplateImpl.transactionIdsSQL sql : \n" + sql );
-		return sql;
-	}
-
-	
 
 	@Override
 	public List<Datapoint> findDatapointsToGraph(String application, String graph, String chosenRuns, 
@@ -382,46 +471,36 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		if (StringUtils.isEmpty(chosenRuns) || (listOfStdTransactionNamesToGraph.size() + listOfCdpTransactionNamesToGraph.size()) == 0 ){
 			return datapoints;
 		}
-				
-		String commaDelListOfNotCdpOnlyTransactionNamesToGraph = " ";
-		for (String txnId : listOfStdTransactionNamesToGraph) {
-			commaDelListOfNotCdpOnlyTransactionNamesToGraph = commaDelListOfNotCdpOnlyTransactionNamesToGraph + "'" + txnId +  "',";
-		}
-		//remove final trailing comma
-		commaDelListOfNotCdpOnlyTransactionNamesToGraph = commaDelListOfNotCdpOnlyTransactionNamesToGraph.substring(0, commaDelListOfNotCdpOnlyTransactionNamesToGraph.length()-1); 
-	
-		String commaDelListOfCdpOnlyTransactionNamesToGraph = " ";
-		for (String txnId : listOfCdpTransactionNamesToGraph) {
-			commaDelListOfCdpOnlyTransactionNamesToGraph = commaDelListOfCdpOnlyTransactionNamesToGraph + "'" + txnId +  "',";
-		}
-		//remove final trailing comma
-		commaDelListOfCdpOnlyTransactionNamesToGraph = commaDelListOfCdpOnlyTransactionNamesToGraph.substring(0, commaDelListOfCdpOnlyTransactionNamesToGraph.length()-1); 
 		
 		GraphMapping graphMapping = graphMappingDAO.findGraphMapping(graph);
 		
-		// runs from most recent back, txn_ids case sensitive (actually utf8 if using suggested db collation) order
-	
-		String sql = "SELECT RUN_TIME, TXN_ID, IS_CDP_TXN, " + transactionDBColNameOrDerivationForRequestedValues(graphMapping) + " AS VALUE_TO_PLOT " 
-				    + " FROM TRANSACTION WHERE APPLICATION = '" + application + "' AND TXN_TYPE = '" + graphMapping.getTxnType() + "'"  
-					+ " AND RUN_TIME in ( '" + chosenRuns.replaceAll(",", "','") + "' ) ";
+		// runs from most recent back, txn_ids case in sensitive order (actually utf8 if using suggested database collation).
 		
-		if (StringUtils.isBlank(commaDelListOfCdpOnlyTransactionNamesToGraph) && StringUtils.isNotBlank(commaDelListOfNotCdpOnlyTransactionNamesToGraph)){ 
-			sql=sql	+ " AND  TXN_ID in ( " + commaDelListOfNotCdpOnlyTransactionNamesToGraph  + " ) AND IS_CDP_TXN='N' " ;
-		} else if (StringUtils.isBlank(commaDelListOfNotCdpOnlyTransactionNamesToGraph) && StringUtils.isNotBlank(commaDelListOfCdpOnlyTransactionNamesToGraph)){ 
-			sql=sql	+ " AND  TXN_ID in ( " + commaDelListOfCdpOnlyTransactionNamesToGraph  + " ) AND IS_CDP_TXN='Y' ";
+		String sql = "SELECT RUN_TIME, TXN_ID, IS_CDP_TXN, " + transactionDBColNameOrDerivationForRequestedValues(graphMapping) + " AS VALUE_TO_PLOT " 
+			    + " FROM TRANSACTION WHERE APPLICATION = :application  AND TXN_TYPE = :graphMappingGetTxnType "  
+				+ " AND RUN_TIME in ( :chosenRuns ) ";
+
+		if (listOfCdpTransactionNamesToGraph.isEmpty() && !listOfStdTransactionNamesToGraph.isEmpty()){ 
+			sql=sql	+ " AND  TXN_ID in ( :listOfStdTransactionNamesToGraph ) AND IS_CDP_TXN='N' " ;
+		} else if (listOfStdTransactionNamesToGraph.isEmpty() && !listOfCdpTransactionNamesToGraph.isEmpty()){ 
+			sql=sql	+ " AND  TXN_ID in ( :listOfCdpTransactionNamesToGraph ) AND IS_CDP_TXN='Y' ";
 		} else { 
-			sql=sql	+ " AND  ( TXN_ID in ( " + commaDelListOfNotCdpOnlyTransactionNamesToGraph  + " ) AND IS_CDP_TXN='N' " 
-					+ "     OR TXN_ID in ( " + commaDelListOfCdpOnlyTransactionNamesToGraph     + " ) AND IS_CDP_TXN='Y') "; 
+			sql=sql	+ " AND  ( TXN_ID in ( :listOfStdTransactionNamesToGraph ) AND IS_CDP_TXN='N' " 
+					+ "     OR TXN_ID in ( :listOfCdpTransactionNamesToGraph ) AND IS_CDP_TXN='Y') "; 
 		}
 		sql = sql + " ORDER BY 1 DESC, 2 ASC, 3 ASC";   
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource();
+		sqlparameters.addValue("application", application);
+		sqlparameters.addValue("graphMappingGetTxnType", graphMapping.getTxnType());
+		sqlparameters.addValue("chosenRuns", Mark59Utils.commaDelimStringToStringSet(chosenRuns));
+		sqlparameters.addValue("listOfStdTransactionNamesToGraph", new HashSet<String>(listOfStdTransactionNamesToGraph));
+		sqlparameters.addValue("listOfCdpTransactionNamesToGraph", new HashSet<String>(listOfCdpTransactionNamesToGraph));
 
-//		System.out.println("*********************************************************** "  );
-//		System.out.println(" TransactionDAOjdbcTemplateImpl:findDatapointsToGraph sql : " + sql  );
-//		System.out.println("*********************************************************** "  );		
+		// System.out.println(" TransactionDAOjdbcTemplateImpl:findDatapointsToGraph sql : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
 		
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
-		
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		int numRunsBeingGraphed = 0;   // eg, for initial request..
 		if (chosenRuns != ""  ){
@@ -436,7 +515,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 
 		for (int i = 0; i < rows.size()  &&  runTimeCount <= numRunsBeingGraphed ; i++) {
 			Map<String, Object> row = rows.get(i);
-			
+
 			Datapoint datapoint = new Datapoint();
 			runTime = (String)row.get("RUN_TIME");
 			datapoint.setRunTime(runTime);
@@ -478,25 +557,6 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 			transactionDBColNameOrDerivationForRequestedValues =  graphMapping.getValueDerivation();
 		}
 		return transactionDBColNameOrDerivationForRequestedValues;
-	}
-
-
-	private String constructSqlTxnIdsLikeNotLike(String sqlSelectLike, String sqlSelectNotLike) {
-		String sqlAnd = "";
-		if (sqlSelectLike != "%" ){
-			sqlAnd =" AND TXN_ID LIKE '%" +  sqlSelectLike + "%' ";  
-		}
-		if (sqlSelectNotLike != "" ){
-			sqlAnd = sqlAnd + " AND NOT (TXN_ID LIKE '%" +  sqlSelectNotLike + "%' ) ";  
-		}
-		return sqlAnd;
-	}
-
-
-	private String constructSqlIn(String chosenTxnsList) {
-		String chosenTxnsListWithQuotes =  chosenTxnsList.replaceAll("," , "','");
-		String sqlIn =" AND TXN_ID IN ( '" +  chosenTxnsListWithQuotes + "' ) ";  
-		return sqlIn;
 	}
 	
 }

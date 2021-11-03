@@ -107,6 +107,9 @@ public class Log4jConfigurationHelper {
 			System.out.println("  - this means the Xml configuration set via the JVM parameter 'log4j.configurationFile' has been overwritten");		
 		}
 
+		// prevents annoying CDP socket warnings (only for when script is built and run as an executable jar file)
+		org.apache.logging.log4j.core.config.Configurator.setLevel("org.asynchttpclient.netty.handler", Level.ERROR);
+		org.apache.logging.log4j.core.config.Configurator.setLevel("org.openqa.selenium.remote.http", Level.ERROR);		
 	}	
 
 	

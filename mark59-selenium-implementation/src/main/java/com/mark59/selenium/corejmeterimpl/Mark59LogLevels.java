@@ -44,13 +44,18 @@ import com.mark59.core.utils.PropertiesKeys;
  * @see JmeterFunctionsForSeleniumScripts
  * @see JmeterFunctionsForSeleniumScripts#writeBufferedArtifacts()
  * @see PropertiesKeys
+ * 
  * @author Philip Webb
  * Written: Australian Winter 2019  
  */
 public enum Mark59LogLevels {
+	/** BUFFER	-  depends on log4j level (see class description) */
 	DEFAULT ("default"),
+	/** BUFFER	-  will keep the log data for the log type being set in memory  (see class description)  */
 	BUFFER ("buffer"),
+	/** WRITE	- force output of the log type being set to the Mark59 logging directory  (see class description)  */
 	WRITE  ("write"),
+	/** OFF	- switch off logging for the log type  (see class description)  */
 	OFF    ("off");  
 	
 	private String mark59LogLevelString;
@@ -59,11 +64,18 @@ public enum Mark59LogLevels {
 		this.mark59LogLevelString = mark59LogLevelString;
 	}
 	
-	public String getsMark59LogLevelString() {
+	/**
+	 * @return the string representation of a Mark59LogLevels enum
+	 */
+	public String getName() {
 		return mark59LogLevelString;
 	}
 	
 	
+	/**
+	 * @param mark59LogLevelString the string representation of a Mark59LogLevels enum
+	 * @return a mark59LogLevels enum 
+	 */
 	public static Mark59LogLevels fromString(String mark59LogLevelString) {
 		if (mark59LogLevelString == null)
 			return null;

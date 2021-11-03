@@ -25,6 +25,8 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.metrics.data.beans.MetricSla;
 
@@ -53,30 +55,53 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 
 	@Override
 	public void deleteAllSlasForApplication(String application) {
-		String sql = "delete from METRICSLA where  APPLICATION='" + application + "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+		
+		String sql = "delete from METRICSLA where  APPLICATION = :application ";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application);		
+		
+//		System.out.println("metricSlaDao deleteAllSlasForApplication : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 
 
 	@Override
 	public void deleteData(String application, String metricName, String metricTxnType ) {
-		String sql = "delete from METRICSLA where APPLICATION='" + application + "' "
-										  + " and METRIC_NAME='" + metricName + "'"
-										  + " and METRIC_TXN_TYPE='" + metricTxnType + "'";
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+
+		String sql = "delete from METRICSLA where APPLICATION = :application "
+										  + " and METRIC_NAME = :metricName "
+										  + " and METRIC_TXN_TYPE = :metricTxnType ";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("metricName", metricName)
+				.addValue("metricTxnType", metricTxnType);
+		
+//		System.out.println("metricSlaDao deleteData : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 	
 	
 	@Override
 	public void deleteData(String application, String metricName, String metricTxnType, String valueDerivation ) {
-		String sql = "delete from METRICSLA where APPLICATION='" + application + "' "
-										  + " and METRIC_NAME='" + metricName + "'"
-										  + " and METRIC_TXN_TYPE='" + metricTxnType + "'"
-										  + " and VALUE_DERIVATION='" + valueDerivation + "'"   ;
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql);
+		
+		String sql = "delete from METRICSLA where APPLICATION = :application "
+										  + " and METRIC_NAME = :metricName "
+										  + " and METRIC_TXN_TYPE = :metricTxnType "
+										  + " and VALUE_DERIVATION = :valueDerivation ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("metricName", metricName)
+				.addValue("metricTxnType", metricTxnType)
+				.addValue("valueDerivation", valueDerivation);		
+		
+//		System.out.println("metricSlaDao deleteData : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		jdbcTemplate.update(sql, sqlparameters);
 	}
 
 	
@@ -98,31 +123,49 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 			
 			metricSla = nullsToDefaultValues(metricSla);				
 			
-			String sql = "UPDATE METRICSLA SET SLA_MIN = " + metricSla.getSlaMin()   + ", "
-										+ "SLA_MAX= "      + metricSla.getSlaMax()   + ", "
-										+ "IS_ACTIVE= '"   + metricSla.getIsActive() + "', "
-										+ "COMMENT= '"     + metricSla.getComment()  + "'"										
-										+ " where APPLICATION='" + metricSla.getApplication() + "' "
-										  		+ " and METRIC_NAME='" + metricSla.getMetricName() + "'"
-										  		+ " and METRIC_TXN_TYPE='" + metricSla.getMetricTxnType() + "'"
-										  		+ " and VALUE_DERIVATION='" + metricSla.getValueDerivation() + "'" ;
+			String sql = "UPDATE METRICSLA SET SLA_MIN = :slaMin, "
+										+ "    SLA_MAX = :slaMax, "
+										+ "  IS_ACTIVE = :isActive, "
+										+ "    COMMENT = :comment "										
+										+ " where APPLICATION = :application "
+										  		+ " and METRIC_NAME = :metricName "
+										  		+ " and METRIC_TXN_TYPE = :metricTxnType "
+										  		+ " and VALUE_DERIVATION = :valueDerivation ";
 			
-			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-			jdbcTemplate.update(sql);
+			MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+					.addValue("slaMin", metricSla.getSlaMin())
+					.addValue("slaMax", metricSla.getSlaMax())
+					.addValue("isActive", metricSla.getIsActive())
+					.addValue("comment", metricSla.getComment())
+					.addValue("application", metricSla.getApplication())
+					.addValue("metricName", metricSla.getMetricName())
+					.addValue("metricTxnType", metricSla.getMetricTxnType())
+					.addValue("valueDerivation", metricSla.getValueDerivation());		
+			
+//			System.out.println("metricSlaDao updateData : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+			NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+			jdbcTemplate.update(sql, sqlparameters);
 		}
 	}
 	
 
 	@Override
 	public MetricSla getMetricSla(String application,String metricName, String metricTxnType, String valueDerivation) {
-		List<MetricSla> slaList = new ArrayList<MetricSla>();
-		String sql = "select * from METRICSLA where APPLICATION='" + application + "' "
-									  		+ " and METRIC_NAME='" + metricName + "'"
-									  		+ " and METRIC_TXN_TYPE='" + metricTxnType + "'"
-									  		+ " and VALUE_DERIVATION='" + valueDerivation + "'" ;
-//		System.out.println("getMetricSla sql = " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		slaList = jdbcTemplate.query(sql, new MetricSlaRowMapper());
+
+		String sql = "select * from METRICSLA where APPLICATION = :application "
+									  		+ " and METRIC_NAME = :metricName "
+									  		+ " and METRIC_TXN_TYPE = :metricTxnType "
+									  		+ " and VALUE_DERIVATION = :valueDerivation " ;
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)		
+				.addValue("metricName", metricName)		
+				.addValue("metricTxnType", metricTxnType)		
+				.addValue("valueDerivation", valueDerivation);		
+		
+//		System.out.println(" getMetricSla : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<MetricSla> slaList = jdbcTemplate.query(sql, sqlparameters, new MetricSlaRowMapper());	
 		
 		if (slaList.isEmpty() )
 			return null;
@@ -140,46 +183,65 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 		return metricSlaList;
 	}
 	
+	
 	@Override
 	public List<MetricSla> getMetricSlaList(String application) {
-		List<MetricSla> metricSlaList = new ArrayList<MetricSla>();
-		String sql = "select * from METRICSLA where APPLICATION='" + application + "' order by METRIC_NAME, METRIC_TXN_TYPE, VALUE_DERIVATION ";
-//		System.out.println("getSla sql = " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		metricSlaList = jdbcTemplate.query(sql, new MetricSlaRowMapper());
+
+		String sql = "select * from METRICSLA where APPLICATION = :application order by METRIC_NAME, METRIC_TXN_TYPE, VALUE_DERIVATION ";
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application);		
+		
+//		System.out.println(" getSlaList : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<MetricSla> metricSlaList = jdbcTemplate.query(sql, sqlparameters, new MetricSlaRowMapper());			
+
 		return metricSlaList;
 	}
 	
+	
 	@Override
 	public List<MetricSla> getMetricSlaList(String application,	String metricTxnType) {
+
 		if (metricTxnType == null ){
 			return getMetricSlaList(application);
 		}
-		List<MetricSla> metricSlaList = new ArrayList<MetricSla>();
 		String sql = "select * from METRICSLA"
-				+ " where APPLICATION='" + application+ "' "
-				+ "  and METRIC_TXN_TYPE ='" + metricTxnType + "' "
+				+ " where APPLICATION = :application "
+				+ "  and METRIC_TXN_TYPE = :metricTxnType "
 				+ "  order by METRIC_NAME, VALUE_DERIVATION ";
-//		System.out.println("getSla sql = " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		metricSlaList = jdbcTemplate.query(sql, new MetricSlaRowMapper());
+		
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("metricTxnType", metricTxnType);		
+		
+//		System.out.println(" getMetricSlaList : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<MetricSla> metricSlaList = jdbcTemplate.query(sql, sqlparameters, new MetricSlaRowMapper());	
 		return metricSlaList;
 	}
 
+	
 	@Override
 	public List<MetricSla> getMetricSlaList(String application, String metricName, String metricTxnType) {
+
 		if (metricTxnType == null ){
 			return getMetricSlaList(application);
 		}
-		List<MetricSla> metricSlaList = new ArrayList<MetricSla>();
 		String sql = "select * from METRICSLA"
-				+ " where APPLICATION='" + application+ "' "
-				+ "  and METRIC_NAME ='" + metricName + "' "
-				+ "  and METRIC_TXN_TYPE ='" + metricTxnType + "' "
+				+ " where APPLICATION = :application "
+				+ "  and METRIC_NAME = :metricName "
+				+ "  and METRIC_TXN_TYPE = :metricTxnType "
 				+ "  order by VALUE_DERIVATION ";
-//		System.out.println("getSla sql = " + sql);
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		metricSlaList = jdbcTemplate.query(sql, new MetricSlaRowMapper());
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("metricName", metricName)
+				.addValue("metricTxnType", metricTxnType);		
+		
+//		System.out.println(" getMetricSlaList : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<MetricSla> metricSlaList = jdbcTemplate.query(sql, sqlparameters, new MetricSlaRowMapper());	
 		return metricSlaList;
 	}
 	

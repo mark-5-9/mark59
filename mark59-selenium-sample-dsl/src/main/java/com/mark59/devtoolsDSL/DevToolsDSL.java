@@ -29,22 +29,23 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chromium.ChromiumDriver;
 import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v93.network.Network;
-import org.openqa.selenium.devtools.v93.network.model.RequestWillBeSent;
-import org.openqa.selenium.devtools.v93.network.model.ResponseReceived;
-
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
+
+import org.openqa.selenium.devtools.v95.network.Network;
+import org.openqa.selenium.devtools.v95.network.model.RequestWillBeSent;
+import org.openqa.selenium.devtools.v95.network.model.ResponseReceived;
+
 
 
 /**
- * This class introduced provides a mechanism to create Selenium CDP (Chrome Devtools Protocol) listeners for a request being initiated, and
- * capturing (optionally filtering) responses for those requests.  The response listener will generate a 'CDP' transaction.   
+ * This class provides a mechanism to create Selenium CDP (Chrome Devtools Protocol) listeners for a request being initiated, and
+ * capturing (optionally filtering) responses for those requests.  The response listener will generate a 'CDP' transaction.
+ * 
+ * <p>For 'ChromiumWebDrivers only (Chrome/Chromium).   
  * 
  * <p>When creating CDP transactions (eg <code>jm.setCdpTransaction("duffTxnName", 59)</code>, you could in theory use the same transaction name as one
  * of your standard transactions (<code>jm.setTransaction("duffTxnName", 300)</code>, unless the transactions are running concurrently. Although the
  * framework can handle this, it could cause confusion and we suggest against it.   
- * 
- * <p>Introduced as part of the 4.0.0-rc-1 release
  * 
  * @author Philip Webb
  * Written: Australian Winter 2021
@@ -57,8 +58,13 @@ public class DevToolsDSL  {
 	private Map<String, RequestWillBeSent> cdpRequests = new ConcurrentHashMap<String, RequestWillBeSent>( );   		
 	
 
+	/**
+	 * For Chromium drivers only (Chrome/Chromium). 
+	 * @param driver (ChromiumDriver)
+	 * @return devTools
+	 */
 	public DevTools createDevToolsSession(WebDriver driver) {
-	    devTools = ((ChromiumDriver) driver).getDevTools();
+	    devTools = ((ChromiumDriver) driver).getDevTools();     
 	    devTools.createSession();
 	    devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
 	    return devTools;

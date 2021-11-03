@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
 import com.mark59.datahunter.model.AsyncMessageaAnalyzerRequest;
 import com.mark59.datahunter.model.AsyncMessageaAnalyzerResult;
@@ -67,9 +68,9 @@ public class AsyncMessageaAnalyzerController {
 	@RequestMapping("/async_message_analyzer_action")
 	public ModelAndView asyncMessageaAnalyzerUrlAction(@ModelAttribute AsyncMessageaAnalyzerRequest asyncMessageaAnalyzerRequest, Model model, HttpServletRequest httpServletRequest) {
 		
-		String analyzerSql = policiesDAO.constructAsyncMessageaAnalyzerSql(asyncMessageaAnalyzerRequest);
+		SqlWithParms analyzerSqlWithParms = policiesDAO.constructAsyncMessageaAnalyzerSql(asyncMessageaAnalyzerRequest);
 		List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList = new ArrayList<AsyncMessageaAnalyzerResult>();
-		asyncMessageaAnalyzerResultList = policiesDAO.runAsyncMessageaAnalyzerSql(analyzerSql);
+		asyncMessageaAnalyzerResultList = policiesDAO.runAsyncMessageaAnalyzerSql(analyzerSqlWithParms);
 
 		if ( ! DataHunterUtils.isEmpty(asyncMessageaAnalyzerRequest.getToUseability())){
 			
@@ -82,11 +83,11 @@ public class AsyncMessageaAnalyzerController {
 				updateUse.setIdentifier(asyncMessageaAnalyzerResult.getIdentifier());
 				// lifecycle updated for all rows of the given id and so left blank (lifecycle is the part of the key that changes for each async event) 
 				updateUse.setLifecycle(""); 
-				String sql = policiesDAO.constructUpdatePoliciesUseStateSql(updateUse);
+				SqlWithParms sqlWithParms = policiesDAO.constructUpdatePoliciesUseStateSql(updateUse);
 				try {
-					policiesDAO.runDatabaseUpdateSql(sql);
+					policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 				} catch (Exception e) {
-					model.addAttribute("sql", sql);
+					model.addAttribute("sql", sqlWithParms);
 					model.addAttribute("sqlResult", "FAIL");
 					model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );
 					return new ModelAndView("/async_message_analyzer_action", "model", model);	
@@ -98,7 +99,7 @@ public class AsyncMessageaAnalyzerController {
 		model.addAttribute("asyncMessageaAnalyzerResultList", asyncMessageaAnalyzerResultList);		
 		int rowsAffected = asyncMessageaAnalyzerResultList.size();
 
-		model.addAttribute("sql", analyzerSql);
+		model.addAttribute("sql", analyzerSqlWithParms);
 		model.addAttribute("sqlResult", "PASS");
 		model.addAttribute("rowsAffected", rowsAffected);	
 
