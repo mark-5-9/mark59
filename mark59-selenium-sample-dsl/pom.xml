@@ -5,18 +5,52 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-selenium-sample-dsl</artifactId>
-	<version>4.0.0</version>
+	<version>4.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-selenium-sample-dsl</name>
 
 	<properties>
-	<maven.compiler.target>1.8</maven.compiler.target>
-	<maven.compiler.source>1.8</maven.compiler.source>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<log4j.version>2.16.0</log4j.version>	
 	</properties>
 
 	<dependencies>
+
+		<!-- these log4J dependency entries are required to bypass the CVE-2021-44228 security exposure -->
+
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
+		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-slf4j-impl</artifactId>
+		    <version>${log4j.version}</version><!--$NO-MVN-MAN-VER$-->
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-core</artifactId>
+		    <version>${log4j.version}</version><!--$NO-MVN-MAN-VER$-->
+		</dependency>
+			
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-1.2-api -->
+		<dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-1.2-api</artifactId>
+		    <version>${log4j.version}</version><!--$NO-MVN-MAN-VER$-->
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+		<!-- end log4J dependency entries are required to bypass the CVE-2021-44228 security exposure -->
+
 
 		<dependency>
 			<groupId>com.mark59</groupId>

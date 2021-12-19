@@ -45,7 +45,7 @@
 		 Then the Mark59 Server Metrics Via Web Application can act as a 'proxy' for you.</p>  
 		
 
-		<p>Version: 4.0.0   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+		<p>Version: 4.0.1   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 	</div>
 </body>

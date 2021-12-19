@@ -9,7 +9,7 @@ This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT 
 
 <p>Release 4.0.1<br>
   <ul>
-    <li>Interim workaround for the log4j expsure (CVE-2021-44228 and CVE 2021-45046) <br>
+    <li>Interim workaround for the log4j exposure (CVE-2021-44228 and CVE 2021-45046) <br>
 	    - Details at the mark59.com website and in the  User Guide (ch 4.)</li>	  
   </ul>  	
 	
