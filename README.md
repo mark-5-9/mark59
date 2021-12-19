@@ -7,6 +7,13 @@ This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT 
 
 ## Releases 
 
+<p>Release 4.0.1<br>
+  <ul>
+    <li>Interim workaround for the log4j expsure (CVE-2021-44228 and CVE 2021-45046) <br>
+	    - Details at the mark59.com website and in the  User Guide (ch 4.)</li>	  
+  </ul>  	
+	
+	
 <p>Release 4.0.0<br>
   <ul>
     <li>Selenium dependency to 4.0.0</li>	  
