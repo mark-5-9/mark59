@@ -1,11 +1,16 @@
-This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT always be in a completely consistent state.<br><br>
-
 
 ## Mark59 Documention, Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+<p>Release 4.1<br>
+  <ul>
+    <li>Fix for log4j exposure (JMeter to 5.4.3)</li>
+    <li>Also SpringBoot to 2.6.2, H2 to 2.0.206</li>
+    <li>Selenium to 4.1.1</li>
+  </ul>  	
 
 <p>Release 4.0.1<br>
   <ul>

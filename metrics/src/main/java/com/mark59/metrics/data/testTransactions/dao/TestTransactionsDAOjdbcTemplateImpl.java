@@ -58,7 +58,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	
 	
 	/**
-	 * Not in use. insertMultiple should be used.
+	 * only for testing purposes. insertMultiple should be used.
 	 * @param testTransaction  
 	 */
 	@Deprecated
@@ -356,13 +356,17 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 			transaction.setTxnAverage((BigDecimal)row.get("txnAverage"));
 			transaction.setTxnMaximum((BigDecimal)row.get("txnMaximum"));
 			
-			if (Mark59Constants.PG.equals(currentDatabaseProfile)){
-				transaction.setTxnStdDeviation((BigDecimal)row.get("txnStdDeviation"));				
-			} else {
-				transaction.setTxnStdDeviation(new BigDecimal((Double)row.get("txnStdDeviation")));
-			}
+//			System.out.println("DatabaseProfile="+currentDatabaseProfile+", sdtDev is "+row.get("txnStdDeviation").getClass().getName());
+			// Standard Deviations:  PG returns BigDecimal,  MYSQL returns Double, 
+			// from h2 v2.0.202, profile 'h2mem' returns Double, 'h2' and  'h2tcpclient'/'h2tcpserver' returns BigDecimal 
+			
+			if (row.get("txnStdDeviation") instanceof Double) {
+				 transaction.setTxnStdDeviation(new BigDecimal((Double)row.get("txnStdDeviation")));
+			} else { // a BigDecmimal	 	
+				transaction.setTxnStdDeviation((BigDecimal)row.get("txnStdDeviation"));
+			}	
 
-			if (Mark59Constants.MYSQL.equals(currentDatabaseProfile)){ 
+			if (Mark59Constants.MYSQL.equals(currentDatabaseProfile)){
 				transaction.setTxn90th(new BigDecimal((Double)row.get("txn90th")));
 				transaction.setTxn95th(new BigDecimal((Double)row.get("txn95th")));
 				transaction.setTxn99th(new BigDecimal((Double)row.get("txn99th")));

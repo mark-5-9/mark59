@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-selenium-implementation</artifactId>
-	<version>4.0.0</version>
+	<version>4.1</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -24,14 +24,14 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>4.0.0</version>
+			<version>4.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.jmeter/ApacheJMeter_java -->
 		<dependency>
 			<groupId>org.apache.jmeter</groupId>
 			<artifactId>ApacheJMeter_java</artifactId>
-			<version>5.4.1</version>
+			<version>5.4.3</version>
 			<scope>provided</scope>
 		</dependency>
 		
@@ -39,13 +39,13 @@
 		<dependency>
 		    <groupId>org.seleniumhq.selenium</groupId>
 		    <artifactId>selenium-java</artifactId>
-		    <version>4.0.0</version>
+		    <version>4.1.1</version>
 		</dependency>
 	
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 

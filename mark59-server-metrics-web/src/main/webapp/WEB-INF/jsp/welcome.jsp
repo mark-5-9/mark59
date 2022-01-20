@@ -35,17 +35,14 @@
 	  
 		<h1>Server Metrics Via Web - Overview</h1>     
 		
-		
-		<p>Maintains a database of sever details, which can be used to enable connectivity from JMeter tests to servers for monitoring purposes during a performance test.</p>
-	
+		<p>Maintains a database of server details ('profiles'), which can be used to enable connectivity from JMeter tests to servers for monitoring purposes during a performance test.</p>
+
 		<p>This may be particularly useful when you are running a test in an environment where you do not have direct access to the application servers.</p>
 		
-		<p>For example, you may be running all your JMeter load generators in a cloud environment,
-		 but security rules will not allow you do directly access non-Cloud servers you want to monitor.  
-		 Then the Mark59 Server Metrics Via Web Application can act as a 'proxy' for you.</p>  
-		
+		<p>A 'profile' can also be used to parameterize a user-written Groovy 'command' script.  Useful for actions or metrics obtained from tools such as New Relic,
+		where direct server access is not a requirement, or possibly where security rules will not allow you do directly access servers you want to monitor from JMeter.</p>
 
-		<p>Version: 4.0.1   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+		<p>Version: 4.1   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 	</div>
 </body>

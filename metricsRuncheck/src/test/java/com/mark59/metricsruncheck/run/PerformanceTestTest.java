@@ -38,22 +38,22 @@ import junit.framework.TestCase;
 
 public class PerformanceTestTest extends TestCase {
 
-	@Autowired
-	DataSource dataSource;
-    @Autowired
-    String currentDatabaseProfile;  
-	@Autowired
-	MetricSlaDAO metricSlaDAO;
-	@Autowired
-	TransactionDAO transactionDAO;
-	@Autowired
-	SlaDAO slaDAO;
-	@Autowired
-	RunDAO runDAO;
-	@Autowired
-	TestTransactionsDAO testTransactionsDAO;
-	@Autowired
-	EventMappingDAO eventMappingDAO;
+//	@Autowired
+//	DataSource dataSource;
+//    @Autowired
+//    String currentDatabaseProfile;  
+//	@Autowired
+//	MetricSlaDAO metricSlaDAO;
+//	@Autowired
+//	TransactionDAO transactionDAO;
+//	@Autowired
+//	SlaDAO slaDAO;
+//	@Autowired
+//	RunDAO runDAO;
+//	@Autowired
+//	TestTransactionsDAO testTransactionsDAO;
+//	@Autowired
+//	EventMappingDAO eventMappingDAO;
 	@Autowired
 	ApplicationContext context;
 	

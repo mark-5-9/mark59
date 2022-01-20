@@ -37,9 +37,9 @@
 		
 		<div><img src="images/mark59_banner.jpg"/></div>
 		
-		<p>The Mark59 Performance and Volume Testing Analysis System allows you to view and analyse and test result trends over time.</p>
+		<p>The Mark59 Performance and Volume Trend Analysis Application allows you to view and analyse test result trends over time.</p>
 	
-		<p>The system is a collection of the following components that can be launched from the left hand side menu:</p>  
+		<p>The following application components can be launched from the left hand side menu:</p>  
 		
 		<ul>
 			<li>Application Dashboard</li>
@@ -54,7 +54,7 @@
 	
 		<br>
 		<br>
-		<p>Version: 4.0.1.   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+		<p>Version: 4.1   Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 	</div>
 </body>
