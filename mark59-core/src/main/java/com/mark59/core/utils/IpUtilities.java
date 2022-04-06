@@ -76,7 +76,7 @@ public class IpUtilities {
 			
 			// similar idea as jmeter RemoteStart.getRemoteHosts() 
             StringTokenizer st = new StringTokenizer(commaDelimListOfIPaddresses, ",");
-            List<String> listOfIPaddresses = new ArrayList<String>();
+            List<String> listOfIPaddresses = new ArrayList<>();
             while (st.hasMoreElements()) {
             	listOfIPaddresses.add( ((String)st.nextElement()).trim() );
             }

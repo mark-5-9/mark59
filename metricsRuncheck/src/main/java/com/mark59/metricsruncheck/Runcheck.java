@@ -16,7 +16,6 @@
 
 package com.mark59.metricsruncheck;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -107,9 +106,9 @@ public class Runcheck  implements CommandLineRunner
 	private static String argTimeZone;
 
 	private PerformanceTest performanceTest;
-	private List<MetricSlaResult> metricSlaResults = new ArrayList<MetricSlaResult>();
-	private List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas = new ArrayList<SlaTransactionResult>();
-	private List<String> cdpTaggedMissingTransactions = new ArrayList<String>(); 
+	private List<MetricSlaResult> metricSlaResults = new ArrayList<>();
+	private List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas = new ArrayList<>();
+	private List<String> cdpTaggedMissingTransactions = new ArrayList<>();
 	
 	public static void parseArguments(String[] args) {
 		Options options = new Options(); 
@@ -144,7 +143,7 @@ public class Runcheck  implements CommandLineRunner
 																+ " may not take daylight saving into account.  Two format options 1) offset against GMT. Eg 'GMT+02:00' or 2) IANA Time Zone Database (TZDB) codes."
 																+ " Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. Eg 'Australia/Sydney' ");   	
 		HelpFormatter formatter = new HelpFormatter();
-		CommandLine commandLine = null;
+		CommandLine commandLine;
 		CommandLineParser parser = new DefaultParser();
 		try {
 			commandLine = parser.parse(options, args);
@@ -196,14 +195,14 @@ public class Runcheck  implements CommandLineRunner
 		if (!StringUtils.isNumeric(argCaptureperiod) && !argCaptureperiod.equalsIgnoreCase(AppConstantsMetrics.ALL) ) {
 			formatter.printHelp( "Runcheck", options );
 			printSampleUsage();
-			throw new RuntimeException("The captureperiod (c) parameter must be numeric or " +  (AppConstantsMetrics.ALL) );  
+			throw new RuntimeException("The captureperiod (c) parameter must be numeric or '" + AppConstantsMetrics.ALL + "'" );  
 		}
 		if (StringUtils.isNotBlank(argSimlogCustom)){
 				List<String> mPos = Mark59Utils.commaDelimStringToStringList(argSimlogCustom); 
-				if (mPos.size() != 5  ||
-					mPos.size() == 5 && ( !StringUtils.isNumeric(mPos.get(0)) || !StringUtils.isNumeric(mPos.get(1)) ||
-							              !StringUtils.isNumeric(mPos.get(2)) || !StringUtils.isNumeric(mPos.get(3)) ||
-							              !StringUtils.isNumeric(mPos.get(4)) )) {
+				if ((mPos.size() != 5) ||
+					(!StringUtils.isNumeric(mPos.get(0)) || !StringUtils.isNumeric(mPos.get(1)) ||
+					 !StringUtils.isNumeric(mPos.get(2)) || !StringUtils.isNumeric(mPos.get(3)) ||
+					 !StringUtils.isNumeric(mPos.get(4)) )){
 				formatter.printHelp( "Runcheck", options );
 				printSampleUsage();
 				throw new RuntimeException("The simlogcustoM (m) parameter must blank or 5 comma-delimited integers") ;  
@@ -364,11 +363,11 @@ public class Runcheck  implements CommandLineRunner
 		
 		loadTestRun(argTool, argApplication, argInput, argReference, argExcludestart, argCaptureperiod, argKeeprawresults,
 				argTimeZone, argIgnoredErrors, argSimulationLog, argSimlogCustom);
-	};
+	}
 
-	
-	public void loadTestRun(String tool, String application, String input, String runReference, String excludestart, String captureperiod, String keeprawresults,  
-			String timeZone, String ignoredErrors, String simulationLog, String simlogCustom) throws IOException {
+
+    public void loadTestRun(String tool, String application, String input, String runReference, String excludestart, String captureperiod, String keeprawresults,
+			String timeZone, String ignoredErrors, String simulationLog, String simlogCustom) {
 		
 		if (AppConstantsMetrics.JMETER.equalsIgnoreCase(tool)){		
 			performanceTest = new JmeterRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults, ignoredErrors );
@@ -403,7 +402,7 @@ public class Runcheck  implements CommandLineRunner
 
 	
 	private Boolean printTransactionalMetricSlaResults(List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas) {
-		Boolean allPassed = true; 
+		boolean allPassed = true;
 		for (SlaTransactionResult slaTransactionResult : cdpTaggedTransactionsWithFailedSlas) {
 			if ( !slaTransactionResult.isPassedAllSlas()){
 				allPassed = false;

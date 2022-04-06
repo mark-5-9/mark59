@@ -58,7 +58,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 				.addValue("serverProfileName", serverProfileName);
 
 //		System.out.println(" findServerProfile : " + selectServerSQL + " : " + serverProfileName);
-		List<ServerProfile> serversList = new ArrayList<ServerProfile>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL, sqlparameters);
 		
@@ -78,7 +77,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		server.setConnectionTimeout((String)row.get("CONNECTION_TIMEOUT")); 		
 		server.setComment((String)row.get("COMMENT")); 		
 		server.setParameters(deserializeJsonToMap((String)row.get("PARAMETERS"))); 		
-		serversList.add(server);
 //		System.out.println("ServerProfilesDAOjdbcTemplateImpl.findServerProfile  : " + serverProfileName.toString()  ) ;		
 		return  server;
 	}
@@ -104,7 +102,7 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 				.addValue("selectionValue", selectionValue);
 
 //		System.out.println(" findServerProfiles : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
-		List<ServerProfile> serversList = new ArrayList<ServerProfile>();
+		List<ServerProfile> serversList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -126,18 +124,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		return  serversList;
 	}
 	
-//	private String getServersListSelectionSQL(String selectionCol, String selectionValue){	
-//		String serversListSelectionSQL = "select SERVER_PROFILE_NAME, EXECUTOR, SERVER, ALTERNATE_SERVER_ID, USERNAME, "
-//				+ "PASSWORD, PASSWORD_CIPHER, CONNECTION_PORT, CONNECTION_TIMEOUT, COMMENT, PARAMETERS from SERVERPROFILES ";
-//		
-//		if (!selectionValue.isEmpty()  ) {			
-//			serversListSelectionSQL += "  where " + selectionCol + " like '" + selectionValue + "' ";
-//		} 
-//		serversListSelectionSQL += " order by SERVER_PROFILE_NAME ";
-//		return  serversListSelectionSQL;
-//	}
-	
-	
 	
 	@Override
 	public void insertServerProfile(ServerProfile serverProfile) {
@@ -149,19 +135,17 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
-				new Object[] {
-						serverProfile.getServerProfileName(), 			
-						serverProfile.getExecutor(), 			
-						serverProfile.getServer(), 			
-						serverProfile.getAlternativeServerId(), 		
-						serverProfile.getUsername(), 		
-						serverProfile.getPassword(), 		
-						serverProfile.getPasswordCipher(), 		
-						serverProfile.getConnectionPort(), 		
-						serverProfile.getConnectionTimeout(), 
-						serverProfile.getComment(), 		
-						serializeMapToJson(serverProfile.getParameters()) 	
-				});
+				serverProfile.getServerProfileName(),
+				serverProfile.getExecutor(),
+				serverProfile.getServer(),
+				serverProfile.getAlternativeServerId(),
+				serverProfile.getUsername(),
+				serverProfile.getPassword(),
+				serverProfile.getPasswordCipher(),
+				serverProfile.getConnectionPort(),
+				serverProfile.getConnectionTimeout(),
+				serverProfile.getComment(),
+				serializeMapToJson(serverProfile.getParameters()));
 	}
 	
 	
@@ -175,19 +159,17 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
 		jdbcTemplate.update(sql,
-				new Object[] {
-						serverProfile.getServer(), 			
-						serverProfile.getExecutor(), 			
-						serverProfile.getAlternativeServerId(), 		
-						serverProfile.getUsername(), 		
-						serverProfile.getPassword(), 		
-						serverProfile.getPasswordCipher(), 		
-						serverProfile.getConnectionPort(), 		
-						serverProfile.getConnectionTimeout(), 		
-						serverProfile.getComment(), 		
-						serializeMapToJson(serverProfile.getParameters()), 		
-						serverProfile.getServerProfileName() 						
-				});
+				serverProfile.getServer(),
+				serverProfile.getExecutor(),
+				serverProfile.getAlternativeServerId(),
+				serverProfile.getUsername(),
+				serverProfile.getPassword(),
+				serverProfile.getPasswordCipher(),
+				serverProfile.getConnectionPort(),
+				serverProfile.getConnectionTimeout(),
+				serverProfile.getComment(),
+				serializeMapToJson(serverProfile.getParameters()),
+				serverProfile.getServerProfileName());
 	}	
 	
 	
@@ -210,7 +192,7 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 	
 	public static void main(String[] args) throws JsonProcessingException {		
 		
-		// to move to test cases..
+		//TODO: to move to test cases..
 		
 		Map<String, String> map = new HashMap<>();
 		map.put("key1", "value1");
@@ -243,7 +225,7 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		System.out.println("stringy="+ stringy);
 		
 		
-		List<String> strlist = new ArrayList<String>();
+		List<String> strlist = new ArrayList<>();
 		strlist.add("parm1");
 		strlist.add("parm2");
 		strlist.add("parm3");
@@ -275,6 +257,5 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 //			System.out.println("param: " + commandParameter.getParamName() + " : "  + commandParameter.getParamValue());
 //		}
 	}
-	
 
 }

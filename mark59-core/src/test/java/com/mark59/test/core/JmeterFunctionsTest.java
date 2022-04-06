@@ -73,24 +73,25 @@ public class JmeterFunctionsTest {
 		SampleResult mainResult =  t.getMainResult();
 		
 		SampleResult[] subrsArray = mainResult.getSubResults();
-		for (int i = 0; i < subrsArray.length; i++) {
-			SampleResult subrs = subrsArray[i];
-			if ("simpleTransaction01".equals(subrs.getSampleLabel())){
-				assert "PASS".equals(subrs.getResponseMessage());}
-			else if ("simpleTransaction02".equals(subrs.getSampleLabel())){
-				assert "PASS".equals(subrs.getResponseMessage());}
-			else if ("simpleTransaction02".equals(subrs.getSampleLabel())){
-				assert "PASS".equals(subrs.getResponseMessage());}
-			else if ("simpleTransaction03".equals(subrs.getSampleLabel())){
-				assert "PASS".equals(subrs.getResponseMessage());}
-			else if ("simpleTransaction04Fail".equals(subrs.getSampleLabel())){
-				assert "FAIL".equals(subrs.getResponseMessage());}
-			else if ("simpleTransaction05Pass".equals(subrs.getSampleLabel())){
-				assert "PASS".equals(subrs.getResponseMessage());}
-			else if ("simpleTransaction06Fail".equals(subrs.getSampleLabel())){
+		for (SampleResult subrs : subrsArray) {
+			if ("simpleTransaction01".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransaction02".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransaction02".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransaction03".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransaction04Fail".equals(subrs.getSampleLabel())) {
 				assert "FAIL".equals(subrs.getResponseMessage());
-				assert "oops".equals(subrs.getResponseCode());}
-			else { fail("Unexpected transaction " + subrs.getSampleLabel()); };
+			} else if ("simpleTransaction05Pass".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransaction06Fail".equals(subrs.getSampleLabel())) {
+				assert "FAIL".equals(subrs.getResponseMessage());
+				assert "oops".equals(subrs.getResponseCode());
+			} else {
+				fail("Unexpected transaction " + subrs.getSampleLabel());
+			}
 		}
 		assert subrsArray.length == 6;
 		assert (!t.getMainResult().isSuccessful());
@@ -110,24 +111,25 @@ public class JmeterFunctionsTest {
 		SampleResult mainResult =  t.getMainResult();
 		
 		SampleResult[] subrsArray = mainResult.getSubResults();
-		for (int i = 0; i < subrsArray.length; i++) {
-			SampleResult subrs = subrsArray[i];
-			if ("simpleTransaction01".equals(subrs.getSampleLabel())){
+		for (SampleResult subrs : subrsArray) {
+			if ("simpleTransaction01".equals(subrs.getSampleLabel())) {
 				assert "PASS".equals(subrs.getResponseMessage());
-				assert 666 == subrs.getTime();}
-			else if ("simpleTransaction02fail".equals(subrs.getSampleLabel())){
+				assert 666 == subrs.getTime();
+			} else if ("simpleTransaction02fail".equals(subrs.getSampleLabel())) {
 				assert "FAIL".equals(subrs.getResponseMessage());
-				assert 177 == subrs.getTime();}
-			else if ("simpleTransaction03pass".equals(subrs.getSampleLabel())){
+				assert 177 == subrs.getTime();
+			} else if ("simpleTransaction03pass".equals(subrs.getSampleLabel())) {
 				assert "PASS".equals(subrs.getResponseMessage());
-				assert 888 == subrs.getTime();}
-			else if ("simpleTransaction04NormalTxn".equals(subrs.getSampleLabel())){
-				assert "PASS".equals(subrs.getResponseMessage());}			
-			else if ("simpleTransaction05fail".equals(subrs.getSampleLabel())){
+				assert 888 == subrs.getTime();
+			} else if ("simpleTransaction04NormalTxn".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransaction05fail".equals(subrs.getSampleLabel())) {
 				assert "FAIL".equals(subrs.getResponseMessage());
 				assert 0 == subrs.getTime();
-				assert "badCode".equals(subrs.getResponseCode()); }
-			else { fail("Unexpected transaction " + subrs.getSampleLabel()); };
+				assert "badCode".equals(subrs.getResponseCode());
+			} else {
+				fail("Unexpected transaction " + subrs.getSampleLabel());
+			}
 		}
 		assert subrsArray.length == 5;
 		assert (!t.getMainResult().isSuccessful());
@@ -169,8 +171,8 @@ public class JmeterFunctionsTest {
 		t.failTest();
 		t.tearDown();
 		assert (!t.getMainResult().isSuccessful()
-				&& Arrays.asList(t.getMainResult().getSubResults()).stream()
-						.noneMatch(sr -> !sr.isSuccessful()));
+				&& Arrays.stream(t.getMainResult().getSubResults())
+						.allMatch(SampleResult::isSuccessful));
 
 	}
 

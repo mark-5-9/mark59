@@ -52,81 +52,51 @@ public class Policies {
 	public String getApplication() {
 		return application;
 	}
-
-
 	public void setApplication(String application) {
 		this.application = application;
 	}
-
-
 	public String getIdentifier() {
 		return identifier;
 	}
-
-
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
-
-
 	public String getLifecycle() {
 		return lifecycle;
 	}
-
-
 	public void setLifecycle(String lifecycle) {
 		this.lifecycle = lifecycle;
 	}
-
-
 	public String getUseability() {
 		return useability;
 	}
-
-
 	public void setUseability(String useability) {
 		this.useability = useability;
 	}
-
-
 	public String getOtherdata() {
 		return otherdata;
 	}
-
-
 	public void setOtherdata(String otherdata) {
 		this.otherdata = otherdata;
 	}
-
-
 	public Timestamp getCreated() {
 		return created;
 	}
-
-
 	public void setCreated(Timestamp created) {
 		this.created = created;
 	}
- 
 	public Timestamp getUpdated() {
 		return updated;
 	}
-
-
 	public void setUpdated(Timestamp updated) {
 		this.updated = updated;
 	}
-
-
 	public Long getEpochtime() {
 		return epochtime;
 	}
-
-
 	public void setEpochtime(Long epochtime) {
 		this.epochtime = epochtime;
 	}
-
 
 	@Override
     public String toString() {

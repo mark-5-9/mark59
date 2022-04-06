@@ -5,6 +5,21 @@
 
 ## Releases 
 
+<p>Release 4.2<br>
+  <ul>
+    <li>New DataHunter REST Api project (minor datahuner DB changes made)</li>
+    <li>Add Disabled flag for Transactional SLA (new column on metrics DB SLA table required)</li>
+    <li>Option to ignore CDP transactions on SLA Bulk Update</li>		
+    <li>Selenium to 4.1.3, SpringBoot to 2.6.6, H2 to 2.1.210</li>	  
+    <li>Maven Plugins updated, compiler plugin expliticly declared <br>
+		- align with spring boot versioning, reduce log4j vulerabilities on security scans (2.17.2) </li>	  
+    <li>DataHunter Test Samples - Maven Dependency Plugin now excludes 'provided' dependencies 
+    <li>Truncate txnIds greater than 128 chars when loading to Trend Analysis, rather than fail</li>	 	
+    <li>Code cleanup (improve readability in IntelliJ)</li>	
+    <li>Sample DSL: ElementNotVisibleException no longer available, replaced by
+        ElementClickInterceptedException, ElementNotInteractableException,InvalidElementStateException</li>	
+  </ul>  
+
 <p>Release 4.1<br>
   <ul>
     <li>Fix for log4j exposure (JMeter to 5.4.3)</li>
@@ -15,10 +30,9 @@
 <p>Release 4.0.1<br>
   <ul>
     <li>Interim workaround for the log4j exposure (CVE-2021-44228 and CVE 2021-45046) <br>
-	    - Details at the mark59.com website and in the  User Guide (ch 4.)</li>	  
+	    - Details at the mark59.com website and in the User Guide (ch 4.)</li>	  
   </ul>  	
-	
-	
+
 <p>Release 4.0.0<br>
   <ul>
     <li>Selenium dependency to 4.0.0</li>	  
@@ -29,7 +43,6 @@
     <li>JavaDocs and code scans cleanup</li>	
     <li>Version number to emphasize the relationship of this release to Selenium</li>
   </ul>  
-
 
 <p>Release 4.0.0-rc-1<br>
   <ul>
@@ -47,7 +60,6 @@
     <li>Version number to emphasize the relationship of this release to Selenium</li>
   </ul>  
 
-
 <p>Release 3.3.(0) <br>
   <ul>
     <li>Historical capture of Txn (Mocked) Delays and related Graphs</li>
@@ -62,7 +74,6 @@
     <li>Median captured in Trend Analysis</li>	
     <li>Improve JavaDocs, and more JUnit tests</li>
   </ul>  
-
   
 <p>Release 3.2.(0) <br>
   <ul>
@@ -79,19 +90,16 @@
     <li>Improve JavaDocs, fix typos etc</li>
   </ul>  
 
-
 <p>Release to 3.1 <br>
   <ul>
     <li>minor release - please just use 3.2 </li>
   </ul>  
-
 
 <p>Release to 3.0.(1) <br>
   <ul>
     <li>Default port for metrics (Trend Analysis) changed from 8080 to 8083</li>
     <li>Sample projects updated, docker-compose files added to allow for the Jenkins Docker Sample </li>
   </ul>  
-
 
 <p>Release 3.0.(.0) <br>
   <ul>
@@ -106,25 +114,26 @@
     <li>Multiple small changes and code clean-up</li>	
   </ul>  
 
-<p>Release 2.3 - Was just a 'dry run' for 3.0 Release 3.0  
-  
-<p>Significant changes release 2.2(.0)
+<p>Release 2.3.(0) 
+  <ul>
+    <li>Just a 'dry run' for Release 3.0
+  </ul>
+
+<p>Release 2.2.(0) <br>  
   <ul>
     <li>Transactions reported instead of being lost if Chrome crashes during a Selenium test.</li>
     <li>"Functional" DataHunter selenium test and related DSL removed from the dataHunterPVTest project, and placed in its own project on the mark59-extras repo.</li>
     <li>Basic sample script added to dataHunterPVTest (DataHunterBasicSampleScript).</li>
-    <li>Many jar dependecies updated (including Spring and H2) ** </li> 
     <li>DataHunter and Metric war files can now be deployed to a Tomcat server (as well as executing as a SpringBoot app).</li>
     <li>add a"reference" table to datahunterdb creation ddl (just a convenience table - not referenced by DataHunter)</li> 
+    <li>Many jar dependecies updated (including Spring and H2):  
+	<br>As a consequence, if you have an existing H2 store, you may get an error like
+	<br>" Unsupported type 17 .... Unable to read the page...". 
+	<br>Delete the H2 store to fix (will be called test.mv.db, ususally within the User or current directory folder) </li>
   </ul>
 
-<p>** as a consequence of the H2 update, if you have an existing H2 store, you may get an error like " Unsupported type 17 .... Unable to read the page...".  Delete the H2 store to fix (will be called test.mv.db, ususally within the User or current directory folder) 
-
-
-<p>Previous Release 2.1(.1)
+<p>Release 2.1(.1)
   <ul>
     <li>Improve Event Selection Ordering<br>
     <li>Fix Transaction Type to a Metric Type Mapping
   </ul>
-
-

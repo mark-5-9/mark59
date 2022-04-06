@@ -19,7 +19,6 @@ package com.mark59.servermetricsweb.pojos;
 /**
  * @author Philip Webb
  * Written: Australian Summer 2020
- * 
  */
 public class TestCommandParserResponsePojo {
 
@@ -27,33 +26,26 @@ public class TestCommandParserResponsePojo {
 	private String parserResult;	
 	private String summary;	
 
-	
-	
 	public String getCandidateTxnId() {
 		return candidateTxnId;
 	}
-
 
 	public void setCandidateTxnId(String candidateTxnId) {
 		this.candidateTxnId = candidateTxnId;
 	}
 
-	
 	public String getParserResult() {
 		return parserResult;
 	}
 
-
 	public void setParserResult(String parserResult) {
 		this.parserResult = parserResult;
 	}
-	
 
 	public String getSummary() {
 		return summary;
 	}
 
-	
 	public void setSummary(String summary) {
 		this.summary = summary;
 	}

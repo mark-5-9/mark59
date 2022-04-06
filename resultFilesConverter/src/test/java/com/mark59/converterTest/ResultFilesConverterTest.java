@@ -16,7 +16,6 @@
 
 package com.mark59.converterTest;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -40,7 +39,7 @@ public class ResultFilesConverterTest     extends TestCase
 {
 	int actualSamplesCount=0;
 	
-    public void testJmterResultsOneFileMetricsFileConverterTest() throws FileNotFoundException, IOException, ParserConfigurationException, SAXException
+    public void testJmterResultsOneFileMetricsFileConverterTest() throws IOException, ParserConfigurationException, SAXException
     {
     	Files.deleteIfExists(Paths.get("./TESTDATA/MERGED/jmterResultsFileConvertedToCSV.csv"));
     	Files.deleteIfExists(Paths.get("./TESTDATA/MERGED"));
@@ -63,7 +62,7 @@ public class ResultFilesConverterTest     extends TestCase
     }
   	
 	
-    public void testJmterResultsMetricsFileConverterTest() throws FileNotFoundException, IOException, ParserConfigurationException, SAXException
+    public void testJmterResultsMetricsFileConverterTest() throws IOException, ParserConfigurationException, SAXException
     {
     	Files.deleteIfExists(Paths.get("./TESTDATA/SEPARATE_METRICS/jmterResultsFileConvertedToCSV_METRICS.csv"));
     	Files.deleteIfExists(Paths.get("./TESTDATA/SEPARATE_METRICS/jmterResultsFileConvertedToCSV.csv"));
@@ -89,7 +88,7 @@ public class ResultFilesConverterTest     extends TestCase
     }
     
     
-    public void testJmterResultsSplitByDatatypeConverterTest() throws FileNotFoundException, IOException, ParserConfigurationException, SAXException
+    public void testJmterResultsSplitByDatatypeConverterTest() throws IOException, ParserConfigurationException, SAXException
     {
     	Files.deleteIfExists(Paths.get("./TESTDATA/MERGED_SPLIT_BY_DATAYPE/jmterResultsFileConvertedToCSV_CPU_UTIL.csv"));
     	Files.deleteIfExists(Paths.get("./TESTDATA/MERGED_SPLIT_BY_DATAYPE/jmterResultsFileConvertedToCSV_DATAPOINT.csv"));

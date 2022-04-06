@@ -21,7 +21,7 @@ import java.util.List;
 
 public class DataHunterConstants {
 
-	public static final String DATAHUNTER_VERSION 			= "4.1";  
+	public static final String DATAHUNTER_VERSION 			= "4.2";  
 	
 	public static final String UNSELECTED 					= "";  
 	
@@ -30,6 +30,9 @@ public class DataHunterConstants {
 	public static final String UNUSED						= "UNUSED";  
 	public static final String USED							= "USED";  		
 	
+	/**
+	 * REUSABLE, UNPAIRED, UNUSED, USED
+	 */
 	public static final List<String>  USEABILITY_LIST =  
 			Arrays.asList(REUSABLE, UNPAIRED, UNUSED, USED);  
 
@@ -39,6 +42,9 @@ public class DataHunterConstants {
 	public static final String SELECT_RANDOM_ENTRY			= "SELECT_RANDOM_ENTRY";  
 	public static final String SELECT_UNORDERED				= "SELECT_UNORDERED";  
 	
+	/**
+	 * SELECT_MOST_RECENTLY_ADDED, SELECT_OLDEST_ENTRY, SELECT_RANDOM_ENTRY
+	 */
 	public static final List<String>  GET_NEXT_POLICY_SELECTOR =  
 			Arrays.asList( SELECT_MOST_RECENTLY_ADDED, SELECT_OLDEST_ENTRY, SELECT_RANDOM_ENTRY );  
 
@@ -48,8 +54,7 @@ public class DataHunterConstants {
 	
 	public static final List<String>  APPLICATION_OPERATORS =  
 			Arrays.asList( EQUALS, STARTS_WITH);
-	
-	
+
 	public static final String UPDATE_USEABILITY_ON_EXISTING_ENTRIES = "UPDATE_USEABILITY_ON_EXISTING_ENTRIES";  
 	public static final String LEAVE_EXISTING_ENTRIES_UNCHANGED      = "LEAVE_EXISTING_ENTRIES_UNCHANGED";  
 	
@@ -57,7 +62,12 @@ public class DataHunterConstants {
 			Arrays.asList( UPDATE_USEABILITY_ON_EXISTING_ENTRIES, LEAVE_EXISTING_ENTRIES_UNCHANGED);
 	
 	
-	
-	
+	public static final String USE							= "USE";  
+	public static final String LOOKUP						= "LOOKUP"; 
+
+    /**
+     * All H2 application database property files to start with 'h2' 
+     */
+    public static final String H2     		= "h2";
 
 }

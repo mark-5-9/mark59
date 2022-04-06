@@ -32,23 +32,26 @@ import com.mark59.metrics.data.beans.MetricSla;
  */
 public class MetricSlaExtractor implements ResultSetExtractor<MetricSla> {
 
-	 public MetricSla extractData(ResultSet resultSet) throws SQLException,  DataAccessException {
-	  
+	@Override
+	public MetricSla extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+
 		MetricSla metricSla = new MetricSla();
-		  
+
 		metricSla.setApplication(resultSet.getString(1));
 		metricSla.setMetricName(resultSet.getString(2));
 		try {
-			metricSla.setMetricNameURLencoded(URLEncoder.encode(resultSet.getString(2), "UTF-8") ) ;
-		} catch (UnsupportedEncodingException e) {	e.printStackTrace();	}	  
+			metricSla.setMetricNameURLencoded(URLEncoder.encode(resultSet.getString(2), "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("MetricSlaExtractor UnsupportedEncodingException (" + resultSet.getString(2) + ") " + e.getMessage());			
+		}
 
 		metricSla.setMetricTxnType(resultSet.getString(3));
 		metricSla.setValueDerivation(resultSet.getString(4));
-		metricSla.setSlaMin(resultSet.getBigDecimal(5));	  
-		metricSla.setSlaMax(resultSet.getBigDecimal(6));	  
-		metricSla.setIsActive(resultSet.getString(7));	  
-		metricSla.setComment(resultSet.getString(8));	  
-	  
+		metricSla.setSlaMin(resultSet.getBigDecimal(5));
+		metricSla.setSlaMax(resultSet.getBigDecimal(6));
+		metricSla.setIsActive(resultSet.getString(7));
+		metricSla.setComment(resultSet.getString(8));
+
 		return metricSla;
-	 }
+	}
 }

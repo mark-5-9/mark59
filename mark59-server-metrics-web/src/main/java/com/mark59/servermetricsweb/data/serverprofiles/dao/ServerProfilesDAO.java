@@ -32,11 +32,11 @@ import com.mark59.servermetricsweb.data.beans.ServerProfile;
  */
 public interface ServerProfilesDAO 
 {
-	public ServerProfile findServerProfile(String serverProfileName);
+	ServerProfile findServerProfile(String serverProfileName);
 	
-	public List<ServerProfile> findServerProfiles();
+	List<ServerProfile> findServerProfiles();
 	
-	public List<ServerProfile> findServerProfiles(String selectionCol, String selectionValue);
+	List<ServerProfile> findServerProfiles(String selectionCol, String selectionValue);
 	
 	void insertServerProfile(ServerProfile serverProfile);
 
@@ -54,12 +54,12 @@ public interface ServerProfilesDAO
 	}
 		
 	default Map<String,String> deserializeJsonToMap(String parameters)  {
-		Map<String, String> parametersMap = new HashMap<String, String>();
+		Map<String, String> parametersMap;
 		TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>(){};
 		try {
 			parametersMap = new ObjectMapper().readValue(parameters, typeRef);
 		} catch (Exception e) {
-			return new HashMap<String, String>();
+			return new HashMap<>();
 		}
 		return parametersMap;
 	}	

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
+import com.mark59.core.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,11 +32,6 @@ import org.openqa.selenium.Proxy;
 
 import com.mark59.core.DriverWrapper;
 import com.mark59.core.factories.DriverWrapperFactory;
-import com.mark59.core.utils.IpUtilities;
-import com.mark59.core.utils.Mark59Constants;
-import com.mark59.core.utils.PropertiesKeys;
-import com.mark59.core.utils.PropertiesReader;
-import com.mark59.core.utils.ScreenshotLoggingHelper;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
 
 /**
@@ -167,7 +163,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 		}
 		
 		try {
-			ScreenshotLoggingHelper.initialiseDirectory(pr);
+			ScreenshotLoggingHelper.initialiseDirectory();
 		} catch (IOException e) {
 			LOG.fatal("Failed on invoke of ScreenshotLoggingHelper.initialiseDirectory");
 			e.printStackTrace();			
@@ -198,7 +194,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends DriverWrapper<?>> T makeDriverWrapper(Map<String, String> arguments) {
-		LOG.debug("SeleniumDriverFactory : executing makeDriverWrapper using : "  +  Arrays.asList(arguments) );
+		if (LOG.isDebugEnabled()){LOG.debug("SeleniumDriverFactory : makeDriverWrapper : " + Mark59Utils.prettyPrintMap(arguments));}
 			
 		if (arguments.isEmpty())
 			throw new IllegalArgumentException("No arguments supplied for driver construction");
@@ -235,7 +231,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 		
 		// Set browser dimensions
 		if (arguments.containsKey(BROWSER_DIMENSIONS) && StringUtils.isNotBlank(arguments.get(BROWSER_DIMENSIONS))) {	
-			String browserDimArray[] = arguments.get(BROWSER_DIMENSIONS).trim().split("\\s*,\\s*");
+			String[] browserDimArray = StringUtils.split(arguments.get(BROWSER_DIMENSIONS), ",");
 			
 			if ( browserDimArray.length == 2  && StringUtils.isNumeric(browserDimArray[0]) && StringUtils.isNumeric(browserDimArray[1])){
 				int width  = Integer.parseInt(browserDimArray[0]);
@@ -261,8 +257,7 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 		// Set additional option arguments
 		if (arguments.containsKey(ADDITIONAL_OPTIONS ) 
 				&& StringUtils.isNotBlank(arguments.get(ADDITIONAL_OPTIONS))){
-			//convert the comma delimited input string to a list of strings .. 
-			java.util.List<java.lang.String> argumentsList = Arrays.asList(arguments.get(ADDITIONAL_OPTIONS).split("\\s*,\\s*"));
+			java.util.List<java.lang.String> argumentsList =  Arrays.asList(StringUtils.split(arguments.get(ADDITIONAL_OPTIONS), ","));
 			builder.setAdditionalOptions(argumentsList);
 		}
 
@@ -284,16 +279,16 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	
 	
 	private void setProxy(Map<String, String> arguments, SeleniumDriverBuilder<?> builder) {
-		java.util.List<java.lang.String> proxyArgumentsList = Arrays.asList(arguments.get(PROXY).split("\\s*,\\s*"));
-		
-		Map<String, Object> rawMap = new TreeMap<String, Object>();
+
+		String[] proxyArgumentsList = StringUtils.split(arguments.get(PROXY), ",");
+		Map<String, Object> rawMap = new TreeMap<>();
 		
 		for (String proxyArgumentString : proxyArgumentsList) {
-			String[] proxyArgumentArray = proxyArgumentString.split("=");
+			String[] proxyArgumentArray =  StringUtils.split(proxyArgumentString, "=");
 			if (proxyArgumentArray.length != 2) { 
 			     throw new IllegalArgumentException("Unexpected PROXY argument - expected a key-value pair delimited by '=' symbol but got : [" + proxyArgumentString + "]."   );
 			}
-			rawMap.put(proxyArgumentArray[0] , (String)proxyArgumentArray[1]);
+			rawMap.put(proxyArgumentArray[0] , proxyArgumentArray[1]);
 			LOG.debug("proxy setting : [" + proxyArgumentArray[0] + "=" + proxyArgumentArray[1] + "]" );			
 		} 
 		
@@ -308,12 +303,12 @@ public class SeleniumDriverFactory implements DriverWrapperFactory {
 	 * used to drive either a Chrome or Chromium browser)</p>    
 	 * <p>This method uses the driverType to do a properties lookup to get the driver path (usually set in mark59.properties)</p>
 	 * 
-	 * @param driverType
+	 * @param driverType currently Chrome or Firefox drivers allowed
 	 */
 	private SeleniumDriverBuilder<?> getDriverBuilderOfType(String driverType) {
-		SeleniumDriverBuilder<?> builder = null;
+		SeleniumDriverBuilder<?> builder;
 
-		String seleniumDriverPath = null;
+		String seleniumDriverPath;
 		if (CHROME.equalsIgnoreCase(driverType)) {
 			seleniumDriverPath = pr.getProperty(PropertiesKeys.MARK59_PROP_DRIVER_CHROME);
 		} else if (FIREFOX.equalsIgnoreCase(driverType)) {

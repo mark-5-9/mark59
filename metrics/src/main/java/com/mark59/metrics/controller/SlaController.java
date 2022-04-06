@@ -17,10 +17,7 @@
 package com.mark59.metrics.controller;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,17 +57,17 @@ public class SlaController {
 		List<String> applicationList = populateSlaApplicationDropdown();
 		if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
 			// when no application request parameter has been sent, take the first application 
-			reqApp = (String)applicationList.get(1);
+			reqApp = applicationList.get(1);
 		}		
 		
-		List<Sla> slaList = new ArrayList<Sla>(); 
+		List<Sla> slaList;
 		if (StringUtils.isBlank(reqApp) ){
 			slaList = slaDao.getSlaList();
 		} else {
 			slaList = slaDao.getSlaList(reqApp);			
 		}
 		
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		map.put("slaList",slaList);
 		map.put("reqApp",reqApp);
 		map.put("applications",applicationList);
@@ -80,7 +77,7 @@ public class SlaController {
 	
 	@RequestMapping("/viewSlaList")
 	public ModelAndView viewSlaList(@RequestParam(required=false) String reqApp) {
-		List<Sla> slaList = new ArrayList<Sla>(); 
+		List<Sla> slaList;
 		if (reqApp == null){
 			slaList = slaDao.getSlaList();				
 		} else {
@@ -110,17 +107,17 @@ public class SlaController {
 			slaDao.insertData(sla);
 			if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
 				// when no application request parameter has been sent, take the first application 
-				reqApp = (String)applicationList.get(1);
+				reqApp = applicationList.get(1);
 			}		
 			
-			List<Sla> slaList = new ArrayList<Sla>(); 
+			List<Sla> slaList;
 			if (StringUtils.isBlank(reqApp) ){
 				slaList = slaDao.getSlaList();
 			} else {
 				slaList = slaDao.getSlaList(reqApp);			
 			}
 			
-			Map<String, Object> map = new HashMap<String, Object>(); 
+			Map<String, Object> map = new HashMap<>();
 			map.put("slaList",slaList);
 			map.put("reqApp",reqApp);
 			map.put("applications",applicationList);
@@ -130,7 +127,7 @@ public class SlaController {
 			Map<String, Object> map = createMapOfDropdowns();
 			map.put("sla",sla);		
 			map.put("reqApp", reqApp);	
-			map.put("reqErr", "&reqErr=Oh, metric for " + sla.getTxnId() + " CDP : " +sla.getIsCdpTxn() + " AlreadyExists");
+			map.put("reqErr", "&reqErr=Oh, metric for " + Objects.requireNonNull(sla).getTxnId() + " CDP : " +sla.getIsCdpTxn() + " AlreadyExists");
 			return new ModelAndView("registerSla", "map", map);			
 		}
 	}
@@ -187,10 +184,8 @@ public class SlaController {
 
 		if ( StringUtils.isNotEmpty( copyApplicationForm.getReqToApp())) { 
 			copyApplicationForm.setValidForm("Y");
-			
 			//do the copy
-			List<Sla> slaList = new ArrayList<Sla>();
-			slaList = slaDao.getSlaList(reqApp);
+			List<Sla> slaList = slaDao.getSlaList(reqApp);
 			for (Sla origSla : slaList) {
 				Sla copySla = new Sla(origSla);
 				copySla.setApplication(copyApplicationForm.getReqToApp());
@@ -226,12 +221,16 @@ public class SlaController {
 		bulkApplicationPassCountsForm.setSlaRefUrl(referenceOfLastBaselineRun(reqApp));
 		
 		List<String> applicationList = populateApplicationsWithBaselinesDropdown();
-		List<String> isTxnIgnoredYesNo = populateIsTxnIgnoredYesNoDropdown();	
+		List<String> isIncludeCdpTxnsYesNo = populateIsIncludeCdpTxnsYesNoDropdown();
+		List<String> isTxnIgnoredYesNo = populateIsTxnIgnoredYesNoDropdown();
+		List<String> isActiveYesNo   = populateIsActiveYesNoDropdown();		
 		List<String> applyRefUrlOptions = populateApplyRefUrlDropdown();	
 		
-		Map<String, Object> map = new HashMap<String, Object>(); 
-		map.put("applications",applicationList);		
-		map.put("isTxnIgnoredYesNo", isTxnIgnoredYesNo);	
+		Map<String, Object> map = new HashMap<>();
+		map.put("applications",applicationList);
+		map.put("isIncludeCdpTxnsYesNo", isIncludeCdpTxnsYesNo);
+		map.put("isTxnIgnoredYesNo", isTxnIgnoredYesNo);
+		map.put("isActiveYesNo",isActiveYesNo);			
 		map.put("applyRefUrlOptions",applyRefUrlOptions);		
 		return new ModelAndView("bulkApplicationPassCounts", "map", map);  			
 	}
@@ -277,7 +276,7 @@ public class SlaController {
 
 	
 	private List<String> populateApplyRefUrlDropdown( ) {
-		List<String> applyRefUrlOptions =  new ArrayList<String>();
+		List<String> applyRefUrlOptions = new ArrayList<>();
 		applyRefUrlOptions.add(AppConstantsMetrics.APPLY_TO_NEW_SLAS_ONLY);
 		applyRefUrlOptions.add(AppConstantsMetrics.APPLY_TO_ALL_SLAS);
 		return applyRefUrlOptions;
@@ -285,27 +284,36 @@ public class SlaController {
 	
 	
 	private Map<String, Object> createMapOfDropdowns() {
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		List<String> applicationList   = populateSlaApplicationDropdown();		
 		List<String> IsCdpTxnYesNo     = populateIsCdpTxnYesNoDropdown();	
 		List<String> isTxnIgnoredYesNo = populateIsTxnIgnoredYesNoDropdown();	
+		List<String> isActiveYesNo   = populateIsActiveYesNoDropdown();			
 		map.put("applications",applicationList);		
 		map.put("isTxnIgnoredYesNo", isTxnIgnoredYesNo);	
-		map.put("IsCdpTxnYesNo",IsCdpTxnYesNo);				
+		map.put("IsCdpTxnYesNo",IsCdpTxnYesNo);	
+		map.put("isActiveYesNo",isActiveYesNo);			
 		return map;
 	}	
 	
 	
 	private List<String> populateSlaApplicationDropdown() {
-		List<String> applicationList = new ArrayList<String>();
-		applicationList = slaDao.findApplications();
+		List<String> applicationList = slaDao.findApplications();
 		applicationList.add(0, "");
 		return applicationList;
 	}		
 	
 	
+	private List<String> populateIsIncludeCdpTxnsYesNoDropdown( ) {
+		List<String> isIncludeCdpTxnsYesNo = new ArrayList<>();
+		isIncludeCdpTxnsYesNo.add("N");
+		isIncludeCdpTxnsYesNo.add("Y");
+		return isIncludeCdpTxnsYesNo;
+	}	
+
+	
 	private List<String> populateIsTxnIgnoredYesNoDropdown( ) {
-		List<String> isTxnIgnoredYesNo = new ArrayList<String>();
+		List<String> isTxnIgnoredYesNo = new ArrayList<>();
 		isTxnIgnoredYesNo.add("N");
 		isTxnIgnoredYesNo.add("Y");
 		return isTxnIgnoredYesNo;
@@ -313,10 +321,18 @@ public class SlaController {
 	
 	
 	private List<String> populateIsCdpTxnYesNoDropdown() {
-		List<String> isCdpTxnYesNo = new ArrayList<String>();
+		List<String> isCdpTxnYesNo = new ArrayList<>();
 		isCdpTxnYesNo.add("N");
 		isCdpTxnYesNo.add("Y");
 		return isCdpTxnYesNo;
 	}
 		
+
+	private List<String> populateIsActiveYesNoDropdown( ) {
+		List<String> isActiveYesNo = new ArrayList<>();
+		isActiveYesNo.add("Y");
+		isActiveYesNo.add("N");
+		return isActiveYesNo;
+	}		
+
 }

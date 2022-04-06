@@ -26,7 +26,7 @@ import com.mark59.seleniumDSL.pageElements.Link;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class DeletePolicyActionPage extends _GenericDatatHunterActionPage {
+public class DeletePolicyActionPage extends _GenericDataHunterActionPage {
 	
 
 	public DeletePolicyActionPage(WebDriver driver) {
@@ -35,6 +35,6 @@ public class DeletePolicyActionPage extends _GenericDatatHunterActionPage {
 
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};		
+	}
 
 }

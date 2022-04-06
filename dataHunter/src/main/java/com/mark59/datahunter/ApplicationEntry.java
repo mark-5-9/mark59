@@ -25,10 +25,10 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 public class ApplicationEntry extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
+		//System.out.println(" args = " + Arrays.toString(args) );
 		SpringApplication.run(ApplicationEntry.class, args);
 	}
-
-
+	
     /**
      *   Required for Application Server (Tomcat) deployment 
      */

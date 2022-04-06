@@ -27,9 +27,9 @@ import com.mark59.metrics.data.beans.GraphMapping;
  */
 public interface GraphMappingDAO 
 {
-	public GraphMapping findGraphMapping(String graph);
+	GraphMapping findGraphMapping(String graph);
 	
-	public List<GraphMapping> getGraphMappings();
+	List<GraphMapping> getGraphMappings();
 
 	void inserttGraphMapping(GraphMapping graphMapping);
 

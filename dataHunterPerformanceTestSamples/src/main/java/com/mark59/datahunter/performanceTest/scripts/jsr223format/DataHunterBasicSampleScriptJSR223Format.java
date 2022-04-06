@@ -79,9 +79,9 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");
 		
-		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);  ; 
-		
-		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
+		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);
+
+        jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
 		driver.findElement(By.id("submit")).submit();
 		checkSqlOk(driver.findElement(By.id("sqlResult")));
 		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
@@ -96,7 +96,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		dropdown.selectByVisibleText(TestConstants.UNUSED);
 
 		driver.findElement(By.id("otherdata")).sendKeys(user); 
-		driver.findElement(By.id("epochtime")).sendKeys(new String(Long.toString(System.currentTimeMillis()))); 
+		driver.findElement(By.id("epochtime")).sendKeys(Long.toString(System.currentTimeMillis()));
 //		jm.writeScreenshot("add_policy_DH-BASIC-POLICY");
 		
 		jm.startTransaction("DH_lifecycle_0200_addPolicy");
@@ -120,10 +120,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ")");   
 		}
 	}
-};
+}
 
 
-// >> --------- COMMENT OUT THE NEXT THREE LINES ---------  
+// >> --------- COMMENT OUT THE NEXT THREE LINES ---------      (capitalization of the SampleResult variable in the next line is deliberate)   
 org.apache.jmeter.samplers.SampleResult SampleResult = new org.apache.jmeter.samplers.SampleResult();
 SampleResult.sampleStart();
 Log4jConfigurationHelper.init(Level.INFO) ;

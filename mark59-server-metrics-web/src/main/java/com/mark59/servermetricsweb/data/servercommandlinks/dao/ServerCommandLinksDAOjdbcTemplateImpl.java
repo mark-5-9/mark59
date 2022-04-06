@@ -94,7 +94,7 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 				.addValue("selectionValue", selectionValue);
 
 //		System.out.println(" findServerProfiles : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
-		List<ServerCommandLink> serverCommandLinkList = new ArrayList<ServerCommandLink>();
+		List<ServerCommandLink> serverCommandLinkList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -116,10 +116,8 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
-				new Object[] {
-						serverCommandLink.getServerProfileName(), 			
-						serverCommandLink.getCommandName() 			
-				});
+				serverCommandLink.getServerProfileName(),
+				serverCommandLink.getCommandName());
 	}
 
 	

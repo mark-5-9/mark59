@@ -42,7 +42,7 @@ public class CountPoliciesBreakdown extends PolicySelectionCriteria   {
 	@Override
     public String toString() {
         return  super.toString() + 
-        		", rowCount= "+ rowCount +         		
+        		", rowCount="+ rowCount +         		
         		"]";
 	}
 		

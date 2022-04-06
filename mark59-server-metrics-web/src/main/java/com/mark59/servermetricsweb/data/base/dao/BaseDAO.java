@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface BaseDAO {
 	
-	public List<String> findColumnNamesForTable(String tableName);
+	List<String> findColumnNamesForTable(String tableName);
 	
 }

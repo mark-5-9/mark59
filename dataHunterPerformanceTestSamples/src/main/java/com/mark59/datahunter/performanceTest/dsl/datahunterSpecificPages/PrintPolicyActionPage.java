@@ -27,7 +27,7 @@ import com.mark59.seleniumDSL.pageElements.PageTextElement;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class PrintPolicyActionPage extends _GenericDatatHunterActionPage {
+public class PrintPolicyActionPage extends _GenericDataHunterActionPage {
 	
 	public PrintPolicyActionPage( WebDriver driver) {
 		super(driver);
@@ -35,29 +35,29 @@ public class PrintPolicyActionPage extends _GenericDatatHunterActionPage {
 	
 	public PageTextElement application() {
 		return new PageTextElement(driver, By.id("application"));
-	};	
+	}
 	public PageTextElement identifier() {
 		return new PageTextElement(driver, By.id("identifier"));
-	};	
+	}
 	public PageTextElement lifecycle() {
 		return new PageTextElement(driver, By.id("lifecycle"));
-	};
+	}
 	public PageTextElement useability() {
 		return new PageTextElement(driver, By.id("useability"));
-	};
+	}
 	public PageTextElement otherdata() {
 		return new PageTextElement(driver, By.id("otherdata"));
-	};
+	}
 	public PageTextElement epochtime() {
 		return new PageTextElement(driver, By.id("epochtime"));
-	};
+	}
 	public PageTextElement created() {
 		return new PageTextElement(driver, By.id("created"));
-	};
+	}
 	public PageTextElement updated() {
 		return new PageTextElement(driver, By.id("updated"));
-	};	
+	}
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};	
+	}
 }

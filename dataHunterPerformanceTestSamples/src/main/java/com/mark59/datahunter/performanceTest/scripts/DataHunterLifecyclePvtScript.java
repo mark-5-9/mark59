@@ -50,7 +50,7 @@ import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.NextPol
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.NextPolicyPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.PrintSelectedPoliciesActionPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.PrintSelectedPoliciesPage;
-import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages._GenericDatatHunterActionPage;
+import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages._GenericDataHunterActionPage;
 import com.mark59.datahunter.performanceTest.dsl.helpers.DslConstants;
 import com.mark59.devtoolsDSL.DevToolsDSL;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
@@ -62,7 +62,7 @@ import com.mark59.seleniumDSL.pageElements.HtmlTableRow;
 
 
 /**
- * This selenium test uses a style of DSL which we suggest would be suitable for most performance tests.<br><br>
+ * This selenium script uses a style of DSL which we suggest would be usable for most performance tests.<br><br>
  * For simple html pages a DSL not having element "wait until"s may suffice.
  * 
  * <p>Note the use of a <b>PAGE_LOAD_STRATEGY</b> of <b>NONE</b>.  This means you must control all page load timing in the script, usually
@@ -71,9 +71,12 @@ import com.mark59.seleniumDSL.pageElements.HtmlTableRow;
  * 
  * <p>**Note 1 and 2: the  waitUntilClickable(..) or thenSleep() methods are not necessary here, the simplicity of the pages don't require it.
  * Also, for Note 1, the <code>checkSqlOk</code> already has a wait built into it (<code>getText</code> for the SQL result, so that would give
- * you the correct timing). Just included to demonstrate what would be required in more difficult situations, such as on pages where you need
+ * you the correct timing). Included to demonstrate what would be required in more difficult situations, such as on pages where you need
  * to wait for async processes to execute.
  * <br>
+ * 
+ * <p>Also note, when you require DataHunter functionality in a script, we suggest to use DataHunter Rest Api calls rather than using selenium
+ * as done in this sample.
  * 
  * @see SeleniumAbstractJavaSamplerClient
  * 
@@ -88,7 +91,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	
 	@Override
 	protected Map<String, String> additionalTestParameters() {
-		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<String, String>();
+		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<>();
 		// application specific
 		jmeterAdditionalParameters.put("DATAHUNTER_URL",			"http://localhost:8081/dataHunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST");
@@ -132,8 +135,8 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
         
 		String dataHunterUrl      = context.getParameter("DATAHUNTER_URL");
 		String application        = context.getParameter("DATAHUNTER_APPLICATION_ID");
-		int forceTxnFailPercent   = Integer.valueOf(context.getParameter("FORCE_TXN_FAIL_PERCENT").trim());
-		boolean startCdpListeners = Boolean.valueOf(context.getParameter("START_CDP_LISTENERS"));
+		int forceTxnFailPercent   = Integer.parseInt(context.getParameter("FORCE_TXN_FAIL_PERCENT").trim());
+		boolean startCdpListeners = Boolean.parseBoolean(context.getParameter("START_CDP_LISTENERS"));
 		String user               = context.getParameter("USER");
 				
 		PrintSomeMsgOnceAtStartUp(dataHunterUrl, driver);
@@ -168,7 +171,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 			addPolicyPage.lifecycle().type(lifecycle);
 			addPolicyPage.useability().selectByVisibleText(DslConstants.UNUSED) ;
 			addPolicyPage.otherdata().type(user);		
-			addPolicyPage.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
+			addPolicyPage.epochtime().type(Long.toString(System.currentTimeMillis()));
 //			jm.writeScreenshot("add_policy_TESTID" + i);
 
 			AddPolicyActionPage addPolicyActionPage = new AddPolicyActionPage(driver);			
@@ -202,7 +205,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		waitForSqlResultsTextOnActionPageAndCheckOk(countPoliciesActionPage);
 		jm.endTransaction("DH_lifecycle_0300_countUnusedPolicies");
 		
-		Long countPolicies = Long.valueOf( countPoliciesActionPage.rowsAffected().getText());
+		long countPolicies = Long.parseLong(countPoliciesActionPage.rowsAffected().getText());
 		LOG.debug( "countPolicies : " + countPolicies); 
 		jm.userDataPoint(application + "_Total_Unused_Policy_Count", countPolicies);
 		
@@ -302,8 +305,8 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	 *			, res -> "Document".equalsIgnoreCase(res.getType().toJson()) && jm.getMostRecentTransactionStarted() != null
 	 *			, computeTxnId);
 	 *  
-	 * @param jm
-	 * @param driver
+	 * @param jm JmeterFunctionsForSeleniumScripts
+	 * @param driver WebDriver
 	 */
 	private void startCdpListeners(JmeterFunctionsForSeleniumScripts jm, WebDriver driver) {
 		DevToolsDSL devToolsDsl = new DevToolsDSL(); 
@@ -326,7 +329,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	 * At first glance this may seem not to have any 'wait for element' conditions.  However the 'getText()'
 	 * method (indirectly) invokes a Fluent Wait condition 
 	 */
-	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDatatHunterActionPage _genericDatatHunterActionPage) {
+	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDataHunterActionPage _genericDatatHunterActionPage) {
 		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();
 		if (!"PASS".equals(sqlResultText)) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ") : " +
@@ -361,7 +364,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	 *     
 	 * For logging details see @Log4jConfigurationHelper 
 	 */
-	public static void main(String[] args) throws InterruptedException{
+	public static void main(String[] args) {
 		Log4jConfigurationHelper.init(Level.INFO ) ;
 		DataHunterLifecyclePvtScript thisTest = new DataHunterLifecyclePvtScript();
 

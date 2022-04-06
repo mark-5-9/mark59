@@ -39,7 +39,7 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 	@Autowired
 	private DataSource dataSource;
 
-	
+	@Override
 	public void insertData(MetricSla metricSla) {
 		String sql = "INSERT INTO METRICSLA "
 				+ "(APPLICATION, METRIC_NAME, METRIC_TXN_TYPE, VALUE_DERIVATION, SLA_MIN, SLA_MAX, IS_ACTIVE, COMMENT) VALUES (?,?,?,?,?,?,?,?)";
@@ -48,8 +48,8 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sql,
-				new Object[] { metricSla.getApplication(),metricSla.getMetricName(),metricSla.getMetricTxnType(),metricSla.getValueDerivation(), 
-						metricSla.getSlaMin(), metricSla.getSlaMax(), metricSla.getIsActive(), metricSla.getComment() });
+				metricSla.getApplication(),metricSla.getMetricName(),metricSla.getMetricTxnType(),metricSla.getValueDerivation(),
+				metricSla.getSlaMin(), metricSla.getSlaMax(), metricSla.getIsActive(), metricSla.getComment());
 	}
 	
 
@@ -174,12 +174,11 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 	}
 	
 	
+	@Override	
 	public List<MetricSla> getMetricSlaList() {
-		List<MetricSla> metricSlaList = new ArrayList<MetricSla>();
 		String sql = "select * from METRICSLA order by APPLICATION, METRIC_NAME, METRIC_TXN_TYPE, VALUE_DERIVATION ";
-//		System.out.println("getSla sql = " + sql);
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		metricSlaList = jdbcTemplate.query(sql, new MetricSlaRowMapper());
+		List<MetricSla> metricSlaList = jdbcTemplate.query(sql, new MetricSlaRowMapper());
 		return metricSlaList;
 	}
 	
@@ -251,7 +250,7 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 	public List<String> findApplications() {
 		String sql = "SELECT distinct APPLICATION FROM METRICSLA";
 
-		List<String> applications = new ArrayList<String>();
+		List<String> applications = new ArrayList<>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
@@ -262,15 +261,36 @@ public class MetricSlaDAOjdbcImpl implements MetricSlaDAO {
 		return  applications;
 	}
 
+	
+	@Override	
+	public List<MetricSla> getDisabledMetricSlas(String application, String metricTxnType, String valueDerivation){
+		String sql = "select * from METRICSLA"
+				+ " where APPLICATION = :application "
+				+ "  and METRIC_TXN_TYPE = :metricTxnType "
+				+ "  and VALUE_DERIVATION = :valueDerivation "
+				+ "  and IS_ACTIVE <> 'Y' " 
+				+ "  order by METRIC_NAME ";
+
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("metricTxnType", metricTxnType)
+				.addValue("valueDerivation", valueDerivation);		
+		
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<MetricSla> disabledMetricSlas = jdbcTemplate.query(sql, sqlparameters, new MetricSlaRowMapper());	
+		return disabledMetricSlas;
+	}
+		
+	
 	/*
 	 *   To prevent null exceptions during SLA processing
 	 */
 	private MetricSla nullsToDefaultValues(MetricSla metricSla) {
 		if (metricSla.getSlaMin() == null) {
-			metricSla.setSlaMin(new BigDecimal(0.0));
+			metricSla.setSlaMin(new BigDecimal("0.0"));
 		}
 		if (metricSla.getSlaMax() == null) {
-			metricSla.setSlaMax(new BigDecimal(0.0));
+			metricSla.setSlaMax(new BigDecimal("0.0"));
 		}
 		return metricSla;
 	}

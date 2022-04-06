@@ -27,19 +27,19 @@ import com.mark59.servermetricsweb.data.beans.ServerCommandLink;
  */
 public interface ServerCommandLinksDAO 
 {
-	public ServerCommandLink findServerCommandLink(String serverProfile, String commandName);
+	ServerCommandLink findServerCommandLink(String serverProfile, String commandName);
 	
-	public List<ServerCommandLink> findServerCommandLinks();
-	public List<ServerCommandLink> findServerCommandLinksForServerProfile(String serverProfileName);
-	public List<ServerCommandLink> findServerCommandLinks(String selectionCol, String selectionValue);
+	List<ServerCommandLink> findServerCommandLinks();
+	List<ServerCommandLink> findServerCommandLinksForServerProfile(String serverProfileName);
+	List<ServerCommandLink> findServerCommandLinks(String selectionCol, String selectionValue);
 	
-	public void insertServerCommandLink(ServerCommandLink serverCommandLink);
+	void insertServerCommandLink(ServerCommandLink serverCommandLink);
 
 	// all fields are currently key - so any update methods are really add / delete
-	public void updateServerCommandLinksForServerProfileName(String serverProfile, List<String> commandNames);
+    void updateServerCommandLinksForServerProfileName(String serverProfile, List<String> commandNames);
 
-	public void deleteServerCommandLink(ServerCommandLink serverCommandLink);
-	public void deleteServerCommandLinksForServerProfile(String serverProfile);
-	public void deleteServerCommandLinksForCommandName(String commandName);
+	void deleteServerCommandLink(ServerCommandLink serverCommandLink);
+	void deleteServerCommandLinksForServerProfile(String serverProfile);
+	void deleteServerCommandLinksForCommandName(String commandName);
 
 }

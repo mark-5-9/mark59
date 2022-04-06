@@ -54,17 +54,17 @@ public class MetricSlaController {
 		List<String> applicationList = populateApplicationDropdown();
 		if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
 			// when no application request parameter has been sent, take the first application 
-			reqApp = (String)applicationList.get(1);
+			reqApp = applicationList.get(1);
 		}		
 		
-		List<MetricSla> metricSlaList = new ArrayList<MetricSla>(); 
+		List<MetricSla> metricSlaList;
 		if (StringUtils.isBlank(reqApp) ){
 			metricSlaList = metricSlaDAO.getMetricSlaList();
 		} else {
 			metricSlaList = metricSlaDAO.getMetricSlaList(reqApp);			
 		}
 
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		map.put("metricSlaList",metricSlaList);
 		map.put("reqApp",reqApp);
 		map.put("applications",applicationList);
@@ -93,17 +93,17 @@ public class MetricSlaController {
 			List<String> applicationList = populateApplicationDropdown();
 			if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
 				// when no application request parameter has been sent, take the first application 
-				reqApp = (String)applicationList.get(1);
+				reqApp = applicationList.get(1);
 			}		
 			
-			List<MetricSla> metricSlaList = new ArrayList<MetricSla>(); 
+			List<MetricSla> metricSlaList;
 			if (StringUtils.isBlank(reqApp) ){
 				metricSlaList = metricSlaDAO.getMetricSlaList();
 			} else {
 				metricSlaList = metricSlaDAO.getMetricSlaList(reqApp);			
 			}
 
-			Map<String, Object> map = new HashMap<String, Object>(); 
+			Map<String, Object> map = new HashMap<>();
 			map.put("metricSlaList",metricSlaList);
 			map.put("reqApp",reqApp);
 			map.put("applications",applicationList);
@@ -172,10 +172,8 @@ public class MetricSlaController {
 
 		if ( StringUtils.isNotEmpty( copyApplicationForm.getReqToApp())) { 
 			copyApplicationForm.setValidForm("Y");
-			
 			//do the copy
-			List<MetricSla> slaList = new ArrayList<MetricSla>();
-			slaList = metricSlaDAO.getMetricSlaList(reqApp);
+			List<MetricSla> slaList = metricSlaDAO.getMetricSlaList(reqApp);
 			for (MetricSla origMetricSla : slaList) {
 				MetricSla copyMetricSla = new MetricSla(origMetricSla);
 				copyMetricSla.setApplication(copyApplicationForm.getReqToApp());
@@ -205,7 +203,7 @@ public class MetricSlaController {
 	
 	
 	private Map<String, Object> createMapOfDropdowns() {
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		List<String> applicationList = populateApplicationDropdown();
 		List<String> derivations     = populateDerivationsDropdown();
 		List<String> isActiveYesNo   = populateIsActiveYesNoDropdown();
@@ -219,8 +217,7 @@ public class MetricSlaController {
 
 	
 	private List<String> populateApplicationDropdown() {
-		List<String> applicationList = new ArrayList<String>();
-		applicationList = metricSlaDAO.findApplications();
+		List<String> applicationList = metricSlaDAO.findApplications();
 		applicationList.add(0, "");
 		return applicationList;
 	}		
@@ -233,7 +230,7 @@ public class MetricSlaController {
 	
 	
 	private List<String> populateIsActiveYesNoDropdown( ) {
-		List<String> isActiveYesNo =  new ArrayList<String>();
+		List<String> isActiveYesNo = new ArrayList<>();
 		isActiveYesNo.add("Y");
 		isActiveYesNo.add("N");
 		return isActiveYesNo;

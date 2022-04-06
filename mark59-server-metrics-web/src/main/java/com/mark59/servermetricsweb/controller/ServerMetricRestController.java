@@ -77,14 +77,13 @@ public class ServerMetricRestController {
 	 *  Service call to profile.
 	 *  <p>Calls a functions which controls and executed commands on the target servers, and returns the formatted response.
 	 *  <p>With the mark59 framework, will be called by implementation(s) of JMeter Java Samplers designed to cater for 
-	 *  metrics capture directly via this API call (refer to See Also).
+	 *  metrics capture directly via this API call (refer to com.mark59.servermetrics.ServerMetricsCaptureViaWeb).
 	 *  <p> For example using profile localhost_HOSTID, and from default setting localhost, the url used would be <br>
 	 *  http://localhost:8085/mark59-server-metrics-web/api/metric?reqServerProfileName=localhost_HOSTID
 	 *  
-	 * @param reqServerProfileName
-	 * @param reqTestMode
+	 * @param reqServerProfileName  profile name
+	 * @param reqTestMode whether running as a 'test' (eg directly from the web application)
 	 * @return org.springframework.http.ResponseEntity (Json format)
-	 * @see ServerMetricsCaptureViaWeb
 	 */
 	@GetMapping(path =  "/metric")
 	public ResponseEntity<Object> apiMetric(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqTestMode){
@@ -120,7 +119,7 @@ public class ServerMetricRestController {
 				commandResponseParser.getMetricTxnType(), "{SERVER}", commandResponseParser.getMetricNameSuffix()) ;
 		testResponse.setCandidateTxnId(candidateTxnId);
 		
-		Object groovyScriptResult = null;
+		Object groovyScriptResult;
 		try {
 			groovyScriptResult = ServerMetricsWebUtils.runGroovyScript(commandResponseParser.getScript(), commandResponseParser.getSampleCommandResponse());
 		} catch (Exception e) {
@@ -133,7 +132,7 @@ public class ServerMetricRestController {
 		}
 		
 		try {
-			Double doubleVal = Double.parseDouble(groovyScriptResult.toString());
+			double doubleVal = Double.parseDouble(groovyScriptResult.toString());
 			if (doubleVal==0) {
 				testResponse.setSummary("<font color='darkorange'> The parser has returned 0.  This is valid, but is it what you expected? <br>"
 						+ " Maybe try a Sample Response that returns a non-zero positive value.. </font>");				

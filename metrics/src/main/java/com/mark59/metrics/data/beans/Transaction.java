@@ -122,8 +122,8 @@ public class Transaction {
 		return txnMedian;
 	}
 	public void setTxnMedian(BigDecimal txnMedian) {
-		this.txnMedian = txnMedian.setScale(3, RoundingMode.HALF_UP);;
-	}
+		this.txnMedian = txnMedian.setScale(3, RoundingMode.HALF_UP);
+    }
 	public BigDecimal getTxnMaximum() {
 		return txnMaximum;
 	}
@@ -194,8 +194,8 @@ public class Transaction {
 		return txnDelay;
 	}
 	public void setTxnDelay(BigDecimal txnDelay) {
-		this.txnDelay = txnDelay.setScale(3, RoundingMode.HALF_UP);;
-	}
+		this.txnDelay = txnDelay.setScale(3, RoundingMode.HALF_UP);
+    }
 	public String getTxnIdURLencoded() {
 		return txnIdURLencoded;
 	}

@@ -27,21 +27,21 @@ import com.mark59.servermetricsweb.data.beans.CommandParserLink;
  */
 public interface CommandParserLinksDAO 
 {
-	public CommandParserLink findCommandParserLink(String commandName, String scriptName);
+	CommandParserLink findCommandParserLink(String commandName, String scriptName);
 	
-	public List<CommandParserLink> findCommandParserLinks();
-	public List<CommandParserLink> findCommandParserLinksForCommand(String commandName);
-	public List<CommandParserLink> findCommandParserLinks(String selectionCol, String selectionValue);
+	List<CommandParserLink> findCommandParserLinks();
+	List<CommandParserLink> findCommandParserLinksForCommand(String commandName);
+	List<CommandParserLink> findCommandParserLinks(String selectionCol, String selectionValue);
 	
-	public void insertCommandParserLink(CommandParserLink commandParserLink);
+	void insertCommandParserLink(CommandParserLink commandParserLink);
 
 	// all fields are currently key - so any update methods are really add / delete
 	// public void updateCommandParserLink(CommandParserLink commandParserLink); 
-	public void updateCommandParserLinksForCommandName(String commandName, List<String> scriptNames);
+    void updateCommandParserLinksForCommandName(String commandName, List<String> scriptNames);
 
-	public void deleteCommandParserLink(CommandParserLink commandParserLink);
-	public void deleteCommandParserLinksForCommandName(String commandName);
-	public void deleteCommandParserLinksForScriptName(String scriptName);
+	void deleteCommandParserLink(CommandParserLink commandParserLink);
+	void deleteCommandParserLinksForCommandName(String commandName);
+	void deleteCommandParserLinksForScriptName(String scriptName);
 
 
 

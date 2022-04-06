@@ -42,7 +42,7 @@ public class ServerCommandLinksDAOexcelWorkbookImpl implements ServerCommandLink
 	@Override
 	public List<ServerCommandLink> findServerCommandLinksForServerProfile(String serverProfileName) {
 
-		List<ServerCommandLink> serverCommandLinkList = new ArrayList<ServerCommandLink>();
+		List<ServerCommandLink> serverCommandLinkList = new ArrayList<>();
 
 		Iterator<Row> iterator = servercommandlinksSheet.iterator();
 		iterator.next(); // a header row is assumed and bypassed
@@ -60,7 +60,6 @@ public class ServerCommandLinksDAOexcelWorkbookImpl implements ServerCommandLink
 		}
 		return serverCommandLinkList;
 	}	
-	
 	
 	
 	@Override

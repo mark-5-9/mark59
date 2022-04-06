@@ -31,9 +31,9 @@ import org.openqa.selenium.chromium.ChromiumDriver;
 import org.openqa.selenium.devtools.DevTools;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
 
-import org.openqa.selenium.devtools.v96.network.Network;
-import org.openqa.selenium.devtools.v96.network.model.RequestWillBeSent;
-import org.openqa.selenium.devtools.v96.network.model.ResponseReceived;
+import org.openqa.selenium.devtools.v99.network.Network;
+import org.openqa.selenium.devtools.v99.network.model.RequestWillBeSent;
+import org.openqa.selenium.devtools.v99.network.model.ResponseReceived;
 
 
 
@@ -55,7 +55,7 @@ public class DevToolsDSL  {
 	private static final Logger LOG = LogManager.getLogger(DevToolsDSL.class);	
 
 	private DevTools devTools;
-	private Map<String, RequestWillBeSent> cdpRequests = new ConcurrentHashMap<String, RequestWillBeSent>( );   		
+	private final Map<String, RequestWillBeSent> cdpRequests = new ConcurrentHashMap<>();
 	
 
 	/**
@@ -117,7 +117,7 @@ public class DevToolsDSL  {
 							&& NumberUtils.isCreatable(request.getTimestamp().toString())
 							&& NumberUtils.isCreatable(response.getTimestamp().toString())) {
 						
-						Double mapTimestampDiff = Double.parseDouble(response.getTimestamp().toString()) - Double.parseDouble(request.getTimestamp().toString());
+						double mapTimestampDiff = Double.parseDouble(response.getTimestamp().toString()) - Double.parseDouble(request.getTimestamp().toString());
 						
 						jm.setCdpTransaction(computeTxnId.apply(request, response) , Double.valueOf(mapTimestampDiff * 1000L).longValue() );	                		
 					

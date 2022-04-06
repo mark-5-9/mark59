@@ -140,7 +140,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 	
 	private static final Map<String,String> defaultIterArgumentsMap;	
 	static {
-		Map<String,String> staticIterMap = new LinkedHashMap<String,String>();
+		Map<String,String> staticIterMap = new LinkedHashMap<>();
 
 		staticIterMap.put("______________________ interation settings: _____________________", "" );		
 		staticIterMap.put(ITERATE_FOR_PERIOD_IN_SECS, 						"0");
@@ -193,11 +193,11 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 		
 		Long jMeterTestStartMs = 0L;
 		if (context.getJMeterVariables() != null) {
-			jMeterTestStartMs = convertToLong("TESTSTART.MS", context.getJMeterVariables().get("TESTSTART.MS"),0L);
+			jMeterTestStartMs = convertToLong("TESTSTART.MS", context.getJMeterVariables().get("TESTSTART.MS"));
 		} else {
 			LOG.debug("JMeterVariables do not exist (probably executing outside JMeter - so any STOP_THREAD_AFTER_TEST_START_IN_SECS condition is not checked");
 		}
-		Long stopThreadAfterTestStartMs = convertToLong(STOP_THREAD_AFTER_TEST_START_IN_SECS, context.getParameter(STOP_THREAD_AFTER_TEST_START_IN_SECS),0L) * 1000;			
+		Long stopThreadAfterTestStartMs = convertToLong(STOP_THREAD_AFTER_TEST_START_IN_SECS, context.getParameter(STOP_THREAD_AFTER_TEST_START_IN_SECS)) * 1000;
 		
 		if (isStopThreadAfterTestStartMsConditionMet(jMeterTestStartMs, stopThreadAfterTestStartMs)){
 			LOG.info("Thread Group " + tgName + " is stopping ('STOP_THREAD_AFTER_TEST_START_IN_SECS' has been reached)" );
@@ -218,7 +218,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			return null;
 		}
 		
-		driver =  (WebDriver)seleniumDriverWrapper.getDriverPackage() ;
+		driver = seleniumDriverWrapper.getDriverPackage();
 		jm = new JmeterFunctionsForSeleniumScripts(Thread.currentThread().getName(), seleniumDriverWrapper, jmeterRuntimeArgumentsMap);   	
 				
 		try {
@@ -227,9 +227,9 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			LOG.debug("<< finished initiateSeleniumTest" );
 
 			Long scriptStartTimeMs 		 	= System.currentTimeMillis(); 			
-			Long iterateForPeriodMs 	 	= convertToLong(ITERATE_FOR_PERIOD_IN_SECS, context.getParameter(ITERATE_FOR_PERIOD_IN_SECS),0L) * 1000;
+			Long iterateForPeriodMs 	 	= convertToLong(ITERATE_FOR_PERIOD_IN_SECS, context.getParameter(ITERATE_FOR_PERIOD_IN_SECS)) * 1000;
 			Integer iterateNumberOfTimes 	= convertToInteger(context.getParameter(ITERATE_FOR_NUMBER_OF_TIMES));
-			Long iterationPacingMs       	= convertToLong(ITERATION_PACING_IN_SECS, context.getParameter(ITERATION_PACING_IN_SECS),0L) * 1000;
+			long iterationPacingMs       	= convertToLong(ITERATION_PACING_IN_SECS, context.getParameter(ITERATION_PACING_IN_SECS)) * 1000;
 			long scriptIterationStartTimeMs;
 			long delay = 0;
 			
@@ -254,7 +254,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 				if (iterationPacingMs > 0) {
 					delay =	iterationPacingMs + scriptIterationStartTimeMs - System.currentTimeMillis();
 				    if (delay < 0){
-				         LOG.info("  script execution time exceeded pacing by  : " + (0-delay) + " ms."  );
+				         LOG.info("  script execution time exceeded pacing by  : " + (-delay) + " ms."  );
 				         delay = 0;
 				    }
 				}
@@ -286,22 +286,23 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 	}
 
 
-	private Long convertToLong(String parameterName, String parameter, Long returnedValueForInvalidParameter ) {
-		Long convertedLong = returnedValueForInvalidParameter;
+	private Long convertToLong(String parameterName, String parameter ) {
+		long convertedLong = 0L;
 		if (parameter!= null) parameter = parameter.trim();
 		if (NumberUtils.isCreatable(parameter)){
-			convertedLong = Long.valueOf(parameter.trim());
+			convertedLong = Long.parseLong(parameter.trim());
 		} else {
-			LOG.debug(returnedValueForInvalidParameter + " is being assumed for the parameter '" + parameterName + "'" );
+			LOG.debug("0l is being assumed for the parameter '" + parameterName + "'" );
 		}
 		return convertedLong;
 	}
 
 	private Integer convertToInteger(String parameter) {
-		Integer convertedInt = 0;
-		if (parameter!= null) parameter = parameter.trim();		
-		if (StringUtils.isNumeric(parameter.trim())){
-			convertedInt = Integer.valueOf(parameter);
+		int convertedInt = 0;
+		if (parameter!= null){
+			if (StringUtils.isNumeric(parameter.trim())){
+				convertedInt = Integer.parseInt(parameter.trim());
+			}
 		}
 		return convertedInt;
 	}
@@ -318,7 +319,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 		if (isStopThreadAfterTestStartMsConditionMet(jMeterTestStartMs, stopThreadAfterTestStartMs)) {
 			LOG.info("Thread Group " + tgName + " will be stopped on any further Thread Loops ('STOP_THREAD_AFTER_TEST_START_IN_SECS' has been reached)" );
 			return true;
-		};		
+		}
 		return false;
 	}
 
@@ -329,11 +330,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 	 * @return a boolean (is the condition met?)
 	 */
 	private boolean isStopThreadAfterTestStartMsConditionMet(Long jMeterTestStartMs, Long stopThreadAfterTestStartMs) {
-		if ( jMeterTestStartMs > 0 && stopThreadAfterTestStartMs > 0 &&  System.currentTimeMillis() > jMeterTestStartMs + stopThreadAfterTestStartMs ){
-			return true;
-		} else {
-			return false;
-		}
+		return jMeterTestStartMs > 0 && stopThreadAfterTestStartMs > 0 && System.currentTimeMillis() > jMeterTestStartMs + stopThreadAfterTestStartMs;
 	}
 
 

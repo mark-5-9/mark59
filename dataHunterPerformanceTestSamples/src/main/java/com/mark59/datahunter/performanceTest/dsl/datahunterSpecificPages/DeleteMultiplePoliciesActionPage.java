@@ -25,7 +25,7 @@ import com.mark59.seleniumDSL.pageElements.Link;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class DeleteMultiplePoliciesActionPage extends _GenericDatatHunterActionPage {
+public class DeleteMultiplePoliciesActionPage extends _GenericDataHunterActionPage {
 	
 	public DeleteMultiplePoliciesActionPage(WebDriver driver) {
 		super(driver);
@@ -33,5 +33,5 @@ public class DeleteMultiplePoliciesActionPage extends _GenericDatatHunterActionP
 
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};		
+	}
 }

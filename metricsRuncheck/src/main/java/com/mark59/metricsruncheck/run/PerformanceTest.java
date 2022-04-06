@@ -57,10 +57,10 @@ public class PerformanceTest {
 	protected Run run = new Run();
 	
 	private List<Transaction> transactionSummariesThisRun;
-	private List<Transaction> metricTransactionSummariesThisRun = new ArrayList<Transaction>();  // currently only used for testing 	
+	private final List<Transaction> metricTransactionSummariesThisRun = new ArrayList<>();  // currently only used for testing
 
-	private Map<String,String> optimizedTxnTypeLookup = new HashMap<String, String>();;
-	private Map<String,EventMapping> txnIdToEventMappingLookup = new HashMap<String, EventMapping>();
+	private final Map<String,String> optimizedTxnTypeLookup = new HashMap<>();
+	private final Map<String,EventMapping> txnIdToEventMappingLookup = new HashMap<>();
 
 	
 	public PerformanceTest(ApplicationContext context, String application, String runReferenceArg) {
@@ -91,10 +91,10 @@ public class PerformanceTest {
 			DateFormat formatterMinutePrecision = new SimpleDateFormat("yyyyMMddHHmm");
 			run.setRunTime(formatterMinutePrecision.format(runStartDate));
 			
-			Date runEndDate = new Date(Long.valueOf(runEndTime));
+			Date runEndDate = new Date(runEndTime);
 			long durationMs  = runEndDate.getTime() - runStartDate.getTime();
-			Long durationInMinutes = TimeUnit.MILLISECONDS.toMinutes(durationMs);
-			run.setDuration(durationInMinutes.toString());
+			long durationInMinutes = TimeUnit.MILLISECONDS.toMinutes(durationMs);
+			run.setDuration(Long.toString(durationInMinutes));
 			
 			// period (local time from/to format) is set really just to keep everything to the same format as a default Loadrunner report does
 			
@@ -120,8 +120,8 @@ public class PerformanceTest {
 			}
 		}
 		return run;
-	};	
-	
+	}
+
 
 	protected List<Transaction> storeTransactionSummaries(Run run) {
 		transactionSummariesThisRun = testTransactionsDAO.extractTransactionResponsesSummary(run.getApplication(), Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() );  
@@ -147,7 +147,7 @@ public class PerformanceTest {
 			EventMapping eventMapping = txnIdToEventMappingLookup.get(metricTypeAndTxnId.getTxnId());
 			if (eventMapping == null) {
 				throw new RuntimeException("ERROR : No event mapping found for " + metricTypeAndTxnId.getTxnId());
-			};
+			}
 			Transaction eventTransaction = testTransactionsDAO.extractEventSummaryStats(run.getApplication(), metricTypeAndTxnId.getTxnType(), metricTypeAndTxnId.getTxnId(), eventMapping);
 			eventTransaction.setRunTime(run.getRunTime());
 			transactionDAO.insert(eventTransaction);
@@ -163,7 +163,7 @@ public class PerformanceTest {
 			
 		Long excludestartMsecs = 0L;
 		if (StringUtils.isNumeric(excludestart)) {  
-			excludestartMsecs = TimeUnit.MINUTES.toMillis(Long.valueOf(excludestart)); 
+			excludestartMsecs = TimeUnit.MINUTES.toMillis(Long.parseLong(excludestart));
 		}
 
 		if ( excludestartMsecs != 0  || !captureperiod.equalsIgnoreCase(AppConstantsMetrics.ALL) ){
@@ -171,11 +171,11 @@ public class PerformanceTest {
 			System.out.println( " Transaction results will be filtered by time for this run"  );
 			System.out.print( " - only transactions " + excludestart + " mins from the start of the test ");
 			
-			Long filterEpochTimeFromMsecs = Long.valueOf(dateRangeBean.getRunStartTime()) + excludestartMsecs; 
-			Long filterEpochTimeToMsecs   = Long.valueOf(dateRangeBean.getRunEndTime()); 
+			long filterEpochTimeFromMsecs = dateRangeBean.getRunStartTime() + excludestartMsecs;
+			Long filterEpochTimeToMsecs   = dateRangeBean.getRunEndTime();
 			
 			if (StringUtils.isNumeric(captureperiod)){
-				filterEpochTimeToMsecs = filterEpochTimeFromMsecs + TimeUnit.MINUTES.toMillis(Long.valueOf(captureperiod));
+				filterEpochTimeToMsecs = filterEpochTimeFromMsecs + TimeUnit.MINUTES.toMillis(Long.parseLong(captureperiod));
 				System.out.print( ", for the following " + captureperiod	+ " mins "); 
 			} 
 			
@@ -203,8 +203,9 @@ public class PerformanceTest {
 		
 		boolean isErrorToBeIgnored = false;
 		for (String ignoredError : ignoredErrorsList) {
-			if (errorMsg.startsWith(ignoredError)){
+			if (errorMsg.startsWith(ignoredError)) {
 				isErrorToBeIgnored = true;
+				break;
 			}
 		}
 		return isErrorToBeIgnored;
@@ -217,14 +218,14 @@ public class PerformanceTest {
 	 * If a event mapping for the sample line is not found, then it is taken to be a TRANSACTION<br>
 	 * TODO: PERFMON - allow for transforms to a TRANSACTION in event mapping (catering for CDP would be needed)<br>
 	 * 
-	 * @param txnId
-	 * @param performanceTool
-	 * @param sampleLineDbDataType -will be a string value of enum Mark59Constants.DatabaseDatatypes (DATAPOINT, CPU_UTIL, MEMORY, TRANSACTION)
+	 * @param txnId txnId
+	 * @param performanceTool performanceTool
+	 * @param sampleLineRawDbDataType -will be a string value of enum Mark59Constants.DatabaseDatatypes (DATAPOINT, CPU_UTIL, MEMORY, TRANSACTION)
 	 * @return txnType -  will be a string value of enum Mark59Constants.DatabaseDatatypes (DATAPOINT, CPU_UTIL, MEMORY, TRANSACTION)
 	 */
 	protected String eventMappingTxnTypeTransform(String txnId, String performanceTool, String sampleLineRawDbDataType) {
 		
-		String eventMappingTxnType = null;
+		String eventMappingTxnType;
 		String metricSource = performanceTool + "_" + sampleLineRawDbDataType;   // (eg 'Jmeter_CPU_UTIL',  'Jmeter_TRANSACTION' ..)
 		
 		String txnId_MetricSource_Key = txnId + "-" + metricSource; 
@@ -264,8 +265,8 @@ public class PerformanceTest {
 	 * NOTE: When this method is called currently assumed the run being processed will have a  
 	 * run-time of AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED (zeros) on TESTTRANSACTIONS 	  
 	 * 
-	 * @param application
-	 * @return DateRangeBean
+	 * @param application application
+	 * @return DateRangeBean DateRangeBean
 	 */
 	protected DateRangeBean getRunDateRangeUsingTestTransactionalData(String application){
 		Long runStartTime = testTransactionsDAO.getEarliestTimestamp(application);
@@ -276,7 +277,7 @@ public class PerformanceTest {
 	
 	/**
 	 * Save off testTransaction data if request, otherwise clean it up at the end of the run.
-	 * @param keeprawresults
+	 * @param keeprawresults keeprawresults
 	 */
 	protected void endOfRunCleanupTestTransactions(String keeprawresults) {
 		if (String.valueOf(true).equalsIgnoreCase(keeprawresults)) {

@@ -110,12 +110,12 @@ public class PolicySelectionCriteria {
 
 	@Override
     public String toString() {
-        return   "[application= "+ application + 
-        		", aStartOrEqr= "+ applicationStartsWithOrEquals + 
-        		", identifier= "+ identifier +         		
-        		", lifecycle= "+ lifecycle + 
-        		", useability= "+ useability + 
-        		", selectOrder= "+ selectOrder +         		
+        return   "[application="+ application + 
+        		", startsWith="+ applicationStartsWithOrEquals + 
+        		", identifier="+ identifier +         		
+        		", lifecycle="+ lifecycle + 
+        		", useability="+ useability + 
+        		", selectOrder="+ selectOrder +         		
         		"]";
 	}
 		

@@ -41,7 +41,6 @@ import com.mark59.metrics.data.eventMapping.dao.EventMappingDAO;
  * @author Philip Webb
  * Written: Australian Winter 2019  
  */
-
 @Controller
 public class EventMappingController {
 	
@@ -56,7 +55,7 @@ public class EventMappingController {
 //		System.out.println("eventMappingList reqPerformanceTool=" + reqPerformanceTool + ",reqMetricSource=" + reqMetricSource  );
 
 		// note 'Metric Source' has precedence  and will wipe out any 'tool' selector, as at this point the Metric Source value is unique and determines the tool   
-		List<EventMapping> eventMappingList = new ArrayList<EventMapping>(); 
+		List<EventMapping> eventMappingList = new ArrayList<>();
 
 		if (StringUtils.isEmpty(reqPerformanceTool) && StringUtils.isEmpty(reqMetricSource) ){
 			eventMappingList = eventMappingDAO.findEventMappings();
@@ -76,7 +75,7 @@ public class EventMappingController {
 		List<String>performanceTools = populatePerformanceToolsDropdown();		
 		performanceTools.add(0, "");
 		
-		Map<String, Object> parmsMap = new HashMap<String, Object>(); 
+		Map<String, Object> parmsMap = new HashMap<>();
 		parmsMap.put("eventMappingList",eventMappingList);
 		parmsMap.put("metricSources",metricSources);
 		parmsMap.put("reqMetricSource",reqMetricSource);
@@ -107,10 +106,9 @@ public class EventMappingController {
 			eventMapping.setPerformanceTool(determinePerformanceTool(eventMapping.getMetricSource()));
 			eventMappingDAO.insertData(eventMapping);
 
-			Map<String, Object> parmsMap = new HashMap<String, Object>(); 
-			
-			List<EventMapping> eventMappingList = new ArrayList<EventMapping>(); 
-			eventMappingList = eventMappingDAO.findEventMappings("METRIC_SOURCE", eventMapping.getMetricSource());	
+			Map<String, Object> parmsMap = new HashMap<>();
+
+			List<EventMapping> eventMappingList = eventMappingDAO.findEventMappings("METRIC_SOURCE", eventMapping.getMetricSource());	
 			List<String>metricSources    = populateMetricSourceDropdown();
 			metricSources.add(0, "");			
 			List<String>performanceTools = populatePerformanceToolsDropdown();		
@@ -149,13 +147,13 @@ public class EventMappingController {
 	
 	
 	@RequestMapping("/editEventMapping")
-	public String editEventMapping(@RequestParam String txnType ,@RequestParam String metricSource, @RequestParam String matchWhenLike, @RequestParam(required=false) String reqMetricSource,  
-			@ModelAttribute EventMapping eventMapping, Model model) {
-		eventMapping = eventMappingDAO.getEventMapping(metricSource, matchWhenLike); 
+	public String editEventMapping(@RequestParam String txnType, @RequestParam String metricSource, @RequestParam String matchWhenLike, @RequestParam(required = false) String reqMetricSource,
+								   Model model) {
+		EventMapping eventMapping = eventMappingDAO.getEventMapping(metricSource, matchWhenLike);
 		model.addAttribute("eventMapping", eventMapping);
 		
 		Map<String, Object> map = createMapOfDropdowns();  
-		map.put("eventMapping",eventMapping);	
+		map.put("eventMapping", eventMapping);
 		map.put("reqMetricSource",reqMetricSource);
 		model.addAttribute("map", map);	
 		return "editEventMapping";
@@ -179,7 +177,7 @@ public class EventMappingController {
 	
 
 	private Map<String, Object> createMapOfDropdowns() {
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		List<String>metricTypes		 = Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes();	
 		List<String>performanceTools = populatePerformanceToolsDropdown();		
 		List<String>metricSources	 = populateMetricSourceDropdown();
@@ -194,27 +192,23 @@ public class EventMappingController {
 	
 	
 	private List<String> populatePerformanceToolsDropdown() {
-		List<String> performanceToolsList =  new ArrayList<String>(Arrays.asList(AppConstantsMetrics.JMETER,
-																		     	 AppConstantsMetrics.LOADRUNNER,
-																		     	 AppConstantsMetrics.GATLING));
-		return performanceToolsList;
+		return new ArrayList<>(Arrays.asList(AppConstantsMetrics.JMETER, AppConstantsMetrics.LOADRUNNER, AppConstantsMetrics.GATLING));
 	}	
 	
 	
 	private List<String> populateMetricSourceDropdown() {
-		List<String> metricSourceList = new ArrayList<String>(Arrays.asList(AppConstantsMetrics.METRIC_SOURCE_JMETER_CPU,
-																			AppConstantsMetrics.METRIC_SOURCE_JMETER_MEMORY,
-																			AppConstantsMetrics.METRIC_SOURCE_JMETER_DATAPOINT,
-																			AppConstantsMetrics.METRIC_SOURCE_JMETER_TRANSACTION,																		  
-																			AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER, 
-																			AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_MONITOR_METER,
-																			AppConstantsMetrics.METRIC_SOURCE_GATLING_TRANSACTION ));
-		return metricSourceList;
+		return new ArrayList<>(Arrays.asList(AppConstantsMetrics.METRIC_SOURCE_JMETER_CPU,
+				AppConstantsMetrics.METRIC_SOURCE_JMETER_MEMORY,
+				AppConstantsMetrics.METRIC_SOURCE_JMETER_DATAPOINT,
+				AppConstantsMetrics.METRIC_SOURCE_JMETER_TRANSACTION,
+				AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER,
+				AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_MONITOR_METER,
+				AppConstantsMetrics.METRIC_SOURCE_GATLING_TRANSACTION));
 	}	
 	
 	
 	private List<String> populateYesNoDropdown( ) {
-		List<String> yesNo =  new ArrayList<String>();
+		List<String> yesNo = new ArrayList<>();
 		yesNo.add("N");
 		yesNo.add("Y");
 		return yesNo;

@@ -48,7 +48,7 @@ IF "%DATABASE%" == "H2MEM" (
 
 IF "%DATABASE%" == "MYSQL" (
 	rem using MySQL:  Starting metricsRuncheck batch with some parameters provided (defaults taken on other parameters. ) 
-	java -jar ./target/metricsRuncheck.jar -a DataHunter -i C:\Mark59_Runs\Jmeter_Results\DataHunter -d mysql -h localhost  -p 3306 -s metricsdb -q "?allowPublicKeyRetrieval=true&useSSL=false" -t JMETER  -r "uploaded %date% %time%"
+	java -jar ./target/metricsRuncheck.jar -a DataHunter -i C:\Mark59_Runs\Jmeter_Results\DataHunter -k true -d mysql -h localhost  -p 3306 -s metricsdb -q "?allowPublicKeyRetrieval=true&useSSL=false" -t JMETER  -r "uploaded %date% %time%"
 )
 
 IF "%DATABASE%"=="POSTGRES" (

@@ -31,7 +31,7 @@ import com.mark59.core.utils.Mark59Constants;
  */
 public class AppConstantsMetrics {
 	
-	public static final String MARK59_TRENDING_VERSION = "4.1";		
+	public static final String MARK59_TRENDING_VERSION = "4.2";		
 	
 	public static final String TXN_90TH_GRAPH = "TXN_90TH";
 	public static final String TXN_95TH_GRAPH = "TXN_95TH";
@@ -83,7 +83,7 @@ public class AppConstantsMetrics {
 	
 	private static final Map<String, String> TOOL_DATATYPES_TO_SOURCE_VALUE_MAP = createDataTypeLookupMap();	
     private static Map<String, String> createDataTypeLookupMap() {
-        Map<String, String> datatypevals = new HashMap<String, String>();
+        Map<String, String> datatypevals = new HashMap<>();
         datatypevals.put(METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER,	"DataPoint_meter");
         datatypevals.put(METRIC_SOURCE_LOADRUNNER_MONITOR_METER,    "Monitor_meter");
        return Collections.unmodifiableMap(datatypevals);
@@ -95,7 +95,7 @@ public class AppConstantsMetrics {
 	
 	private static final Map<String, String> VALUE_DERIVATON_TO_SOURCE_FIELD_MAP = createTxnFieldsMap();	
     private static Map<String, String> createTxnFieldsMap() {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("Minimum",        "TXN_MINIMUM");
         result.put("Average",        "TXN_AVERAGE");
         result.put("Median",         "TXN_MEDIAN");

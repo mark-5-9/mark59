@@ -16,8 +16,6 @@
 
 package com.mark59.metricsruncheck;
 
-import java.io.IOException;
-
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -39,12 +37,12 @@ public class ApplicationEntry  implements CommandLineRunner  {
 	 */
 	@Override
 	public void run(String... args) throws Exception {
-	};
+	}
 
-	
-	//For a quick and dirty test set the args at the start of the main  (examples in the commented out lines below):
 
-	public static void main(String[] args) throws IOException {
+    //For a quick and dirty test set the args at the start of the main  (examples in the commented out lines below):
+
+	public static void main(String[] args) {
   
 		System.out.println("Starting Runcheck .. (version "  + AppConstantsMetrics.MARK59_TRENDING_VERSION + ")"  );
 

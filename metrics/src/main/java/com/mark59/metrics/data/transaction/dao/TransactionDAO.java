@@ -28,40 +28,40 @@ import com.mark59.metrics.data.beans.Transaction;
  */
 public interface TransactionDAO 
 {
-	public void insert(Transaction transaction);
+	void insert(Transaction transaction);
 
-	public void deleteAllForRun(Run run);
+	void deleteAllForRun(Run run);
 
-	public void deleteAllForRun(String application, String runTime);
+	void deleteAllForRun(String application, String runTime);
 
-	public void deleteAllForApplication(String application);
+	void deleteAllForApplication(String application);
 
-	public List<Transaction> getUniqueListOfTransactionsByType(String application);
+	List<Transaction> getUniqueListOfTransactionsByType(String application);
 
-	public long countRunsWithCdpTransactions(String application);
+	long countRunsWithCdpTransactions(String application);
 
-	public String transactionIdsSQL(String application, String graph, String showCdpOption, String sqlSelectLike, 
-			String sqlSelectNotLike, boolean manuallySelectTxns, String chosenTxns, String chosenRuns,
-			boolean useRawSQL, String rawTransactionIdsSQL);
+	String transactionIdsSQL(String application, String graph, String showCdpOption, String sqlSelectLike,
+                             String sqlSelectNotLike, boolean manuallySelectTxns, String chosenTxns, String chosenRuns,
+                             boolean useRawSQL, String rawTransactionIdsSQL);
 
-	public List<Transaction> returnListOfTransactionsToGraph(String application, String graph,String showCdpOption, String sqlSelectLike, 
-			String sqlSelectNotLike, boolean manuallySelectTxns, String chosenTxns, String chosenRuns, 
-			boolean useRawSQL, String transactionIdsSQL, String nthRankedTxn);
+	List<Transaction> returnListOfTransactionsToGraph(String application, String graph, String showCdpOption, String sqlSelectLike,
+                                                      String sqlSelectNotLike, boolean manuallySelectTxns, String chosenTxns, String chosenRuns,
+                                                      boolean useRawSQL, String transactionIdsSQL, String nthRankedTxn);
 
-	public Transaction getTransaction(String application, String txnType, String runTime, String txnId,
-			String isCdpTxn);
+	Transaction getTransaction(String application, String txnType, String runTime, String txnId,
+                               String isCdpTxn);
 
-	public List<Datapoint> findDatapointsToGraph(String application, String graph, String chosenRuns,
-			List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph);
+	List<Datapoint> findDatapointsToGraph(String application, String graph, String chosenRuns,
+                                          List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph);
 
-	public Object getTransactionValue(String application, String txnType, String isCdpTxn, String runTime, String txnId,
-			String transactionField);
+	Object getTransactionValue(String application, String txnType, String isCdpTxn, String runTime, String txnId,
+                               String transactionField);
 
-	public long countRunsContainsBothTxnIds(String application, String txnType, String fromTxnId, String toTxnId,
-			String fromIsCdpTxn, String toIsCdpTxn);
+	long countRunsContainsBothTxnIds(String application, String txnType, String fromTxnId, String toTxnId,
+                                     String fromIsCdpTxn, String toIsCdpTxn);
 
-	public void renameTransactions(String application, String txnType, String fromTxnId, String toTxnId,
-			String fromIsCdpTxn, String toIsCdpTxn);
+	void renameTransactions(String application, String txnType, String fromTxnId, String toTxnId,
+                            String fromIsCdpTxn, String toIsCdpTxn);
 
 	
 }

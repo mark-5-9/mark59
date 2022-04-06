@@ -89,7 +89,7 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 				.addValue("selectionValue", selectionValue);
 
 //		System.out.println(" ..CommandParserLinks: "+sql+Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
-		List<CommandParserLink> commandParserLinkList = new ArrayList<CommandParserLink>();
+		List<CommandParserLink> commandParserLinkList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -111,10 +111,8 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
-				new Object[] {
-						commandParserLink.getCommandName(), 			
-						commandParserLink.getScriptName() 			
-				});
+				commandParserLink.getCommandName(),
+				commandParserLink.getScriptName());
 	}
 
 	

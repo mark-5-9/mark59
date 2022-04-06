@@ -234,7 +234,7 @@
      
       <table>
          <tr> 
-           <td width="15%"><b>v4.1</b> </td> <td width="85%"></td> 	
+           <td width="15%"><b>Version: 4.2</b> </td> <td width="85%"></td> 	
          </tr> 
 
          <tr> 
@@ -325,6 +325,13 @@
            <td width="15%">Transactions which have had the 'Ignore in Graph' flag set in the SLA Transaction table</td> 
            <td width="85%"> 
            	<textarea id='ignoredTransactionsId' style="width:100%;height:50px" >${ignoredTransactionsId}</textarea> 
+           </td> 	
+         </tr> 	
+
+	     <tr> 
+           <td width="15%">Transactions which have had their SLAs set to disabled in the SLA Transaction table</td> 
+           <td width="85%"> 
+           	<textarea id='disabledSlasId' style="width:100%;height:50px" >${disabledSlasId}</textarea> 
            </td> 	
          </tr> 	
 

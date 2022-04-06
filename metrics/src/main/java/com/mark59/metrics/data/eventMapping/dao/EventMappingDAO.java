@@ -27,20 +27,20 @@ import com.mark59.metrics.data.beans.EventMapping;
 public interface EventMappingDAO 
 {
 	
-	public void insertData(EventMapping eventMapping);
+	void insertData(EventMapping eventMapping);
 	
-	public void deleteData(String txnType, String metricSource, String matchWhenLike);
+	void deleteData(String txnType, String metricSource, String matchWhenLike);
 
-	public EventMapping getEventMapping(String metricSource, String matchWhenLike);
+	EventMapping getEventMapping(String metricSource, String matchWhenLike);
 	
-	public List<EventMapping> findEventMappings();
+	List<EventMapping> findEventMappings();
 	
-	public List<EventMapping> findEventMappingsForPerformanceTool(String performanceTool); 
+	List<EventMapping> findEventMappingsForPerformanceTool(String performanceTool);
 
-	public List<EventMapping> findEventMappings(String selectionCol,  String selectionValue);
+	List<EventMapping> findEventMappings(String selectionCol, String selectionValue);
 	
 
-	public boolean doesLrEventMapEntryMatchThisEventMapping(String mdbEventType, String mdbEventName, EventMapping mark59EventMapping);
+	boolean doesLrEventMapEntryMatchThisEventMapping(String mdbEventType, String mdbEventName, EventMapping mark59EventMapping);
 
 	/**
 	 *   See if the passed transaction id / metric source type (eg 'Jmeter_DATAPOINT' - refer to AppConstantsMetrics ) matches to an event 
@@ -58,9 +58,9 @@ public interface EventMappingDAO
 	 * @param metricSource
 	 * @return matched EventMapping 
 	 */
-	public EventMapping findAnEventForTxnIdAndSource(String txnId, String metricSource);
+    EventMapping findAnEventForTxnIdAndSource(String txnId, String metricSource);
 	
-	public void updateData(EventMapping eventMapping);
+	void updateData(EventMapping eventMapping);
 
 	
 }

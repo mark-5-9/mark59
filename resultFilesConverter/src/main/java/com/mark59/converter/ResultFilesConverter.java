@@ -19,15 +19,11 @@ package com.mark59.converter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -52,7 +48,8 @@ import com.opencsv.exceptions.CsvValidationException;
 
 
 /**
- * Parses a Jmeter results file(s) in XML or CSVformat, and converts the data to CSV formatted file(s) suitable to produce Jmeter Reports. See program arguments descriptions for more detail on file output options.
+ * Parses a Jmeter results file(s) in XML or CSVformat, and converts the data to CSV formatted file(s) suitable to produce Jmeter Reports. See program arguments
+ *  descriptions for more detail on file output options.
  * 
  * <p>For XML, the general format of the file we want to parse:
  * <pre>{@code
@@ -108,7 +105,7 @@ public class ResultFilesConverter {
 	
 	private static final String[] blankLine = {"0","0","","0","","","","","","0","0","0","0","","0","","0","0"};
 	
-	private String[] nextLine = new String[18];	
+	private final String[] nextLine = new String[18];
 
 	private int fieldPostimeStamp;
 	private int fieldPoselapsed;	
@@ -129,9 +126,7 @@ public class ResultFilesConverter {
 	private int fieldPosIdleTime;
 	private int fieldPosConnect;
 
-	private String outputBaseCsvFileName;
-
-	private CSVWriter baseCsvFileNameWriter; 	
+	private CSVWriter baseCsvFileNameWriter;
 	private CSVWriter metrics_CsvFileNameWriter; 	
 	private CSVWriter datapoint_CsvFileNameWriter; 	
 	private CSVWriter cpu_util_CsvFileNameWriter; 	
@@ -149,7 +144,7 @@ public class ResultFilesConverter {
 	
 		
 		HelpFormatter formatter = new HelpFormatter();
-		CommandLine commandLine = null; 
+		CommandLine commandLine;
 		CommandLineParser parser = new DefaultParser();
 		try {
 			commandLine = parser.parse( options, args );
@@ -239,49 +234,62 @@ public class ResultFilesConverter {
 
 	
 	public void clearOutputDirectory() {
-		for (File file : new File(argOutputdirectoy).listFiles()) {
-			if (!file.isDirectory()) {
-				file.delete();
+		File outputDirectory = new File(argOutputdirectoy);
+		if (outputDirectory.listFiles() != null) {
+			for (File file : Objects.requireNonNull(outputDirectory.listFiles())) {
+				if (!file.isDirectory()) {
+					file.delete();
+				}
 			}
 		}
 	}	
 	
-	public int convert() throws FileNotFoundException, IOException,  ParserConfigurationException, SAXException {
+	
+	public int convert() throws IOException,  ParserConfigurationException, SAXException {
 
-		outputBaseCsvFileName = argOutputdirectoy + File.separator +  removeCsvSuffixIfEntered(argOutputFilename); 
+		String outputBaseCsvFileName = argOutputdirectoy + File.separator + removeCsvSuffixIfEntered(argOutputFilename);
 		baseCsvFileNameWriter = initializeCsvWriter(outputBaseCsvFileName + ".csv");
 		
 		boolean metricsOutputCsvFilesInitialized = false;
 		int sampleCount = 0;
 		
-		for (File jmeterResultsFile : new File(argInputdirectory).listFiles()){  
+		File jmeterResultsDirectory = new File(argInputdirectory);
 		
-			if ( jmeterResultsFile.isFile() && (
-					jmeterResultsFile.getName().toUpperCase().endsWith(".JTL") || 
-					jmeterResultsFile.getName().toUpperCase().endsWith(".XML") || 
-					jmeterResultsFile.getName().toUpperCase().endsWith(".CSV"))){
-				
-				if (!metricsOutputCsvFilesInitialized) {
-					metricsOutputCsvFilesInitialized = true;
-					initializeCsvMetricWriters(outputBaseCsvFileName);
-				}				
-				
-				try {
-					sampleCount = sampleCount + convertaJmeterFile(jmeterResultsFile);
-				} catch (IOException e) {
-					System.out.println( "Error: problem with processing Jmeter results file transactions " + jmeterResultsFile.getName() );
-					e.printStackTrace();
+		if (jmeterResultsDirectory.listFiles() != null) {
+		
+			for (File jmeterResultsFile : Objects.requireNonNull(jmeterResultsDirectory.listFiles())){
+			
+				if ( jmeterResultsFile.isFile() && (
+						jmeterResultsFile.getName().toUpperCase().endsWith(".JTL") || 
+						jmeterResultsFile.getName().toUpperCase().endsWith(".XML") || 
+						jmeterResultsFile.getName().toUpperCase().endsWith(".CSV"))){
+					
+					if (!metricsOutputCsvFilesInitialized) {
+						metricsOutputCsvFilesInitialized = true;
+						initializeCsvMetricWriters(outputBaseCsvFileName);
+					}				
+					
+					try {
+						sampleCount = sampleCount + convertaJmeterFile(jmeterResultsFile);
+					} catch (IOException e) {
+						System.out.println( "Error: problem with processing Jmeter results file transactions " + jmeterResultsFile.getName() );
+						e.printStackTrace();
+					}
+					
+				} else {
+					System.out.println( "\n   " + jmeterResultsFile.getName() + " bypassed"  ); 
 				}
-				
-			} else {
-				System.out.println( "\n   " + jmeterResultsFile.getName() + " bypassed"  ); 
 			}
+			
+		} else {
+			throw new RuntimeException("Was unable to list file(s) from the input directory : " + argInputdirectory);
 		}
-
+		
 		baseCsvFileNameWriter.close();
 	    if (metricsOutputCsvFilesInitialized) {
 	    	closeCsvMetricWriters();
 	    }
+	    
 	    System.out.println("____________________________________" );
 	    System.out.println(sampleCount + " Total samples written" );
 	    System.out.println(" " );	    
@@ -292,14 +300,15 @@ public class ResultFilesConverter {
 	/**
 	 * Determine the JMeter file data format . A validly named and structured JMeter results file is expected to be passed for conversion. 
 	 * 
-	 * @param jmeterResultsFile
-	 * @throws IOException
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
+	 * @param jmeterResultsFile jmeterResultsFile
+	 * @throws IOException IOException
+	 * @throws SAXException  SAXException
+	 * @throws ParserConfigurationException ParserConfigurationException
 	 */
 	private int convertaJmeterFile(File jmeterResultsFile) throws IOException, ParserConfigurationException, SAXException {
 		
-		BufferedReader brOneLine = new BufferedReader(new FileReader(jmeterResultsFile));
+		FileReader fileReader = new FileReader(jmeterResultsFile);
+		BufferedReader brOneLine = new BufferedReader(fileReader);
 		String firstLineOfFile = brOneLine.readLine();
 		brOneLine.close();
 		
@@ -360,7 +369,7 @@ public class ResultFilesConverter {
 	
 	private CSVWriter initializeCsvWriter(String csvWriterFileName) {
 		System.out.println("initializeCsvWriter " + csvWriterFileName);
-		CSVWriter csvWriter = null;
+		CSVWriter csvWriter;
 		try {
 			FileWriter fileWriter = new FileWriter(csvWriterFileName, false);
 			BufferedWriter bf = new BufferedWriter(fileWriter);
@@ -375,7 +384,7 @@ public class ResultFilesConverter {
 	
 		
 	
-	public int convertXMLFile(File inputXmlFileName) throws FileNotFoundException, IOException,  ParserConfigurationException, SAXException {
+	public int convertXMLFile(File inputXmlFileName) throws IOException,  ParserConfigurationException, SAXException {
 
 		long startLoadms = System.currentTimeMillis(); 
 		System.out.println("\n\nProcessing Xml formatted Jmeter Results File " + inputXmlFileName.getName() + " at " + new Date(startLoadms));		
@@ -434,23 +443,19 @@ public class ResultFilesConverter {
 
 
 	private boolean jmeterXmlLineIsAClosedSample(String trimmedJmeterFileLine) {
-		boolean isUnclosedSample = jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("/>") ?true:false;	
-		return isUnclosedSample;
+		return jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("/>");
 	}
 	
 	private boolean jmeterXmlLineIsAnUnclosedSample(String trimmedJmeterFileLine) {
-		boolean isUnclosedSample = jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("\">") ?true:false;	
-		return isUnclosedSample;
+		return jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("\">");
 	}
 
 	private boolean jmeterXmlLineIsASample(String trimmedJmeterFileLine) {
-		boolean isSample = trimmedJmeterFileLine.startsWith("<sample") || trimmedJmeterFileLine.startsWith("<httpSample") ?true:false;	
-		return isSample;
+		return trimmedJmeterFileLine.startsWith("<sample") || trimmedJmeterFileLine.startsWith("<httpSample");
 	}
 	
 	private boolean jmeterXmlLineIsAnEndSampleTag(String trimmedJmeterFileLine) {
-		boolean isSample = trimmedJmeterFileLine.startsWith("</sample>") || trimmedJmeterFileLine.startsWith("</httpSample>") ?true:false;	
-		return isSample;
+		return trimmedJmeterFileLine.startsWith("</sample>") || trimmedJmeterFileLine.startsWith("</httpSample>");
 	}	
 
 	private int readLinesToSubResultEndTag(BufferedReader xmlReader, int lineCount) throws IOException {
@@ -466,9 +471,9 @@ public class ResultFilesConverter {
 	}
 
 	private void lineCountProgressDisplay(int lineCount) {
-		if ( (lineCount % 1000 )   == 0 ){	System.out.print("^");};
-		if ( (lineCount % 100000 ) == 0 ){	System.out.println();};
-	}
+		if ( (lineCount % 1000 )   == 0 ){	System.out.print("^");}
+        if ( (lineCount % 100000 ) == 0 ){	System.out.println();}
+    }
 	
 		
 	private int createOutputForAnXmlDataSample(String jmeterFileLine) throws ParserConfigurationException, SAXException, IOException {
@@ -558,19 +563,20 @@ public class ResultFilesConverter {
 	 * CSV files are treated in a similarly manner to XML, without the complexity of dealing with sub-transactions 
 	 * (each line is considered a transaction unless it appears to be invalid, in which case it is just bypassed) 
 	 * 
-	 * @param inputCsvFileName
-	 * @throws IOException
+	 * @param inputCsvFileName inputCsvFileName
+	 * @throws IOException IOException
 	 */
 	private int reformatCSVFile(File inputCsvFileName, boolean hasHeader) throws IOException {
 		
 		int samplesCreated=0; 
-		CSVReader csvReader = new CSVReader(new BufferedReader(new FileReader(inputCsvFileName)));
+		FileReader fileReader = new FileReader(inputCsvFileName);
+		CSVReader csvReader = new CSVReader(new BufferedReader(fileReader));
 		int lineCount = 0; 
 		long startLoadms = System.currentTimeMillis(); 
 		System.out.println("\n\nProcessing CSV formatted Jmeter Results File " + inputCsvFileName.getName() + " at " + new Date(startLoadms));					
 		
 		if (hasHeader) { 
-			List<String> csvHeaderFieldsList = new ArrayList<String>();
+			List<String> csvHeaderFieldsList;
 			try {
 				csvHeaderFieldsList = Arrays.asList(csvReader.readNext());
 			} catch (CsvValidationException e) {
@@ -609,7 +615,6 @@ public class ResultFilesConverter {
 			setFieldPositionsAssumingTheDefaultCsvLayout();
 		}
 
-		
 		String[] csvDataLineFields = csvReadNextLine(csvReader, inputCsvFileName);
 		
 	   	while ( csvDataLineFields != null ) {
@@ -623,8 +628,9 @@ public class ResultFilesConverter {
 	    		String inputFileDatatype    = csvDataLineFields[fieldPosdataType];
 	    		String success 				= csvDataLineFields[fieldPossuccess];
 
-	    		if ( ! (transactionNameLabel.startsWith(IGNORE) || 
-	    			    inputFileDatatype.equals(JMeterFileDatatypes.PARENT.getDatatypeText()) && argeXcludeResultsWithSub.equalsIgnoreCase("TRUE")) ){
+				if (!( transactionNameLabel.startsWith(IGNORE)
+						|| (inputFileDatatype.equals(JMeterFileDatatypes.PARENT.getDatatypeText())
+								&& argeXcludeResultsWithSub.equalsIgnoreCase("TRUE")) )){
     			
 	    			System.arraycopy(blankLine, 0, nextLine, 0, blankLine.length);
     			
@@ -686,7 +692,7 @@ public class ResultFilesConverter {
 
 
 	private String[] csvReadNextLine( CSVReader csvReader, File inputCsvFileName) throws IOException {
-		String[] csvDataLineFields = null;
+		String[] csvDataLineFields;
 		try {
 			csvDataLineFields = csvReader.readNext();
 		} catch (CsvValidationException e) {
@@ -723,7 +729,7 @@ public class ResultFilesConverter {
 		fieldPosConnect  		= 16; 		
 	}
 
-	private void writeCsvOuptput(String inputFileDatatype, String[] csvDataLine) throws IOException {
+	private void writeCsvOuptput(String inputFileDatatype, String[] csvDataLine) {
 //		System.out.println("writeCsvOuptput  inputFileDatatype=" + inputFileDatatype + ", csvDataLine=" + csvDataLine);
 		
 		if (inputFileDatatype.equals(JMeterFileDatatypes.TRANSACTION.getDatatypeText())) {
@@ -767,7 +773,7 @@ public class ResultFilesConverter {
 			return;
 		}
 		
-		throw new RuntimeException("Logic error in writeCsvOuptput : " + inputFileDatatype + ", argMetricsfile=" + argMetricsfile + ", csvDataLine=" + csvDataLine); 
+		throw new RuntimeException("Logic error in writeCsvOuptput : " + inputFileDatatype + ", argMetricsfile=" + argMetricsfile); 
 	}	
 
 	
@@ -776,27 +782,8 @@ public class ResultFilesConverter {
 	 *   The methods below are based on code in Commons StringUtils  
 	 */
 
-	
-    /**
-     * <p>Gets the String that is nested in between two Strings.
-     * Only the first match is returned.</p>
-     * @param str  the String containing the substring, may be null
-     * @param open  the String before the substring, may be null
-     * @param close  the String after the substring, may be null
-     * @return the substring, {@code null} if no match
-     */
-    public static String substringBetween(final String str, final String open, final String close) {
-        final int start = str.indexOf(open);
-        if (start != INDEX_NOT_FOUND) {
-            final int end = str.indexOf(close, start + open.length());
-            if (end != INDEX_NOT_FOUND) {
-                return str.substring(start + open.length(), end);
-            }
-        }
-        return null;
-    }
-	
-    /**
+
+	/**
      * <p>Counts how many times the substring appears in the larger string.</p>
      */
     private static int countMatches(CharSequence str, CharSequence sub) {
@@ -815,7 +802,7 @@ public class ResultFilesConverter {
 	
     public static void main( String[] args ) throws IOException, SAXException, ParserConfigurationException
     {
-        System.out.println( "Result Files Converter starting .. (v4.1)" );
+        System.out.println( "Result Files Converter starting .. ( Version: 4.2 )" );
 
 //        for a quick and dirty test ...
 //        args = new String[]{"-i", "C:/Jmeter_Results/myapp", "-f", "myapp_TestResults_converted.csv", "-m", "SplitByDataType", "-e", "No", "-x", "True" };

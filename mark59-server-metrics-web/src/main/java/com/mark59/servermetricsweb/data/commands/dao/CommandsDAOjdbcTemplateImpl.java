@@ -51,7 +51,6 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 				.addValue("commandName", commandName);
 
 //		System.out.println(" findCommand : " + sql + " : " + commandName);
-		List<Command> commandList = new ArrayList<Command>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -67,7 +66,6 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		command.setIngoreStderr((String)row.get("IGNORE_STDERR"));
 		command.setComment((String)row.get("COMMENT"));
 		command.setParamNames(deserializeJsonToList((String)row.get("PARAM_NAMES")));
-		commandList.add(command);
 		return  command;
 	}
 
@@ -92,7 +90,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 				.addValue("selectionValue", selectionValue);
 
 //		System.out.println(" findCommands : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
-		List<Command> commandList = new ArrayList<Command>();
+		List<Command> commandList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -120,14 +118,12 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
-				new Object[] {
-						command.getCommandName(), 			
-						command.getExecutor(), 			
-						command.getCommand(), 			
-						command.getIngoreStderr(), 			
-						command.getComment(), 			
-						serializeListToJson(command.getParamNames()) 			
-				});
+				command.getCommandName(),
+				command.getExecutor(),
+				command.getCommand(),
+				command.getIngoreStderr(),
+				command.getComment(),
+				serializeListToJson(command.getParamNames()));
 	}
 	
 	
@@ -141,14 +137,12 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
 		jdbcTemplate.update(sql,
-				new Object[] {
-						command.getExecutor(), 			
-						command.getCommand(), 			
-						command.getIngoreStderr(), 							
-						command.getComment(),
-						serializeListToJson(command.getParamNames()), 							
-						command.getCommandName() 							
-				});
+				command.getExecutor(),
+				command.getCommand(),
+				command.getIngoreStderr(),
+				command.getComment(),
+				serializeListToJson(command.getParamNames()),
+				command.getCommandName());
 	}	
 	
 	

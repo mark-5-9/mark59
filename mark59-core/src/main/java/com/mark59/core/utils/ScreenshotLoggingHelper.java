@@ -25,8 +25,8 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Static properties file reader, loading the properties file into memory just once per run to reduce disk I/O.
@@ -52,8 +52,8 @@ public class ScreenshotLoggingHelper {
 	/**
 	 * private constructor to ensure deleteDirectory can only be executed in this class (to prevent multiple calls to deleteDirectory)
 	 */
-	private  ScreenshotLoggingHelper(PropertiesReader pr) throws IOException {
-		String directory = null;
+	private  ScreenshotLoggingHelper() throws IOException {
+		String directory;
 		try {
 			directory = PropertiesReader.getInstance().getProperty(PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY);
 		} catch (IOException e) {
@@ -72,7 +72,6 @@ public class ScreenshotLoggingHelper {
 	}
 
 	
-	
 	/**
 	 * Returns a fully qualified name for the image, including assigning the .jpg file extension
 	 * 
@@ -85,7 +84,6 @@ public class ScreenshotLoggingHelper {
 		return buildFullyQualifiedImageName(imageName, "jpg");
 	}
 
-	
 	
 	/**
 	 * Returns a fully qualified name for the image, including assigning an arbitrary file extension.
@@ -122,7 +120,8 @@ public class ScreenshotLoggingHelper {
 	 * @param screenshotLogFileData the screenshot data 
 	 */
 	public static void writeScreenshotLog(File screenshotLogFilename, byte[] screenshotLogFileData) {
-		
+
+		//noinspection ResultOfMethodCallIgnored
 		new File(screenshotLogFilename.getParent()).mkdirs();
 
 		LOG.info(MessageFormat.format("Writing image to disk: {0}", screenshotLogFilename));
@@ -152,13 +151,29 @@ public class ScreenshotLoggingHelper {
 
 			
 	/**
+	 * @return an existing or otherwise new ScreenshotLoggingHelper
+	 * @throws IOException when trying to read the properties file
+	 */
+	public static synchronized ScreenshotLoggingHelper initialiseDirectory() throws IOException {
+		if (instance == null) {
+			instance = new ScreenshotLoggingHelper();
+		}
+		return instance;
+	}
+	
+	
+	/**
+	 * Deprecated.  Please use {@link #initialiseDirectory()} <br>
+	 * Left for compatibility with mark59 v4.1 and earlier
+	 * 
 	 * @param pr PropertiesReader
 	 * @return an existing or otherwise new ScreenshotLoggingHelper
 	 * @throws IOException when trying to read the properties file
 	 */
+	@Deprecated
 	public static synchronized ScreenshotLoggingHelper initialiseDirectory(PropertiesReader pr) throws IOException {
 		if(instance == null) {
-			instance = new ScreenshotLoggingHelper(pr);
+			instance = new ScreenshotLoggingHelper();
 		}
 		return instance;
 	}

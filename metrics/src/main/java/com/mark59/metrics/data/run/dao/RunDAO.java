@@ -26,33 +26,33 @@ import com.mark59.metrics.data.beans.Run;
  */
 public interface RunDAO 
 {
-	public void insertRun(Run run);
+	void insertRun(Run run);
 
-	public void updateRun(Run run);
+	void updateRun(Run run);
 
-	public void deleteRun(String application, String runTime);
+	void deleteRun(String application, String runTime);
 
-	public void deleteAllForApplication(String application);
+	void deleteAllForApplication(String application);
 	
-	public Run findRun(String application, String runTime);
+	Run findRun(String application, String runTime);
 
-	public List<Run> findRuns(String application);	
+	List<Run> findRuns(String application);
 		
-	public List<String> findApplications();
+	List<String> findApplications();
 	
-	public List<String> findApplications(String appListSelector);
+	List<String> findApplications(String appListSelector);
 		
-	public String findLastRunDate(String application); 
+	String findLastRunDate(String application);
 	
-	public List<String> findRunDates(String application);
+	List<String> findRunDates(String application);
 
-	public List<String> findApplicationsWithBaselines();
+	List<String> findApplicationsWithBaselines();
 
-	public Run findLastBaselineRun(String application);
+	Run findLastBaselineRun(String application);
 
-	public String determineRunDatesToGraph(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean isManuallySelectRuns, String chosenRuns, boolean isUseRawRunSQL, String runTimeSelectionSQL,  String maxRun, String maxBaselineRun);
+	String determineRunDatesToGraph(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean isManuallySelectRuns, String chosenRuns, boolean isUseRawRunSQL, String runTimeSelectionSQL, String maxRun, String maxBaselineRun);
 	
-	public String runsSQL(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean useRawRunSQL, String rawRunTimeSelectionSQL);
+	String runsSQL(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean useRawRunSQL, String rawRunTimeSelectionSQL);
 
 
 }

@@ -21,6 +21,7 @@ public class AjaxControls {
 		
 		 new WebDriverWait(driver, Duration.ofSeconds(20), Duration.ofMillis(200)).until(new ExpectedCondition<Boolean>()
 		 {
+			 @Override
 		     public Boolean apply(WebDriver driver) {
 		         JavascriptExecutor js = (JavascriptExecutor) driver;
 		         Boolean activejQeuryAjax = (Boolean)js.executeScript("return jQuery.active == 0");

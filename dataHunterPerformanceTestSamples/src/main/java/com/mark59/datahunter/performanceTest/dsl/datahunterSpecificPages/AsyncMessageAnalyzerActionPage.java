@@ -26,19 +26,15 @@ import com.mark59.seleniumDSL.pageElements.Link;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class AsyncMessageAnalyzerActionPage extends _GenericDatatHunterActionPage {
+public class AsyncMessageAnalyzerActionPage extends _GenericDataHunterActionPage {
 	
-	public AsyncMessageAnalyzerActionPage( WebDriver driver) {
-		super(driver);
-	}
+	public AsyncMessageAnalyzerActionPage( WebDriver driver) { super(driver); }
 
 	public HtmlTable asyncMessageaAnalyzerTable() {
 		return new HtmlTable(driver, "asyncMessageaAnalyzerTable");
-	};		
+	}
 
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};	
-	
-	
+	}
 }

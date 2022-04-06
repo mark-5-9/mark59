@@ -19,7 +19,6 @@ package com.mark59.metrics.data.run.dao;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -42,11 +41,7 @@ import com.mark59.metrics.data.transaction.dao.TransactionDAO;
  * @author Philip Webb
  * Written: Australian Winter 2019  
  */
-/**
- * @author s62991
- *
- */
-public class RunDAOjdbcTemplateImpl implements RunDAO 
+public class RunDAOjdbcTemplateImpl implements RunDAO
 {
 	@Autowired  
 	private DataSource dataSource;
@@ -66,8 +61,8 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-		jdbcTemplate.update(sql,new Object[] { run.getApplication(), run.getRunTime(), run.getIsRunIgnored(), run.getRunReference(), 
-												run.getPeriod(),  run.getDuration(), run.getBaselineRun(),  run.getComment() });
+		jdbcTemplate.update(sql, run.getApplication(), run.getRunTime(), run.getIsRunIgnored(), run.getRunReference(),
+				run.getPeriod(), run.getDuration(), run.getBaselineRun(), run.getComment());
 
 		if (StringUtils.isBlank( applicationDAO.findApplication(run.getApplication()).getApplication())) {
 //			System.out.println("RunDAO insertRun creating an application table entry for " + run.getApplication() );
@@ -88,8 +83,8 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sql,
-				new Object[] {run.getIsRunIgnored(), run.getRunReference(), run.getPeriod(),  run.getDuration(), run.getBaselineRun(),
-						run.getComment(),run.getApplication(), run.getRunTime(),});
+				run.getIsRunIgnored(), run.getRunReference(), run.getPeriod(), run.getDuration(), run.getBaselineRun(),
+				run.getComment(),run.getApplication(), run.getRunTime());
 	}	
 	
 	
@@ -135,7 +130,7 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 
 		String sql = "SELECT distinct APPLICATION FROM RUNS order by APPLICATION ";
 		
-		List<String> applications = new ArrayList<String>();
+		List<String> applications = new ArrayList<>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
@@ -155,7 +150,7 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 			String sql = "SELECT distinct APPLICATION FROM RUNS where APPLICATION in (select APPLICATION from APPLICATIONS where ACTIVE = 'Y')"
 					+ " order by APPLICATION " ;
 	
-			List<String> applications = new ArrayList<String>();
+			List<String> applications = new ArrayList<>();
 			JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 	
 			List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
@@ -177,7 +172,7 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 
 		String sql = "SELECT distinct APPLICATION FROM RUNS where BASELINE_RUN = 'Y' order by APPLICATION ";
 
-		List<String> applications = new ArrayList<String>();
+		List<String> applications = new ArrayList<>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
@@ -209,9 +204,9 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 	 */
 	@Override
 	public List<String> findRunDates(String application){
-		List<String> runDates = new ArrayList<String>();
+		List<String> runDates = new ArrayList<>();
 
-		String sql = runsSqlNamedParms(application, "%","", false, "" );  
+		String sql = runsSqlNamedParms("%","", false, "" );  
 		
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("application", application);	
@@ -266,7 +261,7 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 	@Override
 	public List<Run> findRuns(String application){
 
-		List<Run> runsList = new ArrayList<Run>();
+		List<Run> runsList = new ArrayList<>();
 		String runsListSelectionSQL        = "select APPLICATION, RUN_TIME, IS_RUN_IGNORED, RUN_REFERENCE, PERIOD, DURATION, BASELINE_RUN, COMMENT from RUNS ";
 		String runsListSelectionSQLwithApp = "   where APPLICATION = :application order by RUN_TIME DESC ";  
 		String runsListSelectionSQLnoApp   = "   order by APPLICATION  ASC, RUN_TIME DESC "; 		
@@ -342,14 +337,9 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 		
 		if (isManuallySelectRuns){  //user may of typed in dates out-of-order   
 			String[] sortedChosenRunTimesArray = UtilsMetrics.commaDelimStringToSortedStringArray(chosenRuns, Collections.reverseOrder());  
-			ArrayList<String> sortedChosenRunTimesList = new ArrayList<String> (Arrays.asList(sortedChosenRunTimesArray));
-			Iterator<String> it = sortedChosenRunTimesList.iterator();
-			while (it.hasNext()) {
-				String runtime = it.next();
-				if ( findRun(application, runtime) == null ) {	// dud run typed in - remove it ... 
-					it.remove();
-				}
-			}
+			ArrayList<String> sortedChosenRunTimesList = new ArrayList<>(Arrays.asList(sortedChosenRunTimesArray));
+			// dud run typed in - remove it ...
+			sortedChosenRunTimesList.removeIf(runtime -> findRun(application, runtime) == null);
 			runDatesToGraphList = UtilsMetrics.stringListToCommaDelimString(sortedChosenRunTimesList);
 			
 		} else {
@@ -370,9 +360,9 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 		if (maxRunDropdownValue.equals(AppConstantsMetrics.ALL ) )
 			return 99;
 		return Integer.parseInt(maxRunDropdownValue);
-	}; 
-	
-	
+	}
+
+
 	private int integerValueOfMaxBaselineRun(String maxBaselineRunDropdownValue){
 		if (maxBaselineRunDropdownValue == null )
 			return 1;
@@ -381,16 +371,16 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 		if (maxBaselineRunDropdownValue.equals(AppConstantsMetrics.ALL ) )
 			return 99;
 		return Integer.parseInt(maxBaselineRunDropdownValue);
-	}; 
-		
+	}
+
 
 	private List<String> findRunDatesWhenRunsNotManuallyChosen(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, 
 			int numRunsDisplayed, int numBaselineRunsDisplayed, boolean useRawRunSQL, String rawRunTimeSelectionSQL ) {
 		// pick up to the maximum requested number of most recent runs + most recent baseline (don't include ignore on graph runs) 			
 		
-		List<String> runTimes = new ArrayList<String>();
+		List<String> runTimes = new ArrayList<>();
 
-		String sql = runsSqlNamedParms(application, sqlSelectRunLike, reqSqlSelectRunNotLike, useRawRunSQL, rawRunTimeSelectionSQL);
+		String sql = runsSqlNamedParms(sqlSelectRunLike, reqSqlSelectRunNotLike, useRawRunSQL, rawRunTimeSelectionSQL);
 		
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("application", application)
@@ -451,7 +441,7 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 	public String runsSQL(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, 
 			boolean useRawRunSQL, String rawRunTimeSelectionSQL){	
 	
-		String sql = runsSqlNamedParms(application, sqlSelectRunLike, reqSqlSelectRunNotLike, useRawRunSQL, rawRunTimeSelectionSQL);
+		String sql = runsSqlNamedParms(sqlSelectRunLike, reqSqlSelectRunNotLike, useRawRunSQL, rawRunTimeSelectionSQL);
 
 		sql = sql.replace(":application", "'" + application + "' ")
 				 .replace(":sqlSelectRunLike", "'%" +  sqlSelectRunLike.replace(".","").replace("T","").replace(":","").trim() + "%'" )
@@ -462,9 +452,7 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 	}
 	
 	
-	private String runsSqlNamedParms(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike,  
-			boolean useRawRunSQL, String rawRunTimeSelectionSQL){	
-		
+	private String runsSqlNamedParms(String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean useRawRunSQL, String rawRunTimeSelectionSQL){	
 		String sql;
 		if (useRawRunSQL){
 			sql = rawRunTimeSelectionSQL; 
@@ -477,10 +465,10 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 				 + "     and r.APPLICATION = t.APPLICATION "
 				 + "     and r.RUN_TIME    = t.RUN_TIME ";
 			
-			if (sqlSelectRunLike != "%" ){
+			if (!"%".equals(sqlSelectRunLike) ){
 				sql = sql + " AND r.RUN_TIME LIKE :sqlSelectRunLike ";  
 			}
-			if (reqSqlSelectRunNotLike != "" ){
+			if (StringUtils.isNotBlank(reqSqlSelectRunNotLike)){
 				sql = sql  + " AND NOT ( r.RUN_TIME LIKE :reqSqlSelectRunNotLike ) ";  
 			}		
 			sql = sql  + "   order by r.RUN_TIME DESC "; 

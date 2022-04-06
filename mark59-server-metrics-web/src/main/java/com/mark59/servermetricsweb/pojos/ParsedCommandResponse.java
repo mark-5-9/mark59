@@ -7,10 +7,7 @@ public class ParsedCommandResponse {
 	private String commandName;
 	private String scriptName;
 	private String commandResponse;
-//	private String defaultDataType;
-//	private String defaultLabelSuffix;
 	private List<ParsedMetric> parsedMetrics;
-
 
 	public ParsedCommandResponse() {
 	}
@@ -39,22 +36,6 @@ public class ParsedCommandResponse {
 		this.commandResponse = commandResponse;
 	}
 
-//	public String getDefaultDataType() {
-//		return defaultDataType;
-//	}
-//
-//	public void setDefaultDataType(String defaultDataType) {
-//		this.defaultDataType = defaultDataType;
-//	}
-
-//	public String getDefaultLabelSuffix() {
-//		return defaultLabelSuffix;
-//	}
-//
-//	public void setDefaultLabelSuffix(String defaultLabelSuffix) {
-//		this.defaultLabelSuffix = defaultLabelSuffix;
-//	}
-
 	public List<ParsedMetric> getParsedMetrics() {
 		return parsedMetrics;
 	}
@@ -67,9 +48,7 @@ public class ParsedCommandResponse {
     public String toString() {
         return   "[commandName" + commandName
          	   + ", scriptName="+ scriptName   
-//         	   + ", defaultDataType="+ defaultDataType   
-//         	   + ", defaultLabelSuffix="+ defaultLabelSuffix   
-         	   + ", commandResponse="+ commandResponse   
+         	   + ", commandResponse="+ commandResponse
          	   + ", parsedMetrics="+ parsedMetrics  
         	   + "]";
 	}

@@ -50,7 +50,7 @@ public class CountPoliciesController {
 	@RequestMapping("/count_policies")
 	public String countPoliciesUrl(@RequestParam(required=false) String application,@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model  ) { 
 //		System.out.println("/count_policies");
-		List<String> usabilityList = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		usabilityList.add(0,"");
 		model.addAttribute("Useabilities",usabilityList);
 		return "/count_policies";				

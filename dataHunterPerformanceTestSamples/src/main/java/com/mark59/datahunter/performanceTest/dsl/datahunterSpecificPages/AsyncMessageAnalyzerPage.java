@@ -32,23 +32,24 @@ import com.mark59.seleniumDSL.pageElements.SubmitBtn;
 public class AsyncMessageAnalyzerPage extends _GenericPage  {
 	
 	public AsyncMessageAnalyzerPage( WebDriver driver) {
-		super(driver);
+				super(driver);
 	}	
 	
 	public DropdownList applicationStartsWithOrEquals() {
 		return new DropdownList(driver, By.id("applicationStartsWithOrEquals"));
-	};
-	public InputTextElement application() {
+	}
+
+    public InputTextElement application() {
 		return new InputTextElement(driver, By.id("application"));
-	};	
+	}
 	public InputTextElement identifier() {
 		return new InputTextElement(driver, By.id("identifier"));
-	};	
+	}
 	public DropdownList useability() {
 		return new DropdownList(driver, By.id("useability"));
-	};
+	}
 	public SubmitBtn submit() {
 		return new SubmitBtn(driver, By.id("submit"));
-	};				
+	}
 	
 }

@@ -26,7 +26,7 @@ import com.mark59.seleniumDSL.pageElements.Link;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class PrintSelectedPoliciesActionPage extends _GenericDatatHunterActionPage {
+public class PrintSelectedPoliciesActionPage extends _GenericDataHunterActionPage {
 	
 	public PrintSelectedPoliciesActionPage( WebDriver driver) {
 		super(driver);
@@ -34,10 +34,10 @@ public class PrintSelectedPoliciesActionPage extends _GenericDatatHunterActionPa
 	
 	public HtmlTable printSelectedPoliciesTable() {
 		return new HtmlTable(driver, "printSelectedPoliciesTable");
-	};		
+	}
 
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};		
+	}
 		
 }

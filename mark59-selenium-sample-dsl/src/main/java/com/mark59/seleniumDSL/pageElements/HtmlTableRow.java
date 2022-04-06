@@ -28,7 +28,7 @@ import org.openqa.selenium.WebElement;
  */
 public class HtmlTableRow {
 
-	private WebElement tableRow;
+	private final WebElement tableRow;
 	
 	public HtmlTableRow(WebElement tableRow) {
 		this.tableRow = tableRow;

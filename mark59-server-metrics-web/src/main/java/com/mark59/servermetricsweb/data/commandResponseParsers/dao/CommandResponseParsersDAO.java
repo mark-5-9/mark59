@@ -27,11 +27,11 @@ import com.mark59.servermetricsweb.data.beans.CommandResponseParser;
  */
 public interface CommandResponseParsersDAO 
 {
-	public CommandResponseParser findCommandResponseParser(String scriptName);
+	CommandResponseParser findCommandResponseParser(String scriptName);
 	
-	public List<CommandResponseParser> findCommandResponseParsers();
+	List<CommandResponseParser> findCommandResponseParsers();
 	
-	public List<CommandResponseParser> findCommandResponseParsers(String selectionCol, String selectionValue);
+	List<CommandResponseParser> findCommandResponseParsers(String selectionCol, String selectionValue);
 	
 	void insertCommandResponseParser(CommandResponseParser commandResponseParser);
 

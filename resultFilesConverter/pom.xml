@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>resultFilesConverter</artifactId>
-	<version>4.1</version>
+	<version>4.2</version>
 	<packaging>jar</packaging>
 
 	<name>resultFilesConverter</name>
@@ -42,9 +42,16 @@
 	<build>
 		<plugins>
 		
+			<!-- override default maven-compiler-plugin version -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.1</version>
+			</plugin>
+		
 			<!-- Maven Assembly Plugin  -->
 			<!-- phase/goals:  clean package  -->
-			<!-- Wraps all the project classes and their dependencies into an executable single Jar -->
+			<!-- Wraps all the project classes and their dependencies into a single executable Jar -->
 		
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>			

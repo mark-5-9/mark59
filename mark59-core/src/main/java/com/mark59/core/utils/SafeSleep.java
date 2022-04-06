@@ -17,7 +17,7 @@
 package com.mark59.core.utils;
 
 /**
- * Un-interruptible wrapper for Thread.sleep
+ * Un-Uninterruptible wrapper for Thread.sleep
  * /**
  * @author Michael Cohen
  * Written: Australian Winter 2019  
@@ -28,7 +28,7 @@ public class SafeSleep {
 	
 	/**
 	 * Pause the running thread for a given number of milliseconds<br>  
-	 * (Un-interruptible wrapper for Thread.sleep)
+	 * (Uninterruptible wrapper for Thread.sleep)
 	 * 
 	 * @param sleepDuration  (milliseconds)
 	 */
@@ -38,7 +38,7 @@ public class SafeSleep {
 			Thread.sleep(sleepDuration);
 		} catch (InterruptedException e) {
 			Long endTime = System.currentTimeMillis();			
-			Long remainingDuration = sleepDuration - (endTime - startTime);
+			long remainingDuration = sleepDuration - (endTime - startTime);
 			if(remainingDuration > 0) {
 				sleep(remainingDuration);
 			}

@@ -49,7 +49,10 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	@Autowired  
 	private DataSource dataSource;
 
-
+    @Autowired
+    private String currentDatabaseProfile;
+	
+	
 	@Override	
 	public SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect){
 	
@@ -94,6 +97,8 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		} if (DataHunterConstants.SELECT_RANDOM_ENTRY.equals(policySelect.getSelectOrder())){
 			sql += " ORDER BY RAND() LIMIT 1 ";	
 		}
+		// System.out.println("constructSelectPoliciesSql           sql: " + sql);
+		// System.out.println("constructSelectPoliciesSql sqlparameters: " + sqlparameters);
 	
 		return new SqlWithParms(sql,sqlparameters);
 	}
@@ -101,7 +106,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	
 	@Override	
 	public SqlWithParms constructCountPoliciesBreakdownSql(PolicySelectionCriteria policySelect){
-
+		
 		SqlWithParms sqlWithParms = lifecycleAndUseabiltySelector(policySelect);
 		MapSqlParameterSource sqlparameters = sqlWithParms.getSqlparameters();
 
@@ -115,7 +120,8 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 			sql += " APPLICATION = :application ";
 		}
 		sql += sqlWithParms.getSql();
-		sql += " GROUP BY APPLICATION, LIFECYCLE, USEABILITY";
+		sql += " GROUP BY APPLICATION, LIFECYCLE, USEABILITY ";
+		sql += " ORDER BY APPLICATION, LIFECYCLE, USEABILITY ";
 
 		return new SqlWithParms(sql,sqlparameters);		
 	}
@@ -196,7 +202,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	@Override
 	public List<CountPoliciesBreakdown> runCountPoliciesBreakdownSql(SqlWithParms sqlWithParms) {
 
-		List<CountPoliciesBreakdown> countPoliciesBreakdownList = new ArrayList<CountPoliciesBreakdown>();
+		List<CountPoliciesBreakdown> countPoliciesBreakdownList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sqlWithParms.getSql(), sqlWithParms.getSqlparameters());
 		
@@ -211,31 +217,38 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	@Override
 	public List<AsyncMessageaAnalyzerResult> runAsyncMessageaAnalyzerSql(SqlWithParms sqlWithParms) {
 
-		List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList = new ArrayList<AsyncMessageaAnalyzerResult>();
+		List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sqlWithParms.getSql(), sqlWithParms.getSqlparameters());
 		
 		for (Map<String, Object> row : rows) {
-			AsyncMessageaAnalyzerResult asyncMessageaAnalyzerResult = populateAsyncMessageaAnalyzerResultFromSqlResultRow(row);
+			AsyncMessageaAnalyzerResult asyncMessageaAnalyzerResult = new AsyncMessageaAnalyzerResult();
+			asyncMessageaAnalyzerResult.setApplication((String)row.get("APPLICATION"));
+			asyncMessageaAnalyzerResult.setIdentifier((String)row.get("IDENTIFIER"));
+			asyncMessageaAnalyzerResult.setUseability((String)row.get("USEABILITY"));
+			asyncMessageaAnalyzerResult.setStarttm((Long)row.get("STARTTM"));
+			asyncMessageaAnalyzerResult.setEndtm((Long)row.get("ENDTM"));	
+			asyncMessageaAnalyzerResult.setDifferencetm((Long)row.get("DIFFERENCETM"));			
 			asyncMessageaAnalyzerResultList.add(asyncMessageaAnalyzerResult);
 		}	
 		return asyncMessageaAnalyzerResultList;
 	}
 
 	
+	
+	
+	
 	@Override	
 	public int runCountSql(SqlWithParms sqlWithParms){
-		Integer rowCount  = 0;
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-		rowCount = Integer.valueOf(jdbcTemplate.queryForObject(sqlWithParms.getSql(), sqlWithParms.getSqlparameters(), String.class));
-		return rowCount;
-	};	
-	
+		return Integer.parseInt(jdbcTemplate.queryForObject(sqlWithParms.getSql(), sqlWithParms.getSqlparameters(), String.class));
+	}
+
 
 	@Override
 	public List<Policies> runSelectPolicieSql(SqlWithParms sqlWithParms) {
 
-		List<Policies> policiesList = new ArrayList<Policies>();
+		List<Policies> policiesList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sqlWithParms.getSql(), sqlWithParms.getSqlparameters());		
 	
@@ -252,7 +265,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		
 		String sql = "INSERT INTO POLICIES "
 				+ "( APPLICATION,  IDENTIFIER,  LIFECYCLE,  USEABILITY,  OTHERDATA, CREATED, UPDATED, EPOCHTIME) VALUES "
-				+ "(:application, :identifier, :lifecycle, :useability, :otherdata, NOW(), CURRENT_TIMESTAMP, :epochtime) ";
+				+ "(:application, :identifier, :lifecycle, :useability, :otherdata, CURRENT_TIMESTAMP(6), CURRENT_TIMESTAMP(6), :epochtime) ";
 				
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("application", policies.getApplication())
@@ -269,11 +282,12 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	@Override
 	public SqlWithParms constructDeletePoliciesSql(PolicySelectionCriteria policySelectionCriteria) {
 
-		String sql = "DELETE FROM POLICIES WHERE APPLICATION = :application AND IDENTIFIER = :identifier ";
+		String sql = "DELETE FROM POLICIES WHERE APPLICATION = :application AND IDENTIFIER = :identifier AND LIFECYCLE = :lifecycle  ";
 				
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("application", policySelectionCriteria.getApplication())
-				.addValue("identifier",  policySelectionCriteria.getIdentifier());
+				.addValue("identifier",  policySelectionCriteria.getIdentifier())
+				.addValue("lifecycle",   policySelectionCriteria.getLifecycle());
 		
 		return new SqlWithParms(sql,sqlparameters);		
 	}	
@@ -290,8 +304,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		updateUse.setToUseability(DataHunterConstants.USED);
 		updateUse.setToEpochTime(nextPolicy.getEpochtime());
 
-		SqlWithParms sqlWithParms = constructUpdatePoliciesUseStateSql(updateUse);
-		return sqlWithParms;
+		return constructUpdatePoliciesUseStateSql(updateUse);
 	}
 
 	
@@ -302,7 +315,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 				.addValue("toUseability", updateUse.getToUseability())
 				.addValue("application", updateUse.getApplication());
 				
-		String sql = "UPDATE POLICIES SET USEABILITY = :toUseability, UPDATED = CURRENT_TIMESTAMP "; 		
+		String sql = "UPDATE POLICIES SET USEABILITY = :toUseability, UPDATED = CURRENT_TIMESTAMP(6) "; 		
 
 		if (updateUse.getToEpochTime() !=  null ){
 			sqlparameters.addValue("epochTime", updateUse.getToEpochTime());
@@ -322,23 +335,96 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 			sqlparameters.addValue("useability", updateUse.getUseability());
 			sql += " AND USEABILITY = :useability ";
 		}
-
 		return new SqlWithParms(sql,sqlparameters);
 	}
-	
+
 	
 	
 	@Override
 	public int runDatabaseUpdateSql(SqlWithParms sqlWithParms) {
-//		System.out.println(" runDatabaseUpdateSql : " + sqlWithParms.getSql() + sqlWithParms.getSqlparameters());		
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-		int rowsAffected = jdbcTemplate.update(sqlWithParms.getSql(), sqlWithParms.getSqlparameters());		
-//		System.out.println("PoliciesDAO runDatabaseUpdateSql rowsAffected = " + rowsAffected    );
-		return rowsAffected;		
+		return jdbcTemplate.update(sqlWithParms.getSql(), sqlWithParms.getSqlparameters());
+	}
+	
+	
+	/**
+	 * Testing on the default database configurations indicated that multiple row updates in a single SQL statement were far more
+	 *  effective for MYSQL and POSTGRES, but for H2 updating single rows multiple times was faster.     
+	 */
+	@Override
+	public List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList,
+			String toUseability) {
+		if (currentDatabaseProfile.startsWith(DataHunterConstants.H2)){
+			return updateMultiplePoliciesUseState(asyncMessageaAnalyzerResultList, toUseability, 1 );
+		} else {
+			return updateMultiplePoliciesUseState(asyncMessageaAnalyzerResultList, toUseability, 100 );			
+		}
+	}
+	
+
+	@Override
+	public List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList, 
+			String toUseability, int maxEntriesSqlUpdateStmt ){
+		
+		final String sqlBegins = "UPDATE POLICIES SET USEABILITY = ?, UPDATED = CURRENT_TIMESTAMP(6) WHERE ( ";
+		
+		boolean yetToAddFirstIdToSqlStatement = true;
+		ArrayList<Object> sqlBindParms = new ArrayList<>();
+		sqlBindParms.add(toUseability);
+		StringBuilder sqlSb = new StringBuilder().append(sqlBegins);
+		int i = 0;
+		
+		for (AsyncMessageaAnalyzerResult asyncMessageaAnalyzerResult : asyncMessageaAnalyzerResultList) {
+			asyncMessageaAnalyzerResult.setUseability(toUseability);
+			i++;
+			if (yetToAddFirstIdToSqlStatement) {
+				yetToAddFirstIdToSqlStatement = false;
+				sqlSb.append( "APPLICATION=? AND IDENTIFIER=? " );
+			} else {
+				sqlSb.append( "OR APPLICATION=? AND IDENTIFIER=? " );
+			}
+			
+			sqlBindParms.add(asyncMessageaAnalyzerResult.getApplication());
+			sqlBindParms.add(asyncMessageaAnalyzerResult.getIdentifier());
+
+	    	if ( (i % maxEntriesSqlUpdateStmt) == 0 ){
+	    		sqlSb.append(" )");
+	    		runUpdateMultiplePoliciesUseState(sqlSb, sqlBindParms, yetToAddFirstIdToSqlStatement);
+	    		yetToAddFirstIdToSqlStatement = true;
+	    		sqlBindParms = new ArrayList<>();
+	    		sqlBindParms.add(toUseability);
+	    		sqlSb = new StringBuilder().append(sqlBegins);
+	    		i = 0;
+	    	}
+		}
+		
+		sqlSb.append(" )");
+		runUpdateMultiplePoliciesUseState(sqlSb, sqlBindParms, yetToAddFirstIdToSqlStatement);
+		return asyncMessageaAnalyzerResultList;
 	}
 		
 
-	
+	private int runUpdateMultiplePoliciesUseState(StringBuilder sqlSb, ArrayList<Object> sqlBindParms, boolean yetToAddFirstIdToSqlStatement) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		int rowsAffected = 0;
+		
+		if (!yetToAddFirstIdToSqlStatement) {
+			try {
+				rowsAffected = jdbcTemplate.update(sqlSb.toString() , sqlBindParms.toArray());			
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.err.println("   runUpdateMultiplePoliciesUseState sql: " + sqlSb.toString());
+				System.err.println("   runUpdateMultiplePoliciesUseState sqlBindParms Array : ");
+		        for(int i = 0; i < sqlBindParms.size(); i++) {
+		            System.err.println("  " + (i+1)  + " : " + sqlBindParms.get(i));
+		        }
+				System.out.println("   ------------------------");
+				throw new RuntimeException();
+			}
+		}
+		return rowsAffected;
+	}
+
 
 	private Policies populatePoliciesFromResultSet(Map<String, Object> row) {
 		Policies policies = new Policies();
@@ -353,38 +439,25 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		return policies;
 	}
 	
-	/**
-	 * Note values are returned with spaces converted to underscores (_).  This is because on the 
-	 * CountPoliciesBreakdown results page, the values are used to form HTML ids on the page.   
-	 */
+
 	private CountPoliciesBreakdown populateCountPoliciesBreakdownFromResultSet(Map<String, Object> row) {
 		CountPoliciesBreakdown policiesSelectedCountsBreakdown = new CountPoliciesBreakdown();
-		policiesSelectedCountsBreakdown.setApplication(((String)row.get("APPLICATION")).replace(" ", "_"));
-		policiesSelectedCountsBreakdown.setLifecycle(((String)row.get("LIFECYCLE")).replace(" ", "_"));
-		policiesSelectedCountsBreakdown.setUseability(((String)row.get("USEABILITY")).replace(" ", "_"));
+		policiesSelectedCountsBreakdown.setApplication((String)row.get("APPLICATION"));
+		policiesSelectedCountsBreakdown.setLifecycle((String)row.get("LIFECYCLE"));
+		policiesSelectedCountsBreakdown.setUseability((String)row.get("USEABILITY"));		
 		policiesSelectedCountsBreakdown.setRowCount((Long)row.get("ROWCOUNT"));
 		return policiesSelectedCountsBreakdown;
 	}
+	
 
-	private AsyncMessageaAnalyzerResult populateAsyncMessageaAnalyzerResultFromSqlResultRow(Map<String, Object> row) {
-		AsyncMessageaAnalyzerResult asyncMessageaAnalyzerResult = new AsyncMessageaAnalyzerResult();
-		asyncMessageaAnalyzerResult.setApplication((String)row.get("APPLICATION"));
-		asyncMessageaAnalyzerResult.setIdentifier((String)row.get("IDENTIFIER"));
-		asyncMessageaAnalyzerResult.setUseability((String)row.get("USEABILITY"));
-		asyncMessageaAnalyzerResult.setStarttm((Long)row.get("STARTTM"));
-		asyncMessageaAnalyzerResult.setEndtm((Long)row.get("ENDTM"));	
-		asyncMessageaAnalyzerResult.setDifferencetm((Long)row.get("DIFFERENCETM"));			
-		return asyncMessageaAnalyzerResult;
-	}
-
-
+	
 	@Override
 	public void getLock(JdbcTemplate singleConnectionJdbcTemplate, String lockResouceString, int timeout) {
 		
 		String sql = "SELECT GET_LOCK('" +  lockResouceString + "', " + timeout + ")";
 		
 		Integer wasLockObtained = singleConnectionJdbcTemplate.queryForObject(sql, Integer.class);	
-		if (1 != wasLockObtained ){
+		if (wasLockObtained != null  &&  1 != wasLockObtained ){
 			throw new RuntimeException("Failed to set lock for query " + sql + " [" + wasLockObtained + "]");
 		}
 //		System.out.println("sql lock : " + sql + "(" + lockResult + ")"  ); //String lockResult = ...
@@ -394,11 +467,13 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	public void releaseLock(JdbcTemplate singleConnectionJdbcTemplate, String lockResouceString) throws SQLException {
 		String sql = "SELECT RELEASE_LOCK('" +  lockResouceString + "')";
 		Integer lockWasReleased = singleConnectionJdbcTemplate.queryForObject(sql, Integer.class);	
-		if (1 != lockWasReleased ){
+		if (lockWasReleased != null  &&  1 != lockWasReleased ){
 			throw new RuntimeException("Failed to set release lock for query " + sql + " [" + lockWasReleased + "]");
 		}
-		singleConnectionJdbcTemplate.getDataSource().getConnection().close();
-		
+		if (singleConnectionJdbcTemplate.getDataSource() != null
+				&& singleConnectionJdbcTemplate.getDataSource().getConnection() != null) {
+			singleConnectionJdbcTemplate.getDataSource().getConnection().close();
+		}
 //		System.out.println("sql lock : " + sql + "(" + lockResult + ")"  );
 	}
 
@@ -423,9 +498,11 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		if (1 != lockWasReleased ){
 			throw new RuntimeException("Failed to set release lock for query " + sql + " [" + lockWasReleased + "]");
 		}
-		jdbcTemplate.getDataSource().getConnection().close();
-		
+		if (jdbcTemplate.getDataSource() != null && jdbcTemplate.getDataSource().getConnection() != null) {
+			jdbcTemplate.getDataSource().getConnection().close();
+		}		
 //		System.out.println("sql lock : " + sql + "(" + lockResult + ")"  );
 	}
-	
+
+
 }

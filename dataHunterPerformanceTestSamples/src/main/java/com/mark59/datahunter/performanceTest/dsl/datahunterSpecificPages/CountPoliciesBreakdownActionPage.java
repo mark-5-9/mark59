@@ -28,7 +28,7 @@ import com.mark59.seleniumDSL.pageElements.PageTextElement;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class CountPoliciesBreakdownActionPage extends _GenericDatatHunterActionPage {
+public class CountPoliciesBreakdownActionPage extends _GenericDataHunterActionPage {
 
 	public CountPoliciesBreakdownActionPage( WebDriver driver) {
 		super(driver);
@@ -37,18 +37,16 @@ public class CountPoliciesBreakdownActionPage extends _GenericDatatHunterActionP
 	
 	public int getCountForBreakdown(String application, String lifecycle, String useability){
 		
-		PageTextElement countForBreakdownElement = null;
+		PageTextElement countForBreakdownElement;
 		try { 
 			countForBreakdownElement =  new PageTextElement(driver, By.id((application + "_" + lifecycle + "_" + useability + "_count").replace(" ", "_")));
 		} catch ( NoSuchElementException e) {
 			return 0;
 		}
-		int count = Integer.valueOf(countForBreakdownElement.getText());
-		return count;
+		return Integer.parseInt(countForBreakdownElement.getText());
 	}
 	
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};			
-		
+	}
 }

@@ -29,7 +29,7 @@ public class Mark59Constants {
 	/**
 	 * current Mark59 version
 	 */
-	public static final String MARK59_VERSION  = "4.1";	
+	public static final String MARK59_VERSION  = "4.2";	
 		
 	/**
 	 * TRUE
@@ -115,7 +115,7 @@ public class Mark59Constants {
   	 * 
   	 * <p>Note that 'PARENT' is intended for internal use only. 
      */
-    public static enum JMeterFileDatatypes {
+    public enum JMeterFileDatatypes {
 
 		/** DATAPOINT */
 		DATAPOINT("DATAPOINT", true), 
@@ -133,7 +133,7 @@ public class Mark59Constants {
     	private final String datatypeText;
     	private final boolean metricDataType;
     	
-    	private JMeterFileDatatypes(String datatypeText, boolean metricDataType) {
+    	JMeterFileDatatypes(String datatypeText, boolean metricDataType) {
     		this.datatypeText = datatypeText;
     		this.metricDataType = metricDataType;
     	}
@@ -153,7 +153,7 @@ public class Mark59Constants {
 		 * @return a string list of all transaction data types as used in the JMeter file   
 		 */
 		public static List<String> listOfJMeterFileDatatypes() {
-			List<String> listOfJMeterFileDatatypes = new ArrayList<String>();
+			List<String> listOfJMeterFileDatatypes = new ArrayList<>();
 			for (JMeterFileDatatypes jMeterFileDatatype : JMeterFileDatatypes.values()) {
 				listOfJMeterFileDatatypes.add(jMeterFileDatatype.name());
 			}
@@ -163,7 +163,7 @@ public class Mark59Constants {
 		 * @return a string list of metrics data types as used in the JMeter file   
 		 */
 		public static List<String> listOfMetricJMeterFileDatatypes() {
-			List<String> listOfMetricJMeterFileDatatypes = new ArrayList<String>();
+			List<String> listOfMetricJMeterFileDatatypes = new ArrayList<>();
 			for (Mark59Constants.JMeterFileDatatypes jMeterFileDatatype : JMeterFileDatatypes.values()) {
 				if (jMeterFileDatatype.isMetricDataType()) {
 					listOfMetricJMeterFileDatatypes.add(jMeterFileDatatype.name());
@@ -179,7 +179,7 @@ public class Mark59Constants {
      * 
      * <p>Enum values are DATAPOINT, CPU_UTIL, MEMORY, TRANSACTION
      */
-    public static enum DatabaseTxnTypes { 
+    public enum DatabaseTxnTypes {
 
 		/** DATAPOINT */
     	DATAPOINT(true),
@@ -191,7 +191,7 @@ public class Mark59Constants {
     	TRANSACTION(false);
 		
     	private final boolean metricTxnType;   
-		private DatabaseTxnTypes(boolean metricTxnType) {
+		DatabaseTxnTypes(boolean metricTxnType) {
 			this.metricTxnType = metricTxnType;  
 		}
 		/**
@@ -204,7 +204,7 @@ public class Mark59Constants {
 		 * @return string list of all transaction types as used in the database  
 		 */
 		public static List<String> listOfDatabaseTxnTypes(){
-			List<String> listOfDatabaseTxnTypes = new ArrayList<String>();
+			List<String> listOfDatabaseTxnTypes = new ArrayList<>();
 			for (DatabaseTxnTypes databaseTxnType : DatabaseTxnTypes.values()) {
 				listOfDatabaseTxnTypes.add(databaseTxnType.name());
 			}
@@ -214,7 +214,7 @@ public class Mark59Constants {
 		 * @return a string list of metrics types as used in the database   
 		 */
 		public static List<String> listOfMetricDatabaseTxnTypes() {
-			List<String> listOfMetricDatabaseTxnTypes = new ArrayList<String>();
+			List<String> listOfMetricDatabaseTxnTypes = new ArrayList<>();
 			for (DatabaseTxnTypes databaseTxntypes : DatabaseTxnTypes.values()) {
 				if (databaseTxntypes.isMetricTxnType()) {
 					listOfMetricDatabaseTxnTypes.add(databaseTxntypes.name());

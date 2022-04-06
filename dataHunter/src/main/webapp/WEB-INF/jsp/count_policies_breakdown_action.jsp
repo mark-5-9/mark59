@@ -47,27 +47,28 @@
     <th style="display:none;"></th>
    </tr>
    <c:forEach var="countPoliciesBreakdown" items="${model.countPoliciesBreakdownList}">
+    <c:set var="app_id" value="${countPoliciesBreakdown.application.replaceAll('[^A-Za-z0-9-]', '_')}" /> 
+    <c:set var="lcy_id" value="${countPoliciesBreakdown.lifecycle.replaceAll('[^A-Za-z0-9-]', '_')}" /> 
     <tr>
      <td id=application>${countPoliciesBreakdown.application}</td>
      <td id=lifecycle>${countPoliciesBreakdown.lifecycle}</td>
      <td id=useability>${countPoliciesBreakdown.useability}</td>
-     <td id=${countPoliciesBreakdown.application}_${countPoliciesBreakdown.lifecycle}_${countPoliciesBreakdown.useability}_count>${countPoliciesBreakdown.rowCount}</td>
+     <td id=${app_id}_${lcy_id}_${countPoliciesBreakdown.useability}_count>${countPoliciesBreakdown.rowCount}</td>
 	 <td style="display:none;" id=counter>${countPoliciesBreakdown.rowCount}</td>
     </tr>
    </c:forEach>
   </table>
  
- 
-<br><br>
+  <br><br>
 
- <table >
+  <table >
      <tr><td>sql statement</td>	<td>:</td><td id=sql>${model.sql}</td></tr> 
      <tr><td>result</td>		<td>:</td><td id=sqlResult>${model.sqlResult}</td></tr>
      <tr><td>rows affected</td>	<td>:</td><td id=rowsAffected>${model.rowsAffected}</td></tr>
      <tr><td>details</td>		<td>:</td><td id=sqlResultText>${model.sqlResultText}</td></tr>     
- </table>
+  </table>
 
- <br><br>
+  <br><br>
  
   <a href='count_policies_breakdown?application=${policySelectionCriteria.application}'>Back</a>
  

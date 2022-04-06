@@ -48,7 +48,7 @@ public class CommandDriverWinWmicImpl implements CommandDriver {
 	public static final String WMIC_DIR = ServerMetricsWebUtils.wmicExecutableDirectory();
 	
 	
-	private ServerProfile serverProfile;
+	private final ServerProfile serverProfile;
 	
 
 	public CommandDriverWinWmicImpl(ServerProfile serverProfile) {
@@ -58,7 +58,7 @@ public class CommandDriverWinWmicImpl implements CommandDriver {
 	
 	/**
 	 * Executes the DOS command via WMIC returning the response  
-	 * @param command
+	 * @param command  command
 	 * @return CommandDriverResponse
 	 */
 	@Override
@@ -66,8 +66,8 @@ public class CommandDriverWinWmicImpl implements CommandDriver {
 		LOG.debug("executeCommand :" + command);
 		
 		String actualPassword = serverProfile.getPassword();
-		String runtimeCommand = "";
-		String runtimeCommandLog = "";
+		String runtimeCommand;
+		String runtimeCommandLog;
 		
 		String cipherUsedLog = " (no pwd chipher)"; 
 		if (StringUtils.isNotBlank(serverProfile.getPasswordCipher())){

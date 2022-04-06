@@ -87,6 +87,7 @@
     <th>Xtra<br>int</th>    
     <th>Reference</th>
     <th>Comment</th>
+    <th>Active</th>    
    </tr>
    <c:forEach var="sla" items="${map.slaList}">
     <tr>
@@ -109,7 +110,8 @@
      <td>${sla.xtraNum}</td>     
      <td>${sla.xtraInt}</td>     
      <td>${sla.slaRefUrl}</td>
-     <td>${sla.comment}</td>     
+     <td>${sla.comment}</td>   
+     <td>${sla.isActive}</td>       
     </tr>
    </c:forEach>
   </table>

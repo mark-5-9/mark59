@@ -42,7 +42,7 @@ public class HomeController {
 	@RequestMapping(value = "/",  method = RequestMethod.GET)
 	public String welcome(Model model, HttpServletRequest request ) {
 
-		String urltoContext = request.getServerName() + ":" + Integer.toString(request.getServerPort()) + request.getContextPath() ; 
+		String urltoContext = request.getServerName() + ":" + request.getServerPort() + request.getContextPath() ;
 //		System.out.println("urltoContext:  [" + urltoContext + "]" );     
 		
 		model.addAttribute("urltoContext", urltoContext );

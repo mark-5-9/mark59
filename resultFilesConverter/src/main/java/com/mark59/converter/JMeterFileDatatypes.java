@@ -33,7 +33,7 @@ public enum JMeterFileDatatypes {
 	private final String datatypeText;
 	private final boolean metricDataType;
 	
-	private JMeterFileDatatypes(String datatypeText, boolean metricDataType) {
+	JMeterFileDatatypes(String datatypeText, boolean metricDataType) {
 		this.datatypeText = datatypeText;
 		this.metricDataType = metricDataType;
 	}

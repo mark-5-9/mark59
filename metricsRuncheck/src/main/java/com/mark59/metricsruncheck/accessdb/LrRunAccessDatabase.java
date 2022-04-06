@@ -63,8 +63,8 @@ public class LrRunAccessDatabase {
 	
 	private final static String EVENT_TYPE_TRANSACTION = "Transaction"; 
 	
-	private Database db;
-	private Map<Integer,LrEventMapBean> lrEventMapTable = new HashMap<Integer,LrEventMapBean>(); 
+	private final Database db;
+	private final Map<Integer,LrEventMapBean> lrEventMapTable = new HashMap<>();
 
 	/**
 	 * Connects to the Loadrunner Access database, and stores the Event_Map table. 
@@ -122,7 +122,7 @@ public class LrRunAccessDatabase {
 			if ( cursor.findFirstRow(Collections.singletonMap("Result ID", onlyexpectedrow))){
 				runStartTime  =  ((Integer)cursor.getCurrentRowValue(table.getColumn("Start Time"))).longValue() * 1000;
 				runEndTime    =  ((Integer)cursor.getCurrentRowValue(table.getColumn("Result End Time"))).longValue() * 1000; 	
-				resultTableTimeZoneOffestMs    =  ((Integer)cursor.getCurrentRowValue(table.getColumn("Time Zone"))).intValue()*1000;								
+				resultTableTimeZoneOffestMs    = (Integer) cursor.getCurrentRowValue(table.getColumn("Time Zone")) *1000;
 			} else {
 				throw new RuntimeException("getRunDateRangeUsingLoadrunnerAccessDB: could not find expected Result ID=0 row on mdb Result Table "  );
 			}
@@ -161,15 +161,15 @@ public class LrRunAccessDatabase {
 	 * Loads all 'Transaction' events on the LR Event_meter table into the mark59 TestTrasactions table, in a similar process to how Trasaction events are
 	 * handled with the other Tools).   System Metrics and DataPoints are handled separately.
 	 *    
-	 * @param application
-	 * @param testTransactionsDAO
-	 * @param runStartTimeEpochMsecs
+	 * @param application  applicationID
+	 * @param testTransactionsDAO  testTransactionsDAO instance
+	 * @param runStartTimeEpochMsecs  the run start time
 	 */
 	public void loadTestTransactionForTransactionsOnlyFromLoadrunnAccessDB(String application, TestTransactionsDAO testTransactionsDAO, Long runStartTimeEpochMsecs ){
 
 		System.out.println("Loading transactional data from loadrunner mdb Event_meter table..");
 		
-		List<TestTransaction> testTransactionList = new ArrayList<TestTransaction>();
+		List<TestTransaction> testTransactionList = new ArrayList<>();
 		int lineCount = 0; 
 		
 		long startLoadms = System.currentTimeMillis(); 
@@ -190,23 +190,23 @@ public class LrRunAccessDatabase {
 			    	if ( (lineCount % 100 )   == 0 ){
 			    		testTransactionsDAO.insertMultiple(testTransactionList);
 			    		testTransactionList.clear();
-			    	};
-			    	if ( (lineCount % 10000 ) == 0 ){	System.out.print(" (" + lineCount + ").."); };
-			    	lineCount++;
+			    	}
+					if ( (lineCount % 10000 ) == 0 ){	System.out.print(" (" + lineCount + ").."); }
+					lineCount++;
 				
 					LrEventMeterBean lrEventMeterBean = new LrEventMeterBean();
 					lrEventMeterBean.setEventId(currentEventMeterEventId);
 					
 					//  The txn recored time "End Time" is the relative end time in seconds to 3 decimals of the txn.  Storing as epoch time in msecs  
 					Double txnSecsFromStart =  (Double)row.get("End Time");	
-					Long txnEpochTimeMsecs = Double.valueOf(runStartTimeEpochMsecs + txnSecsFromStart * 1000 ).longValue();
-					lrEventMeterBean.setEndTime(txnEpochTimeMsecs.toString()); 
+					long txnEpochTimeMsecs = Double.valueOf(runStartTimeEpochMsecs + txnSecsFromStart * 1000 ).longValue();
+					lrEventMeterBean.setEndTime(Long.toString(txnEpochTimeMsecs));
 					
-					BigDecimal rawValue  = new BigDecimal((Double)row.get("Value"     )).setScale(6, RoundingMode.HALF_UP);
-					BigDecimal thinkTime = new BigDecimal((Double)row.get("Think Time")).setScale(6, RoundingMode.HALF_UP);					
+					BigDecimal rawValue  = BigDecimal.valueOf((Double) row.get("Value")).setScale(6, RoundingMode.HALF_UP);
+					BigDecimal thinkTime = BigDecimal.valueOf((Double) row.get("Think Time")).setScale(6, RoundingMode.HALF_UP);
 					lrEventMeterBean.setValue( rawValue.subtract(thinkTime));  			
 
-					lrEventMeterBean.setStatus1(String.valueOf((Short)row.get("Status1")));
+					lrEventMeterBean.setStatus1(String.valueOf(row.get("Status1")));
 					
 			
 					TestTransaction testTransaction = new TestTransaction();
@@ -266,16 +266,16 @@ public class LrRunAccessDatabase {
 	 * <p><p>Then in the second part of the process, for each identified event, it goes to the LR table (Monitor_meter or DataPoint_meter) holding that Event Id,
 	 *  and extract the LR data to create the mark59 transaction for that event. 
 	 * 
-	 * @param run
-	 * @param eventMappingDAO
-	 * @param dateRangeBean
-	 * @param filteredDateRangeBean
+	 * @param run  Run
+	 * @param eventMappingDAO eventMappingDAO instance
+	 * @param dateRangeBean  the range date of the test
+	 * @param filteredDateRangeBean  filteredDateRangeBean
 	 * @return eventTransactions  - system metric and dataPoint transactions
 	 */
 	public List<Transaction> extractSystemMetricEventsFromMDB(Run run, EventMappingDAO eventMappingDAO, DateRangeBean dateRangeBean, DateRangeBean filteredDateRangeBean ) {
 		
-		List<Transaction> eventTransactions = new ArrayList<Transaction>();  
-		List<EventAttributes> metricEventsToBeExtracted = new ArrayList<EventAttributes>();
+		List<Transaction> eventTransactions = new ArrayList<>();
+		List<EventAttributes> metricEventsToBeExtracted = new ArrayList<>();
 		
 		System.out.println("---------------------------------------------------------------------------------------- " );
 		System.out.println("Print out for table Event_map  ( Event ID :  Event Type :  Event Name ) " );
@@ -320,7 +320,7 @@ public class LrRunAccessDatabase {
 		String mdbEventName = lrEventMapBean.getEventName();
 //		System.out.println("            findMetricsToBeReportedForThisMdbEventId : " + lrEventMapBean.getEventId() +":"+lrEventMapBean.getEventType()+":"+lrEventMapBean.getEventName() );
 		
-		List<EventAttributes> reportedEventAttributes = new ArrayList<EventAttributes>();		
+		List<EventAttributes> reportedEventAttributes = new ArrayList<>();
 		List<EventMapping> mark59MetricsEventMappings = eventMappingDAO.findEventMappingsForPerformanceTool(AppConstantsMetrics.LOADRUNNER); 				
 		
 		boolean lrEventNameMatched = false;
@@ -353,26 +353,26 @@ public class LrRunAccessDatabase {
 	private Transaction extractMetricsFromLoadrunnerMdbMeterTables(Run run, EventAttributes eventAttributes, DateRangeBean dateRangeBean, DateRangeBean filteredDateRangeBean ) throws IOException {
 
 		Integer eventId =  eventAttributes.getEventId();
-		BigDecimal value = new BigDecimal(0.000000).setScale(6, RoundingMode.HALF_UP)   ;
-		Integer eventInstanceID = Integer.valueOf(0);
-		Double eventSecsFromStart = Double.valueOf(0.0);
-		boolean filterOutThisEvent = false;
+		BigDecimal value = new BigDecimal("0.000000").setScale(6, RoundingMode.HALF_UP)   ;
+		Integer eventInstanceID;
+		Double eventSecsFromStart;
+		boolean filterOutThisEvent;
 		
-		BigDecimal totalOfValues = new BigDecimal(0.0).setScale(6, RoundingMode.HALF_UP);
+		BigDecimal totalOfValues = new BigDecimal("0.0").setScale(6, RoundingMode.HALF_UP);
 
-		Long countPointsAtBottleneckThreshold = Long.valueOf(0);
-		Long count = Long.valueOf(0);	
+		long countPointsAtBottleneckThreshold = 0L;
+		long count = 0L;
 		
-		BigDecimal txnMinimum =  new BigDecimal(-1.0).setScale(3, RoundingMode.HALF_UP);
-		BigDecimal txnMaximum =  new BigDecimal(-1.0).setScale(3, RoundingMode.HALF_UP);				
+		BigDecimal txnMinimum = BigDecimal.valueOf(-1.0).setScale(3, RoundingMode.HALF_UP);
+		BigDecimal txnMaximum = BigDecimal.valueOf(-1.0).setScale(3, RoundingMode.HALF_UP);
 
 		Integer minEventInstanceId =  null;		
 		Integer maxEventInstanceId =  null;		
-		BigDecimal txnFirst =  new BigDecimal(-1.0).setScale(3, RoundingMode.HALF_UP);		
-		BigDecimal txnLast  =  new BigDecimal(-1.0).setScale(3, RoundingMode.HALF_UP);		
+		BigDecimal txnFirst = BigDecimal.valueOf(-1.0).setScale(3, RoundingMode.HALF_UP);
+		BigDecimal txnLast  = BigDecimal.valueOf(-1.0).setScale(3, RoundingMode.HALF_UP);
 		boolean firstTimeThru = true;	
 		
-		BigDecimal ninteyPercent = new BigDecimal(90.0);
+		BigDecimal ninteyPercent = new BigDecimal("90.0");
 		
 		if  ( !AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_MONITOR_METER.equals(eventAttributes.getEventMapping().getMetricSource())  &&
 			  !AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER.equals(eventAttributes.getEventMapping().getMetricSource()) ) {	
@@ -387,13 +387,13 @@ public class LrRunAccessDatabase {
 		
 		while (cursor.findNextRow(Collections.singletonMap("Event ID", eventId ))){
 
-			value =  new BigDecimal((Double)cursor.getCurrentRowValue(table.getColumn("Value"))).setScale(6, RoundingMode.HALF_UP);
+			value = BigDecimal.valueOf((Double) cursor.getCurrentRowValue(table.getColumn("Value"))).setScale(6, RoundingMode.HALF_UP);
 			eventInstanceID    =  (Integer)cursor.getCurrentRowValue(table.getColumn("Event Instance ID"));
 			eventSecsFromStart =  (Double)cursor.getCurrentRowValue(table.getColumn("End Time"));			
 			
 			filterOutThisEvent = false;
 			if  (filteredDateRangeBean.isFilterApplied() ) {
-				Long eventEpochTimeMsecs = Double.valueOf( dateRangeBean.getRunStartTime() +  eventSecsFromStart * 1000 ).longValue();
+				long eventEpochTimeMsecs = Double.valueOf( dateRangeBean.getRunStartTime() +  eventSecsFromStart * 1000 ).longValue();
 				if ( eventEpochTimeMsecs < filteredDateRangeBean.getRunStartTime() || eventEpochTimeMsecs > filteredDateRangeBean.getRunEndTime() ) {
 					filterOutThisEvent = true;
 				}
@@ -427,7 +427,7 @@ public class LrRunAccessDatabase {
 				
 				// if the metric value is a %idle, we need to invert it to turn it into a %utilisation ..
 				if (eventAttributes.getEventMapping().getIsInvertedPercentage().equals("Y") ){
-					value = value.subtract( new BigDecimal(100.0)).negate();
+					value = value.subtract( new BigDecimal("100.0")).negate();
 				}
 				
 				//calculation of server utilisation average takes the total of all points captured, then divides that by number of points (also may be useful for certain Datapoints) 
@@ -450,7 +450,7 @@ public class LrRunAccessDatabase {
 		DecimalFormat df = new DecimalFormat("#.00");
 		
 		//time above 90% threshold
-		Double percentSpendAtBottleneckThreshold = ( countPointsAtBottleneckThreshold / count.doubleValue()  ) * 100.0;
+		Double percentSpendAtBottleneckThreshold = ( countPointsAtBottleneckThreshold / (double) count) * 100.0;
 		String percentSpendAtBottleneckThresholdStr =   df.format(percentSpendAtBottleneckThreshold);
 				
 		System.out.println("extracted Metric: " + eventAttributes.getTxnId() + " " + eventAttributes.getEventMapping().getTxnType()  
@@ -464,24 +464,24 @@ public class LrRunAccessDatabase {
 		serverTransaction.setIsCdpTxn("N");  
 		serverTransaction.setTxnMinimum(txnMinimum); 		      		
 		serverTransaction.setTxnAverage(tnxAverage); 
-		serverTransaction.setTxnMedian(new BigDecimal(-1.0));
+		serverTransaction.setTxnMedian(BigDecimal.valueOf(-1.0));
 		serverTransaction.setTxnMaximum(txnMaximum);
-		serverTransaction.setTxnStdDeviation(new BigDecimal(-1.0));
+		serverTransaction.setTxnStdDeviation(BigDecimal.valueOf(-1.0));
 
-		serverTransaction.setTxn90th(new BigDecimal(-1.0));
+		serverTransaction.setTxn90th(BigDecimal.valueOf(-1.0));
 		if (eventAttributes.getEventMapping().getIsPercentage().equals("Y")){
 			serverTransaction.setTxn90th(new BigDecimal(percentSpendAtBottleneckThresholdStr));
 		}	
-		serverTransaction.setTxn95th(new BigDecimal(-1.0));
-		serverTransaction.setTxn99th(new BigDecimal(-1.0));
+		serverTransaction.setTxn95th(BigDecimal.valueOf(-1.0));
+		serverTransaction.setTxn99th(BigDecimal.valueOf(-1.0));
 		serverTransaction.setTxnPass(count);
-		serverTransaction.setTxnFail(Long.valueOf(-1).longValue() );
-		serverTransaction.setTxnStop(Long.valueOf(-1).longValue() );
+		serverTransaction.setTxnFail((long) -1);
+		serverTransaction.setTxnStop((long) -1);
 		
 		serverTransaction.setTxnFirst(txnFirst);
 		serverTransaction.setTxnLast(txnLast);
 		serverTransaction.setTxnSum(totalOfValues);		
-		serverTransaction.setTxnDelay(new BigDecimal(-1.0));		
+		serverTransaction.setTxnDelay(BigDecimal.valueOf(-1.0));
 
 		return serverTransaction;
 	}

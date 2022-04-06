@@ -21,7 +21,6 @@ import java.util.List;
 /**
  * @author Philip Webb
  * Written: Australian Summer 2020
- * 
  */
 public class CommandDriverResponse {
 

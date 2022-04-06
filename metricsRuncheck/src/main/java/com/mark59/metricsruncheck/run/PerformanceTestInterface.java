@@ -28,13 +28,13 @@ import com.mark59.metrics.data.beans.Transaction;
  */
 public interface PerformanceTestInterface {
 
-	public Run getRunSummary();  
+	Run getRunSummary();
 	
-	public List<String> getReportedTransactionsList(); 
+	List<String> getReportedTransactionsList();
 	
-	public Map<String, Transaction> getTransactionResponses();
+	Map<String, Transaction> getTransactionResponses();
 
-	public List<Transaction> getSystemMetrics();	
+	List<Transaction> getSystemMetrics();
 	
 
 	

@@ -31,6 +31,7 @@ import org.apache.logging.log4j.LogManager;
 
 import com.mark59.core.interfaces.JmeterFunctions;
 import com.mark59.core.utils.Mark59Constants;
+import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 
 
@@ -128,7 +129,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	
 	
 	private boolean allSamplesPassed() {
-		return Arrays.asList(mainResult.getSubResults()).stream().noneMatch(sr->!sr.isSuccessful());
+		return Arrays.stream(mainResult.getSubResults()).allMatch(SampleResult::isSuccessful);
 	}
 
 	
@@ -459,6 +460,12 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * @return SampleResult belonging to the supplied label.
 	 */
 	public SampleResult getSampleResultWithLabel(String label) {
+		
+		
+		System.out.println( ">> transactionMap");
+		System.out.println( Mark59Utils.prettyPrintMap(transactionMap)  );
+		System.out.println( "<< transactionMap");
+		
 		return transactionMap.get(label);
 	}
 	
@@ -470,7 +477,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * @return  a list of sample results
 	 */
 	public List<SampleResult> getSampleResultFromMainResultWithLabel(String label) {
-		return Arrays.asList(mainResult.getSubResults()).stream()
+		return Arrays.stream(mainResult.getSubResults())
 				.filter(sr -> sr.getSampleLabel().equals(label))
 				.collect(Collectors.toList());
 	}

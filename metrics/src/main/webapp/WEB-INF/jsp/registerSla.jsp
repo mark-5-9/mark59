@@ -99,6 +99,10 @@
       <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="2.0" /></td>     
      </tr>
      <tr>
+      <td>Is Active :</td>
+      <td><form:select path="isActive"  items="${map.isActiveYesNo}" /></td>
+     </tr>       
+     <tr>
       <td><br></td>
       <td style="font-size: 12px"><br>Non-SLA related fields (defaults are 0's).</td>     
      </tr>        

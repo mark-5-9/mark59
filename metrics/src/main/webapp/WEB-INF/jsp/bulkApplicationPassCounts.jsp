@@ -53,24 +53,25 @@
 
      <tr>
       <td>Application :</td>
-      <td colspan=2><form:select path="application" items="${map.applications}" onchange="clearInnerHTML('errMsg');reloadSlaBulkLoadPage()" /></td>
+      <td colspan=2><form:select path="application" items="${map.applications}" onchange="clearInnerHTML('errMsg');reloadSlaBulkLoadPage()" />
+          <span style="font-size: 12px">&nbsp;&nbsp;&nbsp;(with baselines only)</span></td>
      </tr>
      <tr>
-      <td colspan=2 style="font-size: 12px">(with baselines only)</td>   
+      <td>Include CDP Txns? :</td>
+      <td colspan=2><form:select path="isIncludeCdpTxns" items="${map.isIncludeCdpTxnsYesNo}" /></td>
      </tr>
- 
+     
      <tr>
-      <td><br><br><b>DEFAULT VALUES</b><br><br></td>
-      <td style="font-size: 12px" width="10%"><br><br>Only applied to new SLAs.
+      <td><br><b>DEFAULT VALUES</b><br><br></td>
+      <td style="font-size: 12px" width="10%"><br>Only applied to new SLAs.
       		<br>Enter <b>-1</b> for values you do not<br>want to set an SLA against.<br></td>
-      <td style="font-size: 12px; padding-left: 20px;"><br><br>Check box(es) for the percentiles you <br>want copied from the baseline.
+      <td style="font-size: 12px; padding-left: 20px;"><br>Check box(es) for the percentiles you <br>want copied from the baseline.
       		<br>Otherwise the value in the text box is used.</td>   
      </tr>
   
      <tr>
       <td>Ignore Txn on Graphs? :</td>
       <td colspan=2><form:select path="isTxnIgnored" items="${map.isTxnIgnoredYesNo}" /></td>      
-         
      </tr>
      <tr>
       <td>90th percentile  :</td>
@@ -103,9 +104,13 @@
       <td colspan=2><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="2.0" /></td>     
      </tr>
      <tr>
+      <td>Is Active :</td>
+      <td><form:select path="isActive" items="${map.isActiveYesNo}" /></td>
+     </tr> 
+     <tr>
       <td></td>
       <td  colspan=2 style="font-size: 12px"><br>
-      	Non SLA-related fields (the default values will be applied to new rows) :
+      	Non SLA-related field default values (Only applied to new SLAs.) :
       </td>     
      </tr>     
      <tr>

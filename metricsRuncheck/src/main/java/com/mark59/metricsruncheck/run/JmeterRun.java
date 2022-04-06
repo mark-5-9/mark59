@@ -49,6 +49,7 @@ import com.opencsv.exceptions.CsvValidationException;
 public class JmeterRun extends PerformanceTest  {
 
 	private static final String IGNORE ="IGNORE";
+	private static final int MAX_ALLOWED_TXN_ID_CHARS = 128;
 	
 	private int fieldPostimeStamp;
 	private int fieldPoselapsed;	
@@ -162,7 +163,7 @@ public class JmeterRun extends PerformanceTest  {
 		int lineCount = 0; 
 		boolean isWithinASampleResult = false;
 		String potentialSampleResultWithNoSubResults = null;
-		List<TestTransaction> testTransactionList = new ArrayList<TestTransaction>();
+		List<TestTransaction> testTransactionList = new ArrayList<>();
 		
 	    for (String jmeterFileLine; (jmeterFileLine = xmlReader.readLine()) != null; ){
 	    	jmeterFileLine = jmeterFileLine.trim();
@@ -218,23 +219,19 @@ public class JmeterRun extends PerformanceTest  {
 
 
 	private boolean jmeterXmlLineIsAClosedSample(String trimmedJmeterFileLine) {
-		boolean isUnclosedSample = jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("/>") ?true:false;	
-		return isUnclosedSample;
+		return jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("/>");
 	}
 	
 	private boolean jmeterXmlLineIsAnUnclosedSample(String trimmedJmeterFileLine) {
-		boolean isUnclosedSample = jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("\">") ?true:false;	
-		return isUnclosedSample;
+		return jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("\">");
 	}
 
 	private boolean jmeterXmlLineIsASample(String trimmedJmeterFileLine) {
-		boolean isSample = trimmedJmeterFileLine.startsWith("<sample") || trimmedJmeterFileLine.startsWith("<httpSample") ?true:false;	
-		return isSample;
+		return trimmedJmeterFileLine.startsWith("<sample") || trimmedJmeterFileLine.startsWith("<httpSample");
 	}
 	
 	private boolean jmeterXmlLineIsAnEndSampleTag(String trimmedJmeterFileLine) {
-		boolean isSample = trimmedJmeterFileLine.startsWith("</sample>") || trimmedJmeterFileLine.startsWith("</httpSample>") ?true:false;	
-		return isSample;
+		return trimmedJmeterFileLine.startsWith("</sample>") || trimmedJmeterFileLine.startsWith("</httpSample>");
 	}	
 
 	private int readLinesToSubResultEndTag(BufferedReader xmlReader, int lineCount) throws IOException {
@@ -250,9 +247,9 @@ public class JmeterRun extends PerformanceTest  {
 	}
 
 	private void lineCountProgressDisplay(int lineCount) {
-		if ( (lineCount % 1000 )   == 0 ){	System.out.print("^");};
-		if ( (lineCount % 100000 ) == 0 ){	System.out.println();};
-	}
+		if ( (lineCount % 1000 )   == 0 ){	System.out.print("^");}
+        if ( (lineCount % 100000 ) == 0 ){	System.out.println();}
+    }
 	
 	
 	private int addSampleToTestTransactionList(List<TestTransaction> testTransactionList, String jmeterFileLine, String application) {
@@ -272,7 +269,7 @@ public class JmeterRun extends PerformanceTest  {
 
 	private TestTransaction extractTransactionFromJmeterXMLfile(String jmeterFileLine) {
 		TestTransaction testTransaction = new TestTransaction();
-		testTransaction.setTxnId(StringUtils.substringBetween(jmeterFileLine, " lb=\"", "\""));
+		testTransaction.setTxnId(truncateOverlyLongIds(StringUtils.substringBetween(jmeterFileLine, " lb=\"", "\"")));
 
 		String jmeterFileDatatype = StringUtils.substringBetween(jmeterFileLine, " dt=\"", "\"");
 		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype(jmeterFileDatatype);
@@ -318,10 +315,10 @@ public class JmeterRun extends PerformanceTest  {
 	 * to have sub-results. 
 	 * <p>PARENT transaction are not reported within Trend Analysis, so are bypassed here. 
 	 * 
-	 * @param inputCsvFileName
-	 * @param application
-	 * @return
-	 * @throws IOException
+	 * @param inputCsvFileName inputCsvFileName
+	 * @param application application
+	 * @return line count
+	 * @throws IOException IOException
 	 */
 	private int loadCSVFile(File inputCsvFileName, boolean hasHeader, String application, String ignoredErrors) throws IOException {
 		
@@ -333,7 +330,7 @@ public class JmeterRun extends PerformanceTest  {
 		System.out.println("\n\nProcessing CSV formatted Jmeter Results File " + inputCsvFileName.getName() + " at " + new Date(startLoadms));					
 		
 		if (hasHeader) { 
-			List<String> csvHeaderFieldsList = new ArrayList<String>();
+			List<String> csvHeaderFieldsList;
 			try {
 				csvHeaderFieldsList = Arrays.asList(csvReader.readNext());
 			} catch (CsvValidationException e) {
@@ -360,8 +357,14 @@ public class JmeterRun extends PerformanceTest  {
 			setFieldPositionsAssumingTheDefaultCsvLayout();
 		}
 
-		List<TestTransaction> testTransactionList = new ArrayList<TestTransaction>();
+		List<TestTransaction> testTransactionList = new ArrayList<>();
 		String[] csvDataLineFields = csvReadNextLine(csvReader, inputCsvFileName);
+		
+		// at this point, should be at the first line of data in the file
+		if  ( csvDataLineFields != null  && !StringUtils.isNumeric(csvDataLineFields[fieldPostimeStamp]) ) {
+			throw new RuntimeException("Error :  Only elapsed times in epoch (millisecond) format can be processed ! "
+				+ "\nFirst data line of file " + inputCsvFileName + " contains elapsed value of " + csvDataLineFields[fieldPostimeStamp]);
+		}
 		
 		List<String> ignoredErrorsList = Mark59Utils.pipeDelimStringToStringList(ignoredErrors);
 		
@@ -406,7 +409,7 @@ public class JmeterRun extends PerformanceTest  {
 
 
 	private String[] csvReadNextLine( CSVReader csvReader, File inputCsvFileName) throws IOException {
-		String[] csvDataLineFields = null;
+		String[] csvDataLineFields;
 		try {
 			csvDataLineFields = csvReader.readNext();
 		} catch (CsvValidationException e) {
@@ -441,7 +444,7 @@ public class JmeterRun extends PerformanceTest  {
 	private TestTransaction extractTransactionFromJmeterCSVsample(String[] csvDataLineFields, List<String> ignoredErrorsList) {
 		TestTransaction testTransaction = new TestTransaction();
 
-		testTransaction.setTxnId(csvDataLineFields[fieldPoslabel]);
+		testTransaction.setTxnId(truncateOverlyLongIds(csvDataLineFields[fieldPoslabel]));
 		
 		String jmeterFileDatatype = csvDataLineFields[fieldPosdataType];
 		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype(jmeterFileDatatype);
@@ -479,7 +482,15 @@ public class JmeterRun extends PerformanceTest  {
 		return testTransaction;
 	}
 
-
+	
+	private String truncateOverlyLongIds(String txnId) {
+		if (txnId.length() > MAX_ALLOWED_TXN_ID_CHARS ) {
+			txnId = txnId.substring(0, MAX_ALLOWED_TXN_ID_CHARS - 3) + "...";
+		}
+		return txnId;
+	}
+	
+	
 	private void invalidDatapointMessageAndFail(String jmeterFileLine, Exception e) {
 		System.out.println("!! Error : looks like an invalid datapoint value or type has been entered. ");
 		System.out.println("           Time (t) must be an integer.  Datatype (dt) must be a know datatype + optional multiplier.  eg DATAPOINT or CPU_1000 .. ");
@@ -496,7 +507,7 @@ public class JmeterRun extends PerformanceTest  {
 	 *  eg dt=DATAPOINT_1000  - the value loaded to the database will become the passed numeric value / 1000 
 	 *  DATAPOINT, DATAPOINT_1 will use the value as passed.   
 	 */
-	private BigDecimal validateAndDetermineMetricValue(BigDecimal txnResultMsBigD, String sampleLineDataType) throws Exception {
+	private BigDecimal validateAndDetermineMetricValue(BigDecimal txnResultMsBigD, String sampleLineDataType){
 		
 		for ( String metricDataType : Mark59Constants.DatabaseTxnTypes.listOfMetricDatabaseTxnTypes()) {
 			

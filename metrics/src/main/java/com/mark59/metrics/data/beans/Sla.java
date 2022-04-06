@@ -40,7 +40,8 @@ public class Sla {
 	BigDecimal	xtraNum;
 	Long		xtraInt;	
 	String		slaRefUrl;
-	String 		comment;	
+	String 		comment;
+	String		isActive;		
 	String		slaOriginalTxnId;
 	
 	
@@ -67,6 +68,7 @@ public class Sla {
 		this.xtraInt = copy.xtraInt;
 		this.slaRefUrl = copy.slaRefUrl;
 		this.comment = copy.comment;
+		this.isActive = copy.isActive;
 		this.slaOriginalTxnId = copy.slaOriginalTxnId;
 	}
 
@@ -155,7 +157,6 @@ public class Sla {
 	public void setXtraNum(BigDecimal xtraNum) {
 		this.xtraNum = xtraNum;
 	}
-
 	public Long getXtraInt() {
 		return xtraInt;
 	}
@@ -173,6 +174,12 @@ public class Sla {
 	}
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+	public String getIsActive() {
+		return isActive;
+	}
+	public void setIsActive(String isActive) {
+		this.isActive = isActive;
 	}
 	public String getSlaOriginalTxnId() {
 		return slaOriginalTxnId;

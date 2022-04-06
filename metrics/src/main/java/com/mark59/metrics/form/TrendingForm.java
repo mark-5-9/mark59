@@ -213,7 +213,7 @@ public class TrendingForm {
 		this.displayBarRanges = displayBarRanges;
 	}
 	
-
+	@Override
 	public String toString(){
 		return "TrendingForm: "
 				+ " application="+application 

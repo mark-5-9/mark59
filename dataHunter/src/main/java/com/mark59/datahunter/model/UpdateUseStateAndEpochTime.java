@@ -52,8 +52,8 @@ public class UpdateUseStateAndEpochTime extends PolicySelectionCriteria   {
 	@Override
     public String toString() {
         return  super.toString() + 
-        		", toUseability= "+ toUseability +  
-        		", toEpochTime= "+ toEpochTime +               		
+        		", toUseability="+ toUseability +  
+        		", toEpochTime="+ toEpochTime +               		
         		"]";
 	}
 		

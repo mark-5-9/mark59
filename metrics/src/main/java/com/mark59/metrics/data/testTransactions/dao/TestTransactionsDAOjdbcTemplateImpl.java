@@ -58,12 +58,12 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	
 	
 	/**
-	 * only for testing purposes. insertMultiple should be used.
-	 * @param testTransaction  
+	 * Not in use. insertMultiple should be used (for efficiency).
+	 * @param testTransaction  testTransaction
 	 */
 	@Deprecated
 	public void insert(TestTransaction testTransaction) {
-		String sql = "";
+		String sql;
 		
 		if (testTransaction.getTxnId().startsWith( AppConstantsMetrics.JMETER_IGNORED_TXNS )){
 //			System.out.println("TestTransactionsDAOjdbcTemplateImpl  : " +  testTransaction.getTxnId() + " has been ignored!" );
@@ -107,7 +107,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				+ " VALUES (?,?,?,?,?,?,?,?)");
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		ArrayList<Object> sqlBindParms = new ArrayList<Object>();		
+		ArrayList<Object> sqlBindParms = new ArrayList<>();
 		
 		for (TestTransaction testTransaction : testTransactionList) {
 		
@@ -184,7 +184,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	
 	@Override
 	public List<TestTransaction> getUniqueListOfSystemMetricTxnIdsByType(String application) {
-		List<TestTransaction> metricTypeAndTxnIds  = new ArrayList<TestTransaction>();
+		List<TestTransaction> metricTypeAndTxnIds  = new ArrayList<>();
 		
 		String sql = "select distinct TXN_ID, TXN_TYPE  from TESTTRANSACTIONS "
 					+ "where APPLICATION = '"  + application + "' "
@@ -213,7 +213,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				+ "  and     RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";
 
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-	    String earliestTimestamp = (String) jdbcTemplate.queryForObject(sql, String.class);
+	    String earliestTimestamp = jdbcTemplate.queryForObject(sql, String.class);
 	    
 	    if ( ! StringUtils.isNumeric(earliestTimestamp)) {
 	    	throw new RuntimeException(" A valid date range for the test was not found (possibly no transactions in output dataset?)."
@@ -229,7 +229,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				+ "  and     RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-	    String latestTimestamp = (String) jdbcTemplate.queryForObject(sql, String.class);
+	    String latestTimestamp = jdbcTemplate.queryForObject(sql, String.class);
 
 	    if ( ! StringUtils.isNumeric(latestTimestamp)) {
 	    	throw new RuntimeException(" A valid date range for the test was not found (possibly no transactions in output dataset?)."
@@ -257,14 +257,14 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		//     SET PERSIST group_concat_max_len = 18446744073709551615; SHOW GLOBAL VARIABLES  LIKE 'group_concat_max_len'  
 		// Note that transaction statistics are only calculated for Passed transactions
 		
-		List<Transaction> transactions = new ArrayList<Transaction> ();     
+		List<Transaction> transactions = new ArrayList<>();
 		long startLoadms = System.currentTimeMillis(); 
 		System.out.println("Collation of test transactional data starts at " + new Date(startLoadms));
 		
-		String dbDependentStdDevAnd90th = null;
-		String dbDependent95th = null;
-		String dbDependent99th = null;
-		String dbDependentMedian = null;
+		String dbDependentStdDevAnd90th;
+		String dbDependent95th;
+		String dbDependent99th;
+		String dbDependentMedian;
 		if (Mark59Constants.MYSQL.equals(currentDatabaseProfile)){ 
 			dbDependentStdDevAnd90th = " std(TXN_RESULT) txnStdDeviation, " +
 					            " SUBSTRING_INDEX(SUBSTRING_INDEX( GROUP_CONCAT(TXN_RESULT ORDER BY TXN_RESULT SEPARATOR ','), ',', CEILING(90/100 * COUNT(*) ) ), ',', -1) as txn90th, " ;
@@ -356,35 +356,38 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 			transaction.setTxnAverage((BigDecimal)row.get("txnAverage"));
 			transaction.setTxnMaximum((BigDecimal)row.get("txnMaximum"));
 			
-//			System.out.println("DatabaseProfile="+currentDatabaseProfile+", sdtDev is "+row.get("txnStdDeviation").getClass().getName());
-			// Standard Deviations:  PG returns BigDecimal,  MYSQL returns Double, 
-			// from h2 v2.0.202, profile 'h2mem' returns Double, 'h2' and  'h2tcpclient'/'h2tcpserver' returns BigDecimal 
 			
-			if (row.get("txnStdDeviation") instanceof Double) {
-				 transaction.setTxnStdDeviation(new BigDecimal((Double)row.get("txnStdDeviation")));
-			} else { // a BigDecmimal	 	
-				transaction.setTxnStdDeviation((BigDecimal)row.get("txnStdDeviation"));
-			}	
-
-			if (Mark59Constants.MYSQL.equals(currentDatabaseProfile)){
-				transaction.setTxn90th(new BigDecimal((Double)row.get("txn90th")));
-				transaction.setTxn95th(new BigDecimal((Double)row.get("txn95th")));
-				transaction.setTxn99th(new BigDecimal((Double)row.get("txn99th")));
-				transaction.setTxnMedian(new BigDecimal((Double)row.get("txnMedian")));				
+			// Standard Deviations:   MYSQL returns Double, PG returns BigDecimal,  but for the H2 database,
+			// the type being returned has varied for the different profiles over recent releases.
+			// for h2 v2.1.210: 'h2mem' and 'h2tcpclient'/'h2tcpserver' return Double, 'h2' returns BigDecimal) 			
+				
+			if (row.get("txnStdDeviation") instanceof Double) {	
+				transaction.setTxnStdDeviation(BigDecimal.valueOf((Double) row.get("txnStdDeviation")));
 			} else {
+				transaction.setTxnStdDeviation((BigDecimal)row.get("txnStdDeviation"));				
+			}
+
+			if (Mark59Constants.MYSQL.equals(currentDatabaseProfile)){ 
+				transaction.setTxnStdDeviation(BigDecimal.valueOf((Double) row.get("txnStdDeviation")));
+				transaction.setTxn90th(BigDecimal.valueOf((Double) row.get("txn90th")));
+				transaction.setTxn95th(BigDecimal.valueOf((Double) row.get("txn95th")));
+				transaction.setTxn99th(BigDecimal.valueOf((Double) row.get("txn99th")));
+				transaction.setTxnMedian(BigDecimal.valueOf((Double) row.get("txnMedian")));
+			} else {
+				
 				transaction.setTxn90th((BigDecimal)row.get("txn90th"));
 				transaction.setTxn95th((BigDecimal)row.get("txn95th"));
 				transaction.setTxn99th((BigDecimal)row.get("txn99th"));
 				transaction.setTxnMedian((BigDecimal)row.get("txnMedian"));
 			}
 			
-			transaction.setTxnPass(Long.valueOf( ((BigDecimal)row.get("txnPass")).longValue() ));
-			transaction.setTxnFail(Long.valueOf( ((BigDecimal)row.get("txnFail")).longValue() ));
-			transaction.setTxnStop(Long.valueOf( ((BigDecimal)row.get("txnStop")).longValue() ));		
-      		transaction.setTxnFirst(new BigDecimal(-1.0));
-      		transaction.setTxnLast(new BigDecimal(-1.0));
-      		transaction.setTxnSum(new BigDecimal(-1.0));
-      		transaction.setTxnDelay(new BigDecimal(0.0));		      		
+			transaction.setTxnPass(((BigDecimal) row.get("txnPass")).longValue());
+			transaction.setTxnFail(((BigDecimal) row.get("txnFail")).longValue());
+			transaction.setTxnStop(((BigDecimal) row.get("txnStop")).longValue());
+      		transaction.setTxnFirst(BigDecimal.valueOf(-1.0));
+      		transaction.setTxnLast(BigDecimal.valueOf(-1.0));
+      		transaction.setTxnSum(BigDecimal.valueOf(-1.0));
+      		transaction.setTxnDelay(new BigDecimal("0.0"));
       		transactions.add(transaction);
 //			System.out.println("populating extractTransactionStats: " + row.get("TXN_ID")  ) ;
 		}
@@ -426,20 +429,20 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 		
 		
-		BigDecimal value = new BigDecimal(0.000000).setScale(6, RoundingMode.DOWN);
-		BigDecimal totalOfValues = new BigDecimal(0.000000).setScale(6, RoundingMode.HALF_UP );
+		BigDecimal value = new BigDecimal("0.000000").setScale(6, RoundingMode.DOWN);
+		BigDecimal totalOfValues = new BigDecimal("0.000000").setScale(6, RoundingMode.HALF_UP );
 		
-		Long countPointsAtBottleneckThreshold = Long.valueOf(0);
-		Long count = Long.valueOf(0);	
+		long countPointsAtBottleneckThreshold = 0L;
+		long count = 0L;
 		
-		BigDecimal txnMinimum =  new BigDecimal(-1.0).setScale(3, RoundingMode.HALF_UP);
-		BigDecimal txnMaximum =  new BigDecimal(-1.0).setScale(3, RoundingMode.HALF_UP);				
+		BigDecimal txnMinimum = BigDecimal.valueOf(-1.0).setScale(3, RoundingMode.HALF_UP);
+		BigDecimal txnMaximum = BigDecimal.valueOf(-1.0).setScale(3, RoundingMode.HALF_UP);
 
-		BigDecimal txnFirst =  new BigDecimal(-1.0).setScale(3, RoundingMode.HALF_UP);		
-		BigDecimal txnLast  =  new BigDecimal(-1.0).setScale(3, RoundingMode.HALF_UP);		
+		BigDecimal txnFirst = BigDecimal.valueOf(-1.0).setScale(3, RoundingMode.HALF_UP);
+		BigDecimal txnLast  = BigDecimal.valueOf(-1.0).setScale(3, RoundingMode.HALF_UP);
 		boolean firstTimeThru = true;	
 		
-		BigDecimal ninteyPercent = new BigDecimal(90.0);
+		BigDecimal ninteyPercent = new BigDecimal("90.0");
 		
 		
 		for (Map<String, Object> row : rows) {
@@ -449,7 +452,6 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 				txnMinimum = value;
 				txnMaximum = value;
 				txnFirst = value;
-				txnLast = value;
 				firstTimeThru = false;
 			}
 	
@@ -464,7 +466,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 			
 			// if the metric value is a %idle, we need to invert it to turn it into a %utilisation ..
 			if (eventMapping.getIsInvertedPercentage().equals("Y") ){
-				value = value.subtract( new BigDecimal(100.0)).negate();
+				value = value.subtract( new BigDecimal("100.0")).negate();
 			}
 			
 			//calculation of server utilisation average takes the total of all points captured, then divides that by number of points (also may be useful for certain Datapoints) 
@@ -491,7 +493,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		DecimalFormat df = new DecimalFormat("#.00");
 		
 		//time above 90% threshold
-		Double percentSpendAtBottleneckThreshold = ( countPointsAtBottleneckThreshold / count.doubleValue()  ) * 100.0;
+		Double percentSpendAtBottleneckThreshold = ( countPointsAtBottleneckThreshold / (double) count) * 100.0;
 		String percentSpendAtBottleneckThresholdStr =   df.format(percentSpendAtBottleneckThreshold);
 				
 //		System.out.println("extractTransactionMetricsForServerStats: " + eventTxnId + " " + eventMapping.getTxnType()  
@@ -505,24 +507,24 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		metricTransaction.setIsCdpTxn("N");                        // as its a metric txn   
 		metricTransaction.setTxnMinimum(txnMinimum); 		      		
 		metricTransaction.setTxnAverage(tnxAverage); 
-		metricTransaction.setTxnMedian(new BigDecimal(-1.0)); 
+		metricTransaction.setTxnMedian(BigDecimal.valueOf(-1.0));
 		metricTransaction.setTxnMaximum(txnMaximum);
-		metricTransaction.setTxnStdDeviation(new BigDecimal(-1.0));
+		metricTransaction.setTxnStdDeviation(BigDecimal.valueOf(-1.0));
 
-		metricTransaction.setTxn90th(new BigDecimal(-1.0));
+		metricTransaction.setTxn90th(BigDecimal.valueOf(-1.0));
 		if (eventMapping.getIsPercentage().equals("Y")){
 			metricTransaction.setTxn90th(new BigDecimal(percentSpendAtBottleneckThresholdStr));
 		}
-		metricTransaction.setTxn95th(new BigDecimal(-1.0));
-		metricTransaction.setTxn99th(new BigDecimal(-1.0));
+		metricTransaction.setTxn95th(BigDecimal.valueOf(-1.0));
+		metricTransaction.setTxn99th(BigDecimal.valueOf(-1.0));
 		metricTransaction.setTxnPass(count);
-		metricTransaction.setTxnFail(Long.valueOf(-1).longValue() );
-		metricTransaction.setTxnStop(Long.valueOf(-1).longValue() );
+		metricTransaction.setTxnFail((long) -1);
+		metricTransaction.setTxnStop((long) -1);
 		
 		metricTransaction.setTxnFirst(txnFirst);
 		metricTransaction.setTxnLast(txnLast);
 		metricTransaction.setTxnSum(totalOfValues);		
-		metricTransaction.setTxnDelay(new BigDecimal(0.0));		
+		metricTransaction.setTxnDelay(new BigDecimal("0.0"));
 
 		return metricTransaction;
 	}
@@ -537,8 +539,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 
 //		System.out.println("performing TestTransactionsDAOjdbcTemplateImpl.filterByTime : " + sql );
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		int rowsAffected = 	jdbcTemplate.update(sql);
-		return rowsAffected;
+		return jdbcTemplate.update(sql);
 	}
 
 

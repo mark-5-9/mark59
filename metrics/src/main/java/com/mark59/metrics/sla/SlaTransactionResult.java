@@ -191,7 +191,7 @@ public class SlaTransactionResult {
 
 	@Override
 	public String toString() {
-		String prettyPrint = "txnId : " + txnId
+		return "txnId : " + txnId
 				+ ", passedAllSlas="+passedAllSlas
 				+ ", foundSLAforTxnId="+foundSLAforTxnId
 				+ ", passed90thResponse="+passed90thResponse
@@ -209,8 +209,6 @@ public class SlaTransactionResult {
 				+ ", passedPassCount="+passedPassCount
 				+ ", txnPassCount="+txnPassCount
 				+ ", slaPassCount="+slaPassCount
-				+ ", slaPassCountVariancePercent="+slaPassCountVariancePercent
-				;
-		return prettyPrint;
+				+ ", slaPassCountVariancePercent="+slaPassCountVariancePercent;
 	} 
 }

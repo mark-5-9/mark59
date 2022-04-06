@@ -28,6 +28,6 @@ import com.mark59.metrics.data.beans.GraphMapping;
  */
 public interface VisGraphicDataProductionInterface 
 {
-	public String createDataPoints(String application, GraphMapping graphMapping, String runDatesToGraph,
-			List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph, List<String> listOfTransactionNamesToGraphTagged);
+	String createDataPoints(String application, GraphMapping graphMapping, String runDatesToGraph,
+                            List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph, List<String> listOfTransactionNamesToGraphTagged);
 }

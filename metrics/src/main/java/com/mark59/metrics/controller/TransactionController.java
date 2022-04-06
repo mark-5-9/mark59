@@ -65,11 +65,11 @@ public class TransactionController {
 		List<String> applicationList = populateApplicationDropdown();
 		if (StringUtils.isBlank(reqApp) && applicationList.size() > 1  ){
 			// when no application request parameter has been sent, take the first application  
-			reqApp = (String)applicationList.get(0);
+			reqApp = applicationList.get(0);
 		}		
 		List<Transaction> transactionList = transactionDAO.getUniqueListOfTransactionsByType(reqApp);
 		
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		map.put("applications",applicationList);
 		map.put("transactionList",transactionList);
 		map.put("reqApp",reqApp);
@@ -80,7 +80,7 @@ public class TransactionController {
 	@RequestMapping("/transactionRenameDataEntry") 
 	public Object renameTransactionEntry(@RequestParam String reqApp, @RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam String reqTxnType, 
 			@ModelAttribute TransactionRenameForm transactionRenameForm  ) {
-		transactionRenameForm.setApplication(reqApp); ;
+		transactionRenameForm.setApplication(reqApp);
 		transactionRenameForm.setFromTxnId(reqTxnId);
 		transactionRenameForm.setTxnType(reqTxnType);
 		transactionRenameForm.setFromIsCdpTxn(reqIsCdpTxn);
@@ -237,7 +237,7 @@ public class TransactionController {
 
 	
 	private Map<String, Object> createMapOfDropdowns() {
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		List<String> applicationList   = populateApplicationDropdown();		
 		List<String> isCdpTxnYesNo     = populateIsCdpTxnYesNoDropdown();	
 		map.put("applications",applicationList);		
@@ -247,14 +247,13 @@ public class TransactionController {
 	
 	
 	private List<String> populateApplicationDropdown() {
-		List<String> applicationList = new ArrayList<String>();
-		applicationList = runDAO.findApplications();
+		List<String> applicationList = runDAO.findApplications();
 		return applicationList;
 	}		
 	
 	
 	private List<String> populateIsCdpTxnYesNoDropdown() {
-		List<String> isCdpTxnYesNo = new ArrayList<String>();
+		List<String> isCdpTxnYesNo = new ArrayList<>();
 		isCdpTxnYesNo.add("N");
 		isCdpTxnYesNo.add("Y");
 		return isCdpTxnYesNo;

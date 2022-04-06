@@ -30,31 +30,32 @@ import com.mark59.metrics.data.beans.Transaction;
  */
 public class TransactionExtractor implements ResultSetExtractor<Transaction> {
 
-	 public Transaction extractData(ResultSet resultSet) throws SQLException,  DataAccessException {
-	  
-	  Transaction transaction = new Transaction();
-	  
-	  transaction.setApplication(resultSet.getString(1));
-	  transaction.setRunTime(resultSet.getString(2));
-	  transaction.setTxnId(resultSet.getString(3));
-	  transaction.setTxnType(resultSet.getString(4));
-	  transaction.setIsCdpTxn(resultSet.getString(5));
-	  transaction.setTxnMinimum(resultSet.getBigDecimal(6));
-	  transaction.setTxnAverage(resultSet.getBigDecimal(7));
-	  transaction.setTxnMedian(resultSet.getBigDecimal(8));
-	  transaction.setTxnMaximum(resultSet.getBigDecimal(9));
-	  transaction.setTxnStdDeviation(resultSet.getBigDecimal(10));
-	  transaction.setTxn90th(resultSet.getBigDecimal(11));
-	  transaction.setTxn95th(resultSet.getBigDecimal(12));
-	  transaction.setTxn99th(resultSet.getBigDecimal(13));
-	  transaction.setTxnPass(resultSet.getLong(14));
-	  transaction.setTxnFail(resultSet.getLong(15));
-	  transaction.setTxnStop(resultSet.getLong(16));
-	  transaction.setTxnFirst(resultSet.getBigDecimal(17));
-	  transaction.setTxnLast(resultSet.getBigDecimal(18));
-	  transaction.setTxnSum(resultSet.getBigDecimal(19));
-	  transaction.setTxnDelay(resultSet.getBigDecimal(20));	  
-	  
-	  return transaction;
-	 }
+	@Override
+	public Transaction extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+
+		Transaction transaction = new Transaction();
+
+		transaction.setApplication(resultSet.getString(1));
+		transaction.setRunTime(resultSet.getString(2));
+		transaction.setTxnId(resultSet.getString(3));
+		transaction.setTxnType(resultSet.getString(4));
+		transaction.setIsCdpTxn(resultSet.getString(5));
+		transaction.setTxnMinimum(resultSet.getBigDecimal(6));
+		transaction.setTxnAverage(resultSet.getBigDecimal(7));
+		transaction.setTxnMedian(resultSet.getBigDecimal(8));
+		transaction.setTxnMaximum(resultSet.getBigDecimal(9));
+		transaction.setTxnStdDeviation(resultSet.getBigDecimal(10));
+		transaction.setTxn90th(resultSet.getBigDecimal(11));
+		transaction.setTxn95th(resultSet.getBigDecimal(12));
+		transaction.setTxn99th(resultSet.getBigDecimal(13));
+		transaction.setTxnPass(resultSet.getLong(14));
+		transaction.setTxnFail(resultSet.getLong(15));
+		transaction.setTxnStop(resultSet.getLong(16));
+		transaction.setTxnFirst(resultSet.getBigDecimal(17));
+		transaction.setTxnLast(resultSet.getBigDecimal(18));
+		transaction.setTxnSum(resultSet.getBigDecimal(19));
+		transaction.setTxnDelay(resultSet.getBigDecimal(20));
+
+		return transaction;
+	}
 }

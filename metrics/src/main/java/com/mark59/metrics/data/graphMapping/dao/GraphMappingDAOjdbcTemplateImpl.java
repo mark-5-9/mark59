@@ -55,7 +55,6 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("graph", graph);
 		
-		List<GraphMapping> graphMappingList = new ArrayList<GraphMapping>();
 //		System.out.println(" findGraphMapping : " + selectGraphsSQL + UtilsMetrics.prettyPrintParms(sqlparameters));
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectGraphsSQL, sqlparameters);	
@@ -63,7 +62,6 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 		if (rows.size() == 0 ){
 			return null;
 		}
-		
 		Map row = rows.get(0);
 		
 		GraphMapping graphMapping = new GraphMapping();
@@ -75,18 +73,16 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 		graphMapping.setBarRangeSql((String)row.get("BAR_RANGE_SQL"));
 		graphMapping.setBarRangeLegend((String)row.get("BAR_RANGE_LEGEND"));		
 		graphMapping.setComment((String)row.get("COMMENT")); 
-
-		graphMappingList.add(graphMapping);
 //		System.out.println("GraphMappingDAOjdbcTemplateImpl.findGraphMapping  : " + graphMapping.toString()  ) ;		
-		
 		return  graphMapping;
 	}
 
+	
 	@Override
 	@SuppressWarnings("rawtypes")
 	public List<GraphMapping> getGraphMappings(){
 
-		List<GraphMapping> graphMappingList = new ArrayList<GraphMapping>();
+		List<GraphMapping> graphMappingList = new ArrayList<>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
 		String selectGraphsSQL   = "select LISTORDER, GRAPH, TXN_TYPE, VALUE_DERIVATION, UOM_DESCRIPTION, "
@@ -124,9 +120,9 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
-				new Object[] { graphMapping.getListOrder(), graphMapping.getGraph(), graphMapping.getTxnType(), 
-								graphMapping.getValueDerivation(), graphMapping.getUomDescription(),
-								graphMapping.getBarRangeSql(), graphMapping.getBarRangeLegend(), graphMapping.getComment()  });
+				graphMapping.getListOrder(), graphMapping.getGraph(), graphMapping.getTxnType(),
+				graphMapping.getValueDerivation(), graphMapping.getUomDescription(),
+				graphMapping.getBarRangeSql(), graphMapping.getBarRangeLegend(), graphMapping.getComment());
 	}
 	
 	
@@ -139,9 +135,8 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-		jdbcTemplate.update(sql, new Object[] { 
-				graphMapping.getListOrder(), graphMapping.getTxnType(), graphMapping.getValueDerivation(), graphMapping.getUomDescription(),
-				graphMapping.getBarRangeSql(), graphMapping.getBarRangeLegend(),graphMapping.getComment(), graphMapping.getGraph()  });
+		jdbcTemplate.update(sql, graphMapping.getListOrder(), graphMapping.getTxnType(), graphMapping.getValueDerivation(), graphMapping.getUomDescription(),
+				graphMapping.getBarRangeSql(), graphMapping.getBarRangeLegend(),graphMapping.getComment(), graphMapping.getGraph());
 	}	
 	
 	
@@ -173,14 +168,14 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 		
 		List<Map<String, Object>> onerows = jdbcTemplate.queryForList(sqlObtainBarRangeSql, sqlparameters);	
 		if (onerows.size() == 0 ){
-			return new ArrayList<BarRange>();
+			return new ArrayList<>();
 		}
 
 		Map<String, Object> onerow = onerows.get(0);
 		String rangeSql = (String)onerow.get("BAR_RANGE_SQL"); 
 		
 		if (StringUtils.isBlank(rangeSql) ){
-			return new ArrayList<BarRange>();
+			return new ArrayList<>();
 		} else {
 			return transactionsRangeBars(application, runTime, rangeSql);
 		}
@@ -188,7 +183,7 @@ public class GraphMappingDAOjdbcTemplateImpl implements GraphMappingDAO
 
 	
 	private List<BarRange> transactionsRangeBars(String application, String runTime, String rangeSql) {
-		List<BarRange> trxnIdsSlaRanges = new ArrayList<BarRange>();
+		List<BarRange> trxnIdsSlaRanges = new ArrayList<>();
 		
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource ()
 				.addValue("application", application)

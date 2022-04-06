@@ -60,9 +60,9 @@ public class ServerProfileRunner {
 	 * Controls the driving and parsing of commands for a server profile executed on the target server, 
 	 * and formats the responses.   
 	 * 
-	 * @param reqServerProfileName
-	 * @param reqTestMode
-	 * @return
+	 * @param reqServerProfileName server profile
+	 * @param reqTestMode  running in test mode (eg via the web app)
+	 * @return  WebServerMetricsResponsePojo  response
 	 */
 	public static WebServerMetricsResponsePojo commandsResponse(String reqServerProfileName, String reqTestMode,
 			ServerProfilesDAO serverProfilesDAO, ServerCommandLinksDAO serverCommandLinksDAO, CommandsDAO commandsDAO,
@@ -73,7 +73,7 @@ public class ServerProfileRunner {
 		WebServerMetricsResponsePojo response = new WebServerMetricsResponsePojo();
 		response.setServerProfileName(reqServerProfileName);
 		response.setLogLines("");
-		List<String> logLines = new ArrayList<String>();
+		List<String> logLines = new ArrayList<>();
 		parsingSuccessCount = 0;
 		parsingFailureCount = 0;		
 		
@@ -95,7 +95,7 @@ public class ServerProfileRunner {
 			response.setFailMsg("");
 			
 			
-			List<ParsedCommandResponse> parsedCommandResponses = new ArrayList<ParsedCommandResponse>();
+			List<ParsedCommandResponse> parsedCommandResponses = new ArrayList<>();
 			List<ServerCommandLink> serverCommandLinks = serverCommandLinksDAO.findServerCommandLinksForServerProfile(serverProfile.getServerProfileName());  
 			
 			for (ServerCommandLink serverCommandLink : serverCommandLinks) {      		// loop thru each command linked to the server profile
@@ -180,8 +180,8 @@ public class ServerProfileRunner {
 			response.setTestModeResult("<font color='red'>Error: Unexpected Failure executing server profile command on the target server.</font>");
 			LOG.warn(failureMsg);
 			LOG.debug("    loglines : " + response.getLogLines());
-		};
-		LOG.debug("<< response : " + response);
+		}
+        LOG.debug("<< response : " + response);
 		return response;
 	}
 
@@ -192,7 +192,7 @@ public class ServerProfileRunner {
 		LOG.debug("parseCommandResponse for " + commandName + ", commandResponseParser script " + commandResponseParser.getScriptName()  );
 		
 		ParsedCommandResponse parsedCommandResponse = new ParsedCommandResponse();
-		List<ParsedMetric> parsedMetrics = new ArrayList<ParsedMetric>();
+		List<ParsedMetric> parsedMetrics = new ArrayList<>();
 		
 		String commandResponseAsString = ServerMetricsWebUtils.createMultiLineLiteral(commandDriverResponse.getRawCommandResponseLines());
 		parsedCommandResponse.setCommandResponse(commandResponseAsString);
@@ -254,24 +254,21 @@ public class ServerProfileRunner {
 					}
 				
 				} else {
-					
-					if ( groovyScriptResult != null ) { 
-						
-						parsingFailureCount++;
-						ParsedMetric parsedMetric = new ParsedMetric();  
-						parsedMetric.setSuccess(false);					
-						parsedMetric.setResult(null);	
-						parsedMetrics.add(parsedMetric);
-						parsedCommandResponse.setParsedMetrics(parsedMetrics);
-						response.setFailMsg(response.getFailMsg() +
-								"\n\nError : " + commandResponseParser.getScriptName() + " Script parsing failure\n" +
-								"Error : Script parsing failure.  Neither null or valid numeric returned : [" + groovyScriptResult + "]." +  
-								"\nServerprofile : " + serverProfileName +
-								"\nCommand  : " + commandName +
-								"\nParser : " + commandResponseParser.getScriptName() +
-								"\nCommand Response : " + "\n" + commandResponseAsString);
-						LOG.warn(response.getFailMsg());
-					}
+
+					parsingFailureCount++;
+					ParsedMetric parsedMetric = new ParsedMetric();
+					parsedMetric.setSuccess(false);
+					parsedMetric.setResult(null);
+					parsedMetrics.add(parsedMetric);
+					parsedCommandResponse.setParsedMetrics(parsedMetrics);
+					response.setFailMsg(response.getFailMsg() +
+							"\n\nError : " + commandResponseParser.getScriptName() + " Script parsing failure\n" +
+							"Error : Script parsing failure.  Neither null or valid numeric returned : [" + groovyScriptResult + "]." +
+							"\nServerprofile : " + serverProfileName +
+							"\nCommand  : " + commandName +
+							"\nParser : " + commandResponseParser.getScriptName() +
+							"\nCommand Response : " + "\n" + commandResponseAsString);
+					LOG.warn(response.getFailMsg());
 				}
 				
  			} catch (Exception e) {
@@ -300,7 +297,7 @@ public class ServerProfileRunner {
 			
 
 	private static List<String> logParsedMetrics(List<ParsedMetric> parsedMetrics) {
-		List<String> logLines = new ArrayList<String>();
+		List<String> logLines = new ArrayList<>();
 			
 		for (ParsedMetric parsedMetric  : parsedMetrics) {
 			logLines.add(indent + "Txn label : " +  parsedMetric.getLabel());   
@@ -335,7 +332,7 @@ public class ServerProfileRunner {
 		try {
 			Double.parseDouble(str);
 			return true;
-		} catch (NumberFormatException nfe) {}
+		} catch (NumberFormatException ignored) {}
 		return false;
 	}	
 	

@@ -53,7 +53,7 @@ public class HtmlTable extends Elemental {
 	
 	public List<HtmlTableRow> getHtmlTableRows(boolean includeHeadingRow){
 		WebElement htmlTable = super.waitForAndFindElement();
-		List<WebElement> tableRows = new ArrayList<WebElement>();
+		List<WebElement> tableRows = new ArrayList<>();
 		if (htmlTable != null ){
 			tableRows = htmlTable.findElements(By.tagName("tr"));
 		}
@@ -61,7 +61,7 @@ public class HtmlTable extends Elemental {
 			tableRows.remove(0); 		
 		}	
 	
-		List<HtmlTableRow> htmlTableRows = new ArrayList<HtmlTableRow>();
+		List<HtmlTableRow> htmlTableRows = new ArrayList<>();
 		for (WebElement tableRowElement : tableRows) {
 			htmlTableRows.add(new HtmlTableRow(tableRowElement));
 		}

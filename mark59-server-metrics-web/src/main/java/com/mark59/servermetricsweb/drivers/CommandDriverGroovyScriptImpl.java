@@ -40,7 +40,7 @@ import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
 public class CommandDriverGroovyScriptImpl implements CommandDriver {
 
 	private static final Logger LOG = LogManager.getLogger(CommandDriverGroovyScriptImpl.class);	
-	private ServerProfile serverProfile;
+	private final ServerProfile serverProfile;
 
 	
 	public CommandDriverGroovyScriptImpl(ServerProfile serverProfile) {
@@ -53,19 +53,20 @@ public class CommandDriverGroovyScriptImpl implements CommandDriver {
 	 * @param command (Groovy script)
 	 * @return CommandDriverResponse
 	 */
+	@Override
 	public CommandDriverResponse executeCommand(Command command) {
 		LOG.debug("executeCommand (script) : " + command);
 		CommandDriverResponse commandDriverResponse = new CommandDriverResponse();
-		commandDriverResponse.setRawCommandResponseLines(new ArrayList<String>()); ;
+		commandDriverResponse.setRawCommandResponseLines(new ArrayList<>());
 		String commandLog = " :<br><font face='Courier'> executing groovy script : " + command.getCommandName() + "</font><br>"; 
 		
 		ScriptResponse groovyScriptResult = new ScriptResponse();
 		
 		try {
-			Map<String,Object> scriptParms = new HashMap<String,Object>(); 
+			Map<String,Object> scriptParms = new HashMap<>();
 			scriptParms.put("serverProfile", serverProfile);
-			Map<String,String> serverProfileParms = serverProfile.getParameters()  == null ? new HashMap<String,String>() : serverProfile.getParameters();
-			serverProfileParms.forEach((key,value) -> scriptParms.put(key, value));
+			Map<String,String> serverProfileParms = serverProfile.getParameters()  == null ? new HashMap<>() : serverProfile.getParameters();
+			serverProfileParms.forEach(scriptParms::put);
 			
 			groovyScriptResult = (ScriptResponse)ServerMetricsWebUtils.runGroovyScript(command.getCommand().replaceAll("\\R", "\n"), scriptParms);
 	

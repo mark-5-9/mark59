@@ -17,9 +17,6 @@
 package com.mark59.datahunter.performanceTest.dsl.helpers;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +44,10 @@ import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.PrintSe
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.PrintSelectedPoliciesPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.UpdatePoliciesUseStateActionPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.UpdatePoliciesUseStatePage;
-import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages._GenericDatatHunterActionPage;
+import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages._GenericDataHunterActionPage;
 import com.mark59.seleniumDSL.pageElements.HtmlTableRow;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Philip Webb
@@ -57,7 +56,7 @@ import com.mark59.seleniumDSL.pageElements.HtmlTableRow;
 public class DslPageFunctions  implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String dataHunterUrl = DslConstants.DEFAULT_DATAHUNTER_URL; 
+	private final String dataHunterUrl;
 		
 	public DslPageFunctions(String dataHunterUrl) {
 	    this.dataHunterUrl = dataHunterUrl;
@@ -104,7 +103,7 @@ public class DslPageFunctions  implements Serializable {
 	
 
 	public Integer countItemsBreakdown(PolicySelectionCriteria selectionCriteria, WebDriver driver, PolicySelectionCriteria anExpectedRow, Long itsExpectedCount ) {
-		Integer count = 0;
+		int count = 0;
 		driver.get(dataHunterUrl + DslConstants.COUNT_POLICIES_BREAKDOWN_URL_PATH  + DslConstants.URL_PARM_APPLICATION + selectionCriteria.getApplication());
 		CountPoliciesBreakdownPage countPoliciesBreakdownPage = new CountPoliciesBreakdownPage(driver); 
 		CountPoliciesBreakdownActionPage countPoliciesBreakdownActionPage = new CountPoliciesBreakdownActionPage(driver);
@@ -125,7 +124,7 @@ public class DslPageFunctions  implements Serializable {
 		}
 		if (anExpectedRow != null && itsExpectedCount != null) {
 			confirmCountPoliciesActionPageOk(anExpectedRow, itsExpectedCount, countPoliciesBreakdownActionPage);
-			assertEquals(new Long(count), itsExpectedCount);
+			assertEquals(Long.valueOf(count), itsExpectedCount);
 		}
 		return count;
 	}
@@ -167,7 +166,7 @@ public class DslPageFunctions  implements Serializable {
 		driver.get(dataHunterUrl + DslConstants.PRINT_SELECTED_POLICIES_URL_PATH + DslConstants.URL_PARM_APPLICATION + policySelectionCriteria.getApplication());
 		PrintSelectedPoliciesPage  printSelectedPoliciesPage = new PrintSelectedPoliciesPage(driver); 
 		PrintSelectedPoliciesActionPage  printSelectedPoliciesActionPage = new PrintSelectedPoliciesActionPage(driver);
-		HashMap<String, Policy> policiesMap = new HashMap<String, Policy>(); 
+		HashMap<String, Policy> policiesMap = new HashMap<>();
 		printSelectedPoliciesPage.lifecycle().type(policySelectionCriteria.getLifecycle());
 		printSelectedPoliciesPage.useability().selectByVisibleText("");
 		printSelectedPoliciesPage.submit().submit();
@@ -196,11 +195,14 @@ public class DslPageFunctions  implements Serializable {
 	}
 
 	
-	public Integer deleteAnItem(PolicySelectionCriteria policySelectionCriteria, WebDriver driver, Long expectedCount) {
-		driver.get(dataHunterUrl + DslConstants.DELETE_POLICY_URL_PATH + DslConstants.URL_PARM_APPLICATION + policySelectionCriteria.getApplication());
+	public Integer deleteAnItem(PolicySelectionCriteria policySelection, WebDriver driver, Long expectedCount) {
+		driver.get(dataHunterUrl + DslConstants.DELETE_POLICY_URL_PATH + DslConstants.URL_PARM_APPLICATION + policySelection.getApplication());
 		DeletePolicyPage deletePolicyPage = new DeletePolicyPage(driver); 
 		DeletePolicyActionPage deletePolicyActionPage = new DeletePolicyActionPage(driver); 
-		deletePolicyPage.identifier().type(policySelectionCriteria.getIdentifier());
+		deletePolicyPage.identifier().type(policySelection.getIdentifier());
+		if (StringUtils.isNotBlank(policySelection.getLifecycle())){
+			deletePolicyPage.lifecycle().type(policySelection.getLifecycle());
+		}  
 		deletePolicyPage.submit().submit();
 		
 		waitForSqlResultsTextOnActionPageAndCheckOk(deletePolicyActionPage);
@@ -289,11 +291,11 @@ public class DslPageFunctions  implements Serializable {
 	}
 
 	
-	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDatatHunterActionPage _genericDatatHunterActionPage) {
-		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();
+	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDataHunterActionPage _genericDataHunterActionPage) {
+		String sqlResultText = _genericDataHunterActionPage.sqlResult().getText();
 		if (!"PASS".equals(sqlResultText)) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ") : " +
-						_genericDatatHunterActionPage.formatResultsMessage(_genericDatatHunterActionPage.getClass().getName()));
+						_genericDataHunterActionPage.formatResultsMessage(_genericDataHunterActionPage.getClass().getName()));
 		}
 	}
 	
@@ -337,10 +339,10 @@ public class DslPageFunctions  implements Serializable {
 	private void confirmPrintSelectedPoliciesActionPageOk(List<Policy> expectedPolicies, HashMap<String, Policy> policiesMap) {
 		for (Policy expectedPolicy : expectedPolicies) {
 			Policy actualPolicyRow =  policiesMap.get(expectedPolicy.getApplication()+":"+expectedPolicy.getIdentifier()+":"+expectedPolicy.getLifecycle());
-			assertTrue( expectedPolicy + " - not found",   actualPolicyRow != null);
-			assertEquals(expectedPolicy.getUseability(), actualPolicyRow.getUseability()); 
-			assertEquals(expectedPolicy.getOtherdata(), actualPolicyRow.getOtherdata()); 
-		} 
+			assertNotNull(expectedPolicy + " - not found", actualPolicyRow);
+			assertEquals(expectedPolicy.getUseability(), actualPolicyRow.getUseability());
+			assertEquals(expectedPolicy.getOtherdata(), actualPolicyRow.getOtherdata());
+		}
 	}
 	
 	private void confirmDeletePolicyActionPageOk(long expectedCount, DeletePolicyActionPage deletePolicyActionPage) {

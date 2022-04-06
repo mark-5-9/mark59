@@ -15,6 +15,7 @@
  */
 package com.mark59.core.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Base64;
@@ -43,10 +44,10 @@ public class SimpleAES {
 	public static void setKey(String myKey) {
 		MessageDigest sha = null;
 		try {
-			key = myKey.getBytes("UTF-8");
+			key = myKey.getBytes(StandardCharsets.UTF_8);
 			sha = MessageDigest.getInstance("SHA-1");
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Error while setting key (" + myKey + ") : " + e.toString());
 		}
 		key = sha.digest(key);
 		key = Arrays.copyOf(key, 16);
@@ -63,7 +64,7 @@ public class SimpleAES {
 			setKey(secret);
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
 		} catch (Exception e) {
 			System.out.println("Error while encrypting: " + e.toString());
 		}

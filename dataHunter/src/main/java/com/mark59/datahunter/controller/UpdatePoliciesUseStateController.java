@@ -50,10 +50,10 @@ public class UpdatePoliciesUseStateController {
 	@RequestMapping("/update_policies_use_state")
 	public String updatePoliciesUseStatetateUrl(@RequestParam(required=false) String application, @ModelAttribute UpdateUseStateAndEpochTime updateUseStateAndEpochTime, Model model  ) { 
 //		System.out.println("/update_policies_use_state");
-		List<String> usabilityListFrom = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		List<String> usabilityListFrom = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		usabilityListFrom.add(0,"");
 		model.addAttribute("usabilityListFrom",usabilityListFrom);
-		List<String> usabilityListTo = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		List<String> usabilityListTo = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		model.addAttribute("usabilityListTo",usabilityListTo);		
 		return "/update_policies_use_state";				
 	}
@@ -62,11 +62,11 @@ public class UpdatePoliciesUseStateController {
 	@RequestMapping("/update_policies_use_state_action")
 	public ModelAndView updatePoliciesUseStatetateUrlAction(@ModelAttribute UpdateUseStateAndEpochTime updateUseStateAndEpochTime,  Model model, HttpServletRequest httpServletRequest) {
 		DataHunterUtils.expireSession(httpServletRequest);
-		
-		int rowsAffected = -1;
-		SqlWithParms sqlWithParms = policiesDAO.constructUpdatePoliciesUseStateSql(updateUseStateAndEpochTime);	   
-		model.addAttribute("sql", sqlWithParms);			
-		
+
+		SqlWithParms sqlWithParms = policiesDAO.constructUpdatePoliciesUseStateSql(updateUseStateAndEpochTime);
+		model.addAttribute("sql", sqlWithParms);
+
+		int rowsAffected;
 		try {
 			rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 		} catch (Exception e) {

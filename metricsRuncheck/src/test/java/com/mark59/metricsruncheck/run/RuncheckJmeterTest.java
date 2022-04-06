@@ -75,7 +75,7 @@ public class RuncheckJmeterTest extends TestCase {
 		String apprun = StringUtils.substringBefore(run.toString(), "isRunIgnored");
 
 		List<Transaction> transactions = performanceTest.getTransactionSummariesThisRun();
-		assertEquals(9, transactions.size() );
+		assertEquals(10, transactions.size() );
 		for (Transaction transaction : transactions) {
 			// System.out.println("Txn>>" + transaction);
 			if ("DH_lifecycle_0001_gotoDeleteMultiplePoliciesUrl".equals(transaction.getTxnId())){
@@ -105,6 +105,10 @@ public class RuncheckJmeterTest extends TestCase {
 			} else if ("DH_lifecycle_9999_finalize_deleteMultiplePolicies".equals(transaction.getTxnId())){
 				assertEquals (apprun +"txnId=DH_lifecycle_9999_finalize_deleteMultiplePolicies, txnType=TRANSACTION, isCdpTxn=N, txnMinimum=22.114, txnAverage=35.869, txnMedian=22.125,"
 						+ " txnMaximum=55.117, txn90th=55.117, txn95th=55.117, txn99th=55.117, txnPass=4, txnFail=1, txnStop=0, txnFirst=-1.000, txnLast=-1.000, txnSum=-1.000, txnDelay=0.000", transaction.toString());
+			} else if ("verylongtransactionnamesover128charsneedtobetruncatedandelipsesthingsputattheendPrettyDumbButcatchesmoreobsuresituationwhneau...".equals(transaction.getTxnId())){
+				assertEquals (apprun +"txnId=verylongtransactionnamesover128charsneedtobetruncatedandelipsesthingsputattheendPrettyDumbButcatchesmoreobsuresituationwhneau...,"
+						+ " txnType=TRANSACTION, isCdpTxn=N, txnMinimum=0.123, txnAverage=0.123, txnMedian=0.123,"
+						+ " txnMaximum=0.123, txn90th=0.123, txn95th=0.123, txn99th=0.123, txnPass=1, txnFail=0, txnStop=0, txnFirst=-1.000, txnLast=-1.000, txnSum=-1.000, txnDelay=0.000", transaction.toString());
 			} else {
 				fail("unexpectedTransaction: " + transaction.getTxnId() );
 			}

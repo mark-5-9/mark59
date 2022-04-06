@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -71,7 +72,7 @@ import jodd.util.CsvUtil;
  * <p>Includes a number of standard parameters expected for a Selenium WebDriver.</p>
  *
  * @see SeleniumDriverFactory#makeDriverWrapper(Map)
- * @see SeleniumDriverFactory#getDriverBuilderOfType  
+ * @see SeleniumDriverFactory#SeleniumDriverFactory()
  * @see com.mark59.selenium.drivers.SeleniumDriverFactory#HEADLESS_MODE 
  * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setHeadless(boolean)  
  * @see com.mark59.selenium.drivers.SeleniumDriverFactory#PAGE_LOAD_STRATEGY 
@@ -105,7 +106,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 				"org.openqa.selenium.remote.http.level = SEVERE\n" +
 				"org.asynchttpclient.netty.handler.level = SEVERE\n";
 		try {
-			java.util.logging.LogManager.getLogManager().readConfiguration(new java.io.ByteArrayInputStream(logConfig.getBytes("UTF-8")));
+			java.util.logging.LogManager.getLogManager().readConfiguration(new java.io.ByteArrayInputStream(logConfig.getBytes(StandardCharsets.UTF_8)));
 		} catch (IOException e) {
 			System.err.println("Failed to configure override java.util.logging : " + logConfig + "\nError : " + e.getMessage());
 		}
@@ -126,7 +127,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 */
 	protected static final Map<String,String> defaultArgumentsMap; 	
 	static {
-		Map<String,String> staticMap = new LinkedHashMap<String,String>();
+		Map<String,String> staticMap = new LinkedHashMap<>();
 		
 		staticMap.put("______________________ driver settings: ________________________", "Refer Mark59 User Guide : http://mark59.com");	
 		staticMap.put(SeleniumDriverFactory.DRIVER,						Mark59Constants.DEFAULT_DRIVER);
@@ -156,7 +157,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	
 	
 	/**  used to output results table when running from a script Main() */
-	protected static Map<String, List<Long>> resultsSummaryTable = new TreeMap<String, List<Long>>();
+	protected static Map<String, List<Long>> resultsSummaryTable = new TreeMap<>();
 	private static final int POS_0_NUM_SAMPLES  		= 0;	
 	private static final int POS_1_NUM_FAIL  			= 1;	
 	private static final int POS_2_SUM_RESPONSE_TIME 	= 2;	
@@ -191,8 +192,8 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * <p>Please see link(s) below for more detail.  
 	 * 
 	 * @see SeleniumDriverFactory#makeDriverWrapper(Map)
-	 * @see SeleniumDriverFactory#getDriverBuilderOfType  
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#HEADLESS_MODE 
+	 * @see SeleniumDriverFactory#SeleniumDriverFactory()
+	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#HEADLESS_MODE
 	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setHeadless(boolean)  
 	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#PAGE_LOAD_STRATEGY 
 	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setPageLoadStrategy(PageLoadStrategy) 
@@ -251,7 +252,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 			return null;
 		}
 
-		driver =  (WebDriver)seleniumDriverWrapper.getDriverPackage() ;
+		driver = seleniumDriverWrapper.getDriverPackage();
 		jm = new JmeterFunctionsForSeleniumScripts(Thread.currentThread().getName(), seleniumDriverWrapper, jmeterRuntimeArgumentsMap);   	
 		
 		try {
@@ -333,10 +334,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 */
 	protected void userActionsOnScriptFailure(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm, WebDriver driver) {
 		
-	};
+	}
 
-		
-	
+
 	/**
 	 * Method to be implemented containing the actual test steps. 
 	 * 
@@ -356,7 +356,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		Map<String, String> jmeterArgumentsAsMap = new HashMap<>();
 		
 		for (Iterator<String> iterator = context.getParameterNamesIterator(); iterator.hasNext();) {
-			String paramKey = (String) iterator.next();
+			String paramKey = iterator.next();
 			jmeterArgumentsAsMap.put(paramKey, context.getParameter(paramKey) );
 		}
 		
@@ -411,12 +411,11 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		this.keepBrowserOpen = keepBrowserOpen;
 		if (String.valueOf(true).equalsIgnoreCase(context.getParameter(SeleniumDriverFactory.HEADLESS_MODE))) {
 			this.keepBrowserOpen = KeepBrowserOpen.NEVER;
-		};
+		}
 		LOG.debug("keepBrowserOpen is set to "+ this.keepBrowserOpen);
 		
 		setupTest(context);
-		SampleResult sampleResult  = runTest(context);
-		return sampleResult;
+		return runTest(context);
 	}
 
 
@@ -449,7 +448,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param threadStartGapMs time between start of each thread in milliseconds
 	 */
 	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs) {
-		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>(), KeepBrowserOpen.NEVER, 1, 0, false, null);
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<>(), KeepBrowserOpen.NEVER, 1, 0, false, null);
 	}
 
 	/**
@@ -469,7 +468,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param keepBrowserOpen  see KeepBrowserOpen
 	 */
 	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, KeepBrowserOpen keepBrowserOpen) {
-		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<String,List<String>>(), keepBrowserOpen, 1, 0, false, null);
+		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<>(), keepBrowserOpen, 1, 0, false, null);
 		
 	}
 	
@@ -589,7 +588,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		
 		for (int i = 1; i <= numberOfThreads; i++) {
 			
-			Map<String, String> thisThreadParameters = new LinkedHashMap<String,String>();
+			Map<String, String> thisThreadParameters = new LinkedHashMap<>();
 
 			if (threadParameters != null ) {  // null means no parameters passed
 				for (Entry<String, List<String>> entry : threadParameters.entrySet()) {
@@ -615,7 +614,6 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		}
 
 		for(int i = 0; i < numberOfThreads; i++) {
-			assert threadAry.length == numberOfThreads; 
 			try {
 				threadAry[i].join();
 			} catch (InterruptedException e) {
@@ -653,13 +651,13 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 */
 	public class SeleniumTestThread implements Runnable {
 
-		private Class<? extends SeleniumAbstractJavaSamplerClient> testClass;
-		private Map<String, String> thisThreadParametersOverride;  
+		private final Class<? extends SeleniumAbstractJavaSamplerClient> testClass;
+		private final Map<String, String> thisThreadParametersOverride;
 		private KeepBrowserOpen keepBrowserOpen;
-		private int iterateEachThreadCount;
-		private int iteratePacingGapMs;
-		private boolean printResultsSummary;
-		private PrintWriter csvPrintWriter;
+		private final int iterateEachThreadCount;
+		private final int iteratePacingGapMs;
+		private final boolean printResultsSummary;
+		private final PrintWriter csvPrintWriter;
 		
 		/**
 		 * @param testClass testClass
@@ -682,8 +680,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		}
 
 		/**
-		 * run a SeleniumTestThread
+		 *  run a SeleniumTestThread
 		 */
+		@Override
 		public void run() {
 
 			SeleniumAbstractJavaSamplerClient testInstance = null;
@@ -697,8 +696,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 			
 			if (String.valueOf(true).equalsIgnoreCase(context.getParameter(SeleniumDriverFactory.HEADLESS_MODE))) {
 				this.keepBrowserOpen = KeepBrowserOpen.NEVER;
-			};
-			
+			}
+
+			assert testInstance != null;
 			testInstance.setKeepBrowserOpen(keepBrowserOpen);
 			testInstance.setupTest(context);
 			
@@ -726,7 +726,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 			Boolean success = false; 
 			if (Outcome.PASS.getOutcomeText().equalsIgnoreCase(subResult.getResponseMessage())){
 				success = true; 
-			};
+			}
 
 			String csvLine = CsvUtil.toCsvString(String.valueOf(subResult.getTimeStamp()) , String.valueOf(subResult.getTime()),
 					subResult.getSampleLabel(),	subResult.getResponseCode(),subResult.getResponseMessage(), "localthread_" + originatingThread, 
@@ -799,9 +799,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		System.out.println("\n\n\n"); 
 		System.out.println(StringUtils.repeat(" ", 56) + "Results Summary Table");
 		System.out.println(StringUtils.repeat(" ", 56) + "---------------------");
-		System.out.println(""); ;
-		System.out.println(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", "Transaction", "#Samples", "FAIL", "Average", "Min", "Max" ));
-		System.out.println(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", "-----------", "--------", "----", "-------", "---", "---" ));
+		System.out.println();
+		System.out.printf("%-80s%-12s%-10s%-12s%-12s%-12s%n", "Transaction", "#Samples", "FAIL", "Average", "Min", "Max" );
+		System.out.printf("%-80s%-12s%-10s%-12s%-12s%-12s%n", "-----------", "--------", "----", "-------", "---", "---" );
 
 		resultsSummaryTable.forEach((k, v) -> {
 			if (k.length() < 76) {
@@ -809,8 +809,8 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 			}
 			long average = (v.get(POS_0_NUM_SAMPLES) > 0) ? v.get(POS_2_SUM_RESPONSE_TIME) / v.get(POS_0_NUM_SAMPLES) : 0L;
 			
-			System.out.println(String.format("%-80s%-12s%-10s%-12s%-12s%-12s", k, 
-					v.get(POS_0_NUM_SAMPLES),v.get(POS_1_NUM_FAIL),average,v.get(POS_3_RESPONSE_TIME_MIN),v.get(POS_4_RESPONSE_TIME_MAX)));
+			System.out.printf("%-80s%-12s%-10s%-12s%-12s%-12s%n", k,
+					v.get(POS_0_NUM_SAMPLES),v.get(POS_1_NUM_FAIL),average,v.get(POS_3_RESPONSE_TIME_MIN),v.get(POS_4_RESPONSE_TIME_MAX));
 		});
 		System.out.println(StringUtils.repeat("-", 132));   // 132 because I'm a COBOL programmer really
 	}

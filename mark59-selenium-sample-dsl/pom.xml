@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-selenium-sample-dsl</artifactId>
-	<version>4.1</version>
+	<version>4.2</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-selenium-sample-dsl</name>
@@ -18,10 +18,37 @@
 
 	<dependencies>
 
+		<!-- Start log4j security fix -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.17.2</version>
+ 			<scope>provided</scope>			
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.17.2</version>
+ 			<scope>provided</scope>			
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.17.2</version>
+ 			<scope>provided</scope>			
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<version>2.17.2</version>
+ 			<scope>provided</scope>			
+		</dependency>
+		<!-- End log4j security fix -->	
+
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-selenium-implementation</artifactId>
-			<version>4.1</version>
+			<version>4.2</version>
 		</dependency>
 
 		<!--if you want to pick up a later version of devtools than provided, you can add the dep here .. -->
@@ -52,9 +79,16 @@
 	<build>
 		<plugins>
 		
+			<!-- override default maven-compiler-plugin version (added due to corporate log4j security scans) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.1</version>
+			</plugin>
+		
 			<!-- local build goals: clean package -->	
-			<!-- this plugin is for JMeter JSR223 'Groovy' scripting purposes :  mark59-selenium-sample-dsl-{version}-for-JSR223 jar 
-			     (created in the target folder) can be placed in a JMeter lib/ext directory to obtain the necessary Mark59 classes -->			
+			<!-- this plugin is for JMeter JSR223 'Groovy' scripting purposes :  creates mark59-selenium-sample-dsl-{version}-for-JSR223 jar 
+			     (in the project target folder) can be placed in a JMeter lib/ext directory to obtain the necessary Mark59 classes -->			
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-assembly-plugin</artifactId>
@@ -72,7 +106,9 @@
 				</executions>
 			</plugin>	
 			
-			<!--local build goals: clean package install -->	
+			<!--local build goals: clean package install
+			    adds source into local repository when installed -->
+			    	
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -83,7 +119,6 @@
 						<goals><goal>jar</goal></goals>
 					</execution>
 				</executions>
-
 			</plugin>
 		</plugins>
 	</build>

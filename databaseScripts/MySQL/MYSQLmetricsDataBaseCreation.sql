@@ -101,7 +101,8 @@ CREATE TABLE IF NOT EXISTS SLA (
   XTRA_NUM decimal(18,3) NOT NULL DEFAULT '0.000',
   XTRA_INT bigint NOT NULL DEFAULT '0',
   SLA_REF_URL varchar(1024) DEFAULT NULL,
-  COMMENT varchar(128) DEFAULT NULL,    
+  COMMENT varchar(128) DEFAULT NULL, 
+  IS_ACTIVE char(1) NOT NULL DEFAULT 'Y',
   PRIMARY KEY (TXN_ID,IS_CDP_TXN,APPLICATION)
 );
 
@@ -194,14 +195,14 @@ INSERT INTO `METRICSLA` VALUES ('DataHunterDistributed','localhost','CPU_UTIL','
 INSERT INTO `METRICSLA` VALUES ('DataHunterDistributed','localhost','CPU_UTIL','PercentOver90',0.000,10.000,'Y','');
 
 
-INSERT INTO `SLA` VALUES ('DH_lifecycle_0001_loadInitialPage','N','DataHunter','Y',-1.000,-1.000,-1.000,-1,-1.000,-1,-1.000,0.000,0.000,0,'from v4.0','do not display');
-INSERT INTO `SLA` VALUES ('DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl','N','DataHunter','Y',-1.000,-1.000,-1.000,-1,-1.000,-1,-1.000,0.000,0.000,0,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','do not display');
-INSERT INTO `SLA` VALUES ('DH_lifecycle_0100_deleteMultiplePolicies','N','DataHunter','N',0.400,-1.000,-1.000,30,20.000,-1,2.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','' );
-INSERT INTO `SLA` VALUES ('DH_lifecycle_0200_addPolicy','N','DataHunter','N',0.400,-1.000,-1.000,46,20.000,-1,2.000,0.200,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','' );
-INSERT INTO `SLA` VALUES ('DH_lifecycle_0299_sometimes_I_fail','N','DataHunter','N',0.100,-1.000,-1.000,20,40.000,-1,-1.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','' );
-INSERT INTO `SLA` VALUES ('DH_lifecycle_0300_countUnusedPolicies','N','DataHunter','N',0.400,-1.000,-1.000,20,20.000,-1,2.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','' );
-INSERT INTO `SLA` VALUES ('DH_lifecycle_0500_useNextPolicy','N','DataHunter','N',0.400,-1.000,-1.000,20,20.000,-1,2.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','' );
-INSERT INTO `SLA` VALUES ('DH_lifecycle_9999_finalize_deleteMultiplePolicies','N','DataHunter','Y',-1.000,-1.000,-1.000,4,50.000,-1,2.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','' );
+INSERT INTO `SLA` VALUES ('DH_lifecycle_0001_loadInitialPage','N','DataHunter','Y',-1.000,-1.000,-1.000,-1,-1.000,-1,-1.000,0.000,0.000,0,'from v4.0','do not display','Y');
+INSERT INTO `SLA` VALUES ('DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl','N','DataHunter','Y',-1.000,-1.000,-1.000,-1,-1.000,-1,-1.000,0.000,0.000,0,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','do not display','Y');
+INSERT INTO `SLA` VALUES ('DH_lifecycle_0100_deleteMultiplePolicies','N','DataHunter','N',0.400,-1.000,-1.000,30,20.000,-1,2.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','','Y');
+INSERT INTO `SLA` VALUES ('DH_lifecycle_0200_addPolicy','N','DataHunter','N',0.400,-1.000,-1.000,46,20.000,-1,2.000,0.200,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','','Y');
+INSERT INTO `SLA` VALUES ('DH_lifecycle_0299_sometimes_I_fail','N','DataHunter','N',0.100,-1.000,-1.000,20,40.000,-1,-1.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','','Y');
+INSERT INTO `SLA` VALUES ('DH_lifecycle_0300_countUnusedPolicies','N','DataHunter','N',0.400,-1.000,-1.000,20,20.000,-1,2.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','','Y');
+INSERT INTO `SLA` VALUES ('DH_lifecycle_0500_useNextPolicy','N','DataHunter','N',0.400,-1.000,-1.000,20,20.000,-1,2.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','','Y');
+INSERT INTO `SLA` VALUES ('DH_lifecycle_9999_finalize_deleteMultiplePolicies','N','DataHunter','Y',-1.000,-1.000,-1.000,4,50.000,-1,2.000,0.000,0,0.000,'<a href=\'http://localhost:8083/metrics/sampleReport/DataHunter_Result%20_370.html\'>Run 370</a>','','Y');
 
 
 INSERT INTO `RUNS` VALUES ('DataHunter','201909051309','N','na','20190905_130941 - 20190905_131058','1','N','');

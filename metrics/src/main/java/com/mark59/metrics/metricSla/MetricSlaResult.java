@@ -71,12 +71,10 @@ public class MetricSlaResult {
 
 	@Override
 	public String toString() {
-		String prettyPrint = "txnId="+txnId
+		return "txnId="+txnId
 				+ ", metricTxnType="+metricTxnType
 				+ ", valueDerivation="+valueDerivation
 				+ ", slaResultType="+slaResultType.name()
-				+ ", messageText="+messageText
-				;
-		return prettyPrint;
+				+ ", messageText="+messageText;
 	} 
 }

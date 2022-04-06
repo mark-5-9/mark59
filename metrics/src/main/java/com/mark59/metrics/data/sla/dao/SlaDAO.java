@@ -26,15 +26,28 @@ import com.mark59.metrics.form.BulkApplicationPassCountsForm;
  * Written: Australian Winter 2019  
  */
 public interface SlaDAO {
-	 public void insertData(Sla sla);
-	 public int bulkInsertOrUpdateApplication(BulkApplicationPassCountsForm bulkApplication);
-	 public List<Sla> getSlaList();
-	 public List<Sla> getSlaList(String application);
-	 public void updateData(Sla sla);
-	 public void deleteAllSlasForApplication(String application);
-	 public void deleteData(String application, String txnId, String isCdpTxn);
-	 public Sla getSla(String application, String txnId, String isCdpTxn);
-	 public List<String> findApplications();
-	 public List<String> getSlasWithMissingTxnsInThisRunCdpTags(String application, String runTime);
-	 public List<String> getListOfIgnoredTransactionsCdpTags(String application);
+	
+	void insertData(Sla sla);
+
+	int bulkInsertOrUpdateApplication(BulkApplicationPassCountsForm bulkApplication);
+
+	List<Sla> getSlaList();
+
+	List<Sla> getSlaList(String application);
+
+	void updateData(Sla sla);
+
+	void deleteAllSlasForApplication(String application);
+
+	void deleteData(String application, String txnId, String isCdpTxn);
+
+	Sla getSla(String application, String txnId, String isCdpTxn);
+
+	List<String> findApplications();
+
+	List<String> getSlasWithMissingTxnsInThisRunCdpTags(String application, String runTime);
+
+	List<String> getListOfIgnoredTransactionsAddingCdpTags(String application);
+
+	List<String> getListOfDisabledSlasAddingCdpTags(String application);
 }

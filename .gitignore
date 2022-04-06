@@ -34,3 +34,9 @@ hs_err_pid*
 *.factorypath
 *.project
 jmeter.log
+
+# Mac/local env specific ignores
+.idea
+*.iml
+.DS_Store
+**/screenshots

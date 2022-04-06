@@ -17,7 +17,6 @@
 package com.mark59.datahunter.controller;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,8 +61,7 @@ public class PrintPolicyController {
 		policySelectionCriteria.setSelectClause(" application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ");
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
 		
-		List<Policies> policiesList = new ArrayList<Policies>();
-		policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
+		List<Policies> policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
 
 		//System.out.println("printPolicyAction" + policySelectionCriteria +  "policies count=" + policiesList.size() );
 
@@ -74,7 +72,7 @@ public class PrintPolicyController {
 		if (policiesList.size() == 1 ){
 			modelMap.addAttribute("sqlResult", "PASS");			
 			modelMap.addAttribute("sqlResultText", "sql execution OK");
-			modelMap.addAttribute("policies", (Policies)policiesList.get(0));
+			modelMap.addAttribute("policies", policiesList.get(0));
 			return new ModelAndView("/print_policy_action", "modelMap", modelMap);
 			
 		} else if (policiesList.size() == 0){

@@ -31,7 +31,7 @@ public class StaticCounter {
 
 	private static StaticCounter instance;
 
-	private Map<String, Integer> counterMap = new HashMap<>();
+	private final Map<String, Integer> counterMap = new HashMap<>();
 
 	private StaticCounter() {
 	}

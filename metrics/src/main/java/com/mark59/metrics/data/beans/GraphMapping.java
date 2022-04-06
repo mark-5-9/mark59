@@ -33,39 +33,26 @@ public class GraphMapping {
 	
 	public GraphMapping() {
 	}
-	
-
-
 
 	public Integer getListOrder() {
 		return listOrder;
 	}
 
-
-
-
 	public void setListOrder(Integer listOrder) {
 		this.listOrder = listOrder;
 	}
-
-
-
 
 	public String getGraph() {
 		return graph;
 	}
 
-
-
 	public void setGraph(String graph) {
 		this.graph = graph;
 	}
 
-
 	public String getTxnType() {
 		return txnType;
 	}
-
 
 	public void setTxnType(String txnType) {
 		this.txnType = txnType;
@@ -75,63 +62,43 @@ public class GraphMapping {
 		return valueDerivation;
 	}
 
-
 	public void setValueDerivation(String valueDerivation) {
 		this.valueDerivation = valueDerivation;
 	}
-
 
 	public String getUomDescription() {
 		return uomDescription;
 	}
 
-
 	public void setUomDescription(String uomDescription) {
 		this.uomDescription = uomDescription;
 	}
 
-
-	
-	
-	
 	public String getBarRangeSql() {
 		return barRangeSql;
 	}
-
-
-
 
 	public void setBarRangeSql(String barRangeSql) {
 		this.barRangeSql = barRangeSql;
 	}
 
-
-
-
 	public String getBarRangeLegend() {
 		return barRangeLegend;
 	}
-
-
-
 
 	public void setBarRangeLegend(String barRangeLegend) {
 		this.barRangeLegend = barRangeLegend;
 	}
 
-
-
-
 	public String getComment() {
 		return comment;
 	}
-
 
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
 
-
+	@Override
 	public String toString() {
         return "[graph= "+ graph + 
         		", txnType= "+ txnType + 

@@ -41,20 +41,21 @@
  <br><br>
   
  <table >
-     <tr><td>application </td><td>:</td><td>${policySelectionCriteria.application}</td></tr>
-     <tr><td>identifier </td><td>:</td><td>${policySelectionCriteria.identifier}</td></tr>
- 
+     <tr><td>application</td><td>:</td><td id=application>${policySelectionCriteria.application}</td></tr>
+     <tr><td>identifier</td><td>:</td><td id=identifier>${policySelectionCriteria.identifier}</td></tr>
+     <tr><td>lifecycle</td><td>:</td><td id=lifecycle>${policySelectionCriteria.lifecycle}</td>
+     </tr> 
  </table>
 
  </center>
-
+ <br><br>
+ 
  <table >
      <tr><td>sql statement</td>	<td>:</td><td id=sql>${model.sql}</td></tr> 
      <tr><td>result</td>		<td>:</td><td id=sqlResult>${model.sqlResult}</td></tr>
      <tr><td>rows affected</td>	<td>:</td><td id=rowsAffected>${model.rowsAffected}</td></tr>
      <tr><td>details</td>		<td>:</td><td id=sqlResultText>${model.sqlResultText}</td></tr>     
  </table>
-
 
  <br><br>
  <a href='delete_policy?application=${policySelectionCriteria.application}'>Back</a>

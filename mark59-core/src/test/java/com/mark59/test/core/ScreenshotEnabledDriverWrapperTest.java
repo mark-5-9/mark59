@@ -28,7 +28,7 @@ import com.mark59.core.ScreenshotEnabledDriverWrapper;
 public class ScreenshotEnabledDriverWrapperTest {
 
 	@Mock
-	private MockDriver mockDriver = Mockito.mock(MockDriver.class);
+	private final MockDriver mockDriver = Mockito.mock(MockDriver.class);
 	
 	@Test
 	public final void bufferScreenshot_bufferAScreenshotWithASpecifiedName_screenshotBufferContainsScreenshot() {

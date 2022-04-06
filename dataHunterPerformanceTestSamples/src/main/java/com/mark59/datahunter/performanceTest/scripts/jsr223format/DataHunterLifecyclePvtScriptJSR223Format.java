@@ -30,7 +30,7 @@ public static void main(String[] args) throws InterruptedException{
 	
 /**
  * Note that in this more advanced example access to the com.mark59.seleniumDSL.* packages is assumed (from the mark59-selenium-sample-dsl project).
- * <p>Hint: A quick and dirty way to do this is to copy target jar from the dataHunterPerformanceTestSamples project since it contains sample DSL
+ * <p>Hint: A quick and dirty way to do this is to copy target jar from the dataHunterPerformanceTestSamples project since it contains the sample DSL
  * packages, into the lib/ext directory of your JMeter instance.  
  *   
  * @author Phil Webb
@@ -56,28 +56,35 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		}
 		public DropdownList applicationStartsWithOrEquals() {
 			return new DropdownList(driver, By.id("applicationStartsWithOrEquals"));
-		};			
+		}
+
 		public InputTextElement identifier() {
 			return new InputTextElement(driver, By.id("identifier"));
-		};			
+		}
+
 		public InputTextElement lifecycle() {
 			return new InputTextElement(driver, By.id("lifecycle"));
-		};
+		}
+
 		public DropdownList useability() {
 			return new DropdownList(driver, By.id("useability"));
-		};
+		}
+
 		public InputTextElement otherdata() {
 			return new InputTextElement(driver, By.id("otherdata"));
-		};
+		}
+
 		public InputTextElement epochtime() {
 			return new InputTextElement(driver, By.id("epochtime"));
-		};
+		}
+
 		public DropdownList selectOrder() {
 			return new DropdownList(driver, By.id("selectOrder"));
-		};		
+		}
+
 		public SubmitBtn submit() {
 			return new SubmitBtn(driver, By.id("submit"));
-		};
+		}
 	}
 	
 	
@@ -88,22 +95,28 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		}
 		public InputTextElement identifier() {
 			return new InputTextElement(driver, By.id("identifier"));
-		};
+		}
+
 		public PageTextElement sql() {
 			return new PageTextElement(driver, By.id("sql"));
-		};	
+		}
+
 		public PageTextElement sqlResult() {
 			return new PageTextElement(driver, By.id("sqlResult"));
-		};	
+		}
+
 		public PageTextElement rowsAffected() {
 			return new PageTextElement(driver, By.id("rowsAffected"));
-		};	
+		}
+
 		public PageTextElement sqlResultText() {
 			return new PageTextElement(driver, By.id("sqlResultText"));
-		};	
+		}
+
 		public Link backLink() {
 			return new Link(driver, "Back");
-		};	
+		}
+
 		public int getCountForBreakdown(String application, String lifecycle, String useability){  // breakdown result only 
 			PageTextElement countForBreakdownElement = null;
 			try { countForBreakdownElement =  new PageTextElement(driver, By.id((application + "_" + lifecycle + "_" + useability + "_count").replace(" ", "_")));
@@ -113,7 +126,8 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		}
 		public HtmlTable printSelectedPoliciesTable() {
 			return new HtmlTable(driver, "printSelectedPoliciesTable");
-		};		
+		}
+
 		public String formatResultsMessage(String tag){
 			return  "DataHunter " +  sqlResultText().getText() + " at " + tag + ", SQL statement [" + sql().getText() + "]" +
 					", rows affected [" +  rowsAffected().getText() + "], details [" + sqlResultText().getText() + "]";		
@@ -179,7 +193,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			dataHunterInputPages.lifecycle().type(lifecycle);
 			dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED) ;
 			dataHunterInputPages.otherdata().type(user);		
-			dataHunterInputPages.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
+			dataHunterInputPages.epochtime().type(Long.toString(System.currentTimeMillis()));
 //			jm.writeScreenshot("add_policy_TESTID" + i);
 
 			jm.startTransaction("DH_lifecycle_0200_addPolicy");
@@ -302,10 +316,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			sysprops.put("printedOnce", "true");
 		}
 	}
-};
+}
 
 
-// >> --------- COMMENT OUT THE NEXT THREE LINES ---------  
+// >> --------- COMMENT OUT THE NEXT THREE LINES ---------     (capitalization of the SampleResult variable in the next line is deliberate) 
 org.apache.jmeter.samplers.SampleResult SampleResult = new org.apache.jmeter.samplers.SampleResult();
 SampleResult.sampleStart();
 Log4jConfigurationHelper.init(Level.INFO) ;

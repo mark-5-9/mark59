@@ -2,13 +2,13 @@ package com.mark59.seleniumDSL.pageElements;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 import com.mark59.seleniumDSL.core.Elemental;
 import com.mark59.seleniumDSL.core.FluentWaitFactory;
 
-
 public class CheckBox extends Elemental {
-	
+
 	public CheckBox(WebDriver driver, String id) {
 		this(driver, By.id(id));
 	}
@@ -19,7 +19,11 @@ public class CheckBox extends Elemental {
 	}
 
 	public boolean isChecked() {
-		return super.waitForAndFindElement().isSelected();
+		WebElement webElement = super.waitForAndFindElement();
+		if (webElement != null) {
+			return webElement.isSelected();
+		}
+		return false;
 	}
-	
+
 }

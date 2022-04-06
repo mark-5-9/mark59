@@ -44,77 +44,61 @@ public class WebServerMetricsResponsePojo {
 		return serverProfileName;
 	}
 
-
 	public void setServerProfileName(String serverProfileName) {
 		this.serverProfileName = serverProfileName;
 	}
-
 
 	public String getServer() {
 		return server;
 	}
 
-
 	public void setServer(String server) {
 		this.server = server;
 	}
-
 
 	public String getAlternativeServerId() {
 		return alternativeServerId;
 	}
 
-
 	public void setAlternativeServerId(String alternativeServerId) {
 		this.alternativeServerId = alternativeServerId;
 	}
-
 
 	public String getReportedServerId() {
 		return reportedServerId;
 	}
 
-
 	public void setReportedServerId(String reportedServerId) {
 		this.reportedServerId = reportedServerId;
 	}
-
 
 	public List<ParsedCommandResponse> getParsedCommandResponses() {
 		return parsedCommandResponses;
 	}
 
-
 	public void setParsedCommandResponses(List<ParsedCommandResponse> parsedCommandResponses) {
 		this.parsedCommandResponses = parsedCommandResponses;
 	}
-
-
 
 	public String getLogLines() {
 		return logLines;
 	}
 
-
 	public void setLogLines(String logLines) {
 		this.logLines = logLines;
 	}
-
 
 	public String getTestModeResult() {
 		return testModeResult;
 	}
 
-
 	public void setTestModeResult(String testModeResult) {
 		this.testModeResult = testModeResult;
 	}
 
-
 	public String getFailMsg() {
 		return failMsg;
 	}
-
 
 	public void setFailMsg(String failMsg) {
 		this.failMsg = failMsg;

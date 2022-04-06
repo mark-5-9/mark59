@@ -51,9 +51,9 @@ public class CountPoliciesBreakdownController {
 	@RequestMapping("/count_policies_breakdown")
 	public String countPoliciesBreakdownUrl(@RequestParam(required=false) String reqApplication, PolicySelectionCriteria policySelectionCriteria, Model model) { 
 //		System.out.println("/count_policies_breakdown");
-		List<String> applicationOperators = new ArrayList<String>(DataHunterConstants.APPLICATION_OPERATORS);
+		List<String> applicationOperators = new ArrayList<>(DataHunterConstants.APPLICATION_OPERATORS);
 		model.addAttribute("applicationOperators",applicationOperators);
-		List<String> usabilityList = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		usabilityList.add(0,"");
 		model.addAttribute("Useabilities",usabilityList);		
 		return "/count_policies_breakdown";
@@ -65,8 +65,7 @@ public class CountPoliciesBreakdownController {
 //		System.out.println("countPoliciesBreakdownAction PolicySelectionCriteria="  + policySelectionCriteria );
 		
 		SqlWithParms sqlWithParms = policiesDAO.constructCountPoliciesBreakdownSql(policySelectionCriteria);
-		List<CountPoliciesBreakdown> countPoliciesBreakdownList = new ArrayList<CountPoliciesBreakdown>();
-		countPoliciesBreakdownList = policiesDAO.runCountPoliciesBreakdownSql(sqlWithParms);
+		List<CountPoliciesBreakdown> countPoliciesBreakdownList = policiesDAO.runCountPoliciesBreakdownSql(sqlWithParms) ;
 
 		model.addAttribute("countPoliciesBreakdownList", countPoliciesBreakdownList);		
 		int rowsAffected = countPoliciesBreakdownList.size();

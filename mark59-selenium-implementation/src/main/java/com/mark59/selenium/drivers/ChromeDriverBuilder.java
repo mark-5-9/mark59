@@ -212,14 +212,14 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 					
 				} else {
 
-					Map<String, Object> map = new HashMap<String, Object>();
+					Map<String, Object> map = new HashMap<>();
 					map.put("offline", false);
-					map.put("download_throughput", 	Integer.valueOf(emulateNetworkConditionsArray.get(0)) * 128);  	// kbps to bytes/sec (1024/8)
-					map.put("upload_throughput",   	Integer.valueOf(emulateNetworkConditionsArray.get(1)) * 128);  	// kbps to bytes/sec (1024/8)
+					map.put("download_throughput", 	Integer.parseInt(emulateNetworkConditionsArray.get(0)) * 128);  	// kbps to bytes/sec (1024/8)
+					map.put("upload_throughput",   	Integer.parseInt(emulateNetworkConditionsArray.get(1)) * 128);  	// kbps to bytes/sec (1024/8)
 					map.put("latency", 				Integer.valueOf(emulateNetworkConditionsArray.get(2)));			// msecs
 
-					CommandExecutor executor = ((ChromeDriver) driver).getCommandExecutor();
-					executor.execute(new Command(((ChromeDriver) driver).getSessionId(),
+					CommandExecutor executor = driver.getCommandExecutor();
+					executor.execute(new Command(driver.getSessionId(),
 							"setNetworkConditions", ImmutableMap.of("network_conditions", ImmutableMap.copyOf(map))));
 					
 					LOG.debug("  EMULATE_NETWORK_CONDITIONS triggered   : " + emulateNetworkConditions);
@@ -234,7 +234,7 @@ public class ChromeDriverBuilder extends SeleniumDriverBuilder<ChromeOptions> {
 			System.err.println("An error has occurred during the creation of the ChromeDriver : "  + e.getMessage() );				
 			LOG.error(" ERROR : " + this.getClass() + ". Stack trace: \n  " + sw.toString());
 			System.err.println("["+ thread + "]  ERROR : " + this.getClass() + ". Stack trace: \n  " + sw.toString());
-			if (driver != null) {driver.quit();};
+			if (driver != null) {driver.quit();}
 			throw new RuntimeException("An error has occurred during the creation of the ChromeDriver (throwing a RuntimeException" );
 		}
 		return new ChromeDriverWrapper(driver);

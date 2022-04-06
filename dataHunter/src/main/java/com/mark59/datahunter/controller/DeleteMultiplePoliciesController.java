@@ -51,7 +51,7 @@ public class DeleteMultiplePoliciesController {
 	@RequestMapping("/delete_multiple_policies")
 	public String deleteMultiplePoliciesUrl(@RequestParam(required=false) String application, @ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model  ) { 
 //		System.out.println("/delete_multiple_policiess");
-		List<String> usabilityList = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		usabilityList.add(0,"");
 		model.addAttribute("Useabilities",usabilityList);
 		return "/delete_multiple_policies";				

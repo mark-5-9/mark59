@@ -17,10 +17,10 @@
 package com.mark59.metrics.controller;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,8 +47,7 @@ public class GraphMappingController {
 
 	@RequestMapping("/graphMappingList")
 	public ModelAndView runsList(@RequestParam(required=false) String graph) {
-		List<GraphMapping> graphMappingList = new ArrayList<GraphMapping>(); 
-		graphMappingList = graphMappingDAO.getGraphMappings() ;				
+		List<GraphMapping> graphMappingList = graphMappingDAO.getGraphMappings() ;				
 		return new ModelAndView("graphMappingList", "graphMappingList", graphMappingList);
 	}	
 	
@@ -56,11 +55,12 @@ public class GraphMappingController {
 	@RequestMapping("/registerGraphMapping")
 	public ModelAndView registerSla(@RequestParam(required=false) String reqErr, @ModelAttribute GraphMapping graphMapping) { 
 		List<String>transactionTypes = Mark59Constants.DatabaseTxnTypes.listOfDatabaseTxnTypes();  
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		map.put("transactionTypes",transactionTypes);			
 		return new ModelAndView("registerGraphMapping",  "map", map);  	
 	}	
 		
+	
 	@RequestMapping("/insertGraphMapping")
 	public String insertData(@RequestParam(required=false) String reqErr,  @ModelAttribute GraphMapping graphMapping) {
 		GraphMapping existingGraphMapping = new GraphMapping();
@@ -71,7 +71,7 @@ public class GraphMappingController {
 				graphMappingDAO.inserttGraphMapping(graphMapping);
 				return "redirect:/graphMappingList";
 			} else {
-				return "redirect:/registerGraphMapping?&reqErr=Oh, graph " + graphMapping.getGraph()  + " AlreadyExists";
+				return "redirect:/registerGraphMapping?&reqErr=Oh, graph " + Objects.requireNonNull(graphMapping).getGraph()  + " AlreadyExists";
 			}
 	}	
 
@@ -80,19 +80,21 @@ public class GraphMappingController {
 	public ModelAndView editGraphMapping(@RequestParam String graph,  @ModelAttribute GraphMapping graphMapping) {
 		System.out.println("GraphMappingController:editGraphMapping : graph=" + graph  );		
 		graphMapping = graphMappingDAO.findGraphMapping(graph);
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		List<String>transactionTypes = Mark59Constants.DatabaseTxnTypes.listOfDatabaseTxnTypes();  
 		map.put("graphMapping",graphMapping);
 		map.put("transactionTypes",transactionTypes);
 		return new ModelAndView("editGraphMapping", "map", map);
 	}
 
+	
 	@RequestMapping("/updateGraphMapping")
 	public String updateGraphMapping( @ModelAttribute GraphMapping graphMapping) {
 		graphMappingDAO.updateGraphMapping(graphMapping);
 		return "redirect:/graphMappingList";
 	}
 
+	
 	@RequestMapping("/deleteGraphMapping")
 	public String deleteGraphMapping(@RequestParam String graph) {
 		System.out.println("GraphMappingController:deleteGraphMapping : graph=" + graph  );	

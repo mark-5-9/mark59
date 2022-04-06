@@ -26,59 +26,56 @@ public class UtilsTest   extends TestCase  {
 	
     public void testUtilsStringListToCommaDelimString()
     {
- 		List<String> ListOfStrings = new ArrayList<String>();
+ 		List<String> ListOfStrings = new ArrayList<>();
 		String commaDelimString = UtilsMetrics.stringListToCommaDelimString(ListOfStrings);
-        assertTrue( commaDelimString.length() == 0 );
-        assertTrue( commaDelimString != null );
+        assertEquals(0, commaDelimString.length());
+        assertNotNull(commaDelimString);
                 
- 		ListOfStrings = new ArrayList<String>();
+ 		ListOfStrings = new ArrayList<>();
  		ListOfStrings.add("onetsring");
 		commaDelimString = UtilsMetrics.stringListToCommaDelimString(ListOfStrings);
-        assertTrue( "onetsring".equals(commaDelimString) );
+        assertEquals("onetsring", commaDelimString);
      
- 		ListOfStrings = new ArrayList<String>();
+ 		ListOfStrings = new ArrayList<>();
  		ListOfStrings.add("string1");
  		ListOfStrings.add("string2");
 		commaDelimString = UtilsMetrics.stringListToCommaDelimString(ListOfStrings);
-        assertTrue( "string1,string2".equals(commaDelimString) );        
+        assertEquals("string1,string2", commaDelimString);
     }
 
     
     public void testUtilsCommaDelimStringToStringList()
     {
- 		List<String> ListOfStrings = new ArrayList<String>();
- 		assertTrue(ListOfStrings.size() == 0 ); 
+ 		List<String> ListOfStrings = new ArrayList<>();
  		String commaDelimString = UtilsMetrics.stringListToCommaDelimString(ListOfStrings);  //so we should have an empty string
-        assertTrue( "".equals(commaDelimString) );
+        assertEquals("", commaDelimString);
   		ListOfStrings = UtilsMetrics.commaDelimStringToStringList(commaDelimString);   
-        assertTrue( ListOfStrings.isEmpty()  );  
-        assertTrue( ListOfStrings.size() == 0  );  
-       
-        commaDelimString = null;
- 		ListOfStrings = UtilsMetrics.commaDelimStringToStringList(commaDelimString);   
-        assertTrue( ListOfStrings.isEmpty()  );  
-        assertTrue( ListOfStrings.size() == 0  );       
+        assertTrue( ListOfStrings.isEmpty()  );
+
+ 		ListOfStrings = UtilsMetrics.commaDelimStringToStringList(null);
+        assertTrue( ListOfStrings.isEmpty()  );
+
         
         commaDelimString = "singleString";
  		ListOfStrings = UtilsMetrics.commaDelimStringToStringList(commaDelimString);   
-        assertFalse( ListOfStrings.isEmpty()  ); 
-        assertTrue( ListOfStrings.size() == 1 );          
-        assertTrue( "singleString".equals(ListOfStrings.get(0)));          
+        assertFalse( ListOfStrings.isEmpty()  );
+        assertEquals(1, ListOfStrings.size());
+        assertEquals("singleString", ListOfStrings.get(0));
 
         commaDelimString = "firststr,secstr";
  		ListOfStrings = UtilsMetrics.commaDelimStringToStringList(commaDelimString);   
-        assertFalse( ListOfStrings.isEmpty()  ); 
-        assertTrue( ListOfStrings.size() == 2 );          
-        assertTrue( "firststr".equals(ListOfStrings.get(0)));          
-        assertTrue( "secstr".equals(ListOfStrings.get(1)));     
+        assertFalse( ListOfStrings.isEmpty()  );
+        assertEquals(2, ListOfStrings.size());
+        assertEquals("firststr", ListOfStrings.get(0));
+        assertEquals("secstr", ListOfStrings.get(1));
 
         commaDelimString = "firststr,secstr,3rdstr";
  		ListOfStrings = UtilsMetrics.commaDelimStringToStringList(commaDelimString);   
-        assertFalse( ListOfStrings.isEmpty()  ); 
-        assertTrue( ListOfStrings.size() == 3 );          
-        assertTrue( "firststr".equals(ListOfStrings.get(0)));          
-        assertTrue( "secstr".equals(ListOfStrings.get(1)));      
-        assertTrue( "3rdstr".equals(ListOfStrings.get(2)));      
+        assertFalse( ListOfStrings.isEmpty()  );
+        assertEquals(3, ListOfStrings.size());
+        assertEquals("firststr", ListOfStrings.get(0));
+        assertEquals("secstr", ListOfStrings.get(1));
+        assertEquals("3rdstr", ListOfStrings.get(2));
         
     }	
 	

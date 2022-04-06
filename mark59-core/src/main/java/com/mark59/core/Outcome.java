@@ -28,9 +28,9 @@ public enum Outcome {
 	/**	 * FAIL (failed test) */	
 	FAIL ("FAIL", false, "-1");
 	
-	private String outcomeText;
-	private boolean outcomeSuccess;
-	private String outcomeResponseCode;
+	private final String outcomeText;
+	private final boolean outcomeSuccess;
+	private final String outcomeResponseCode;
 	
 	Outcome(String outcomeText, boolean outcomeSuccess, String outcomeResponseCode) {
 		this.outcomeText = outcomeText;

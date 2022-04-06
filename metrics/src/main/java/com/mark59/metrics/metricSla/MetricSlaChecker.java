@@ -35,10 +35,10 @@ public class MetricSlaChecker {
 	
 	public List<MetricSlaResult> listFailedMetricSLAs(String application, String runTime, String metricTxnType, MetricSlaDAO metricSlaDAO, TransactionDAO transactionDAO) {
 		
-		List<MetricSlaResult> failedMetricSLAs = new ArrayList<MetricSlaResult>();
+		List<MetricSlaResult> failedMetricSLAs = new ArrayList<>();
 		
 		
-		List<MetricSla> metricSlas = new ArrayList<MetricSla>();
+		List<MetricSla> metricSlas;
 		if (metricTxnType == null) {
 			metricSlas = metricSlaDAO.getMetricSlaList(application);
 		} else {
@@ -51,7 +51,7 @@ public class MetricSlaChecker {
 			
 			if ("Y".equals(metricSla.getIsActive())){  // ignore inactive metric SLAs
 			
-				//lookup using Value Derivation to get the field on the transaction which store the value for sla
+				//lookup using Value Derivation to get the field on the transaction table which contains the value used for this sla
 				String transactionField = valueDerivatonToSourceField.get(metricSla.getValueDerivation());
 				
 	//			System.out.println("metricSla name:type:deriv = " + metricSla.getMetricName() + ":" + metricSla.getMetricTxnType() + ":"  + metricSla.getValueDerivation() + ", transactionField = " +  transactionField  );

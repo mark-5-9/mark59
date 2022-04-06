@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +49,7 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 
 	private static final Logger LOG = LogManager.getLogger(CommandDriverNixSshImpl.class);	
 
-	private ServerProfile serverProfile;
+	private final ServerProfile serverProfile;
 	private Session sesConnection = null;
 
 	public CommandDriverNixSshImpl(ServerProfile serverProfile) {
@@ -58,13 +59,13 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 	
 	/**
 	 * Executes the command on the requested server via SSHn 
-	 * @param command
+	 * @param command Command
 	 * @return CommandDriverResponse
 	 */
+	@Override
 	public CommandDriverResponse executeCommand(Command command) {
 		LOG.debug("executeCommand :" + command);
 
-		CommandDriverResponse commandDriverResponse = new CommandDriverResponse();
 		String actualPassword = serverProfile.getPassword();
 		String cipherUsedLog = " user " + serverProfile.getUsername() + " (" + actualPassword + " )"; 
 		if (StringUtils.isNotBlank(serverProfile.getPasswordCipher())){
@@ -80,8 +81,9 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 			IgnoreStdErrLog = ". StdErr to be ignored. ";
 		}
 
-		String commandLog = cipherUsedLog + IgnoreStdErrLog + " :<br><font face='Courier'>" + command.getCommand().replaceAll("\\R", "<br>") + "</font>"; 
-			
+		String commandLog = cipherUsedLog + IgnoreStdErrLog + " :<br><font face='Courier'>" + command.getCommand().replaceAll("\\R", "<br>") + "</font>";
+
+		CommandDriverResponse commandDriverResponse;
 		if ("localhost".equalsIgnoreCase(serverProfile.getServer())) {
 			commandDriverResponse = CommandDriver.executeRuntimeCommand(command.getCommand().replaceAll("\\R", "\n")  , command.getIngoreStderr(), CommandExecutorDatatypes.SSH_LINIX_UNIX );
 		} else {
@@ -109,8 +111,8 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 			sesConnection.setConfig("StrictHostKeyChecking", "no");
 			sesConnection.connect(Integer.parseInt(serverProfile.getConnectionTimeout()));
 		} catch (JSchException jschX) {
-			try {sesConnection.disconnect();} catch (Exception x){};			
-			commandDriverResponse.setRawCommandResponseLines(new ArrayList<String>());
+			try {sesConnection.disconnect();} catch (Exception ignored){}
+			commandDriverResponse.setRawCommandResponseLines(new ArrayList<>());
 			commandDriverResponse.setCommandLog("<br>A failure has occured attempting to connect : " + jschX.getMessage() + "<br>");			
 			commandDriverResponse.setCommandFailure(true);
 			sesConnection = null;
@@ -152,7 +154,7 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 			channelExec.disconnect();
 			
 		} catch (Exception e) {
-			try {channelExec.getSession().disconnect();channelExec.disconnect();} catch (Exception x){};
+			try {Objects.requireNonNull(channelExec).getSession().disconnect();channelExec.disconnect();} catch (Exception ignored){}
 			StringWriter stackTrace = new StringWriter();
 			e.printStackTrace(new PrintWriter(stackTrace));
 			commandDriverResponse.setCommandLog("<br>A faiure has occured attempting to execute the command : " + e.getMessage() + "<br>" + stackTrace.toString() + "<br>");			
@@ -166,14 +168,13 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 
 	
 	/**
-	 * @param rawCommandResponseLines
-	 * @param commandStream
-	 * @return
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @param commandStream   input stream holding the command
+	 * @return rawCommandResponseLines  line(s) containing the command response
+	 * @throws IOException   IOException
+	 * @throws InterruptedException  InterruptedException
 	 */
 	private List<String> readCommandInputStream(InputStream commandStream)	throws IOException, InterruptedException {
-		List<String> rawCommandResponseLines = new ArrayList<String>(); 
+		List<String> rawCommandResponseLines = new ArrayList<>();
 		StringBuilder outputBuffer = new StringBuilder();
 		int readByte = commandStream.read();
 
@@ -194,35 +195,5 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 		}
 		return rawCommandResponseLines;
 	}
-	
-	
-	
-	
-//	private static final int ONETHOUSAND_MILLIS = 1000;
-//
-//	private static final Logger LOG = Logger.getLogger(UnixServerMetricsDriver.class);
-//
-//	private static final String LINUX_CPU_METRICS_COMMAND = "mpstat 1 1";
-//	private static final String UNIX_CPU_METRICS_COMMAND = "lparstat 5 1";
-//
-//	private static final String DECIMAL_FORMAT = "\\d*\\.?\\d+";
-//
-//	// This is ripped from a shell script we use internally to monitor our unix VMs
-//	
-//	private static final String UNIX_MEMORY_METRICS_COMMAND = "vmstat=$(vmstat -v);"
-//			+ "let total_pages=$(print \"$vmstat\" | grep 'memory pages' | awk '{print $1}');"
-//			+ "let pinned_pages=$(print \"$vmstat\" | grep 'pinned pages' | awk '{print $1}');"
-//			+ "let pinned_percent=$(( $(print \"scale=4; $pinned_pages / $total_pages \" | bc) * 100 ));"
-//			+ "let numperm_pages=$(print \"$vmstat\" | grep 'file pages' | awk '{print $1}');"
-//			+ "let numperm_percent=$(print \"$vmstat\" | grep 'numperm percentage' | awk '{print $1}');"
-//			+ "pgsp_utils=$(lsps -a | tail +2 | awk '{print $5}');"
-//			+ "let pgsp_num=$(print \"$pgsp_utils\" | wc -l | tr -d ' ');" + "let pgsp_util_sum=0;"
-//			+ "for pgsp_util in $pgsp_utils;" + "do let pgsp_util_sum=$(( $pgsp_util_sum + $pgsp_util ));" + "done;"
-//			+ "pgsp_aggregate_util=$(( $pgsp_util_sum / $pgsp_num ));"
-//			+ "print \"${pinned_percent},${numperm_percent},${pgsp_aggregate_util}\";";
-//
-//	private static final String LINUX_MEMORY_METRICS_COMMAND = "free -m 1 1";	
-	
-	
 
 }

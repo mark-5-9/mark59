@@ -40,7 +40,6 @@
  <b>Delete an Item</b> 
 
   <br><br><br> 
-
   <div>
  
    <form:form method="post" action="delete_policy_action" modelAttribute="policySelectionCriteria">
@@ -55,6 +54,11 @@
       <td width="6">:</td>      
       <td width="301"><form:input path="identifier" /></td>
      </tr>
+     <tr>
+      <td width="71">Lifecycle</td>
+      <td width="6">:</td>      
+      <td width="301"><form:input path="lifecycle" /></td>
+     </tr>     
      <tr>
       <td colspan="3"><br><br><input type="submit" value="submit"  id="submit"  /></td>
      </tr>

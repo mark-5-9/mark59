@@ -22,6 +22,6 @@ package com.mark59.servermetrics.utils;
  */
 public class AppConstantsServerMetrics {
 	
-	public static final String MARK59_SERVER_METRICS_VERSION = "4.1";	
+	public static final String MARK59_SERVER_METRICS_VERSION = "4.2";	
 
 }

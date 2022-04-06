@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class AppConstantsServerMetricsWeb {
 	
-	public static final String MARK59_SERVER_METRICS_VERSION = "4.1";	
+	public static final String MARK59_SERVER_METRICS_VERSION = "4.1.0";	
 	
 	public static final String MARK59_SERVER_PROFILES_EXCEL_FILE = "mark59serverprofiles.xlsx";  
 
@@ -34,19 +34,21 @@ public class AppConstantsServerMetricsWeb {
 	public static final String SERVER_METRICS_WEB_BASE_DIR 	= "SERVER_METRICS_WEB_BASE_DIR"; 
 	
 	
-	public static enum OS {
+	public enum OS {
 		WINDOWS("WINDOWS"), LINUX("LINUX"), UNIX("UNIX"), UNKNOWN("UNKNOWN");
 
-		private String osName;
+		private final String osName;
+		
 		OS(String osName) {	this.osName = osName;}
 		public String getOsName() {return osName;}
 	}
 	
 	
-	public static enum CommandExecutorDatatypes {
+	public enum CommandExecutorDatatypes {
 		WMIC_WINDOWS("WMIC_WINDOWS"), SSH_LINIX_UNIX("SSH_LINIX_UNIX"), GROOVY_SCRIPT("GROOVY_SCRIPT");
 
-		private String executorText;
+		private final String executorText;
+		
 		CommandExecutorDatatypes(String executorText) {this.executorText = executorText;}
 		public String getExecutorText() {return executorText;}
 		

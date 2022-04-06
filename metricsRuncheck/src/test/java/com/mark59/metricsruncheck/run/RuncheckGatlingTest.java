@@ -190,9 +190,8 @@ public class RuncheckGatlingTest extends TestCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(db);
 		String sql = "INSERT INTO EVENTMAPPING (TXN_TYPE, PERFORMANCE_TOOL, METRIC_SOURCE, MATCH_WHEN_LIKE, TARGET_NAME_LB, TARGET_NAME_RB,"
 				+ " IS_PERCENTAGE, IS_INVERTED_PERCENTAGE, COMMENT) VALUES (?,?,?,?,?,?,?,?,?)";	
-		jdbcTemplate.update(sql, new Object[] { 
-			eventMapping.getTxnType(),eventMapping.getPerformanceTool(), eventMapping.getMetricSource(), eventMapping.getMatchWhenLike(), eventMapping.getTargetNameLB(), eventMapping.getTargetNameRB(), 
-			eventMapping.getIsPercentage(), eventMapping.getIsInvertedPercentage(), eventMapping.getComment()});
+		jdbcTemplate.update(sql, eventMapping.getTxnType(),eventMapping.getPerformanceTool(), eventMapping.getMetricSource(), eventMapping.getMatchWhenLike(), eventMapping.getTargetNameLB(), eventMapping.getTargetNameRB(),
+				eventMapping.getIsPercentage(), eventMapping.getIsInvertedPercentage(), eventMapping.getComment());
 		
 		Runcheck.parseArguments(new String[] { "-a", "junit351", "-i", "./src/test/resources/GatlingResults", "-l","simulation.logv351",
 				"-d", Mark59Constants.H2MEM, "-s","metricsmem",	"-t","GATLING"  });

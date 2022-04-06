@@ -42,7 +42,7 @@ public class CommandParserLinksDAOexcelWorkbookImpl implements CommandParserLink
 	@Override
 	public List<CommandParserLink> findCommandParserLinksForCommand(String commandName){
 
-		List<CommandParserLink> commandParserLinkList = new ArrayList<CommandParserLink>();
+		List<CommandParserLink> commandParserLinkList = new ArrayList<>();
 
 		Iterator<Row> iterator = commandparserlinksSheet.iterator();
 		iterator.next(); // a header row is assumed and bypassed

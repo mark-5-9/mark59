@@ -27,13 +27,13 @@ import com.mark59.metrics.data.beans.Application;
 
 public interface ApplicationDAO 
 {
-	public void updateApplication(Application application);
-	public void insertApplication(Application application);
-	public void enforceRunCascadeDelete();
+	void updateApplication(Application application);
+	void insertApplication(Application application);
+	void enforceRunCascadeDelete();
 
-	public Application findApplication(String application);
+	Application findApplication(String application);
 
-	public List<Application> findApplications();
-	public List<Application> findApplications(String appListSelector);
+	List<Application> findApplications();
+	List<Application> findApplications(String appListSelector);
 	
 }

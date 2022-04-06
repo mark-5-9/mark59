@@ -49,12 +49,11 @@ public class RunsController {
 		List<String> applicationList = populateApplicationDropdown();
 		if (reqApp == null  && applicationList.size() > 1  ){
 			// when no application request parameter has been sent, take the first application 
-			reqApp = (String)applicationList.get(1);
+			reqApp = applicationList.get(1);
 		}
-		List<Run> runsList = new ArrayList<Run>(); 
-		runsList = runDAO.findRuns(reqApp) ;
+		List<Run> runsList = runDAO.findRuns(reqApp) ;
 		
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		map.put("runsList",runsList);
 		map.put("reqApp",reqApp);		
 		map.put("applications",applicationList);
@@ -67,7 +66,7 @@ public class RunsController {
 		run = runDAO.findRun(reqApp, runTime);
 		model.addAttribute("run", run);
 		
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		List<String> isRunIgnoredYesNo = populateIsRunIgnoredYesNoDropdown();	
 		map.put("isRunIgnoredYesNo",isRunIgnoredYesNo);	
 		List<String> baselineRunYesNo = populateBaselineActiveYesNoDropdown();	
@@ -96,21 +95,20 @@ public class RunsController {
 	}
 
 	private List<String> populateApplicationDropdown() {
-		List<String> applicationList = new ArrayList<String>();
-		applicationList = runDAO.findApplications();
+		List<String> applicationList = runDAO.findApplications();
 		applicationList.add(0, "");
 		return applicationList;
 	}		
 	
 	private List<String> populateIsRunIgnoredYesNoDropdown( ) {
-		List<String> isTxnIgnoredYesNo =  new ArrayList<String>();
+		List<String> isTxnIgnoredYesNo = new ArrayList<>();
 		isTxnIgnoredYesNo.add("N");
 		isTxnIgnoredYesNo.add("Y");
 		return isTxnIgnoredYesNo;
 	}		
 	
 	private List<String> populateBaselineActiveYesNoDropdown( ) {
-		List<String> activeYesNo =  new ArrayList<String>();
+		List<String> activeYesNo = new ArrayList<>();
 		activeYesNo.add("Y");
 		activeYesNo.add("N");
 		return activeYesNo;

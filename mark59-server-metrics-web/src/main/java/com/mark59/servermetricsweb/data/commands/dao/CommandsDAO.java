@@ -31,11 +31,11 @@ import com.mark59.servermetricsweb.data.beans.Command;
  */
 public interface CommandsDAO 
 {
-	public Command findCommand(String commandName);
+	Command findCommand(String commandName);
 	
-	public List<Command> findCommands();
+	List<Command> findCommands();
 	
-	public List<Command> findCommands(String selectionCol, String selectionValue);
+	List<Command> findCommands(String selectionCol, String selectionValue);
 	
 	void insertCommand(Command command);
 
@@ -53,12 +53,12 @@ public interface CommandsDAO
 	}
 	
 	default List<String> deserializeJsonToList(String parameters)  {
-		List<String> parametersList = new ArrayList<String>();
+		List<String> parametersList;
 		TypeReference<ArrayList<String>> typeRef = new TypeReference<ArrayList<String>>(){};
 		try {
 			parametersList = new ObjectMapper().readValue(parameters, typeRef);
 		} catch (Exception e) {
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		}
 		return parametersList;
 	}	

@@ -70,17 +70,16 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 	public static final String DEFAULT_MARK59_SERVER_METRICS_WEB_URL 	= "http://localhost:8085/mark59-server-metrics-web";
 
 	public static final String SERVER_PROFILE_NAME 	= "SERVER_PROFILE_NAME";
-	
-	
-	protected String thread = Thread.currentThread().getName();
-	protected String tgName = null; 
+
+
+	protected String tgName = null;
 	protected AbstractThreadGroup tg = null;
 	
 	
 	
 	private static final Map<String,String> defaultArgumentsMap; 	
 	static {
-		Map<String,String> staticMap = new LinkedHashMap<String,String>();
+		Map<String,String> staticMap = new LinkedHashMap<>();
 	
 		staticMap.put(MARK59_SERVER_METRICS_WEB_URL, DEFAULT_MARK59_SERVER_METRICS_WEB_URL );
 		staticMap.put(SERVER_PROFILE_NAME, "" );
@@ -98,13 +97,12 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}
 	
-	private static Map<String, String> additionalTestParametersMap = new HashMap<String, String>();
+	private static final Map<String, String> additionalTestParametersMap = new HashMap<>();
 	
 
 	
 	/** 
 	 * Creates the list of parameters with default values, as they would appear on the Jmeter GUI for the JavaSampler being implemented.
-	 * @see #additionalTestParameters()
 	 * @see org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient
 	 */
 	@Override
@@ -154,7 +152,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 			
 			in = new BufferedReader( new InputStreamReader(con.getInputStream()));
 			String respLine;
-			StringBuffer jsonResponseStr = new StringBuffer();
+			StringBuilder jsonResponseStr = new StringBuilder();
 			while ((respLine = in.readLine()) != null) {
 				jsonResponseStr.append(respLine);
 			}
@@ -179,7 +177,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 						String metricFailsMsg = "Warning : Failed metric response for txn : " + parsedMetric.getLabel() + " (at: " + System.currentTimeMillis() + ")"  ; 
 						System.out.println(metricFailsMsg);
 						LOG.warn(metricFailsMsg +  "\n     command response : " + parsedCommandResponse.getCommandResponse() + "\n   api response msg  : " +  response.getFailMsg());
-					};
+					}
 				}
 			}
 			
@@ -196,7 +194,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 			}
 			LOG.debug("        last response-code from mark59-server-metrics-web was " + repsonseCode);
 			LOG.debug("        last response from mark59-server-metrics-web was  \n" + response );
-			if (in != null){try {in.close();} catch (IOException e1) {}};
+			if (in != null){try {in.close();} catch (IOException ignored) {}}
 		} finally {
 			jm.tearDown();
 		}

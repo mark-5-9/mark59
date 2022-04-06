@@ -33,6 +33,6 @@ public interface DriverBuilder<T extends DriverWrapper<?>>{
 	 * 
 	 * @see com.mark59.core.DriverWrapper
 	 */
-	public abstract T build(Map<String, String> arguments);
+    T build(Map<String, String> arguments);
 	
 }

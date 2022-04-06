@@ -34,29 +34,36 @@ import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
  */
 public interface PoliciesDAO 
 {
-	public SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect);
+	SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect);
 
-	public SqlWithParms constructSelectPoliciesSql(PolicySelectionCriteria policySelectionCriteria);		
-	public SqlWithParms constructCountPoliciesBreakdownSql(PolicySelectionCriteria policySelectionCriteria);
-	public SqlWithParms constructAsyncMessageaAnalyzerSql(PolicySelectionCriteria policySelectionCriteria);
+	SqlWithParms constructSelectPoliciesSql(PolicySelectionCriteria policySelectionCriteria);
+	SqlWithParms constructCountPoliciesBreakdownSql(PolicySelectionCriteria policySelectionCriteria);
+	SqlWithParms constructAsyncMessageaAnalyzerSql(PolicySelectionCriteria policySelectionCriteria);
 	
-	public int runCountSql(SqlWithParms sqlWithParms);	
-	public List<Policies> runSelectPolicieSql(SqlWithParms sqlWithParms);		
-	public List<CountPoliciesBreakdown> runCountPoliciesBreakdownSql(SqlWithParms sqlWithParms);
-	public List<AsyncMessageaAnalyzerResult> runAsyncMessageaAnalyzerSql(SqlWithParms sqlWithParms);
+	int runCountSql(SqlWithParms sqlWithParms);
+	List<Policies> runSelectPolicieSql(SqlWithParms sqlWithParms);
+	List<CountPoliciesBreakdown> runCountPoliciesBreakdownSql(SqlWithParms sqlWithParms);
+	List<AsyncMessageaAnalyzerResult> runAsyncMessageaAnalyzerSql(SqlWithParms sqlWithParms);
 	
-	public SqlWithParms constructInsertDataSql(Policies policies);	
-	public SqlWithParms constructDeletePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
-	public SqlWithParms constructDeleteMultiplePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
+	SqlWithParms constructInsertDataSql(Policies policies);
+	SqlWithParms constructDeletePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
+	SqlWithParms constructDeleteMultiplePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
 	
-	public SqlWithParms constructUpdatePoliciesUseStateSql(UpdateUseStateAndEpochTime updateUse);
-	public SqlWithParms constructUpdatePolicyToUsedSql(Policies nextPolicy);
+	SqlWithParms constructUpdatePoliciesUseStateSql(UpdateUseStateAndEpochTime updateUse);
+	SqlWithParms constructUpdatePolicyToUsedSql(Policies nextPolicy);
 
-	public int runDatabaseUpdateSql(SqlWithParms sqlWithParms);
+	List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList, 
+			String toUseability);
+	List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList, 
+			String toUseability, int maxEntriesSqlUpdateStmt);
 
-	public void getLock(JdbcTemplate singleConnectionJdbcTemplate, String lockResouceString, int timeout);
-	public void releaseLock(JdbcTemplate singleConnectionJdbcTemplate, String lockResouceString) throws SQLException;
+	int runDatabaseUpdateSql(SqlWithParms sqlWithParms);
 
-	public void getLock(String lockResouceString, int timeout);
-	public void releaseLock(String lockResouceString) throws SQLException;
+	void getLock(JdbcTemplate singleConnectionJdbcTemplate, String lockResouceString, int timeout);
+	void releaseLock(JdbcTemplate singleConnectionJdbcTemplate, String lockResouceString) throws SQLException;
+
+	void getLock(String lockResouceString, int timeout);
+	void releaseLock(String lockResouceString) throws SQLException;
+
+
 }

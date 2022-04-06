@@ -44,41 +44,42 @@ public class SamplePage extends _GenericPage  {
 	
 	public CheckBox someCheckBox() {
 		return new CheckBox(driver, By.id("CheckBoxID"));
-	};
+	}
 
-		public DropdownList someDropdownList() {
+    public DropdownList someDropdownList() {
 		return new DropdownList(driver, By.id("DropdownListId"));
-	};
+	}
 
-	/**
+    /**
 	 * see com.mark59.datahunter.performanceTest.scripts.DataHunterLifecyclePvtScript for usage.
 	 * @return HtmlTable
 	 */
 	public HtmlTable someBasicHtmlTable() {
 		return new HtmlTable(driver, "someBasicHtmlTableID");
-	};		
-	
-	public InputTextElement someInputTextElement() {
+	}
+
+    public InputTextElement someInputTextElement() {
 		return new InputTextElement(driver, By.id("InputTextElementId"));
-	};	
-	
-	public Link somePageLink() {
+	}
+
+    public Link somePageLink() {
 		return new Link(driver, "LinkText");
-	};
-	public Link somePageLinkById() {
+	}
+
+    public Link somePageLinkById() {
 		return new Link(driver, By.id("LinkbyIdRatherAlternativeToLinkText"));
-	};		
+	}
 
-	public OptionButton someOptionsButton() {
+    public OptionButton someOptionsButton() {
 		return new OptionButton(driver, By.id("OptionButtonId"));
-	};	
+	}
 
-	public PageTextElement someTextElement() {
+    public PageTextElement someTextElement() {
 		return new PageTextElement(driver, By.id("PageTextElementId"));
-	};	
-	
-	public SubmitBtn submit() {
+	}
+
+    public SubmitBtn submit() {
 		return new SubmitBtn(driver, By.id("SubmitBtnId"));
-	};		
+	}
 
 }

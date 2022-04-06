@@ -76,10 +76,9 @@ public class ApplicationController {
 	@RequestMapping("/dashboard")
 	public ModelAndView dashboard(@RequestParam(required=false) String reqAppListSelector) {
 
-		List<Application> applicationList = new ArrayList<Application>(); 
-		applicationList =  applicationDAO.findApplications(reqAppListSelector) ;
+		List<Application> applicationList =  applicationDAO.findApplications(reqAppListSelector) ;
+		List<ApplicationDashboardEntry> dashboardList = new ArrayList<>();
 
-		List<ApplicationDashboardEntry> dashboardList = new ArrayList<ApplicationDashboardEntry>();
 		for (Application app : applicationList) {
 			ApplicationDashboardEntry dashboardEntry = new ApplicationDashboardEntry();
 			String lastRunDateStr = runDAO.findLastRunDate(app.getApplication());
@@ -100,11 +99,11 @@ public class ApplicationController {
 			dashboardList.add(dashboardEntry);
 		}
 
-		List<String> appListSelectorList = new ArrayList<String>();
+		List<String> appListSelectorList = new ArrayList<>();
 		appListSelectorList.add("Active");
 		appListSelectorList.add("All");
 
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("dashboardList",dashboardList);			
 		map.put("reqAppListSelector",reqAppListSelector);	
 		map.put("appListSelectorList",appListSelectorList);
@@ -118,7 +117,7 @@ public class ApplicationController {
 		application = applicationDAO.findApplication(applicationId); 
 		model.addAttribute("application", application);
 		
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		List<String> activeYesNo = populateActiveYesNoDropdown();	
 		map.put("activeYesNo",activeYesNo);
 		map.put("applicationId",applicationId);
@@ -182,9 +181,9 @@ public class ApplicationController {
 		List<String> cdpTaggedMissingTransactions  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, lastRunDateStr, slaDAO  );
 		if ( ! cdpTaggedMissingTransactions.isEmpty()){
 			return "red";
-		};
-		
-		return iconColour;
+		}
+
+        return iconColour;
 	}
 	
 	
@@ -194,17 +193,17 @@ public class ApplicationController {
 		List<MetricSlaResult> metricSlaResults = new MetricSlaChecker().listFailedMetricSLAs(application, lastRunDateStr, null, metricSlaDAO, transactionDAO);
 		if ( ! metricSlaResults.isEmpty()){
 			return "yellow";
-		};
-		return iconColour;
+		}
+        return iconColour;
 	}
 	
 	
 	private String computeSlaSummaryIconColour(String slaTransactionIcon, String slaMetricsIcon) {
 		String iconColour = "green";
-		if ( slaTransactionIcon == "red"    ||  slaMetricsIcon == "red" ) {
+		if (  "red".equalsIgnoreCase(slaTransactionIcon)  ||  "red".equalsIgnoreCase(slaMetricsIcon) ) {
 			return "red";			
 		}
-		if ( slaTransactionIcon == "yellow" ||  slaMetricsIcon == "yellow" ) {
+		if (  "yellow".equalsIgnoreCase(slaTransactionIcon)  ||  "yellow".equalsIgnoreCase(slaMetricsIcon) ) {		
 			return "yellow";			
 		}
 		return iconColour;
@@ -221,7 +220,7 @@ public class ApplicationController {
 	
 	
 	private List<String> populateActiveYesNoDropdown( ) {
-		List<String> activeYesNo =  new ArrayList<String>();
+		List<String> activeYesNo = new ArrayList<>();
 		activeYesNo.add("Y");
 		activeYesNo.add("N");
 		return activeYesNo;

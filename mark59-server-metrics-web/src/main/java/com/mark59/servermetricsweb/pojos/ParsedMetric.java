@@ -38,7 +38,6 @@ public class ParsedMetric {
 		this.result = result;
 	}
 
-
 	public String getDataType() {
 		return dataType;
 	}
@@ -46,8 +45,7 @@ public class ParsedMetric {
 	public void setDataType(String dataType) {
 		this.dataType = dataType;
 	}
-	
-	
+
 	public Boolean getSuccess() {
 		return success;
 	}

@@ -49,11 +49,11 @@
       <td><form:input path="application"  size="64" height="20"  /></td>  <%-- can be set via @RequestParam --%>
      </tr>
      <tr>
-      <td>Identifier   :</td>
+      <td>Identifier :</td>
       <td><form:input path="identifier"  value="" size="64" height="20"  /></td>
      </tr>     
      <tr>
-      <td>Lifecycle (optional)   :</td>
+      <td>Lifecycle :</td>
       <td><form:input path="lifecycle"  value="" size="64" height="20"  /></td>
      </tr>
      <tr>

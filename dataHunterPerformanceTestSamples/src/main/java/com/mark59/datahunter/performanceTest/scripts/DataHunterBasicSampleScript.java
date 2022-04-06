@@ -66,7 +66,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 	
 	@Override
 	protected Map<String, String> additionalTestParameters() {
-		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<String, String>();
+		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<>();
 		jmeterAdditionalParameters.put("DATAHUNTER_URL",			"http://localhost:8081/dataHunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST_BASIC");
 		jmeterAdditionalParameters.put("USER", 	 "default_user");		
@@ -112,7 +112,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");
 		
-		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);  ; 
+		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);
 		
 		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
 		driver.findElement(By.id("submit")).submit();
@@ -129,7 +129,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		dropdown.selectByVisibleText(DslConstants.UNUSED);
 
 		driver.findElement(By.id("otherdata")).sendKeys(user); 
-		driver.findElement(By.id("epochtime")).sendKeys(new String(Long.toString(System.currentTimeMillis()))); 
+		driver.findElement(By.id("epochtime")).sendKeys(Long.toString(System.currentTimeMillis()));
 //		jm.writeScreenshot("add_policy_DH-BASIC-POLICY");
 		
 		jm.startTransaction("DH_lifecycle_0200_addPolicy");
@@ -138,7 +138,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		jm.endTransaction("DH_lifecycle_0200_addPolicy");
 		
 //		set a Data Point		
-		Long rowsAffected = Long.valueOf(driver.findElement(By.id("rowsAffected")).getText());
+		long rowsAffected = Long.parseLong(driver.findElement(By.id("rowsAffected")).getText());
 		LOG.debug( "rowsAffected : " + rowsAffected); 
 		jm.userDataPoint(application + "_PolicyRowsAffected", rowsAffected);    // (expected to be always 1 for this action)		
 
@@ -167,7 +167,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 	 *     
 	 * For logging details see @Log4jConfigurationHelper 
 	 */
-	public static void main(String[] args) throws InterruptedException{
+	public static void main(String[] args) {
 		Log4jConfigurationHelper.init(Level.INFO) ;
 		DataHunterBasicSampleScript thisTest = new DataHunterBasicSampleScript();
 

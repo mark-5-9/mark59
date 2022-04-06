@@ -33,25 +33,25 @@ public interface TestTransactionsDAO
 	
 //	public void insert(TestTransaction testTransaction);
 
-	public void insertMultiple(List<TestTransaction> testTransactionList);
+	void insertMultiple(List<TestTransaction> testTransactionList);
 
-	public void deleteAllForRun(String application, String runTime);
+	void deleteAllForRun(String application, String runTime);
 	
-	public void deleteAllForApplication(String application);	
+	void deleteAllForApplication(String application);
 	
-	public void updateRunTime(String application, String originalRunTime, String newRunTime);
+	void updateRunTime(String application, String originalRunTime, String newRunTime);
 
-	public List<TestTransaction> getUniqueListOfSystemMetricTxnIdsByType(String application);	
+	List<TestTransaction> getUniqueListOfSystemMetricTxnIdsByType(String application);
 
-	public Long getEarliestTimestamp(String applicationn);	
+	Long getEarliestTimestamp(String applicationn);
 	
-	public Long getLatestTimestamp(String applicationn);
+	Long getLatestTimestamp(String applicationn);
 	
-	public List<Transaction> extractTransactionResponsesSummary(String application, String txnType);
+	List<Transaction> extractTransactionResponsesSummary(String application, String txnType);
 
-	public Transaction extractEventSummaryStats(String application, String metricTxnType, String txnId, EventMapping EventMapping);
+	Transaction extractEventSummaryStats(String application, String metricTxnType, String txnId, EventMapping eventMapping);
 
-	public int filterByTime(Run run, DateRangeBean filteredDateRangeBean);
+	int filterByTime(Run run, DateRangeBean filteredDateRangeBean);
 
 
 	

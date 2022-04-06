@@ -24,7 +24,7 @@ import com.mark59.seleniumDSL.pageElements.Link;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class UpdatePoliciesUseStateActionPage extends _GenericDatatHunterActionPage {
+public class UpdatePoliciesUseStateActionPage extends _GenericDataHunterActionPage {
 	
 	public UpdatePoliciesUseStateActionPage(WebDriver driver) {
 		super(driver);
@@ -32,7 +32,7 @@ public class UpdatePoliciesUseStateActionPage extends _GenericDatatHunterActionP
 
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};		
+	}
 	
 
 }

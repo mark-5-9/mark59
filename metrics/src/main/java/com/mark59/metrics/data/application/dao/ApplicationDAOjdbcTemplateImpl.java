@@ -48,7 +48,7 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 		String sql = "INSERT INTO APPLICATIONS (APPLICATION, ACTIVE, COMMENT) VALUES (?,?,?)";
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql,new Object[] {	application.getApplication(), application.getActive(), application.getComment() });
+		jdbcTemplate.update(sql, application.getApplication(), application.getActive(), application.getComment());
 	}
 
 	
@@ -66,7 +66,7 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 		String sql = "UPDATE APPLICATIONS set ACTIVE = ? , COMMENT = ? where  APPLICATION = ?";
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.update(sql,new Object[] {application.getActive(), application.getComment(), application.getApplication()});
+		jdbcTemplate.update(sql, application.getActive(), application.getComment(), application.getApplication());
 	}	
 	
 
@@ -87,7 +87,7 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 		
 		String sql = "SELECT APPLICATION, ACTIVE, COMMENT FROM APPLICATIONS " + sqlWhereClause + "order by APPLICATION ";
 		
-		List<Application> applications  = new ArrayList<Application>();
+		List<Application> applications  = new ArrayList<>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);

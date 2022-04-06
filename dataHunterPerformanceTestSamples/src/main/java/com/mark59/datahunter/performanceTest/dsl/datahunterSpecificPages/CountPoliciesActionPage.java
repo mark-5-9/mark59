@@ -27,7 +27,7 @@ import com.mark59.seleniumDSL.pageElements.PageTextElement;
  * @author Philip Webb
  * Written: Australian Winter 2019
  */
-public class CountPoliciesActionPage extends _GenericDatatHunterActionPage {
+public class CountPoliciesActionPage extends _GenericDataHunterActionPage {
 
 	public CountPoliciesActionPage(WebDriver driver) {
 		super(driver);
@@ -35,10 +35,10 @@ public class CountPoliciesActionPage extends _GenericDatatHunterActionPage {
 
 	public PageTextElement prettyCount() {
 		return new PageTextElement(driver, By.id("prettyCount"));
-	};
+	}
 	
 	public Link backLink() {
 		return new Link(driver, "Back");
-	};		
+	}
 	
 }

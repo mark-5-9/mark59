@@ -51,7 +51,7 @@ public class PrintSelectedPoliciesController {
 	@RequestMapping("/print_selected_policies")
 	public String printSelectedPoliciesUrl(@RequestParam(required=false) String application,@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model  ) { 
 //		System.out.println("/print_selected_policies");
-		List<String> usabilityList = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		usabilityList.add(0,"");
 		model.addAttribute("Useabilities",usabilityList);
 		return "/print_selected_policies";				
@@ -64,8 +64,7 @@ public class PrintSelectedPoliciesController {
 		policySelectionCriteria.setSelectClause(" application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ");
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
 		
-		List<Policies> policiesList = new ArrayList<Policies>();
-		policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
+		List<Policies> policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
 
 		model.addAttribute("policiesList", policiesList);
 		model.addAttribute("sql", sqlWithParms);

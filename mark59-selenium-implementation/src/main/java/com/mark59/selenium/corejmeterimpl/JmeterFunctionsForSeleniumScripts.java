@@ -90,7 +90,7 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	public static final String LOG_PERF_LOG_AT_END_OF_TRANSACTIONS 		= "Log_Perf_Log_At_End_Of_Transactions";	
 		
 	
-	private SeleniumDriverWrapper seleniumDriverWrapper;
+	private final SeleniumDriverWrapper seleniumDriverWrapper;
 	
 	private boolean writeScreenshotsAtStartOfTransactions = false;
 	private boolean writeScreenshotsAtEndOfTransactions = false; 	
@@ -257,7 +257,8 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 		return endTransaction(transactionLabel, result, null, includeInEndOfTransactionScreenshotLogs);
 	}
 	
-
+	
+	@Override
 	public SampleResult endTransaction(String transactionLabel, Outcome result, String responseCode) {
 		return endTransaction(transactionLabel, result, responseCode, true);
 	}

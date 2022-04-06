@@ -37,6 +37,7 @@ import com.mark59.metrics.application.UtilsMetrics;
 import com.mark59.metrics.data.application.dao.ApplicationDAO;
 import com.mark59.metrics.data.beans.BarRange;
 import com.mark59.metrics.data.beans.GraphMapping;
+import com.mark59.metrics.data.beans.MetricSla;
 import com.mark59.metrics.data.beans.Run;
 import com.mark59.metrics.data.beans.Transaction;
 import com.mark59.metrics.data.graphMapping.dao.GraphMappingDAO;
@@ -108,10 +109,10 @@ public class TrendingController {
 			reqAppListSelector = AppConstantsMetrics.ACTIVE; 
 			
 			if ( ! runDAO.findApplications(reqAppListSelector).isEmpty()){
-				reqApp = (String)runDAO.findApplications(reqAppListSelector).get(0);
+				reqApp = runDAO.findApplications(reqAppListSelector).get(0);
 			} else {														 // if no active apps, just use any existing app
 				reqAppListSelector = AppConstantsMetrics.ALL; 
-				reqApp = (String)runDAO.findApplications(reqAppListSelector).get(0);
+				reqApp = runDAO.findApplications(reqAppListSelector).get(0);
 			} 
 			if (StringUtils.isBlank(reqApp)){ 
 				throw new RuntimeException("Whoa !!  No Applications found " );
@@ -251,16 +252,17 @@ public class TrendingController {
 									
 			String txnsToGraphId = UtilsMetrics.stringListToCommaDelimString(listOfTransactionNamesToGraphTagged);
 			model.addAttribute("txnsToGraphId", txnsToGraphId);
-
 			trendingForm.setChosenTxns(txnsToGraphId);			
 			
 			if ( Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals( graphMapping.getTxnType() )){
 				populateFailedTransactionalSlaLists(trendingForm.getApplication(), latestRunTime, listOfTransactionsToGraph, model);
 				populateIgnoredTransactionsList(trendingForm.getApplication(), model);	
+				populateDisabledSlasList(trendingForm.getApplication(), model);	
 				long cdpTxnsCount = transactionDAO.countRunsWithCdpTransactions(trendingForm.getApplication());
 				model.addAttribute("cdpTxnsCount", String.valueOf(cdpTxnsCount));
 			} else {
-				populateFailedMetricSlaLists(trendingForm.getApplication(), latestRunTime, txnsToGraphId, model, graphMapping);
+				populateFailedMetricSlaLists(trendingForm.getApplication(), latestRunTime, model, graphMapping);
+				populateDisabledMetricSlasList(trendingForm.getApplication(), model, graphMapping);	
 				model.addAttribute("cdpTxnsCount", "0");
 			}
 		
@@ -274,7 +276,7 @@ public class TrendingController {
 		
 		model.addAttribute(trendingForm);
 		
-		List<String> appListSelectorList = new ArrayList<String>();
+		List<String> appListSelectorList = new ArrayList<>();
 		appListSelectorList.add("Active");
 		appListSelectorList.add("All");
 		model.addAttribute("appListSelectors", appListSelectorList);
@@ -312,44 +314,44 @@ public class TrendingController {
 	/**
 	 * labelRunShortDescriptionsId id used by the graphic to populate the run labels 
 	 * 
-	 * @param application
-	 * @param runDatesToGraphId
+	 * @param application  application id (as displayed in the graphic)
+	 * @param runDatesToGraphId  list of runs graphed
 	 * @return labelRunShortDescriptionsId
 	 */
 	private String populateLabelRunShortDescriptionsId(String application, String runDatesToGraphId) {
 
 		List<String> runDatesToGraph = UtilsMetrics.commaDelimStringToStringList(runDatesToGraphId);
-		List<String> runShortDescriptionsList = new ArrayList<String>();
+		List<String> runShortDescriptionsList = new ArrayList<>();
 		String runReferenceLinkText;
 
-		for (int i = 0; i < runDatesToGraph.size();  i++) {
-			Run run = runDAO.findRun(application, runDatesToGraph.get(i));
-			StringBuilder runDescriptionsb   = new StringBuilder();
+		for (String runDate : runDatesToGraph) {
+			Run run = runDAO.findRun(application, runDate);
+			StringBuilder runDescriptionsb = new StringBuilder();
 
-			runDescriptionsb.append(run.getRunTime().substring(0,4)).append(".");
-			runDescriptionsb.append(run.getRunTime().substring(4,6)).append(".");
-			runDescriptionsb.append(run.getRunTime().substring(6,8)).append("T");   
-			runDescriptionsb.append(run.getRunTime().substring(8,10)).append(":");
-			runDescriptionsb.append(run.getRunTime().substring(10,12)).append(" ") ;
-			
-			if ( "Y".equalsIgnoreCase(run.getBaselineRun())){
+			runDescriptionsb.append(run.getRunTime(), 0, 4).append(".");
+			runDescriptionsb.append(run.getRunTime(), 4, 6).append(".");
+			runDescriptionsb.append(run.getRunTime(), 6, 8).append("T");
+			runDescriptionsb.append(run.getRunTime(), 8, 10).append(":");
+			runDescriptionsb.append(run.getRunTime(), 10, 12).append(" ");
+
+			if ("Y".equalsIgnoreCase(run.getBaselineRun())) {
 				runDescriptionsb.append(" BASELINE ");
-			}			
+			}
 
-			runReferenceLinkText = StringUtils.substringBetween(run.getRunReference(),"'>","</a");
-			if (runReferenceLinkText == null ){
+			runReferenceLinkText = StringUtils.substringBetween(run.getRunReference(), "'>", "</a");
+			if (runReferenceLinkText == null) {
 				runReferenceLinkText = run.getRunReference();
 			}
-			runDescriptionsb.append(runReferenceLinkText.replace(',',' '));
-			
-			if (StringUtils.isNotBlank(run.getComment())){
-				if (run.getComment().length() > 20 ){
-					runDescriptionsb.append(" " +  run.getComment().replace(',',' ').substring(0,20));
+			runDescriptionsb.append(runReferenceLinkText.replace(',', ' '));
+
+			if (StringUtils.isNotBlank(run.getComment())) {
+				if (run.getComment().length() > 20) {
+					runDescriptionsb.append(" ").append(run.getComment().replace(',', ' '), 0, 20);
 				} else {
-					runDescriptionsb.append(" " +  run.getComment().replace(',',' '));
+					runDescriptionsb.append(" ").append(run.getComment().replace(',', ' '));
 				}
 			}
-			runShortDescriptionsList.add(runDescriptionsb.toString() );
+			runShortDescriptionsList.add(runDescriptionsb.toString());
 		}
 		String labelRunShortDescriptionsId = UtilsMetrics.stringListToCommaDelimString(runShortDescriptionsList);
 //		System.out.println("trendingController:populateLabelRunDescriptionsId: " + labelRunDescriptionsId );
@@ -361,32 +363,32 @@ public class TrendingController {
 	/**
 	 * labelRunDescriptionsId is used for the run descriptions in the Comparison Table
 	 * 
-	 * @param application
-	 * @param runDatesToGraphId
+	 * @param application  applicaton id (as displayed on graph)
+	 * @param runDatesToGraphId  list of runs being graphedt
 	 * @return labelRunDescriptionsId
 	 */
 	private String populateLabelRunDescriptionsId(String application, String runDatesToGraphId) {
 
 		List<String> runDatesToGraph = UtilsMetrics.commaDelimStringToStringList(runDatesToGraphId);
-		List<String> runDescriptionsList = new ArrayList<String>();
+		List<String> runDescriptionsList = new ArrayList<>();
 
-		for (int i = 0; i < runDatesToGraph.size();  i++) {
-			Run run = runDAO.findRun(application, runDatesToGraph.get(i));
-			StringBuilder runDescriptionsb   = new StringBuilder();
-			
-			runDescriptionsb.append(run.getRunReference().replace(',',' '));
-			
-			if (StringUtils.isNotBlank(run.getComment())){
-				if (run.getComment().length() > 20 ){
-					runDescriptionsb.append("<br><br><div style='color:grey;'>" +  run.getComment().replace(',',' ').substring(0,20) + "..</div>" );
+		for (String runDate : runDatesToGraph) {
+			Run run = runDAO.findRun(application, runDate);
+			StringBuilder runDescriptionsb = new StringBuilder();
+
+			runDescriptionsb.append(run.getRunReference().replace(',', ' '));
+
+			if (StringUtils.isNotBlank(run.getComment())) {
+				if (run.getComment().length() > 20) {
+					runDescriptionsb.append("<br><br><div style='color:grey;'>").append(run.getComment().replace(',', ' '), 0, 20).append("..</div>");
 				} else {
-					runDescriptionsb.append("<br><br><div style='color:grey;'>" +  run.getComment().replace(',',' ') + "</div>" );
+					runDescriptionsb.append("<br><br><div style='color:grey;'>").append(run.getComment().replace(',', ' ')).append("</div>");
 				}
 			}
-			if ( "Y".equalsIgnoreCase(run.getBaselineRun())){
+			if ("Y".equalsIgnoreCase(run.getBaselineRun())) {
 				runDescriptionsb.append("<br><div style='color:orange'>*baseline</div>");
 			}
-			runDescriptionsList.add(runDescriptionsb.toString() );
+			runDescriptionsList.add(runDescriptionsb.toString());
 		}
 		String labelRunDescriptionsId = UtilsMetrics.stringListToCommaDelimString(runDescriptionsList);
 //		System.out.println("trendingController:populateLabelRunDescriptionsId: " + labelRunDescriptionsId );
@@ -410,13 +412,13 @@ public class TrendingController {
 		List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas =  
 				new SlaChecker().listCdpTaggedTransactionsWithFailedSlas(application, selectedUntaggedTransactions, slaDAO);
 		
-		List<String> trxnIdsWithAnyFailedSla = new ArrayList<String>();
-		List<String> trxnIdsWithFailedSla90thResponse = new ArrayList<String>();
-		List<String> trxnIdsWithFailedSla95thResponse = new ArrayList<String>();
-		List<String> trxnIdsWithFailedSla99thResponse = new ArrayList<String>();
-		List<String> trxnIdsWithFailedSlaFailPercent = new ArrayList<String>();
-		List<String> trxnIdsWithFailedSlaFailCount = new ArrayList<String>();
-		List<String> trxnIdsWithFailedSlaPassCount = new ArrayList<String>();		
+		List<String> trxnIdsWithAnyFailedSla = new ArrayList<>();
+		List<String> trxnIdsWithFailedSla90thResponse = new ArrayList<>();
+		List<String> trxnIdsWithFailedSla95thResponse = new ArrayList<>();
+		List<String> trxnIdsWithFailedSla99thResponse = new ArrayList<>();
+		List<String> trxnIdsWithFailedSlaFailPercent = new ArrayList<>();
+		List<String> trxnIdsWithFailedSlaFailCount = new ArrayList<>();
+		List<String> trxnIdsWithFailedSlaPassCount = new ArrayList<>();
 
 		for (SlaTransactionResult slaTransactionResult : cdpTaggedTransactionsWithFailedSlas) {
 			if ( !slaTransactionResult.isPassedAllSlas()){
@@ -460,21 +462,27 @@ public class TrendingController {
 	
 	
 	private void populateIgnoredTransactionsList(String application, Model model){
-		List<String> cdpTaggedIgnoredTransactions = slaDAO.getListOfIgnoredTransactionsCdpTags(application);
+		List<String> cdpTaggedIgnoredTransactions = slaDAO.getListOfIgnoredTransactionsAddingCdpTags(application);
 		model.addAttribute("ignoredTransactionsId", UtilsMetrics.stringListToCommaDelimString(cdpTaggedIgnoredTransactions) );		
 	}
 	
+
+	private void populateDisabledSlasList(String application, Model model){
+		List<String> cdpTaggedDisabledSlas = slaDAO.getListOfDisabledSlasAddingCdpTags(application);
+		model.addAttribute("disabledSlasId", UtilsMetrics.stringListToCommaDelimString(cdpTaggedDisabledSlas) );		
+	}
 	
-	private void populateFailedMetricSlaLists(String application, String latestRunTime, String txnsToGraphId,  Model model, GraphMapping graphMapping){
+	
+	private void populateFailedMetricSlaLists(String application, String latestRunTime, Model model, GraphMapping graphMapping){
 	
 		String metricTxnType = graphMapping.getTxnType(); 
 				
 		List<MetricSlaResult> metricSlaResults  = new MetricSlaChecker().listFailedMetricSLAs(application, latestRunTime, metricTxnType, metricSlaDAO, transactionDAO);
 
-		List<String> trxnIdsWithFailedSla = new ArrayList<String>();
-		List<String> trxnIdsWithFailedSlaForThisMetricMeasure = new ArrayList<String>();
+		List<String> trxnIdsWithFailedSla = new ArrayList<>();
+		List<String> trxnIdsWithFailedSlaForThisMetricMeasure = new ArrayList<>();
 		
-		List<String> missingSlaTransactions = new ArrayList<String>();
+		List<String> missingSlaTransactions = new ArrayList<>();
 		
 		/* if the graph being plotted is using the same transaction field (derivation) as the one the SLA failure if for, its name will be marked in red on the graph.  
 		 * If the SLA is just for the same metric type, then the value only gets marked in red (just to indicate there is a problem with this value - but not for this graph) 
@@ -504,17 +512,28 @@ public class TrendingController {
 		model.addAttribute("trxnIdsWithAnyFailedSlaId",					UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSla));
 		model.addAttribute("trxnIdsWithFailedSlaForThisMetricMeasure", 	UtilsMetrics.stringListToCommaDelimString(trxnIdsWithFailedSlaForThisMetricMeasure));
 		model.addAttribute("missingTransactionsId", UtilsMetrics.stringListToCommaDelimString(missingSlaTransactions) );
-	};	
+	}
+
+
+	private void populateDisabledMetricSlasList(String application, Model model, GraphMapping graphMapping){
+		List<String> disabledMetricSlaNames= new ArrayList<>();
+		String metricTxnType = graphMapping.getTxnType();
+		String graphValueDerivation = graphMapping.getValueDerivation();
+		List<MetricSla> disabledMetricSlas = metricSlaDAO.getDisabledMetricSlas(application, metricTxnType, graphValueDerivation);
+		for (MetricSla metricSla : disabledMetricSlas) {
+			disabledMetricSlaNames.add(metricSla.getMetricName());
+		}
+		model.addAttribute("disabledSlasId", UtilsMetrics.stringListToCommaDelimString(disabledMetricSlaNames));
+	}
 	
 	
 	private List<String> populateApplicationDropdown(String appListSelector ) {
-		List<String> applicationList = runDAO.findApplications(appListSelector);
-		return applicationList;
+		return runDAO.findApplications(appListSelector);
 	}		
 	
 
 	private List<String> populateMetricsDropdown() {
-		List<String> metricsList = new ArrayList<String>();
+		List<String> metricsList = new ArrayList<>();
 		List<GraphMapping> graphsList = graphMappingDAO.getGraphMappings();
 		for (GraphMapping graphMapping : graphsList) {
 			metricsList.add( graphMapping.getGraph() );

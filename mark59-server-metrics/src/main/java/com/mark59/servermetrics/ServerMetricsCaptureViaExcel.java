@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -63,7 +64,6 @@ import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb;
 import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
 import com.mark59.servermetricsweb.utils.ServerProfileRunner;
 
-
 /**
  * This is the initiating class for server metrics capture using a (previously downloaded) server metrics excel spreadsheet.
  * The location of the spreadsheet containing the server profile details is generally expected to set set via
@@ -77,24 +77,26 @@ import com.mark59.servermetricsweb.utils.ServerProfileRunner;
  * 
  * @author Philip Webb
  * Written: Australian Autumn 2020 
- * 
- * 
  */
 public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient { 
-
+	
+//	static { 
+//		// may be needed in future for poi : frequently outputting a WARN msg (https://bz.apache.org/bugzilla/show_bug.cgi?id=65326) 
+//		org.apache.logging.log4j.core.config.Configurator.setLevel("org.apache.poi.util.XMLHelper", Level.ERROR);
+//	}
+	
 	private static final Logger LOG = LogManager.getLogger(ServerMetricsCaptureViaExcel.class);
 	
 	public static final String SERVER_PROFILE_NAME 	= "SERVER_PROFILE_NAME";
 	public static final String OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH = "OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH";
-	
-	protected String thread = Thread.currentThread().getName();
-	protected String tgName = null; 
+
+	protected String tgName = null;
 	protected AbstractThreadGroup tg = null;
 
 	
 	private static final Map<String,String> defaultArgumentsMap; 	
 	static {
-		Map<String,String> staticMap = new LinkedHashMap<String,String>();
+		Map<String,String> staticMap = new LinkedHashMap<>();
 		staticMap.put(SERVER_PROFILE_NAME, "localhost" );
 		staticMap.put("______________________ miscellaneous: ____________________", "");
 		staticMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH, "");			
@@ -105,12 +107,11 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}
 	
-	private static Map<String, String> additionalTestParametersMap = new HashMap<String, String>();
+	private static final Map<String, String> additionalTestParametersMap = new HashMap<>();
 	
 	
 	/** 
 	 * Creates the list of parameters with default values, as they would appear on the Jmeter GUI for the JavaSampler being implemented.
-	 * @see #additionalTestParameters()
 	 * @see org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient
 	 */
 	@Override
@@ -159,7 +160,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 				LOG.error("excel speadsheet " + excelFilePath + " file error. Msg : "  + e.getMessage());
 				e.printStackTrace();
 			}
-        	LOG.debug("File excelFile path : full path  = " + excelFile.getPath() + " :"  + excelFile.getCanonicalPath() );
+        	LOG.debug("File excelFile path : full path  = " + Objects.requireNonNull(excelFile).getPath() + " :"  + excelFile.getCanonicalPath() );
         	 
         	Workbook workbook = WorkbookFactory.create(excelFile, null, true);    // Factory class necessary to avoid excel file being 'touched' 
             
@@ -179,8 +180,8 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 													serverCommandLinksDAO, commandsDAO, commandParserLinksDAO, commandResponseParsersDAO);
 	 		workbook.close();
 
-			if ( response == null || response.getServerProfileName()  == null){
-				throw new RuntimeException("Error : null repsonse or a null server profile name returned is an Unexpected Response!");
+			if (response.getServerProfileName() == null){
+				throw new RuntimeException("Error : null server profile name returned is an Unexpected Response!");
 			}
 			if ( response.getFailMsg().startsWith(AppConstantsServerMetricsWeb.SERVER_PROFILE_NOT_FOUND)){
 				throw new RuntimeException("Error : " + response.getFailMsg());
@@ -196,8 +197,8 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 						String metricFailsMsg = "Warning : Failed metric response (via Excel) for txn : " + parsedMetric.getLabel() + " (at: " + System.currentTimeMillis() + ")"  ; 
 						System.out.println(metricFailsMsg);
 						LOG.warn(metricFailsMsg +  "\n     command response : " + parsedCommandResponse.getCommandResponse() + "\n   api response msg  : " +  response.getFailMsg());
-					};
-				}
+					}
+                }
 			}
 			
 		} catch (Exception | AssertionError e) {
@@ -223,6 +224,8 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 	
 	public static void main(String[] args) { 
 		Log4jConfigurationHelper.init(Level.INFO);
+		org.apache.logging.log4j.core.config.Configurator.setLevel("org.apache.poi.util.XMLHelper", Level.ERROR);
+		
 		//copy of test case..		 
 		ServerMetricsCaptureViaExcel ostest = new ServerMetricsCaptureViaExcel();
 		additionalTestParametersMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH,

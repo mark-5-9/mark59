@@ -16,8 +16,6 @@
 
 package com.mark59.servermetricsweb.controller;
 
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +88,7 @@ public class CommandResponseParserController {
 	@RequestMapping("/commandResponseParserList")
 	public ModelAndView commandResponseParserList(@RequestParam(required=false) String reqMetricTxnType) {
 
-		List<CommandResponseParser> commandResponseParserList = new ArrayList<CommandResponseParser>(); 
+		List<CommandResponseParser> commandResponseParserList;
 
 		if (!StringUtils.isEmpty(reqMetricTxnType)){
 			commandResponseParserList = commandResponseParsersDAO.findCommandResponseParsers("METRIC_TXN_TYPE", reqMetricTxnType);	
@@ -101,7 +99,7 @@ public class CommandResponseParserController {
 		List<String>metricTxnTypes = Mark59Constants.JMeterFileDatatypes.listOfMetricJMeterFileDatatypes();
 		metricTxnTypes.add(0, "");	
 		
-		Map<String, Object> parmsMap = new HashMap<String, Object>(); 
+		Map<String, Object> parmsMap = new HashMap<>();
 		parmsMap.put("commandResponseParserList", commandResponseParserList);
 		parmsMap.put("metricTxnTypes",metricTxnTypes);	
 		parmsMap.put("reqMetricTxnType", reqMetricTxnType);
@@ -109,9 +107,8 @@ public class CommandResponseParserController {
 	}
 
 	@RequestMapping("/viewCommandResponseParser")
-	public String viewCommandResponseParser(@RequestParam String reqScriptName, @RequestParam(required=false) String reqMetricTxnType,  
-			@ModelAttribute CommandResponseParser commandResponseParser, Model model) {
-		commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqScriptName); 
+	public String viewCommandResponseParser(@RequestParam String reqScriptName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
+		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqScriptName); 
 		model.addAttribute("commandResponseParser", commandResponseParser);
 		
 		Map<String, Object> map = createMapOfDropdowns();
@@ -123,9 +120,8 @@ public class CommandResponseParserController {
 	
 	
 	@RequestMapping("/copyCommandResponseParser")
-	public String copyCommandResponseParser(@RequestParam String reqScriptName, @RequestParam(required=false) String reqMetricTxnType,  
-			@ModelAttribute CommandResponseParser commandResponseParser, Model model) {
-		commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqScriptName); 
+	public String copyCommandResponseParser(@RequestParam String reqScriptName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
+		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqScriptName); 
 		model.addAttribute("commandResponseParser", commandResponseParser);
 		
 		Map<String, Object> map = createMapOfDropdowns();
@@ -137,9 +133,8 @@ public class CommandResponseParserController {
 	
 	
 	@RequestMapping("/editCommandResponseParser")
-	public String editCommandResponseParser(@RequestParam String reqScriptName, @RequestParam(required=false) String reqMetricTxnType,  
-			@ModelAttribute CommandResponseParser commandResponseParser, Model model) {
-		commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqScriptName); 
+	public String editCommandResponseParser(@RequestParam String reqScriptName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
+		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqScriptName); 
 		model.addAttribute("commandResponseParser", commandResponseParser);
 		
 		Map<String, Object> map = createMapOfDropdowns();
@@ -171,7 +166,7 @@ public class CommandResponseParserController {
 	
 
 	private Map<String, Object> createMapOfDropdowns() {
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>();
 		List<String>metricTxnTypes = Mark59Constants.JMeterFileDatatypes.listOfMetricJMeterFileDatatypes();
 		map.put("metricTxnTypes",metricTxnTypes);
 		return map;

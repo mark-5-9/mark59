@@ -50,7 +50,8 @@ import static com.mark59.datahunter.performanceTest.dsl.helpers.DslConstants.REU
  * A script to check run thru and check each item action on the DataHunter pages (except the asyn processing - 
  * see the dataHunterFunctionalTest project in the mark59-xtras gitreop).
  * 
- * <p>May also be some useful to get ideas on how to call DataHunter when running a script for another application.
+ * <p>Useful to get ideas on how to call DataHunter when running a script for another application.  However
+ * if possible we suggest to use DataHunter Rest Api calls to invoke dataHunter functionality from a script.
  * 
  * @see SeleniumAbstractJavaSamplerClient
  * @author Philip Webb
@@ -63,7 +64,7 @@ public class DataHunterBasicRegressionScript  extends SeleniumAbstractJavaSample
 	
 	@Override
 	protected Map<String, String> additionalTestParameters() {
-		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<String, String>();
+		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<>();
 		jmeterAdditionalParameters.put("DATAHUNTER_URL", "http://localhost:8081/dataHunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_REGRESSION");
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, "CHROME");
@@ -114,7 +115,7 @@ public class DataHunterBasicRegressionScript  extends SeleniumAbstractJavaSample
 		dslPageFunctions.countItemsBreakdown(wholeAppBreakdown, driver, unusedInitalState, 1L);
 		dslPageFunctions.countItemsBreakdown(wholeAppBreakdown, driver, usedInitalState, 2L);		
 		
-		List<Policy> allPolicies = new ArrayList<Policy>(); 
+		List<Policy> allPolicies = new ArrayList<>();
 		allPolicies.add(new Policy(application, "id3",someLifecycle, USED, someOtherdata+"id3"));
 		allPolicies.add(new Policy(application, "id2",someLifecycle, USED, someOtherdata+"id2"));
 		allPolicies.add(id1policy); // still in its original state 
@@ -130,16 +131,21 @@ public class DataHunterBasicRegressionScript  extends SeleniumAbstractJavaSample
 		
 		UpdateUseState id3toReusbale = new UpdateUseState(application,"id3", USED, REUSABLE, null); 
 		UpdateUseState unusedToUsed  = new UpdateUseState(application,"", UNUSED, USED, null); 		
-		dslPageFunctions.updateItemsUseState(id3toReusbale, driver, 1l);
-		dslPageFunctions.updateItemsUseState(unusedToUsed, driver, 2l);
+		dslPageFunctions.updateItemsUseState(id3toReusbale, driver, 1L);
+		dslPageFunctions.updateItemsUseState(unusedToUsed, driver, 2L);
 		
-		allPolicies = new ArrayList<Policy>(); 
+		allPolicies = new ArrayList<>();
 		allPolicies.add(new Policy(application, "id3",someLifecycle, REUSABLE, someOtherdata+"id3"));
 		allPolicies.add(new Policy(application, "id2",someLifecycle, USED, someOtherdata+"id2"));
 		allPolicies.add(new Policy(application, "id1",someLifecycle, USED, someOtherdata+"id1"));
 		dslPageFunctions.printSelectedItems(wholeApp, driver, allPolicies);		
 		
 		dslPageFunctions.deleteMultipleItems(wholeApp, driver, 3L);
+		
+		Policy idPolicyNoLifecycle = new Policy(application, "idPolicyNoLifecycle","", UNUSED, someOtherdata+"id1");SafeSleep.sleep(100);
+		dslPageFunctions.addAnItem(idPolicyNoLifecycle, driver);
+		PolicySelectionCriteria noLifecycle = new PolicySelectionCriteria(application, "idPolicyNoLifecycle", "");
+		dslPageFunctions.deleteAnItem(noLifecycle, driver, 1L);		
 		
 		LOG.info("DataHunterBasicRegressionScript ending");	
 	}
@@ -148,7 +154,7 @@ public class DataHunterBasicRegressionScript  extends SeleniumAbstractJavaSample
 	 * A main method to assist with script testing outside JMeter.  
 	 * For logging details see @Log4jConfigurationHelper 
 	 */
-	public static void main(String[] args) throws InterruptedException{
+	public static void main(String[] args){
 		Log4jConfigurationHelper.init(Level.INFO) ;
 		DataHunterBasicRegressionScript thisTest = new DataHunterBasicRegressionScript();
 		thisTest.runSeleniumTest(KeepBrowserOpen.ONFAILURE);

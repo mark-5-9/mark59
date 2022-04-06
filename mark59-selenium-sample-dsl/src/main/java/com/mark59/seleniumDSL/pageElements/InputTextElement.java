@@ -3,6 +3,7 @@ package com.mark59.seleniumDSL.pageElements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 import com.mark59.core.utils.SafeSleep;
 import com.mark59.seleniumDSL.core.Elemental;
@@ -35,13 +36,19 @@ public class InputTextElement extends Elemental {
 				typeAndWait(String.valueOf(character));
 			}
 		} else {
-			waitForAndFindElement().sendKeys(text);
+			WebElement webElement = waitForAndFindElement();
+			if (webElement != null) {
+				webElement.sendKeys(text);
+			}				
 		}
 		return this;
 	}
 
 	private InputTextElement typeAndWait(String text) {
-		waitForAndFindElement().sendKeys(text);
+		WebElement webElement = waitForAndFindElement();
+		if (webElement != null) {
+			webElement.sendKeys(text);
+		}		
 		SafeSleep.sleep(500);
 		return this;
 	}
@@ -53,17 +60,27 @@ public class InputTextElement extends Elemental {
 	}
 
 	public InputTextElement tabKey() {
-		super.waitForAndFindElement().sendKeys(Keys.TAB);
+		WebElement webElement = waitForAndFindElement();
+		if (webElement != null) {
+			webElement.sendKeys(Keys.TAB);
+		}		
 		return this;
 	}
 
 	public InputTextElement clear() {
-		waitForAndFindElement().clear();
+		WebElement webElement = waitForAndFindElement();
+		if (webElement != null) {
+			webElement.clear();
+		}
 		return this;
 	}	
 	
 	public String getText() {
-		return waitForAndFindElement().getAttribute("value");
+		WebElement webElement = waitForAndFindElement();
+		if (webElement != null) {
+			return webElement.getAttribute("value");
+		}
+		return null;
 	}
 
 }

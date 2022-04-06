@@ -51,7 +51,7 @@ if ( OS_NAME_LC.indexOf(&quot;win&quot;) &gt;= 0 ) {
 } 
 
 // System Properties vs JMeterUtils - please review the mark59 User Guide if using JSR223 for Mark59 scripts.
-// A bit of an oversight ..  profile called &apos;localhost_LINUX_HOSTID&apos; to all dbs in the next release (just use hostid?)
+// TODO: rename the profile called &apos;localhost_LINUX&apos; to &apos;localhost_LINUX_HOSTID&apos; to all dbs in the next release for consistency
 
 if ( os == &quot;LINUX&quot; ){
 	System.getProperties().setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_LINUX&quot;);
@@ -309,7 +309,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 4.1</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 4.2</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -493,7 +493,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information: " elementType="Argument">
                 <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation version 4.1</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation version 4.2</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -557,7 +557,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information: " elementType="Argument">
                 <stringProp name="Argument.name">build information: </stringProp>
-                <stringProp name="Argument.value">mark59-server-metrics version 4.1</stringProp>
+                <stringProp name="Argument.value">mark59-server-metrics version 4.2</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>

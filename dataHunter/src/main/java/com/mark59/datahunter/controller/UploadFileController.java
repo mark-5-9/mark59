@@ -66,6 +66,7 @@ public class UploadFileController implements HandlerExceptionResolver  {
 
 //		System.out.println("upload_action uploadFile: " + uploadFile  );
 		DataHunterUtils.expireSession(httpServletRequest, 1200); 
+		BufferedReader br = null;
 
 		if (file.isEmpty()) {
 			createDropdownAttributes(model);
@@ -90,7 +91,7 @@ public class UploadFileController implements HandlerExceptionResolver  {
 		try {
 			String line;
 			InputStream is = file.getInputStream();
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			br = new BufferedReader(new InputStreamReader(is));
 			
 			while ((line = br.readLine()) != null) {
 
@@ -115,6 +116,7 @@ public class UploadFileController implements HandlerExceptionResolver  {
 					}
 				}
 			}
+			br.close();
 
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -122,6 +124,7 @@ public class UploadFileController implements HandlerExceptionResolver  {
 			model.addAttribute("sql", "n/a");
 			model.addAttribute("sqlResult", e.getMessage());
 			model.addAttribute("rowsAffected", "error occured around line " + lineCount);
+			try {br.close();} catch (Exception e1){System.err.println(e1.getMessage());}
 			return new ModelAndView("/upload_action", "model", model);
 		}
 
@@ -176,9 +179,9 @@ public class UploadFileController implements HandlerExceptionResolver  {
 	@Override
 	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 		ModelAndView modelAndView = new ModelAndView("/upload");
-		List<String> usabilityList = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		modelAndView.getModel().put("Useabilities",usabilityList);
-		List<String> updateOrBypass = new ArrayList<String>(DataHunterConstants.UPDATE_OR_BYPASS);
+		List<String> updateOrBypass = new ArrayList<>(DataHunterConstants.UPDATE_OR_BYPASS);
 		modelAndView.getModel().put("updateOrBypass",updateOrBypass);
 		modelAndView.getModel().put("validationerror", ex.getMessage());	
 		modelAndView.getModel().put("uploadFile", new UploadFile());
@@ -188,9 +191,9 @@ public class UploadFileController implements HandlerExceptionResolver  {
 	
 
 	private void createDropdownAttributes(Model model) {
-		List<String> usabilityList = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
+		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		model.addAttribute("Useabilities",usabilityList);	
-		List<String> updateOrBypass = new ArrayList<String>(DataHunterConstants.UPDATE_OR_BYPASS);
+		List<String> updateOrBypass = new ArrayList<>(DataHunterConstants.UPDATE_OR_BYPASS);
 		model.addAttribute("updateOrBypass",updateOrBypass);
 	}
 

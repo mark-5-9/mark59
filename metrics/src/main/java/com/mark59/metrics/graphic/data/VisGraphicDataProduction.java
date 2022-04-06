@@ -53,183 +53,199 @@ public class VisGraphicDataProduction  implements VisGraphicDataProductionInterf
    *  the js load tool "visGraphLoad.js" (options xAxisNames, yAxisNames) in order for vis.js to draw the graph correctly.
    * 
    * @param application   application 
-   * @param graph  graph (as per graphmapping table)
-   * @param graphMappingUomDescription  usually expected to be getUomDescription
+   * @param graphMapping  graph (as per graphmapping table)
    * @param runDatesToGraph   (run dates to graph)
-   * @param orderedTxnsToGraphIdList transaction ids to graph - ordering is not important  
-   * @return data points being graphed 
+   * @param listOfStdTransactionNamesToGraph  standard transactions
+   * @param listOfCdpTaggedTransactionNamesToGraph  CDP transactions
+   * @return data points being graphed
    */
-public String createDataPoints(String application, GraphMapping graphMapping, String runDatesToGraph, 
-		List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph, List<String> listOfCdpTaggedTransactionNamesToGraph){	 
+	@Override
+	public String createDataPoints(String application, GraphMapping graphMapping, String runDatesToGraph,
+			List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph,
+			List<String> listOfCdpTaggedTransactionNamesToGraph) {
 
-	ArrayList<Object[]> graphDataRows = generateDataPointCoordinates(application, graphMapping.getGraph(), runDatesToGraph, 
-			listOfStdTransactionNamesToGraph, listOfCdpTransactionNamesToGraph, listOfCdpTaggedTransactionNamesToGraph);
+		ArrayList<Object[]> graphDataRows = generateDataPointCoordinates(application, graphMapping.getGraph(),
+				runDatesToGraph, listOfStdTransactionNamesToGraph, listOfCdpTransactionNamesToGraph,
+				listOfCdpTaggedTransactionNamesToGraph);
 
-	StringBuilder graphDataPoints = new StringBuilder();
-	
-	// column descriptions (translates on graph to x axis, y axis, UOM label).
-	graphDataPoints.append("\"run\",\" \",\"" + graphMapping.getUomDescription() + "\"\n") ;
+		StringBuilder graphDataPoints = new StringBuilder();
 
-	// output the values, using integer x,y values (possibly a bit OTT with the rounding, but might stop a quirky x.999999 type issue)
-	// System.out.println("VisGraphicDataProduction: number of dataPoints = " + graphDataRows.size()     );
-	
-	for (Object[] dataRow : graphDataRows) {
-		
-		int plotPointx = (Integer)dataRow[0];		
-		int plotPointy = (Integer)dataRow[1];	
-		
-		Object plotPointz =  Double.valueOf(dataRow[2].toString()); 
-		if ((Double)plotPointz % 1 == 0 ) {  // its an integer!
-			plotPointz = Integer.valueOf((int)Math.round(((Double)plotPointz).doubleValue()));
-		} 		
-		graphDataPoints.append(plotPointx + ", " + plotPointy + ", " + plotPointz + "\n");		
+		// column descriptions (translates on graph to x axis, y axis, UOM label).
+		graphDataPoints.append("\"run\",\" \",\"" + graphMapping.getUomDescription() + "\"\n");
+
+		// output the values, using integer x,y values (possibly a bit OTT with the rounding, but might stop a quirky x.999999 type issue)
+		// System.out.println("VisGraphicDataProduction: number of dataPoints = " + graphDataRows.size() );
+
+		for (Object[] dataRow : graphDataRows) {
+
+			int plotPointx = (Integer) dataRow[0];
+			int plotPointy = (Integer) dataRow[1];
+
+			Object plotPointz = Double.valueOf(dataRow[2].toString());
+			if ((Double) plotPointz % 1 == 0) { // its an integer!
+				plotPointz = Integer.valueOf((int) Math.round(((Double) plotPointz).doubleValue()));
+			}
+			graphDataPoints.append(plotPointx + ", " + plotPointy + ", " + plotPointz + "\n");
+		}
+		return graphDataPoints.toString();
 	}
-	return graphDataPoints.toString();
-  }
-
   
 
-  private ArrayList<Object[]> generateDataPointCoordinates(String application, String graph, String runDatesToGraph,
-		  List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph, List<String> listOfCdpTaggedTransactionNamesToGraph){
+	private ArrayList<Object[]> generateDataPointCoordinates(String application, String graph, String runDatesToGraph,
+			List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph,
+			List<String> listOfCdpTaggedTransactionNamesToGraph) {
 
-	ArrayList<String> masterRunsList  =  new ArrayList<String>(UtilsMetrics.commaDelimStringToStringList(runDatesToGraph));
-	ArrayList<String> missingRunsList =  new ArrayList<String>(UtilsMetrics.commaDelimStringToStringList(runDatesToGraph));	
-	
-	ArrayList<Datapoint> datapoints   = new ArrayList<Datapoint>();
+		ArrayList<String> masterRunsList = new ArrayList<String>(
+				UtilsMetrics.commaDelimStringToStringList(runDatesToGraph));
+		ArrayList<String> missingRunsList = new ArrayList<String>(
+				UtilsMetrics.commaDelimStringToStringList(runDatesToGraph));
 
-	if (masterRunsList.size() > 0 ) {
-		datapoints = (ArrayList<Datapoint>)transactionDAO.findDatapointsToGraph(application, graph, runDatesToGraph,
-				listOfStdTransactionNamesToGraph, listOfCdpTransactionNamesToGraph);
-	}
-//	System.out.println("orderedTxnsToGraphIdList : " + orderedTxnsToGraphIdList );
-//	System.out.println("datapoints : " + datapoints);
+		ArrayList<Datapoint> datapoints = new ArrayList<Datapoint>();
 
-	// Create a data table.
-    ArrayList<Object[]> dataRows = new ArrayList<Object[]>();
-    
- 	String runTime  	= null;
-	String txnId    	= null;
-	BigDecimal datapointValue  = null;
-	Datapoint datapoint = null;
-    
-    // Fill the data table.
-    	
-	int dateX = -1;
-	String previousRunTime = null;
-	int masterTxnsIndex = 0;
-	boolean skipGetNext = false;
-	boolean stillGotDataToProcess = true;
-	
-	int datapointIx = 0;
-	int numDatapoints = datapoints.size();
+		if (masterRunsList.size() > 0) {
+			datapoints = (ArrayList<Datapoint>) transactionDAO.findDatapointsToGraph(application, graph,
+					runDatesToGraph, listOfStdTransactionNamesToGraph, listOfCdpTransactionNamesToGraph);
+		}
+//		System.out.println("orderedTxnsToGraphIdList : " + orderedTxnsToGraphIdList );
+//		System.out.println("datapoints : " + datapoints);
 
-	if (numDatapoints == 0 ){
-		stillGotDataToProcess = false;
-	} else {
-		datapoint = datapoints.get(0); 
+		// Create a data table.
+		ArrayList<Object[]> dataRows = new ArrayList<Object[]>();
+
+		String runTime = null;
+		String txnId = null;
+		BigDecimal datapointValue = null;
+		Datapoint datapoint = null;
+
+		// Fill the data table.
+
+		int dateX = -1;
+		String previousRunTime = null;
+		int masterTxnsIndex = 0;
+		boolean skipGetNext = false;
+		boolean stillGotDataToProcess = true;
+
+		int datapointIx = 0;
+		int numDatapoints = datapoints.size();
+
+		if (numDatapoints == 0) {
+			stillGotDataToProcess = false;
+		} else {
+			datapoint = datapoints.get(0);
 //    		System.out.println(" first datapoint to process : " + datapoint.toString()  );
-	}
-	
-    	
-	while (stillGotDataToProcess) {
+		}
 
-		runTime = datapoint.getRunTime();
-		txnId = datapoint.getTxnId();
-		datapointValue = datapoint.getValue();
+		while (stillGotDataToProcess) {
 
-		if (!runTime.equals(previousRunTime)) {
-//			System.out.println("change of run from " + previousRunTime + " to " + runTime);
-			
-			/* need to allow for non-existence of txns on the (prev) run that where at the end of the master txn list (i.e. the LHS of the graph) */
-			while (masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size() && !(previousRunTime == null)){
+			runTime = datapoint.getRunTime();
+			txnId = datapoint.getTxnId();
+			datapointValue = datapoint.getValue();
+
+			if (!runTime.equals(previousRunTime)) {
+//				System.out.println("change of run from " + previousRunTime + " to " + runTime);
+
+				/*
+				 * need to allow for non-existence of txns on the (prev) run that where at the end of the master txn list (i.e. the LHS of the graph)
+				 */
+				while (masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size() && !(previousRunTime == null)) {
 //				System.out.println("!! about to mark missed txns (on the lhs of graph) for " + orderedTxnsToGraphIdList.get(masterTxnsIndex) );
-				dataRows.add(new Object[]{dateX, masterTxnsIndex, -1});
-				
-				masterTxnsIndex++;					
+					dataRows.add(new Object[] { dateX, masterTxnsIndex, -1 });
+
+					masterTxnsIndex++;
+				}
+
+				// remove the processed run from Missing Runs List
+				missingRunsList.remove(runTime);
+
+				previousRunTime = runTime;
+				dateX = masterRunsList.indexOf(runTime);
+				masterTxnsIndex = 0;
+//		    	System.out.println( "   processing " + runTime + " at index " + dateX  ) ;	
 			}
-		
-			// remove the processed run from Missing Runs List
-			missingRunsList.remove(runTime);
-			
-			previousRunTime = runTime;
-			dateX = masterRunsList.indexOf(runTime);
-			masterTxnsIndex = 0;
-//		    System.out.println( "   processing " + runTime + " at index " + dateX  ) ;	
-		}
-		
 
-		if (!(masterTxnsIndex >= listOfCdpTaggedTransactionNamesToGraph.size())) {
+			if (!(masterTxnsIndex >= listOfCdpTaggedTransactionNamesToGraph.size())) {
 //				System.out.println(" at : txnId =  " + txnId + ", trxnMasterIndex=" + masterTxnsIndex + ", masterTxnIdList=" + orderedTxnsToGraphIdList.get(masterTxnsIndex));
-		}
-		
-		if (masterTxnsIndex >= listOfCdpTaggedTransactionNamesToGraph.size()) {
+			}
 
-			/* we have gone thru all the master txn list .. so any more* txns in this run should be skipped */
-			
+			if (masterTxnsIndex >= listOfCdpTaggedTransactionNamesToGraph.size()) {
+
+				/*
+				 * we have gone thru all the master txn list .. so any more* txns in this run should be skipped
+				 */
+
 //				System.out.println(" !! at end of master list, skipping " + txnId);
 
-		} else if (listOfCdpTaggedTransactionNamesToGraph.get(masterTxnsIndex).compareTo(txnId) < 0) {
+			} else if (listOfCdpTaggedTransactionNamesToGraph.get(masterTxnsIndex).compareTo(txnId) < 0) {
 
-			/* implies a transaction(s) in the master txn list (those txns to be displayed on X axis) was not in this run.  Mark with neg number.
-			 * See notes in TransactionDAOjdbcTemplateImpl.returnListOfSelectedTransactionIds(..) re ordering. */
-				
+				/*
+				 * implies a transaction(s) in the master txn list (those txns to be displayed on X axis) was not in this run. 
+				 * Mark with neg number. See notes in TransactionDAOjdbcTemplateImpl.returnListOfSelectedTransactionIds(..) re ordering.
+				 */
+
 //				System.out.println("!! about to mark missed txns for " + orderedTxnsToGraphIdList.get(masterTxnsIndex) + " ("+ txnId + ")");
 
-			dataRows.add(new Object[]{dateX, masterTxnsIndex, -1});				
+				dataRows.add(new Object[] { dateX, masterTxnsIndex, -1 });
 
-			skipGetNext = true;
-			masterTxnsIndex++;
+				skipGetNext = true;
+				masterTxnsIndex++;
 
-		} else if (listOfCdpTaggedTransactionNamesToGraph.get(masterTxnsIndex).compareTo(txnId) > 0) {
+			} else if (listOfCdpTaggedTransactionNamesToGraph.get(masterTxnsIndex).compareTo(txnId) > 0) {
 
-	  		/* implies a transaction that is in this run does not exist in the master list (those txns to be displayed on X axis) ... skip over it */
+				/*
+				 * implies a transaction that is in this run does not exist in the master list
+				 * (those txns to be displayed on X axis) ... skip over it
+				 */
+				
 //		  		System.out.println("!! skipping " + txnId + " (at master list element " + orderedTxnsToGraphIdList.get(masterTxnsIndex) + ")" ); 					
-			
-			
-		} else {
 
-			/* match found */
-			
+			} else {
+
+				/* match found */
+
 //				System.out.println("... match to txn found for datapoint rt=" + runTime + ", txnId=" + txnId + ", datapointValue=" + datapointValue + "(" + orderedTxnsToGraphIdList.get(masterTxnsIndex) + ")");
-							
-			dataRows.add(new Object[]{dateX, masterTxnsIndex, datapointValue});					
+
+				dataRows.add(new Object[] { dateX, masterTxnsIndex, datapointValue });
+				masterTxnsIndex++;
+			}
+
+			if (skipGetNext) {
+				skipGetNext = false;
+//				System.out.println("!! for next loop, staying with " + txnId);
+			} else {
+				datapointIx++;
+				if (datapointIx >= numDatapoints) {
+					stillGotDataToProcess = false;
+//					System.out.println(" no more datapoints ....");
+				} else {
+					datapoint = datapoints.get(datapointIx);
+//					System.out.println(" next datapoint to process : " + datapoint.toString()  );
+				}
+			}
+
+		} // end loop stillGotDataToProcess
+
+		/*
+		 * Need to allow for non-existence of txns on the earliest run that were at the
+		 * end of the master txn list (i.e. at the back LHS of the graph)
+		 */
+		while (masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size() && !(previousRunTime == null)) {
+//			System.out.println("!! about to mark missed txns for the earliest run (on the lhs of graph) for " + orderedTxnsToGraphIdList.get(masterTxnsIndex) );
+			dataRows.add(new Object[] { dateX, masterTxnsIndex, -1 });
 			masterTxnsIndex++;
 		}
 
-		if (skipGetNext) {
-			skipGetNext = false;
-//				System.out.println("!! for next loop, staying with " + txnId);
-		} else {
-			datapointIx++;
-			if (datapointIx >= numDatapoints) {
-				stillGotDataToProcess = false;
-//					System.out.println(" no more datapoints ....");
-			} else {
-				datapoint = datapoints.get(datapointIx);
-//					System.out.println(" next datapoint to process : " + datapoint.toString()  );
+		/*
+		 * Finally, for runs that had no datapoints, mark all transactions as missing for the run
+		 */
+		for (String missingRunTime : missingRunsList) {
+			int missingRunIndex = masterRunsList.indexOf(missingRunTime);
+			for (masterTxnsIndex = 0; masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size(); masterTxnsIndex++) {
+//				System.out.println( " adding missing run : " + missingRunIndex + ", " + masterTxnsIndex + ", -1" ) ;						
+				dataRows.add(new Object[] { missingRunIndex, masterTxnsIndex, -1 });
 			}
 		}
 
-	} // end loop stillGotDataToProcess
-	
-	/* Need to allow for non-existence of txns on the earliest run that were at the end of the master txn list (i.e. at the back LHS of the graph) */
-	while (masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size() && !(previousRunTime == null)){
-//		System.out.println("!! about to mark missed txns for the earliest run (on the lhs of graph) for " + orderedTxnsToGraphIdList.get(masterTxnsIndex) );
-		dataRows.add(new Object[]{dateX, masterTxnsIndex, -1});				
-		masterTxnsIndex++;					
-	}	
-	
-	/* Finally, for runs that had no datapoints, mark all transactions as missing for the run */
-	for (String missingRunTime : missingRunsList) {
-		int missingRunIndex = masterRunsList.indexOf(missingRunTime);  
-		for (masterTxnsIndex = 0; masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size(); masterTxnsIndex++) {
-//			System.out.println( " adding missing run : " + missingRunIndex + ", " + masterTxnsIndex + ", -1" ) ;						
-			dataRows.add(new Object[]{missingRunIndex, masterTxnsIndex, -1});				
-		}
-	}  
-
-    return dataRows;
-  }
-
+		return dataRows;
+	}
 
 }

@@ -17,8 +17,9 @@
 package com.mark59.seleniumDSL.core;
 
 import java.time.Duration;
-
-import org.openqa.selenium.ElementNotVisibleException;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.ElementNotInteractableException;
+import org.openqa.selenium.InvalidElementStateException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -49,20 +50,25 @@ public class FluentWaitFactory {
 	 * <ul>
 	 * <li>StaleElementReferenceException</li>
 	 * <li>NoSuchElementException</li>
-	 * <li>ElementNotVisibleException</li>
+	 * <li>ElementClickInterceptedException</li>
+	 * <li>ElementNotInteractableException</li>
+	 * <li>InvalidElementStateException</li>
 	 * <li>WebDriverException</li>
 	 * </ul>
 	 * 
-	 * @param <T> of T
-	 * @param input input
+	 * @param driver webdriver
 	 * @param timeout secs
-	 * @param pollingFrequency duration of polling 
+	 * @param pollingFrequency a Duration
 	 * @return a fluent wait
 	 */
 	public static FluentWait<WebDriver> getFluentWait(WebDriver driver, Duration timeout, Duration pollingFrequency) {
-		return new FluentWait<WebDriver>(driver).withTimeout(timeout).pollingEvery(pollingFrequency)
-				.ignoring(StaleElementReferenceException.class).ignoring(NoSuchElementException.class)
-				.ignoring(ElementNotVisibleException.class).ignoring(WebDriverException.class);
+		return new FluentWait<>(driver).withTimeout(timeout).pollingEvery(pollingFrequency)
+				.ignoring(StaleElementReferenceException.class)
+				.ignoring(NoSuchElementException.class)
+				.ignoring(ElementClickInterceptedException.class)
+				.ignoring(ElementNotInteractableException.class)
+				.ignoring(InvalidElementStateException.class)
+				.ignoring(WebDriverException.class);
 	}
 
 	/**
@@ -73,14 +79,15 @@ public class FluentWaitFactory {
 	 * <ul>
 	 * <li>StaleElementReferenceException</li>
 	 * <li>NoSuchElementException</li>
-	 * <li>ElementNotVisibleException</li>
+	 * <li>ElementClickInterceptedException</li>
+	 * <li>ElementNotInteractableException</li>
+	 * <li>InvalidElementStateException</li>
 	 * <li>WebDriverException</li>
 	 * </ul>
 	 * 
-	 * @param <T> of T
-	 * @param input input
+	 * @param driver webdriver
 	 * @param timeout secs
-	 * @return the fluent wait
+	 * @return a fluent wait
 	 */
 	public static FluentWait<WebDriver> getFluentWait(WebDriver driver, Duration timeout) {
 		return getFluentWait(driver, timeout, DEFAULT_POLLING);
@@ -95,13 +102,14 @@ public class FluentWaitFactory {
 	 * <ul>
 	 * <li>StaleElementReferenceException</li>
 	 * <li>NoSuchElementException</li>
-	 * <li>ElementNotVisibleException</li>
+	 * <li>ElementClickInterceptedException</li>
+	 * <li>ElementNotInteractableException</li>
+	 * <li>InvalidElementStateException</li>
 	 * <li>WebDriverException</li>
 	 * </ul>
 	 * 
-	 * @param <T> of T
-	 * @param input input
-	 * @return the fluent wait
+	 * @param driver webdriver
+	 * @return a fluent wait
 	 */
 	public static FluentWait<WebDriver> getFluentWait(WebDriver driver) {
 		return getFluentWait(driver, DEFAULT_TIMEOUT, DEFAULT_POLLING);
@@ -118,13 +126,13 @@ public class FluentWaitFactory {
 	 *     
 	 * @see Elemental#runUsingFluentWaitInDebugMode(org.openqa.selenium.support.ui.ExpectedCondition)
 	 * 
-	 * @param driver
-	 * @param timeout
-	 * @param pollingFrequency
+	 * @param driver webdriver
+	 * @param timeout secs
+	 * @param pollingFrequency a Duration
 	 * @return a fluent wait
 	 */
 	public static FluentWait<WebDriver> getFluentWaitDebugMode(WebDriver driver, Duration timeout, Duration pollingFrequency) {
-		return new FluentWait<WebDriver>(driver).withTimeout(timeout).pollingEvery(pollingFrequency);
+		return new FluentWait<>(driver).withTimeout(timeout).pollingEvery(pollingFrequency);
 
 		
 	}

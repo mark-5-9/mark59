@@ -54,8 +54,8 @@ public class Mark59Utils {
 	 */
 	public static Arguments mergeMapWithAnOverrideMap(Map<String,String> baseMap, Map<String, String> additionalEntriesMap) {
 		Arguments jmeterArguments = new Arguments();
-		Map<String, String> jmeterArgumentsMap = new LinkedHashMap<String,String>();
-		Map<String,String> baseMapMergedWithAdditionalEntriesMap = new LinkedHashMap<String,String>(); 
+		Map<String, String> jmeterArgumentsMap = new LinkedHashMap<>();
+		Map<String,String> baseMapMergedWithAdditionalEntriesMap = new LinkedHashMap<>();
 		
 		for (Map.Entry<String, String> defaultEntry : baseMap.entrySet()) {
 			if (additionalEntriesMap.containsKey(defaultEntry.getKey())){
@@ -87,9 +87,8 @@ public class Mark59Utils {
 	 */
 	public static boolean resovesToTrue(final String str) {
 		if (StringUtils.isBlank(str)) {	return false;}
-		if (str.trim().toLowerCase().startsWith("t")) {return true;}; 
-		if (str.trim().toLowerCase().startsWith("y")) {return true;}; 
-		return false;
+		if (str.trim().toLowerCase().startsWith("t")) {return true;}
+		return str.trim().toLowerCase().startsWith("y");
 	}
    
 	
@@ -199,7 +198,7 @@ public class Mark59Utils {
 	 */
 	public static Set<String> commaDelimStringToStringSet(String commaDelimitedString) {
 		List<String> listOfStrings = commaDelimStringToStringList(commaDelimitedString);
-		return new HashSet<String>(listOfStrings);
+		return new HashSet<>(listOfStrings);
 	}
 	
 	/**
@@ -207,7 +206,7 @@ public class Mark59Utils {
 	 * @return the split list of strings
 	 */
 	public static List<String> commaDelimStringToStringList(String commaDelimitedString) {
-		List<String> listOfStrings = new ArrayList<String>();
+		List<String> listOfStrings = new ArrayList<>();
 		// when an empty string is passed to the split, it creates a empty first element ... not what we want .. 
 		if ( ! (commaDelimitedString == null || commaDelimitedString.isEmpty() )){
 			listOfStrings = Arrays.asList(commaDelimitedString.split("\\s*,\\s*"));
@@ -220,7 +219,7 @@ public class Mark59Utils {
 	 * @return the split list of strings 
 	 */
 	public static List<String> pipeDelimStringToStringList(String pipeDelimitedString) {
-		List<String> listOfStrings = new ArrayList<String>();
+		List<String> listOfStrings = new ArrayList<>();
 		// when an empty string is passed to the split, it creates a empty first element ... not what we want .. 
 		if ( ! (pipeDelimitedString == null || pipeDelimitedString.isEmpty() )){
 			listOfStrings = Arrays.asList(pipeDelimitedString.split("\\s*\\|\\s*"));

@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-core</artifactId>
-	<version>4.1</version>
+	<version>4.2</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -21,7 +21,33 @@
 
 	<dependencies>
 	
-		<!-- https://mvnrepository.com/artifact/org.apache.jmeter/ApacheJMeter_java -->
+		<!-- Start log4j security fix -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.17.2</version>
+ 			<scope>provided</scope>			
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.17.2</version>
+ 			<scope>provided</scope>			
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.17.2</version>
+ 			<scope>provided</scope>			
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<version>2.17.2</version>
+ 			<scope>provided</scope>			
+		</dependency>
+		<!-- End log4j security fix -->	
+	
 		<dependency>
 			<groupId>org.apache.jmeter</groupId>
 			<artifactId>ApacheJMeter_java</artifactId>
@@ -39,7 +65,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>4.2.0</version>
+			<version>4.4.0</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -78,7 +104,15 @@
 
 	<build>
 		<plugins>
-			<!--local build goals: clean package install -->	
+			
+			<!--local build goals: clean package install -->
+				
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.1</version>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -93,7 +127,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>					
+				<version>3.3.2</version>					
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -110,6 +144,13 @@
 			   <activation><activeByDefault>false</activeByDefault></activation>
 			   	<build>
 				<plugins>
+				
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.10.1</version>
+					</plugin>
+					
 					<!-- maven central requirements -->	
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
@@ -126,7 +167,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.2.0</version>					
+						<version>3.3.2</version>					
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>

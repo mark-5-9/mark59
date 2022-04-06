@@ -62,7 +62,7 @@ public class ServerProfilesDAOexcelWorkbookImpl implements ServerProfilesDAO {
             	serverProfile.setConnectionPort		(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(7)));
             	serverProfile.setConnectionTimeout	(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(8)));
             	serverProfile.setComment			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(9)));
-            	serverProfile.setParameters(deserializeJsonToMap((ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(10)))));
+            	serverProfile.setParameters(deserializeJsonToMap(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(10))));
             }
         }   
 		return  serverProfile;

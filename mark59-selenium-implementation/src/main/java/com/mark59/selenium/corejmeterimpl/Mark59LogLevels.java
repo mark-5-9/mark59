@@ -58,7 +58,7 @@ public enum Mark59LogLevels {
 	/** OFF	- switch off logging for the log type  (see class description)  */
 	OFF    ("off");  
 	
-	private String mark59LogLevelString;
+	private final String mark59LogLevelString;
 	
 	Mark59LogLevels(String mark59LogLevelString) {
 		this.mark59LogLevelString = mark59LogLevelString;
@@ -87,8 +87,6 @@ public enum Mark59LogLevels {
 		}
 		return null;
 	}
-	
-	
 	
 }
 

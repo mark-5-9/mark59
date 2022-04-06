@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,7 +32,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.metrics.data.beans.EventMapping;
 import com.mark59.metrics.data.beans.Transaction;
-import com.mark59.metrics.data.transaction.dao.TransactionDAO;
 
 /**
  * @author Philip Webb
@@ -57,7 +55,7 @@ public class UtilsMetrics  {
 
 
 	public static List<String> commaDelimStringToStringList(String commaDelimitedString) {
-		List<String> listOfStrings = new ArrayList<String>();
+		List<String> listOfStrings = new ArrayList<>();
 		// when an empty string is passed to the split, it creates a empty first element ... not what we want .. 
 		if ( ! (commaDelimitedString == null || commaDelimitedString.isEmpty() )){
 			listOfStrings = Arrays.asList(commaDelimitedString.split("\\s*,\\s*"));
@@ -80,7 +78,7 @@ public class UtilsMetrics  {
 
 
 	public static String deriveEventTxnIdUsingEventMappingBoundaryRules(String sourceTxnId,	EventMapping eventMapping) {
-		String txnId = null;
+		String txnId;
 		if ( StringUtils.isBlank(eventMapping.getTargetNameLB()) && StringUtils.isBlank(eventMapping.getTargetNameRB()) ){
 			txnId =  sourceTxnId;		
 		} else	if ( StringUtils.isBlank(eventMapping.getTargetNameLB())){
@@ -122,7 +120,7 @@ public class UtilsMetrics  {
 
 	public static String decodeBase64urlParam(String base64urlEncodedString) {
 //		System.out.println("at UtilsMetrics.decodeBase64urlParam :" + base64urlEncodedString );
-		byte[] decodedByte = null;
+		byte[] decodedByte;
 	
 		try {
 			decodedByte = Base64.getDecoder().decode(base64urlEncodedString);
@@ -132,7 +130,7 @@ public class UtilsMetrics  {
 		}
 		String urlEncodedString = new String(decodedByte);
 		
-		String decodedString = "URL encoding decoding failure!!";
+		String decodedString;
 		try {
 			decodedString = java.net.URLDecoder.decode(urlEncodedString, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e) {
@@ -145,7 +143,7 @@ public class UtilsMetrics  {
 	
 	public static String encodeBase64urlParam(String plainString) {
 //		System.out.println("at UtilsMetrics.encodeBase64urlParam :" + plainString );
-		String URLencodedString = "encodeBase64urlParam URL encode failure!!";
+		String URLencodedString;
 		try {
 			URLencodedString = java.net.URLEncoder.encode(plainString, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e) {
@@ -153,16 +151,15 @@ public class UtilsMetrics  {
 			throw new RuntimeException("An attempt to decode a uri encoded parameter has failed for : " + plainString  )	;	
 		}
 
-		byte[] base64urlEncodeByte = null;
+		byte[] base64urlEncodeByte;
 		try {
 			base64urlEncodeByte = Base64.getEncoder().encode(URLencodedString.getBytes());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("An attempt to encode base64 (and uri encoded) parameter has failed for : " + plainString )	;	
 		}
-		String base64urlEncodedString = new String(base64urlEncodeByte);
-		
-		return base64urlEncodedString;
+
+		return new String(base64urlEncodeByte);
 	}
 
 	 
@@ -171,7 +168,7 @@ public class UtilsMetrics  {
 	 * will be suffixed with a CDP tag.  This method does not invoke a database call.
 	 * 
 	 * <p>Assumes the transactions have already been selected for graphing
-	 *  (EG using {@link TransactionDAO#returnListOfTransactionsToGraph(String, String)} )
+	 *  (EG using  TransactionDAO.returnListOfTransactionsToGraph)
 	 * 
 	 * <p>Note: The supplied database installs (DDL) will put the lists is in UTF-8 order (h2 default, MySQL utf8mb4_0900_bin collation)
 	 * This should be pretty close to the ordering used by Java, but to avoid any  potential for issues for odd non-standard chars or
@@ -183,7 +180,7 @@ public class UtilsMetrics  {
 	 */
 	public static List<Transaction> returnOrderedListOfTransactionsToGraphTagged(List<Transaction> listOfTransactionsToGraph){
 
-		List<Transaction> listOfTransactionsToGraphTagged = new ArrayList<Transaction>();
+		List<Transaction> listOfTransactionsToGraphTagged = new ArrayList<>();
 		for (Transaction transaction : listOfTransactionsToGraph) {
 			Transaction graphedTransaction = new Transaction(transaction);
 			if ("Y".equalsIgnoreCase(transaction.getIsCdpTxn())){
@@ -194,7 +191,7 @@ public class UtilsMetrics  {
 		} 
 
 		// sort the transaction list using the transaction names to be graphed 
-		Collections.sort(listOfTransactionsToGraphTagged, (o1, o2) -> (o1.getTxnId().compareTo(o2.getTxnId())));
+		listOfTransactionsToGraphTagged.sort(Comparator.comparing(Transaction::getTxnId));
 		return listOfTransactionsToGraphTagged;
 	}
 
@@ -202,12 +199,12 @@ public class UtilsMetrics  {
 	/**
 	 * Extract transaction names from a list of transactions. 
 	 * 
-	 * @param transactions
+	 * @param transactions transactions list
 	 * @return listOfTxnIdsd (in natural order)
 	 */
 	public static List<String> returnListOfTxnIdsdFromListOfTransactions(List<Transaction> transactions){
 		// alt:	transactions.stream().map(transaction -> transaction.getTxnId()).collect(Collectors.toList());
-		List<String> listOfTxnIds = new ArrayList<String>();
+		List<String> listOfTxnIds = new ArrayList<>();
 		for (Transaction transaction : transactions) {
 			listOfTxnIds.add(transaction.getTxnId());
 		}
@@ -219,13 +216,13 @@ public class UtilsMetrics  {
 	/**
 	 * Filter a list of Transactions by CDP, returning a list of txnids 
 	 * 
-	 * @param transactions
-	 * @param isCdpTxnFilter
+	 * @param transactions  transactions list
+	 * @param isCdpTxnFilter CDP filter
 	 * @return listOfTxnIds
 	 */
 	public static List<String> returnFilteredListOfTransactionNamesToGraph(List<Transaction> transactions, String isCdpTxnFilter){
 		// alt:	transactions.stream().map(transaction -> transaction.getTxnId()).collect(Collectors.toList());
-		List<String> listOfTxnIds = new ArrayList<String>();
+		List<String> listOfTxnIds = new ArrayList<>();
 		for (Transaction transaction : transactions) {
 			if (isCdpTxnFilter.equalsIgnoreCase(transaction.getIsCdpTxn() )) {
 				listOfTxnIds.add(transaction.getTxnId());

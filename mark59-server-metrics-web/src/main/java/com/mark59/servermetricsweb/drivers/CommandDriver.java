@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -44,12 +45,12 @@ import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
 */
 public interface CommandDriver {
 	
-	static final Logger LOG = LogManager.getLogger(CommandDriver.class);	
+	Logger LOG = LogManager.getLogger(CommandDriver.class);
 	
-	public static final String HOSTID = "HOSTID";
+	String HOSTID = "HOSTID";
 	
 	
-	public static String obtainReportedServerId(String server, String alternateServerId) {
+	static String obtainReportedServerId(String server, String alternateServerId) {
 		String reportedServerId = server;
 		if ( "localhost".equalsIgnoreCase(server) && HOSTID.equals(alternateServerId) ) {
 
@@ -73,8 +74,8 @@ public interface CommandDriver {
 	}
 	
 	
-	public static CommandDriver init(String commandExecutor, ServerProfile serverProfile) {
-		CommandDriver driver = null; 
+	static CommandDriver init(String commandExecutor, ServerProfile serverProfile) {
+		CommandDriver driver;
 		if (CommandExecutorDatatypes.WMIC_WINDOWS.getExecutorText().equals(commandExecutor)) {
 			driver = new CommandDriverWinWmicImpl(serverProfile);
 		} else if (CommandExecutorDatatypes.SSH_LINIX_UNIX.getExecutorText().equals(commandExecutor)){  
@@ -86,19 +87,22 @@ public interface CommandDriver {
 	}
 	
 	
-	public CommandDriverResponse executeCommand(Command command);
+	CommandDriverResponse executeCommand(Command command);
 
 	
-	public static CommandDriverResponse executeRuntimeCommand(String runtimeCommand, String ingoreStderr, CommandExecutorDatatypes executorType) {
+	static CommandDriverResponse executeRuntimeCommand(String runtimeCommand, String ingoreStderr, CommandExecutorDatatypes executorType) {
 		LOG.debug("executeRuntimeCommand : " + runtimeCommand );
 		
 		CommandDriverResponse commandDriverResponse = new CommandDriverResponse();   
 		commandDriverResponse.setCommandFailure(false);
 		List<String> rawCommandResponseLines = new ArrayList<>();
 		String commandLog = "";
-		String line = "";
+		String line;
 				
 		Process p = null;
+		BufferedReader errors = null;
+		BufferedReader reader = null;
+		
 		try {
 			if (CommandExecutorDatatypes.WMIC_WINDOWS.equals(executorType)){
 				p = Runtime.getRuntime().exec(runtimeCommand);
@@ -108,24 +112,24 @@ public interface CommandDriver {
 			p.waitFor();
 			
 			if ( ! Mark59Utils.resovesToTrue(ingoreStderr)){
-			
-				BufferedReader errors = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-				
+				errors = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 				while ((line = errors.readLine()) != null) {
 					if (line.length() > 0) {
 						commandDriverResponse.setCommandFailure(true);
 						rawCommandResponseLines.add(line.trim());
 					}
 				}
+				errors.close();
 			} 			
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			
+			reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			while ((line = reader.readLine()) != null) {
 				if (line.length() > 0) {
 					rawCommandResponseLines.add(line.trim());
 				}
 			}
+			reader.close();
+			p.destroy();
 			
 		} catch (Exception e) {
 			commandDriverResponse.setCommandFailure(true);			
@@ -133,9 +137,12 @@ public interface CommandDriver {
 			e.printStackTrace(new PrintWriter(stackTrace));
 			commandLog+= "<br>A faiure has occured attempting to execute the command : " + e.getMessage() + "<br>" + stackTrace.toString() + "<br>";
 			LOG.warn("Command failure : " + runtimeCommand + ":\n" + e.getMessage() + stackTrace.toString());
+			try {Objects.requireNonNull(errors).close();} catch (Exception ignored){}
+			try {Objects.requireNonNull(reader).close();} catch (Exception ignored){}
+			try {Objects.requireNonNull(p).destroy();} catch (Exception ignored){}
 		}
+		
 		rawCommandResponseLines.forEach(LOG::debug);
-
 		commandDriverResponse.setRawCommandResponseLines(rawCommandResponseLines);
 		commandDriverResponse.setCommandLog(commandLog);
 		return commandDriverResponse;

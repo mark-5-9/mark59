@@ -51,7 +51,6 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 				.addValue("scriptName", scriptName);
 
 //		System.out.println(" findCommandResponseParser : " + sql + " : " + scriptName);
-		List<CommandResponseParser> commandResponseParsersList = new ArrayList<CommandResponseParser>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -68,7 +67,6 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 		commandResponseParser.setComment((String)row.get("COMMENT"));
 		commandResponseParser.setSampleCommandResponse((String)row.get("SAMPLE_COMMAND_RESPONSE"));
 		commandResponseParser.setScriptName((String)row.get("SCRIPT_NAME"));
-		commandResponseParsersList.add(commandResponseParser);
 //		System.out.println("ServerCommandLinksDAO..findCommandResponseParser : " + commandResponseParser.toString());		
 		return  commandResponseParser;
 	}
@@ -93,7 +91,7 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 				.addValue("selectionValue", selectionValue);
 
 //		System.out.println(" findCommandResponseParsers : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
-		List<CommandResponseParser> commandResponseParsersList = new ArrayList<CommandResponseParser>();
+		List<CommandResponseParser> commandResponseParsersList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -122,14 +120,12 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
-				new Object[] {
-						commandResponseParser.getScriptName(), 			
-						commandResponseParser.getMetricTxnType(),		
-						commandResponseParser.getMetricNameSuffix(),		
-						commandResponseParser.getScript(),		
-						commandResponseParser.getComment(),		
-						commandResponseParser.getSampleCommandResponse()		
-				});
+				commandResponseParser.getScriptName(),
+				commandResponseParser.getMetricTxnType(),
+				commandResponseParser.getMetricNameSuffix(),
+				commandResponseParser.getScript(),
+				commandResponseParser.getComment(),
+				commandResponseParser.getSampleCommandResponse());
 	}
 	
 	
@@ -142,15 +138,13 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		
 		jdbcTemplate.update(sql,
-				new Object[] {
-						commandResponseParser.getScriptName(), 			
-						commandResponseParser.getMetricTxnType(),		
-						commandResponseParser.getMetricNameSuffix(),		
-						commandResponseParser.getScript(),		
-						commandResponseParser.getComment(),	
-						commandResponseParser.getSampleCommandResponse(),							
-						commandResponseParser.getScriptName() 				
-				});
+				commandResponseParser.getScriptName(),
+				commandResponseParser.getMetricTxnType(),
+				commandResponseParser.getMetricNameSuffix(),
+				commandResponseParser.getScript(),
+				commandResponseParser.getComment(),
+				commandResponseParser.getSampleCommandResponse(),
+				commandResponseParser.getScriptName());
 	}	
 	
 	

@@ -87,7 +87,7 @@ public class GatlingRun extends PerformanceTest  {
 
 
 	private void loadTestTransactionDataFromGatlingSimulationLog(String application, String inputdirectory, String ignoredErrors, String simulationLog, String simlogCustom) {
-		int sampleCount = 0;
+		int sampleCount;
 		
 		try {
 			File simulationLogFile = new File(inputdirectory + "/" + simulationLog);
@@ -109,7 +109,7 @@ public class GatlingRun extends PerformanceTest  {
 	 */
 	private int loadTestTransactionDataFromGatlingSimulationLogFile(File simulationLogFile, String application, String ignoredErrors, String simlogCustom) throws IOException {
 
-		List<TestTransaction> testTransactionList = new ArrayList<TestTransaction>();
+		List<TestTransaction> testTransactionList = new ArrayList<>();
 		long startLoadms = System.currentTimeMillis(); 
 		System.out.println("\n\nProcessing Gatling Simulation Log File " + simulationLogFile.getName() + " at " + new Date(startLoadms));					
 		int lineCount = 0; 
@@ -219,7 +219,7 @@ public class GatlingRun extends PerformanceTest  {
 
 
 	private String[] csvReadNextLine( CSVReader csvReader, File inputCsvFileName) throws IOException {
-		String[] csvDataLineFields = null;
+		String[] csvDataLineFields;
 		try {
 			csvDataLineFields = csvReader.readNext();
 		} catch (CsvValidationException e) {
@@ -234,9 +234,9 @@ public class GatlingRun extends PerformanceTest  {
 
 	
 	private void lineCountProgressDisplay(int lineCount) {
-		if ( (lineCount % 1000 )   == 0 ){	System.out.print("^");};
-		if ( (lineCount % 100000 ) == 0 ){	System.out.println();};
-	}
+		if ( (lineCount % 1000 )   == 0 ){	System.out.print("^");}
+        if ( (lineCount % 100000 ) == 0 ){	System.out.println();}
+    }
 	
 	
 	private void addSampleToTestTransactionList(List<TestTransaction> testTransactionList, String[] csvDataLineFields, String application, List<String> ignoredErrorsList){

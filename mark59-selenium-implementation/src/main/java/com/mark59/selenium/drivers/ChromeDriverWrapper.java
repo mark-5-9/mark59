@@ -19,9 +19,8 @@ package com.mark59.selenium.drivers;
 import java.io.File;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
@@ -44,6 +43,7 @@ public class ChromeDriverWrapper extends SeleniumDriverWrapper {
 		super(dataPackage);
 	}
 
+	
 	@Override
 	public String getDriverLogs() {
 		if (!this.getDriverPackage().manage().logs().getAvailableLogTypes().contains(LogType.PERFORMANCE))
@@ -54,7 +54,7 @@ public class ChromeDriverWrapper extends SeleniumDriverWrapper {
 		StringBuilder compoundLogBuilder = new StringBuilder();
 
 		for (LogEntry entry : logs) {
-			compoundLogBuilder.append(entry.toString() + "\n");
+			compoundLogBuilder.append(entry.toString()).append("\n");
 		}
 
 		return compoundLogBuilder.toString();
@@ -70,21 +70,23 @@ public class ChromeDriverWrapper extends SeleniumDriverWrapper {
 	}
 
 	
+	@Override
 	public void writeDriverLogs(String textFileName) {
-		if (LOG.isTraceEnabled()) LOG.trace(Thread.currentThread().getName() + " : writing driver log, (partial) name " + textFileName );		
-				
-		String compoundLog = this.getDriverLogs();
-		
-		ScreenshotLoggingHelper.writeScreenshotLog(new File(ScreenshotLoggingHelper.buildFullyQualifiedImageName(textFileName, "txt")) , 
-																StringUtils.isNotBlank(compoundLog) ? compoundLog.getBytes() : null);
+		if (LOG.isTraceEnabled())
+			LOG.trace(Thread.currentThread().getName() + " : writing driver log, (partial) name " + textFileName);
+
+		if (this.getDriverLogs() != null) {
+			ScreenshotLoggingHelper.writeScreenshotLog(
+					new File(ScreenshotLoggingHelper.buildFullyQualifiedImageName(textFileName, "txt")), this.getDriverLogs().getBytes());
+		}
 	}
 	
 	
+	@Override	
 	public void bufferDriverLogs(String textFileName) {
-		bufferedArtifacts.put(ScreenshotLoggingHelper.buildFullyQualifiedImageName(textFileName, "txt"), this.getDriverLogs().getBytes() );
-	};	
-	
-	
-	
-	
+		if (this.getDriverLogs() != null) {
+			bufferedArtifacts.put(ScreenshotLoggingHelper.buildFullyQualifiedImageName(textFileName, "txt"), this.getDriverLogs().getBytes() );
+		}
+	}
+
 }

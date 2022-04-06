@@ -63,9 +63,11 @@ public class Elemental {
 		return waitUntilConditionReturnsWebElements(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
 	}
 		
-	
 	public Elemental click() {
-		waitForAndFindElement().click();
+		WebElement webElement = waitForAndFindElement(); 
+		if (webElement != null ) {
+			webElement.click();
+		}
 		return this;
 	}
 	

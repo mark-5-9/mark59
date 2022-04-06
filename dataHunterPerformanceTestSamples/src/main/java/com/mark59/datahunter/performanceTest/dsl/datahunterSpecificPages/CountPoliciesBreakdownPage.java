@@ -37,21 +37,18 @@ public class CountPoliciesBreakdownPage extends _GenericPage  {
 
 	public InputTextElement application() {
 		return new InputTextElement(driver, By.id("application"));
-	};	
+	}
 	public DropdownList applicationStartsWithOrEquals() {
 		return new DropdownList(driver, By.id("applicationStartsWithOrEquals"));
-	};	
-	public InputTextElement lifecycle() {
+	}
+
+    public InputTextElement lifecycle() {
 		return new InputTextElement(driver, By.id("lifecycle"));
-	};
+	}
 	public DropdownList useability() {
 		return new DropdownList(driver, By.id("useability"));
-	};
+	}
 	public SubmitBtn submit() {
 		return new SubmitBtn(driver, By.id("submit"));
-	};		
-	
-	
-	
-	
+	}
 }

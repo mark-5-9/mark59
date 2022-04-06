@@ -16,7 +16,7 @@
 
 package com.mark59.datahunter.performanceTest.scripts;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -44,7 +44,7 @@ import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.DeleteM
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.DeleteMultiplePoliciesPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.NextPolicyActionPage;
 import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages.NextPolicyPage;
-import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages._GenericDatatHunterActionPage;
+import com.mark59.datahunter.performanceTest.dsl.datahunterSpecificPages._GenericDataHunterActionPage;
 import com.mark59.datahunter.performanceTest.dsl.helpers.DslConstants;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
 import com.mark59.selenium.corejmeterimpl.KeepBrowserOpen;
@@ -79,7 +79,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 	
 	@Override
 	protected Map<String, String> additionalTestParameters() {
-		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<String, String>();
+		Map<String, String> jmeterAdditionalParameters = new LinkedHashMap<>();
 		
 		jmeterAdditionalParameters.put(ITERATE_FOR_PERIOD_IN_SECS, 						"25");
 		jmeterAdditionalParameters.put(ITERATE_FOR_NUMBER_OF_TIMES,  					 "0");
@@ -119,7 +119,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 //		// you need to use jm.writeBufferedArtifacts to output BUFFERed data (see end of this method)		
 //		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.BUFFER);
 		
-		lifecycle 	= "thread_" + Thread.currentThread().getName(); ;
+		lifecycle 	= "thread_" + Thread.currentThread().getName();
 //		System.out.println("Thread " + lifecycle + " is running with LOG level " + LOG.getLevel());
 		
 		// Start browser to cater for initial launch time (for Firefox try "about:preferences") 
@@ -128,7 +128,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 
 		dataHunterUrl 		= context.getParameter("DATAHUNTER_URL");
 		application 		= context.getParameter("DATAHUNTER_APPLICATION_ID");
-		forceTxnFailPercent = Integer.valueOf(context.getParameter("FORCE_TXN_FAIL_PERCENT").trim());
+		forceTxnFailPercent = Integer.parseInt(context.getParameter("FORCE_TXN_FAIL_PERCENT").trim());
 		user 				= context.getParameter("USER");
 
 // 		delete any existing policies for this application/thread combination
@@ -136,8 +136,8 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");	
 		
-		DeleteMultiplePoliciesPage deleteMultiplePoliciesPage = new DeleteMultiplePoliciesPage(driver); 
-		assertTrue("check init get url failed!", "Delete Multiple Items".equals(deleteMultiplePoliciesPage.getPageTitle()));		
+		DeleteMultiplePoliciesPage deleteMultiplePoliciesPage = new DeleteMultiplePoliciesPage(driver);
+		assertEquals("check init get url failed!", "Delete Multiple Items", deleteMultiplePoliciesPage.getPageTitle());
 		deleteMultiplePoliciesPage.lifecycle().type(lifecycle);
 
 		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");		
@@ -162,7 +162,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		addPolicyPage.lifecycle().type(lifecycle);
 		addPolicyPage.useability().selectByVisibleText(DslConstants.UNUSED) ;
 		addPolicyPage.otherdata().type(user);		
-		addPolicyPage.epochtime().type(new String(Long.toString(System.currentTimeMillis())));
+		addPolicyPage.epochtime().type(Long.toString(System.currentTimeMillis()));
 		//jm.writeScreenshot("add_policy_" + policy.getIdentifier());
 		
 		jm.startTransaction("DH_lifecycle_0200_addPolicy");
@@ -192,7 +192,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		waitForSqlResultsTextOnActionPageAndCheckOk(countPoliciesActionPage);
 		jm.endTransaction("DH_lifecycle_0300_countUnusedPolicies");
 		
-		Long countPolicies = Long.valueOf( countPoliciesActionPage.rowsAffected().getText());
+		long countPolicies = Long.parseLong(countPoliciesActionPage.rowsAffected().getText());
 		LOG.debug( "countPolicies : " + countPolicies); 
 		jm.userDataPoint(application + "_Total_Unused_Policy_Count", countPolicies);
 		
@@ -280,7 +280,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 	 * At first glance this may seem not to have any 'wait for element' conditions.  However the 'getText()'
 	 * method (indirectly) invokes a Fluent Wait condition 
 	 */
-	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDatatHunterActionPage _genericDatatHunterActionPage) {
+	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDataHunterActionPage _genericDatatHunterActionPage) {
 		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();
 		if (!"PASS".equals(sqlResultText)) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ") : " +
@@ -300,7 +300,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 	 *     
 	 * For logging details see @Log4jConfigurationHelper 
 	 */
-	public static void main(String[] args) throws InterruptedException{
+	public static void main(String[] args) {
 		Log4jConfigurationHelper.init(Level.INFO) ;
 		DataHunterLifecycleIteratorPvtScript thisTest = new DataHunterLifecycleIteratorPvtScript();
 

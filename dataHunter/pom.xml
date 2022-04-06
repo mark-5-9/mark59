@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.2</version>
+		<version>2.6.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mark59</groupId>
 	<artifactId>dataHunter</artifactId>
 	<packaging>war</packaging>
-	<version>4.1</version>
+	<version>4.2</version>
 	<name>dataHunter</name>
 
 	<properties>
@@ -52,6 +52,11 @@
 			<artifactId>tomcat-embed-jasper</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>mysql</groupId>
@@ -67,29 +72,84 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-        	<version>2.0.206</version><!--$NO-MVN-MAN-VER$-->
+        	<version>2.1.210</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>	
 	
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.springframework.boot</groupId> -->
-<!-- 			<artifactId>spring-boot-starter-test</artifactId> -->
-<!-- 			<scope>test</scope> -->
-<!-- 		</dependency> -->
+		<!-- the following only required for testing -->
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 
 	<build>
+
+		<!-- goals: clean package  (install phase not needed as the maven-install-plugin runs in the package phase) -->
+
 		<plugins>
-			<!-- spring boot maven plugin --> 
-			<!-- phase/goals:  clean package -->
-			<!-- Constructs a war built during the package phase 
-			     (a Maven install can be executed to place classes in the local repo)  -->
+
+			<!-- override spring boot managed version maven-compiler-plugin.version (3.8.1), added due to corporate log4j security scans -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.1</version><!--$NO-MVN-MAN-VER$-->
+			</plugin>
+
+			<!-- spring boot maven plugin -->
+			<!-- Constructs the DataHunter Spring Boot War during the package phase. -->
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<finalName>${project.artifactId}</finalName>
+				</configuration>
 			</plugin>
+
+			<!-- maven jar plugin and install plugins -->
+			<!-- In conjunction, these two plugins compile the classes into a jar file, and then 'install' the jar
+			     into the local repository. The jar can then be referenced (via a pom entry) to resolve dependencies
+			     in projects requiring classes from this project.  Note the 'prepare-package' phase is used in the 
+			     maven jar plugin (rather than 'compile' or 'package') to bypass an annoying eclipse error -->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>create-a-jar</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>Add-to-local-repository</id>
+						<phase>package</phase>
+						<configuration>
+							<packaging>jar</packaging>
+							<file>${project.build.directory}\${project.artifactId}.jar</file>
+						</configuration>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 		<finalName>${project.artifactId}</finalName>
+
 	</build>
 
 </project>

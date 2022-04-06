@@ -301,5 +301,6 @@ timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success
 1589526117560,130,DH_lifecycle_0500_useNextPolicy,200,PASS,DataHunterLifecycleIterator 2-2,,true,,0,0,1,1,null,0,COMPUTER0,0,0
 1589526117690,27,DH_lifecycle_0001_gotoDeleteMultiplePoliciesUrl,200,PASS,DataHunterLifecycleIterator 2-2,,true,,0,0,1,1,null,0,COMPUTER0,0,0
 1589526117858,124,DH_lifecycle_0100_deleteMultiplePolicies,200,PASS,DataHunterLifecycleIterator 2-2,,true,,0,0,1,1,null,0,COMPUTER0,0,0
+1589526117859,123,verylongtransactionnamesover128charsneedtobetruncatedandelipsesthingsputattheendPrettyDumbButcatchesmoreobsuresituationwhneaurlnowover128chars,200,PASS,MockedUp 1-1,,true,,0,0,1,1,null,0,COMPUTER0,0,0
 1589526121967,66117,DH_lifecycle_9999_finalize_deleteMultiplePolicies,200,MOCKUP,DataHunterLifecycleIterator 2-2,,false,mockedupfail,0,0,1,1,null,0,COMPUTER0,0,0
 1589526121968,55117,DH_lifecycle_9999_finalize_deleteMultiplePolicies,200,PASS,DataHunterLifecycleIterator 2-2,,true,,0,0,1,1,null,0,COMPUTER0,0,0

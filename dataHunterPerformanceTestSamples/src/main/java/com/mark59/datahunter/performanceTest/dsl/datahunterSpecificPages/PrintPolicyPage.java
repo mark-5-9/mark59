@@ -36,16 +36,16 @@ public class PrintPolicyPage extends _GenericPage  {
 
 	public InputTextElement application() {
 		return new InputTextElement(driver, By.id("application"));
-	};
+	}
 	public InputTextElement identifier() {
 		return new InputTextElement(driver, By.id("identifier"));
-	};	
+	}
 	public InputTextElement lifecycle() {
 		return new InputTextElement(driver, By.id("lifecycle"));
-	};
+	}
 		
 	public SubmitBtn submit() {
 		return new SubmitBtn(driver, By.id("submit"));
-	};		
+	}
 	
 }

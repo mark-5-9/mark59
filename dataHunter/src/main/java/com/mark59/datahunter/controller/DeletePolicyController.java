@@ -55,7 +55,7 @@ public class DeletePolicyController {
 		DataHunterUtils.expireSession(httpServletRequest);
 		
 		SqlWithParms sqlWithParms = policiesDAO.constructDeletePoliciesSql(policySelectionCriteria);
-		int rowsAffected = 0;
+		int rowsAffected;
 		
 		model.addAttribute("sql", sqlWithParms);
 		
@@ -74,10 +74,10 @@ public class DeletePolicyController {
 			model.addAttribute("sqlResultText", "sql execution OK");
 		} else if (rowsAffected == 0 ){
 			model.addAttribute("sqlResult", "PASS");			
-			model.addAttribute("sqlResultText", "no rows matching the selection - so nothing was deleted from the database");
+			model.addAttribute("sqlResultText", "No rows matching the selection.");
 		} else {
-			model.addAttribute("sqlResult", "PASS");		
-			model.addAttribute("sqlResultText", "sql execution OK: Note that mulitple rows ( "  + rowsAffected + " ) have been affected (deleted)" );
+			model.addAttribute("sqlResult", "FAIL");		
+			model.addAttribute("sqlResultText", "sql execution : Error. Mulitple rows ( "  + rowsAffected + " ) have been affected (deleted)" );
 		}
 		return new ModelAndView("/delete_policy_action", "model", model);
 	}

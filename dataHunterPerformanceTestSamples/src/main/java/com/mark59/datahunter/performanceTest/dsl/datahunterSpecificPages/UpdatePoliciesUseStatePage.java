@@ -37,21 +37,21 @@ public class UpdatePoliciesUseStatePage extends _GenericPage  {
 		
 	public InputTextElement application() {
 		return new InputTextElement(driver, By.id("application"));
-	};	
+	}
 	public InputTextElement identifier() {
 		return new InputTextElement(driver, By.id("identifier"));
-	};	
+	}
 	public DropdownList useability() {
 		return new DropdownList(driver, By.id("useability"));
-	};
+	}
 	public DropdownList toUseability() {
 		return new DropdownList(driver, By.id("toUseability"));
-	};
+	}
 	public InputTextElement epochtime() {
 		return new InputTextElement(driver, By.id("epochtime"));
-	};
+	}
 	public SubmitBtn submit() {
 		return new SubmitBtn(driver, By.id("submit"));
-	};		
+	}
 
 }

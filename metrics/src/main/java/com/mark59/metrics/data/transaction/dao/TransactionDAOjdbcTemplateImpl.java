@@ -70,12 +70,12 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
-				new Object[] { transaction.getApplication(), transaction.getRunTime(), 
+				transaction.getApplication(), transaction.getRunTime(),
 				transaction.getTxnId(), transaction.getTxnType(), transaction.getIsCdpTxn(),
 				transaction.getTxnMinimum(), transaction.getTxnAverage(), transaction.getTxnMedian(), transaction.getTxnMaximum(),
 				transaction.getTxnStdDeviation(), transaction.getTxn90th(), transaction.getTxn95th(), transaction.getTxn99th(),
-				transaction.getTxnPass(), transaction.getTxnFail(), transaction.getTxnStop(), 
-				transaction.getTxnFirst(), transaction.getTxnLast(), transaction.getTxnSum(), transaction.getTxnDelay() });
+				transaction.getTxnPass(), transaction.getTxnFail(), transaction.getTxnStop(),
+				transaction.getTxnFirst(), transaction.getTxnLast(), transaction.getTxnSum(), transaction.getTxnDelay());
 	}
 	
 	
@@ -109,7 +109,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	@Override
 	public List<Transaction> getUniqueListOfTransactionsByType(String application) {
 		// bit of a hack using the 'transaction' bean (should be a new form bean really...)
-		List<Transaction> transactionKeyList = new ArrayList<Transaction>();
+		List<Transaction> transactionKeyList = new ArrayList<>();
 		
 		String sql = "SELECT DISTINCT TXN_ID, TXN_TYPE, IS_CDP_TXN, MAX(RUN_TIME) AS MAX_RUN_TIME, COUNT(*) AS TXN_COUNT "
 					+ "FROM TRANSACTION "
@@ -134,7 +134,9 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 			transactionKey.setTxnPass((Long)row.get("TXN_COUNT"));   // hack 
 			try {
 				transactionKey.setTxnIdURLencoded(URLEncoder.encode(transactionKey.getTxnId(), "UTF-8")) ;
-			} catch (UnsupportedEncodingException e) {	e.printStackTrace();	}	  
+			} catch (UnsupportedEncodingException e) {
+				System.out.println("Transaction Dao UnsupportedEncodingException (" + transactionKey.getTxnId() + ") " + e.getMessage());
+			}	  
 			transactionKeyList.add(transactionKey);
 		}	
 		return transactionKeyList;		
@@ -146,7 +148,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	 */
 	@Override	
 	public long countRunsWithCdpTransactions(String application) {
-		Long rowCount;
+		long rowCount;
 		
 		String sql =  "SELECT COUNT(DISTINCT R.RUN_TIME) FROM RUNS R, TRANSACTION T "    
 				   + " WHERE R.APPLICATION = :application " 
@@ -160,7 +162,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 				.addValue("txnType", Mark59Constants.DatabaseTxnTypes.TRANSACTION.name());
 		
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-		rowCount = Long.valueOf(jdbcTemplate.queryForObject(sql, sqlparameters, String.class));
+		rowCount = Long.parseLong(jdbcTemplate.queryForObject(sql, sqlparameters, String.class));
 //		System.out.println("countRunsWithCdpTransactions sql = " + sql + ", rowCount = " + rowCount );
 		return rowCount;
 	}
@@ -171,7 +173,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	 */
 	@Override	
 	public long countRunsContainsBothTxnIds(String application, String txnType, String fromTxnId, String toTxnId, String fromIsCdpTxn, String toIsCdpTxn){
-		Long rowCount;
+		long rowCount;
 		
 		String sql =  "SELECT COUNT(DISTINCT R.RUN_TIME) FROM RUNS R, TRANSACTION T "    
 				   + " WHERE R.APPLICATION = :application " 
@@ -194,14 +196,14 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 				.addValue("toIsCdpTxn", toIsCdpTxn);
 		
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-		rowCount = Long.valueOf(jdbcTemplate.queryForObject(sql, sqlparameters, String.class));
+		rowCount = Long.parseLong(jdbcTemplate.queryForObject(sql, sqlparameters, String.class));
 //		System.out.println("countRunsContainsBothTxnIds sql = " + sql + ", rowCount = " + rowCount );
 		return rowCount;
 	}	
 	
 	
 	/**
-	 *  Validation should be done before the rename (see {@link #countRunsContainsBothTxnIds(String, String, String, String, String)}. 
+	 *  Validation should be done before the rename (see {@link #countRunsContainsBothTxnIds(String, String, String, String, String, String)}
 	 */
 	@Override
 	public void renameTransactions(String application, String txnType, String fromTxnId, String toTxnId, String fromIsCdpTxn, String toIsCdpTxn) {
@@ -229,7 +231,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 
 	@Override
 	public Object getTransactionValue(String application, String txnType, String isCdpTxn, String runTime, String txnId, String transactionField) {
-		List<Object> transactionValues =  new ArrayList<Object>();  
+		List<Object> transactionValues = new ArrayList<>();
 
 		String sql = "SELECT " + transactionField + " FROM TRANSACTION " +
 										  	   "WHERE APPLICATION = :application AND " +
@@ -343,8 +345,8 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
-		Map<Transaction, BigDecimal> transactionListOrderedByValue = new LinkedHashMap<Transaction, BigDecimal>();
-		BigDecimal rankedValue = null;
+		Map<Transaction, BigDecimal> transactionListOrderedByValue = new LinkedHashMap<>();
+		BigDecimal rankedValue;
 		
 		for (Map row : rows) {
 			Transaction transaction = getTransaction((String)row.get("APPLICATION"),
@@ -360,9 +362,8 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 			}	
 			transactionListOrderedByValue.put(transaction, rankedValue);
 		}
-		
-		List<Transaction> listOfTransactionsToGraph = selectTopNthRankedTransactionsByValue(transactionListOrderedByValue, nthRankedTxn);  
-		return listOfTransactionsToGraph;
+
+		return selectTopNthRankedTransactionsByValue(transactionListOrderedByValue, nthRankedTxn);
 	}
 
 	
@@ -393,10 +394,10 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 			
 			if (! manuallySelectTxns ){
 
-				if (sqlSelectLike != "%" ){
+				if (!"%".equals(sqlSelectLike) ){					
 					sql = sql + " AND TXN_ID LIKE :sqlSelectLike ";  
 				}
-				if (sqlSelectNotLike != "" ){
+				if (StringUtils.isNotBlank(sqlSelectNotLike)){
 					sql = sql + " AND NOT (TXN_ID LIKE :sqlSelectNotLike ) ";  
 				}
 				if (Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals( graphMapping.getTxnType() )){ 
@@ -417,11 +418,11 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 	
 	private List<Transaction> selectTopNthRankedTransactionsByValue(Map<Transaction, BigDecimal> transactionIdsOrderedByValue, String nthRankedTxn) {
 		//System.out.println("** transactionIdsOrderedByValue map " +  Mark59Utils.prettyPrintMap(transactionIdsOrderedByValue));		
-		List<Transaction> selectedTransactions = new ArrayList<Transaction>();
+		List<Transaction> selectedTransactions = new ArrayList<>();
 		Integer nthRankedTxnInt = convertRankingStrToInt(nthRankedTxn);
 		
 		boolean nthRankedTxnNotReached = true;
-		BigDecimal nthRankedValue = null;  ;
+		BigDecimal nthRankedValue = null;
 		int listPosition = 0;
 		Iterator<Entry<Transaction, BigDecimal>>  valueOrderedIterator = transactionIdsOrderedByValue.entrySet().iterator();
 		
@@ -435,7 +436,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 				nthRankedValue = orderedEntry.getValue();
 			}
 			if (listPosition > nthRankedTxnInt ) {
-				if (orderedEntry.getValue().equals(nthRankedValue) ) {  // equal values at Nth included
+				if (orderedEntry.getValue().compareTo(nthRankedValue) == 0 ) {   // equal values at Nth included
 					selectedTransactions.add(orderedEntry.getKey());
 				} else {
 					nthRankedTxnNotReached = false;
@@ -450,7 +451,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		if (nthRankedTxn == null) return Integer.MAX_VALUE;
 		if (AppConstantsMetrics.ALL.equalsIgnoreCase(nthRankedTxn)) return Integer.MAX_VALUE;
 		try {
-			Integer nthRankedTxnInt = Integer.parseInt(nthRankedTxn);
+			int nthRankedTxnInt = Integer.parseInt(nthRankedTxn);
 			if (nthRankedTxnInt <= 0)  return Integer.MAX_VALUE; 
 			return nthRankedTxnInt;
 		} catch (NumberFormatException e) {
@@ -465,8 +466,8 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 			List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph) {
 
 		// System.out.println("** in findDatapointsToGraph for : " + application ) ;
-		List<Datapoint> datapoints =  new ArrayList<Datapoint>();  
-		Object datapointMetric = null;
+		List<Datapoint> datapoints = new ArrayList<>();
+		Object datapointMetric;
 		
 		if (StringUtils.isEmpty(chosenRuns) || (listOfStdTransactionNamesToGraph.size() + listOfCdpTransactionNamesToGraph.size()) == 0 ){
 			return datapoints;
@@ -494,8 +495,8 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		sqlparameters.addValue("application", application);
 		sqlparameters.addValue("graphMappingGetTxnType", graphMapping.getTxnType());
 		sqlparameters.addValue("chosenRuns", Mark59Utils.commaDelimStringToStringSet(chosenRuns));
-		sqlparameters.addValue("listOfStdTransactionNamesToGraph", new HashSet<String>(listOfStdTransactionNamesToGraph));
-		sqlparameters.addValue("listOfCdpTransactionNamesToGraph", new HashSet<String>(listOfCdpTransactionNamesToGraph));
+		sqlparameters.addValue("listOfStdTransactionNamesToGraph", new HashSet<>(listOfStdTransactionNamesToGraph));
+		sqlparameters.addValue("listOfCdpTransactionNamesToGraph", new HashSet<>(listOfCdpTransactionNamesToGraph));
 
 		// System.out.println(" TransactionDAOjdbcTemplateImpl:findDatapointsToGraph sql : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
 		
@@ -503,14 +504,14 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		int numRunsBeingGraphed = 0;   // eg, for initial request..
-		if (chosenRuns != ""  ){
+		if (StringUtils.isNotBlank(chosenRuns)){
 			numRunsBeingGraphed = StringUtils.countMatches(chosenRuns, ",") + 1;  
 		} else {
 			System.out.println(" ****** no chosen runs passed to findDatapointsToGraph!!!!!   Application was " + application);
 		}
 		
 		int runTimeCount = 0;
-		String runTime = "";
+		String runTime;
 		String prevRunTime = "";
 
 		for (int i = 0; i < rows.size()  &&  runTimeCount <= numRunsBeingGraphed ; i++) {
@@ -522,7 +523,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 			datapoint.setTxnId((String)row.get("TXN_ID"));
 			
 			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
-				datapoint.setTxnId((String)row.get("TXN_ID") + AppConstantsMetrics.CDP_TAG);  
+				datapoint.setTxnId(row.get("TXN_ID") + AppConstantsMetrics.CDP_TAG);
 			} else {
 				datapoint.setTxnId((String)row.get("TXN_ID"));
 			}

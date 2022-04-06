@@ -16,7 +16,6 @@
 
 package com.mark59.servermetricsweb.controller;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,8 +67,6 @@ import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb;
 import com.mark59.servermetricsweb.utils.AppConstantsServerMetricsWeb.CommandExecutorDatatypes;
 import com.mark59.servermetricsweb.utils.ServerMetricsWebUtils;
 
-
-
 /**
  * @author Philip Webb
  * Written: Australian Summer 2020  
@@ -97,8 +94,6 @@ public class ServerProfileController {
 	BaseDAO baseDAO; 
 	
 	
-	
-	
 	@GetMapping("/downloadServerProfiles")
 	public ResponseEntity<ByteArrayResource> downloadServerProfiles() {
 		try {
@@ -117,8 +112,6 @@ public class ServerProfileController {
 	
 	
 	public ByteArrayOutputStream serverProfilesToExcelFile() throws IOException {
-		int columnCount = 0;
-		int rowIndex = 0;
 		
 		Workbook workbook = new XSSFWorkbook();
 		CellStyle headerCellStyle = workbook.createCellStyle();
@@ -129,7 +122,6 @@ public class ServerProfileController {
 		headerCellStyle.setFont(headerFont);
 		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		
-		
 		Sheet sheet = workbook.createSheet("SERVERPROFILES");
 
 		DataFormat fmt = workbook.createDataFormat();
@@ -137,13 +129,12 @@ public class ServerProfileController {
 		textStyle.setDataFormat(fmt.getFormat("@"));
 		sheet.setDefaultColumnStyle(0, textStyle);
 		
-		columnCount = createHeaderRow(sheet, headerCellStyle, "SERVERPROFILES");
-		rowIndex = 1;
+		int columnCount = createHeaderRow(sheet, headerCellStyle, "SERVERPROFILES");
+		int rowIndex = 1;
 		List<ServerProfile> serverProfiles = serverProfilesDAO.findServerProfiles();
+		
 		for (ServerProfile serverProfile : serverProfiles) {
 			Row dataRow = sheet.createRow(rowIndex);
-			
-			// System.out.println("serverProfile [" + serverProfile + "]" ); 
 			dataRow.createCell(0).setCellValue(serverProfile.getServerProfileName());			
 			dataRow.createCell(1).setCellValue(serverProfile.getExecutor());
 			dataRow.createCell(2).setCellValue(serverProfile.getServer());
@@ -158,7 +149,6 @@ public class ServerProfileController {
 			rowIndex++;
 		}
 		autoSizeColumns(sheet, columnCount);
-
 		
 		sheet = workbook.createSheet("SERVERCOMMANDLINKS");
 		columnCount = createHeaderRow(sheet, headerCellStyle, "SERVERCOMMANDLINKS");
@@ -171,7 +161,6 @@ public class ServerProfileController {
 			rowIndex++;
 		}
 		autoSizeColumns(sheet, columnCount);
-
 		
 		sheet = workbook.createSheet("COMMANDS");
 		columnCount = createHeaderRow(sheet, headerCellStyle, "COMMANDS");
@@ -189,7 +178,6 @@ public class ServerProfileController {
 		}
 		autoSizeColumns(sheet, columnCount);
 	
-		
 		sheet = workbook.createSheet("COMMANDPARSERLINKS");
 		columnCount = createHeaderRow(sheet, headerCellStyle, "COMMANDPARSERLINKS");
 		rowIndex = 1;
@@ -202,7 +190,6 @@ public class ServerProfileController {
 		}
 		autoSizeColumns(sheet, columnCount);
 	
-		
 		sheet = workbook.createSheet("COMMANDRESPONSEPARSERS");
 		columnCount = createHeaderRow(sheet, headerCellStyle, "COMMANDRESPONSEPARSERS");
 		rowIndex = 1;
@@ -243,7 +230,6 @@ public class ServerProfileController {
 		}
 	}
 	
-	
 
 	@RequestMapping("/registerServerProfile")
 	public ModelAndView registerServerProfile(@RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr, 
@@ -255,7 +241,7 @@ public class ServerProfileController {
 
 		ServerProfileWithCommandLinks serverProfileWithCommandLinks = serverProfileAddSelectedCommandLinks(serverProfile);
 		
-		serverProfileEditingForm.setCommandSelectors(new ArrayList<CommandSelector>());
+		serverProfileEditingForm.setCommandSelectors(new ArrayList<>());
 		
 		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
 			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
@@ -295,11 +281,11 @@ public class ServerProfileController {
 			serverProfileEditingForm.setSelectedExecutorChanged("false");
 			serverProfileEditingForm.setSelectedScriptCommandNameChanged("false");
 			serverProfileEditingForm.setSelectedScriptCommandName("");
-			serverProfileEditingForm.setCommandSelectors(new ArrayList<CommandSelector>());
-			serverProfileEditingForm.setCommandNames(new ArrayList<String>());
+			serverProfileEditingForm.setCommandSelectors(new ArrayList<>());
+			serverProfileEditingForm.setCommandNames(new ArrayList<>());
 			
-			serverProfileEditingForm.setCommandParameters(new ArrayList<CommandParameter>());
-			serverProfile.setParameters(new HashMap<String,String>());
+			serverProfileEditingForm.setCommandParameters(new ArrayList<>());
+			serverProfile.setParameters(new HashMap<>());
 
 			if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
 				serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
@@ -315,7 +301,7 @@ public class ServerProfileController {
 					   CommandExecutorDatatypes.WMIC_WINDOWS.getExecutorText().equals(serverProfile.getExecutor())){ 
 				ServerProfileWithCommandLinks blankServerProfileWithCommandLinks = new ServerProfileWithCommandLinks();
 				blankServerProfileWithCommandLinks.setServerProfile(new ServerProfile());
-				blankServerProfileWithCommandLinks.setCommandNames(new ArrayList<String>());
+				blankServerProfileWithCommandLinks.setCommandNames(new ArrayList<>());
 				serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(blankServerProfileWithCommandLinks));
 				if (CommandExecutorDatatypes.SSH_LINIX_UNIX.getExecutorText().equals(serverProfile.getExecutor())){
 					serverProfile.setConnectionPort("22");
@@ -335,7 +321,7 @@ public class ServerProfileController {
 		if ("true".equalsIgnoreCase(serverProfileEditingForm.getSelectedScriptCommandNameChanged())){
 			//back to register profile page with selected Groovy command parms added
 			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
-			List<CommandParameter> commandParameters = new ArrayList<CommandParameter>();
+			List<CommandParameter> commandParameters = new ArrayList<>();
 			Command command = commandsDAO.findCommand(serverProfileEditingForm.getSelectedScriptCommandName());
 			if (command != null) {
 				for (String paramName : command.getParamNames()) {
@@ -365,18 +351,17 @@ public class ServerProfileController {
 			return new ModelAndView("registerServerProfile", "map", map);
 		}
 		
-		
 		ServerProfile existingServerProfile = serverProfilesDAO.findServerProfile(serverProfile.getServerProfileName());
 		
 		if (existingServerProfile == null ){  //not trying to add something already there, so go ahead..
 
-			List<String> commandNames = new ArrayList<String>();
+			List<String> commandNames = new ArrayList<>();
 			if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
 				commandNames.add(serverProfileEditingForm.getSelectedScriptCommandName()); 
 				serverProfile.setParameters(ServerMetricsWebUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
 			} else { // win or nix
 				commandNames = createListOfSelectedCommands(serverProfileEditingForm.getCommandSelectors());
-				serverProfile.setParameters(new HashMap<String,String>());
+				serverProfile.setParameters(new HashMap<>());
 			}
 			
 			serverProfilesDAO.insertServerProfile(serverProfile);
@@ -400,7 +385,7 @@ public class ServerProfileController {
 	@RequestMapping("/serverProfileList")
 	public ModelAndView serverProfileList(@RequestParam(required=false) String reqExecutor) {
 
-		List<ServerProfile> serverProfileList = new ArrayList<ServerProfile>(); 
+		List<ServerProfile> serverProfileList;
 
 		if (!StringUtils.isEmpty(reqExecutor)){
 			serverProfileList = serverProfilesDAO.findServerProfiles("EXECUTOR", reqExecutor);	
@@ -408,19 +393,19 @@ public class ServerProfileController {
 			serverProfileList = serverProfilesDAO.findServerProfiles();	
 		}
 		
-		List<ServerProfileWithCommandLinks> serverProfileWithCommandLinksList = new ArrayList<ServerProfileWithCommandLinks>(); 
+		List<ServerProfileWithCommandLinks> serverProfileWithCommandLinksList = new ArrayList<>();
 		
 		for (ServerProfile serverProfile : serverProfileList) {
 			ServerProfileWithCommandLinks serverProfileWithCommandLinks = serverProfileAddSelectedCommandLinks(serverProfile);
 			serverProfileWithCommandLinksList.add(serverProfileWithCommandLinks);
 		}		
 		
-		List<String> commandExecutors = new ArrayList<String>();
+		List<String> commandExecutors = new ArrayList<>();
 		commandExecutors.add("");
 		commandExecutors.addAll(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
 		
 		
-		Map<String, Object> parmsMap = new HashMap<String, Object>();
+		Map<String, Object> parmsMap = new HashMap<>();
 		parmsMap.put("serverProfileWithCommandLinksList", serverProfileWithCommandLinksList);
 		parmsMap.put("commandExecutors",commandExecutors);	
 		parmsMap.put("reqExecutor", reqExecutor);
@@ -452,7 +437,6 @@ public class ServerProfileController {
 		model.addAttribute("map", map);		
 		return "viewServerProfile";
 	}
-	
 	
 	
 	@RequestMapping("/copyServerProfile")
@@ -506,51 +490,51 @@ public class ServerProfileController {
 		return "editServerProfile";
 	}
 
-
-
 	@RequestMapping("/updateServerProfile")
-  public ModelAndView updateServerProfile(@RequestParam(required=false) String reqExecutor, @ModelAttribute ServerProfileEditingForm serverProfileEditingForm) {
-	
+	public ModelAndView updateServerProfile(@RequestParam(required = false) String reqExecutor,
+			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm) {
+
 //		System.out.println("updateServerProfile cmd change : " + serverProfileEditingForm.getSelectedScriptCommandNameChanged() );
 //		System.out.println("updateServerProfile cmd        : " + serverProfileEditingForm.getSelectedScriptCommandName());
-		
-		if ("true".equalsIgnoreCase(serverProfileEditingForm.getSelectedScriptCommandNameChanged())){
-			//rebuild form with the newly selected cmd params
+
+		if ("true".equalsIgnoreCase(serverProfileEditingForm.getSelectedScriptCommandNameChanged())) {
+			// rebuild form with the newly selected cmd params
 			serverProfileEditingForm.setCommandNames(createListOfAllGroovyScriptCommands());
-			
+
 			Command command = commandsDAO.findCommand(serverProfileEditingForm.getSelectedScriptCommandName());
-			List<CommandParameter> commandParameters = new ArrayList<CommandParameter>();
-			if (command != null ) {
+			List<CommandParameter> commandParameters = new ArrayList<>();
+			if (command != null) {
 				for (String paramName : command.getParamNames()) {
-					commandParameters.add(new CommandParameter(paramName, "") );
-				} 
+					commandParameters.add(new CommandParameter(paramName, ""));
+				}
 			}
 			serverProfileEditingForm.setCommandParameters(commandParameters);
-			serverProfileEditingForm.setSelectedScriptCommandNameChanged("false"); ;
-			Map<String, Object> map = new HashMap<String, Object>(); 		
+			serverProfileEditingForm.setSelectedScriptCommandNameChanged("false");
+
+			Map<String, Object> map = new HashMap<>();
 			map.put("reqExecutor", reqExecutor);
-			map.put("serverProfileEditingForm", serverProfileEditingForm);		
+			map.put("serverProfileEditingForm", serverProfileEditingForm);
 			return new ModelAndView("editServerProfile", "map", map);
 		}
-		
+
 		ServerProfile serverProfile = serverProfileEditingForm.getServerProfile();
-		List<String> commandNames = new ArrayList<String>();
-		
-		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
-			commandNames.add(serverProfileEditingForm.getSelectedScriptCommandName()); 
-			serverProfile.setParameters(ServerMetricsWebUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
+		List<String> commandNames = new ArrayList<>();
+
+		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())) {
+			commandNames.add(serverProfileEditingForm.getSelectedScriptCommandName());
+			serverProfile.setParameters(
+					ServerMetricsWebUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
 		} else {
 			commandNames = createListOfSelectedCommands(serverProfileEditingForm.getCommandSelectors());
 		}
 		serverProfilesDAO.updateServerProfile(serverProfile);
 		serverCommandLinksDAO.updateServerCommandLinksForServerProfileName(serverProfile.getServerProfileName(), commandNames);
-		
-		Map<String, Object> map = createMapOfDropdowns();			
+
+		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqExecutor", reqExecutor);
-		map.put("serverProfileEditingForm", serverProfileEditingForm);		
+		map.put("serverProfileEditingForm", serverProfileEditingForm);
 		return new ModelAndView("viewServerProfile", "map", map);
 	}
-
 
 	@RequestMapping("/deleteServerProfile")
 	public String deleteServerProfile(@RequestParam String reqServerProfileName, @RequestParam String reqExecutor) {
@@ -558,7 +542,6 @@ public class ServerProfileController {
 		serverProfilesDAO.deleteServerProfile(reqServerProfileName);
 		return "redirect:/serverProfileList?reqExecutor=" + reqExecutor;
 	}
-	
 	
 
 	private String selectedScriptCommandName(ServerProfileWithCommandLinks serverProfileWithCommandLinks) {
@@ -575,11 +558,11 @@ public class ServerProfileController {
 	private ServerProfileWithCommandLinks serverProfileAddSelectedCommandLinks(ServerProfile serverProfile) {
 		ServerProfileWithCommandLinks serverProfileWithCommandLinks = new ServerProfileWithCommandLinks();
 		serverProfileWithCommandLinks.setServerProfile(serverProfile); 
-		serverProfileWithCommandLinks.setCommandNames(new ArrayList<String>());
+		serverProfileWithCommandLinks.setCommandNames(new ArrayList<>());
 		
 		if (serverProfile != null && serverProfile.getServerProfileName() != null ) {
 			List<ServerCommandLink> serverCommandLinkList = serverCommandLinksDAO.findServerCommandLinksForServerProfile(serverProfile.getServerProfileName());
-			List<String> commandNames = new ArrayList<String>();
+			List<String> commandNames = new ArrayList<>();
 			for (ServerCommandLink commandParserLink : serverCommandLinkList) {
 				commandNames.add(commandParserLink.getCommandName());
 			}
@@ -590,7 +573,7 @@ public class ServerProfileController {
 	
 
 	private List<String> createListOfAllGroovyScriptCommands(){
-		List<String> listOfAllGroovyScriptCommandNames = new ArrayList<String>();
+		List<String> listOfAllGroovyScriptCommandNames = new ArrayList<>();
 		listOfAllGroovyScriptCommandNames.add("");
 		for (Command command : commandsDAO.findCommands("EXECUTOR", CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText())) {
 			listOfAllGroovyScriptCommandNames.add(command.getCommandName());
@@ -600,7 +583,7 @@ public class ServerProfileController {
 	
 	
 	private List<CommandSelector> createListOfAllCommandSelectors(ServerProfileWithCommandLinks serverProfileWithCommandLinks){
-		List<CommandSelector> listOfAllCommandSelectors = new ArrayList<CommandSelector>();	
+		List<CommandSelector> listOfAllCommandSelectors = new ArrayList<>();
 			
 		for (Command command : commandsDAO.findCommands()) {
 			CommandSelector commandSelector = new CommandSelector();
@@ -618,22 +601,18 @@ public class ServerProfileController {
 
 	
 	private List<CommandParameter> alignProfileToCurrentCommandParameters(ServerProfile serverProfile, String selectedScriptCommandName){
-		List<CommandParameter> editableParameters = new ArrayList<CommandParameter>();
+		List<CommandParameter> editableParameters = new ArrayList<>();
 		
 		if (StringUtils.isNotBlank(selectedScriptCommandName)  ){
 			
 			Command scriptCommand = commandsDAO.findCommand(selectedScriptCommandName);
 			if (scriptCommand != null ) {
 				
-				Map<String,String> currentProfileParams = serverProfile.getParameters() == null ? new HashMap<String,String>() : serverProfile.getParameters();
-				List<String> commandParmNames = scriptCommand.getParamNames() == null ? new ArrayList<String>() : scriptCommand.getParamNames();
+				Map<String,String> currentProfileParams = serverProfile.getParameters() == null ? new HashMap<>() : serverProfile.getParameters();
+				List<String> commandParmNames = scriptCommand.getParamNames() == null ? new ArrayList<>() : scriptCommand.getParamNames();
 				
 				for (String commandParmName : commandParmNames) {
-					if (currentProfileParams.containsKey(commandParmName)) {
-						editableParameters.add(new CommandParameter(commandParmName, currentProfileParams.get(commandParmName)));
-					} else {
-						editableParameters.add(new CommandParameter(commandParmName, ""));
-					}
+					editableParameters.add(new CommandParameter(commandParmName, currentProfileParams.getOrDefault(commandParmName, "")));
 				}
 			}
 		}
@@ -642,7 +621,7 @@ public class ServerProfileController {
 	
 	
 	private List<String> createListOfSelectedCommands(List<CommandSelector> commandSelectors) {
-		List<String> commandNames = new ArrayList<String>();
+		List<String> commandNames = new ArrayList<>();
 		if (commandSelectors != null) {
 			for (CommandSelector commandSelector : commandSelectors) {
 				if (commandSelector.isCommandChecked()) {
@@ -655,8 +634,8 @@ public class ServerProfileController {
 	
 
 	private Map<String, Object> createMapOfDropdowns() {
-		Map<String, Object> map = new HashMap<String, Object>(); 
-		List<String> listOfCommandExecutors = new ArrayList<String>();
+		Map<String, Object> map = new HashMap<>();
+		List<String> listOfCommandExecutors = new ArrayList<>();
 		listOfCommandExecutors.add("");
 		listOfCommandExecutors.addAll(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
 		map.put("commandExecutors",listOfCommandExecutors);	
