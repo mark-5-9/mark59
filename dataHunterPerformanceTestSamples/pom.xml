@@ -44,19 +44,27 @@
 		</dependency>
 		<!-- End log4j security fix -->	
 	
+		<!-- An entry over-riding the default version of selenium used by mark59-selenium-implementation can be placed here.  May be useful
+		 if the version mark59-selenium-implementation being used falls too far behind the version of chrom(ium) being run (particularly for 
+		 projects implementing CDP).  See the 'Selenium Scripting' chapter in the Mark59 User Guide for further discussion about this.   -->
+		<!-- 	<dependency> -->
+		<!-- 		<groupId>org.seleniumhq.selenium</groupId> -->
+		<!-- 		<artifactId>selenium-java</artifactId> -->
+		<!-- 		<version>4.x.y</version> -->
+		<!-- 	</dependency> -->
 
 		<!-- This entry is not required for this project as it is already included as a dependency of mark59-selenium-sample-dsl (above). 
 		     Including it example for use in projects not referring the sample DSL project, so they will require it -->
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-selenium-implementation</artifactId>
-			<version>4.2</version>
+			<version>4.2.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-selenium-sample-dsl</artifactId>
-			<version>4.2</version>
+			<version>4.2.1</version>
 		</dependency>
 		
 		<dependency>

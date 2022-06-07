@@ -19,6 +19,7 @@ package com.mark59.selenium.drivers;
 import java.io.File;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
@@ -28,6 +29,8 @@ import org.openqa.selenium.logging.LogType;
 import com.mark59.core.utils.ScreenshotLoggingHelper;
 
 /**
+ * 4.2.1 fix: ensure the destructive call to get perfolgs is only made once
+ * 
  * @author Michael Cohen
  * @author Philip Webb
  * Written: Australian Winter 2019  
@@ -75,18 +78,19 @@ public class ChromeDriverWrapper extends SeleniumDriverWrapper {
 		if (LOG.isTraceEnabled())
 			LOG.trace(Thread.currentThread().getName() + " : writing driver log, (partial) name " + textFileName);
 
-		if (this.getDriverLogs() != null) {
-			ScreenshotLoggingHelper.writeScreenshotLog(
-					new File(ScreenshotLoggingHelper.buildFullyQualifiedImageName(textFileName, "txt")), this.getDriverLogs().getBytes());
-		}
+		ScreenshotLoggingHelper.writeScreenshotLog(
+				new File(ScreenshotLoggingHelper.buildFullyQualifiedImageName(textFileName, "txt")), getDriverLogBytes());		
 	}
-	
+
 	
 	@Override	
 	public void bufferDriverLogs(String textFileName) {
-		if (this.getDriverLogs() != null) {
-			bufferedArtifacts.put(ScreenshotLoggingHelper.buildFullyQualifiedImageName(textFileName, "txt"), this.getDriverLogs().getBytes() );
-		}
-	}
+		bufferedArtifacts.put(ScreenshotLoggingHelper.buildFullyQualifiedImageName(textFileName, "txt"), getDriverLogBytes());	}
+	
+	
+	private byte[] getDriverLogBytes() {
+		String allEntriesLog = this.getDriverLogs();
+		return StringUtils.isNotBlank(allEntriesLog) ? allEntriesLog.getBytes() : null;
+	}	
 
 }

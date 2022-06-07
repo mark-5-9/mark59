@@ -5,6 +5,16 @@
 
 ## Releases 
 
+<p>Release 4.2.1<br>
+  <ul>
+    <li>NOTE: this is an interim release to fix a bug, and updates the selenium 
+    framework (for using chrome 102+)</li>		
+    <li>Bug: Perflog was always empty, fixed</li>
+    <li>Selenium to 4.2.1  (same name as release is a coincidence)</li>
+  </ul>  
+
+
+
 <p>Release 4.2<br>
   <ul>
     <li>New DataHunter REST Api project (minor datahuner DB changes made)</li>

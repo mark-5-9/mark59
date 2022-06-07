@@ -31,9 +31,9 @@ import org.openqa.selenium.chromium.ChromiumDriver;
 import org.openqa.selenium.devtools.DevTools;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
 
-import org.openqa.selenium.devtools.v99.network.Network;
-import org.openqa.selenium.devtools.v99.network.model.RequestWillBeSent;
-import org.openqa.selenium.devtools.v99.network.model.ResponseReceived;
+import org.openqa.selenium.devtools.v102.network.Network;
+import org.openqa.selenium.devtools.v102.network.model.RequestWillBeSent;
+import org.openqa.selenium.devtools.v102.network.model.ResponseReceived;
 
 
 
