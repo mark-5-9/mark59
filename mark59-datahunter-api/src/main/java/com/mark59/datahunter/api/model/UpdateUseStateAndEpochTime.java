@@ -29,7 +29,6 @@ public class UpdateUseStateAndEpochTime extends PolicySelectionCriteria   {
 		
 	}
 
-
 	public String getToUseability() {
 		return toUseability;
 	}
@@ -37,7 +36,6 @@ public class UpdateUseStateAndEpochTime extends PolicySelectionCriteria   {
 	public void setToUseability(String toUseability) {
 		this.toUseability = toUseability;
 	}
-
 
 	public Long getToEpochTime() {
 		return toEpochTime;
@@ -47,8 +45,6 @@ public class UpdateUseStateAndEpochTime extends PolicySelectionCriteria   {
 		this.toEpochTime = toEpochTime;
 	}
 
-
-
 	@Override
     public String toString() {
         return  super.toString() + 
@@ -56,6 +52,5 @@ public class UpdateUseStateAndEpochTime extends PolicySelectionCriteria   {
         		", toEpochTime="+ toEpochTime +               		
         		"]";
 	}
-		
 		
 }

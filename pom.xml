@@ -5,31 +5,38 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59</artifactId>
-	<version>4</version>
+	<version>5</version>
 	<packaging>pom</packaging>
 
 	<name>mark59_build_all_projects</name>
 
-	<!-- Mark59 Aggregation POM  ('http://maven.apache.org/pom.html#Aggregation)   
+	<!-- Mark59 Aggregation POM  (refer http://maven.apache.org/pom.html#Aggregation)   
 	
-		 build goals: clean package 
+		 build goals: clean package   ('install' to place all artifacts into local repository)  
 	     
-	     Note that if later planning to build projects individually you may need to run 'install' phases as documented in the project poms as 
-	     some projects are dependent on others (eg dataHunterPerformanceTestSamples is dependent on mark59-selenium-sample-dsl, 
-	     which is dependent on mark59-selenium-implementation, which is dependent on mark59-core) -->	
+	     Note if using package and later plan to build projects individually you may need to run multiple 
+	     install goals as some projects are dependent on others (eg mark59-datahunter-samples is dependent on 
+	     mark59-dsl-samples, which is dependent on mark59-selenium-implementation, which is dependent
+	     on mark59-core) -->	
 
 	<modules>
+		
 		<module>mark59-core</module>
 		<module>mark59-selenium-implementation</module>
-		<module>mark59-selenium-sample-dsl</module>
-		<module>dataHunter</module>		
-		<module>mark59-datahunter-api</module>
-		<module>dataHunterPerformanceTestSamples</module>
-		<module>mark59-server-metrics-web</module>		
-		<module>mark59-server-metrics</module>		
-		<module>metrics</module>		
-		<module>metricsRuncheck</module>		
-		<module>resultFilesConverter</module>		
+
+		<module>mark59-datahunter-api</module>		
+		<module>mark59-datahunter</module>
+		<module>mark59-datahunter-samples</module>
+		<module>mark59-dsl-samples</module>		
+				
+		<module>mark59-metrics</module>		
+		<module>mark59-metrics-api</module>		
+		
+		<module>mark59-trends</module>		
+		<module>mark59-trends-load</module>		
+		
+		<module>mark59-results-splitter</module>		
+	
 	</modules>
 
 </project>

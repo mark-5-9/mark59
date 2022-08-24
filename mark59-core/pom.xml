@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-core</artifactId>
-	<version>4.2</version>
+	<version>5.0</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -20,38 +20,11 @@
 
 
 	<dependencies>
-	
-		<!-- Start log4j security fix -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.17.2</version>
- 			<scope>provided</scope>			
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.17.2</version>
- 			<scope>provided</scope>			
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.17.2</version>
- 			<scope>provided</scope>			
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-1.2-api</artifactId>
-			<version>2.17.2</version>
- 			<scope>provided</scope>			
-		</dependency>
-		<!-- End log4j security fix -->	
-	
+
 		<dependency>
 			<groupId>org.apache.jmeter</groupId>
 			<artifactId>ApacheJMeter_java</artifactId>
-			<version>5.4.3</version>
+			<version>5.5</version>
 			<scope>provided</scope>
 		</dependency>
 

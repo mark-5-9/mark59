@@ -19,7 +19,7 @@ services:
     volumes:
       - ".:/var/mark59"
   metrics:
-    image: mark59/metrics
+    image: mark59/mark59-metrics
     expose:
       - "8083"
     ports:
@@ -27,7 +27,7 @@ services:
     volumes:
       - ".:/var/mark59"
   mark59servermetricsweb:
-    image: mark59/mark59-server-metrics-web
+    image: mark59/mark59-metrics
     expose:
       - "8085"
     ports:

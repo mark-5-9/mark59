@@ -82,7 +82,7 @@ public class DataHunterUtils  {
 			}
 	    	prettyOut+= "</table>";		
 	    } else {
-			prettyOut+= "<br> (no sql paramters) " ;
+			prettyOut+= "<br> (no sql parameters) " ;
 	    }
 	    return prettyOut;
 	}

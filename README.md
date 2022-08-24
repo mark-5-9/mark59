@@ -1,9 +1,62 @@
-
 ## Mark59 Documention, Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+<p>Release 5.0<br>
+
+  <ul>  
+	<li>Change project, URL and database URL names.  This is intended to be once-off change :)
+	  <ul>
+	    <li>Web application Urls context path changes
+	       	<ul>
+				<li>/dataHunter                to /mark59-datahunter</li> 
+				<li>/mark59-server-metrics-web to /mark59-metrics</li>
+				<li>/metrics                   to /mark59-trends</li>     	
+	    	</ul> 
+		</li>
+	    <li>Database Renames (review conversion files in the mark59 zip download databaseScripts folder) 
+	    	<ul>
+				<li>datahunterdb               to mark59datahunterdb</li> 
+				<li>mark59servermetricswebdb   to mark59metricsdb</li>
+				<li>metricsdb                  to mark59trendsdb</li>     	
+	    	</ul> 
+	    </li>
+	    <li>mark59-metrics (ex mark59-server-metrics-web) properties renamed 
+	    	<ul>
+				<li>mark59servermetricswebuserid  to mark59metricsid</li> 
+				<li>mark59servermetricswebpasswrd to mark59metricspasswrd</li>
+				<li>mark59servermetricswebhide    to mark59metricshide</li>     	
+	    	</ul> 
+	    </li>
+	  </ul>  
+	</li>
+	<li>New property mark59.log.directory renames mark59.screenshot.directory (flagged as redundant)</li>
+	<li>New property mark59.logname.format : formatter for log names output to the log directory</li>
+	<li>New property mark59.log.directory.suffix : log directory suffix (a local 'date' or 'datetime')</li>	
+	<li>Mark59 logs types can be disabled on script exception</li>	
+	<li>Filter for CDP markers on results splitter for Transactions Report</li>	
+	<li>JMeter to 5.5, Selenium to 4.4.0 (chrome104+), H2 to 2.1.214, spring-boot to 2.7.2, groovy to 3.0.11</li>
+	<li>Improved error handling and logging in the mark59-metrics application</li>
+	<li>mark59metricsdb (ex mark59servermetricswebdb) database column name SCRIPT_NAME changed to PARSER_NAME 
+		on tables COMMANDRESPONSEPARSERS and COMMANDPARSERLINKS<br>
+		(review conversion files in the mark59 zip download databaseScripts folder for details)</li>
+	<li>'SSH_LINIX_UNIX' changed to 'SSH_LINUX_UNIX' as a Command EXECUTOR option in mark59metricsdb</li>	
+	<li>New script JMeter parameters PRINT_RESULTS_SUMMARY and LOG_RESULTS_SUMMARY flag if Transaction Results Summary 
+		should be printed (to console)/logged during JMeter execution</li>	
+	<li>New DataHunter API Samples: Direct API httprequest access in JMeter, and same logic repeated using the Java API Client:
+		<ul>
+			<li>DataHunterLifecyclePvtScriptUsingApiViaHttpRequestsTestPlan.jmx replaces DataHunterHttpTestPlan.jmx</li> 
+			<li>New sample script DataHunterLifecyclePvtScriptUsingRestApiClient</li>
+	    </ul> 
+	</li>
+	<li>DataHunter file upload changed from in-memory to streaming API, allowing for large file uploads</li>
+	<li>UNHANDLED_PROMPT_BEHAVIOUR options added for selenium scripting</li>
+	<li>Breaking Change : some internal class name changes may affect you if you have used a Groovy jsr223 as a Mark59
+	 selenium script. <br>Please review DataHunterBasicSampleScriptJSR223Format in the mark59-datahunter-samples project </li>	
+	<li>Improve Mac useability: 'Quick Start' Guide can be executed on Mac
+  </ul>
 
 <p>Release 4.2.1<br>
   <ul>
@@ -12,9 +65,7 @@
     <li>Bug: Perflog was always empty, fixed</li>
     <li>Selenium to 4.2.1  (same name as release is a coincidence)</li>
   </ul>  
-
-
-
+  
 <p>Release 4.2<br>
   <ul>
     <li>New DataHunter REST Api project (minor datahuner DB changes made)</li>
@@ -94,7 +145,7 @@
     <li>DataHunter 'policies' now named 'items' on pages</li>   
     <li>Trending - show table by default</li>
     <li>Include computation and graphics for 95 and 99th percentiles</li>	
-    <li>Groovy scripting for mark59-server-metrics-web (required db changes)</li>	
+    <li>Groovy scripting for mark59-metrics (required db changes)</li>	
     <li>Plugin dependenices updated to latest versions</li>	
 	<li>Dependenices update (inc SpringBoot 2.4.5, JMeter 5.4.1)</li>	
     <li>Improve JavaDocs, fix typos etc</li>
@@ -107,13 +158,13 @@
 
 <p>Release to 3.0.(1) <br>
   <ul>
-    <li>Default port for metrics (Trend Analysis) changed from 8080 to 8083</li>
+    <li>Default port for Trends Analysis changed from 8080 to 8083</li>
     <li>Sample projects updated, docker-compose files added to allow for the Jenkins Docker Sample </li>
   </ul>  
 
 <p>Release 3.0.(.0) <br>
   <ul>
-    <li>New project: mark59-server-metrics-web.   Significant upgrade of server metric capture in mark59.</li>
+    <li>New project: mark59-metrics.   Significant upgrade of server metric capture in mark59.</li>
     <li>Project rename:  dataHunterPVTest to dataHunterPerformanceTestSamples</li>
     <li>Rename MySQL database pvmetrics to metricsdb (naming consistency across projects)</li>    
     <li>All project can use the h2, MySQL and Postgres database (enable quick start-up for demo and learning)</li>    

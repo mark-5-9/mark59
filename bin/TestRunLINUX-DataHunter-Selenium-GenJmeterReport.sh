@@ -2,8 +2,8 @@
 #   | Generate the JMeter reports for a DataHunter Selenium Test.
 #   |
 #   |  Alternative to running this .bat 
-#   |		 - login  to the server-metrics-web application  "http://localhost:8085/mark59-server-metrics-web" 
-#   |		 - run the DemoWIN-DataHunter-Selenium-GenJmeterReport profile. 
+#   |		 - login  to the server-metrics-web application  "http://localhost:8085/mark59-metrics" 
+#   |		 - run the DemoLINUX-DataHunter-Selenium-GenJmeterReport profile. 
 #   |
 #   |  There are are no database considerations when running JMeter report generation.
 #   |
@@ -14,9 +14,10 @@
 #   -------------------------------------------------------------------------------------------------------------------------------------------------
 {   # try  
 
-    cd ../resultFilesConverter
-    gnome-terminal -- sh -c "./CreateDataHunterJmeterReports.sh; exec bash"
+    cd ../mark59-results-splitter
+    ./CreateDataHunterJmeterReports.sh
 
 } || { # catch 
     echo attempt to generate JMeter Reports has failed! 
 }
+$SHELL

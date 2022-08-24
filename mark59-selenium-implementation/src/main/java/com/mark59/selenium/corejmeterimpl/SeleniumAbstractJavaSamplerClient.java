@@ -45,16 +45,19 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.PageLoadStrategy;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 
+import com.mark59.core.JmeterFunctionsImpl;
 import com.mark59.core.Outcome;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Constants;
+import com.mark59.core.utils.Mark59LogLevels;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.SafeSleep;
-import com.mark59.selenium.drivers.SeleniumDriverFactory;
-import com.mark59.selenium.drivers.SeleniumDriverWrapper;
+import com.mark59.selenium.driversimpl.SeleniumDriverFactory;
+import com.mark59.selenium.interfaces.DriverFunctionsSelenium;
 
 import jodd.util.CsvUtil;
 
@@ -71,25 +74,28 @@ import jodd.util.CsvUtil;
  *      
  * <p>Includes a number of standard parameters expected for a Selenium WebDriver.</p>
  *
- * @see SeleniumDriverFactory#makeDriverWrapper(Map)
+ * @see SeleniumDriverFactory#makeMark59SeleniumDriver(Map)
  * @see SeleniumDriverFactory#SeleniumDriverFactory()
- * @see com.mark59.selenium.drivers.SeleniumDriverFactory#HEADLESS_MODE 
- * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setHeadless(boolean)  
- * @see com.mark59.selenium.drivers.SeleniumDriverFactory#PAGE_LOAD_STRATEGY 
- * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setPageLoadStrategy(PageLoadStrategy) 
- * @see com.mark59.selenium.drivers.SeleniumDriverFactory#BROWSER_DIMENSIONS 
- * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setSize(int width, int height) 
- * @see com.mark59.selenium.drivers.SeleniumDriverFactory#PROXY 
- * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setProxy(org.openqa.selenium.Proxy) 
- * @see com.mark59.selenium.drivers.SeleniumDriverFactory#ADDITIONAL_OPTIONS 
- * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAdditionalOptions(java.util.List) 
- * @see com.mark59.selenium.drivers.SeleniumDriverFactory#WRITE_FFOX_BROWSER_LOGFILE 
- * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setWriteBrowserLogfile(boolean)
- * @see com.mark59.selenium.drivers.SeleniumDriverFactory#BROWSER_EXECUTABLE  
- * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAlternateBrowser(java.nio.file.Path) 
- * @see com.mark59.selenium.drivers.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#HEADLESS_MODE 
+ * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setHeadless(boolean)  
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#PAGE_LOAD_STRATEGY 
+ * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setPageLoadStrategy(PageLoadStrategy) 
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#BROWSER_DIMENSIONS 
+ * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setSize(int width, int height) 
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#PROXY 
+ * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setProxy(org.openqa.selenium.Proxy) 
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#UNHANDLED_PROMPT_BEHAVIOUR 
+ * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setUnhandledPromptBehaviour(UnexpectedAlertBehaviour) 
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#ADDITIONAL_OPTIONS 
+ * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAdditionalOptions(java.util.List) 
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#WRITE_FFOX_BROWSER_LOGFILE 
+ * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setWriteBrowserLogfile(boolean)
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#BROWSER_EXECUTABLE  
+ * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAlternateBrowser(java.nio.file.Path) 
+ * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
  * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
  * @see JmeterFunctionsForSeleniumScripts
+ * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
  *
  * @author Philip Webb
  * Written: Australian Winter 2019  
@@ -114,11 +120,22 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 
 	/** log4J class logger */
 	public static final Logger LOG = LogManager.getLogger(SeleniumAbstractJavaSamplerClient.class);	
-		
+
+	/**	@see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  */
+	public static final String ON_EXCEPTION_WRITE_BUFFERED_LOGS	 		= "On_Exception_Write_Buffered_Logs";
+	/**	@see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  */	
+	public static final String ON_EXCEPTION_WRITE_SCREENSHOT	 		= "On_Exception_Write_Screenshot";
+	/**	@see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  */	
+	public static final String ON_EXCEPTION_WRITE_PAGE_SOURCE	 		= "On_Exception_Write_Page_Source";
+	/**	@see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  */
+	public static final String ON_EXCEPTION_WRITE_PERF_LOG		 		= "On_Exception_Write_Perf_Log";
+	/**	@see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  */
+	public static final String ON_EXCEPTION_WRITE_STACK_TRACE	 		= "On_Exception_Write_Stack_Trace";
+	
 	/**  the mark59 JmeterFunctionsForSeleniumScripts for the test  */		
 	protected JmeterFunctionsForSeleniumScripts jm;
-	/**  the Selenium driver 'Wrapper' for the test  */	
-	protected SeleniumDriverWrapper seleniumDriverWrapper; 
+	/**  the Selenium driver 'Wrapper' for the test, with additional functions around logging and exception handling */	
+	protected DriverFunctionsSelenium<WebDriver> mark59SeleniumDriver; 
 	/**  the Selenium Web Driver for the test  */
 	protected WebDriver driver;
 
@@ -137,6 +154,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		staticMap.put(SeleniumDriverFactory.PROXY, 						"");
 		staticMap.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, 		"");				
 		staticMap.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, String.valueOf(false));		
+		staticMap.put(SeleniumDriverFactory.UNHANDLED_PROMPT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE.toString());		
 		
 		staticMap.put("______________________ logging settings: _______________________", "Expected values: 'default', 'buffer', 'write' or 'off' ");		
 		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName() );
@@ -144,13 +162,22 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
 		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
 		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_PERF_LOG_AT_END_OF_TRANSACTIONS, 		Mark59LogLevels.DEFAULT.getName());
+
+		staticMap.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS, String.valueOf(true));
+		staticMap.put(ON_EXCEPTION_WRITE_SCREENSHOT, 	String.valueOf(true));
+		staticMap.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 	String.valueOf(true));
+		staticMap.put(ON_EXCEPTION_WRITE_PERF_LOG, 		String.valueOf(true));
+		staticMap.put(ON_EXCEPTION_WRITE_STACK_TRACE, 	String.valueOf(true));
+		
+		staticMap.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(false));	   
+		staticMap.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));	   
 		
 		staticMap.put("______________________ miscellaneous: __________________________", "");				
 		staticMap.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");
 		staticMap.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, "");		
 		
 		staticMap.put("___________________"       , "");			
-		staticMap.put("script build information: ", "using mark59-selenium-implementation version " + Mark59Constants.MARK59_VERSION);	
+		staticMap.put("script build information: ", "using mark59-selenium-implementation Version: " + Mark59Constants.MARK59_VERSION);	
 		
 		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}
@@ -191,23 +218,25 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 *  'Mark59' framework for whatever customization is required for your test, or for the Webdriver implementation.</p>
 	 * <p>Please see link(s) below for more detail.  
 	 * 
-	 * @see SeleniumDriverFactory#makeDriverWrapper(Map)
+	 * @see SeleniumDriverFactory#makeMark59SeleniumDriver(Map)
 	 * @see SeleniumDriverFactory#SeleniumDriverFactory()
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#HEADLESS_MODE
-	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setHeadless(boolean)  
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#PAGE_LOAD_STRATEGY 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setPageLoadStrategy(PageLoadStrategy) 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#BROWSER_DIMENSIONS 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setSize(int width, int height) 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#PROXY 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setProxy(org.openqa.selenium.Proxy) 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#ADDITIONAL_OPTIONS 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAdditionalOptions(java.util.List) 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#WRITE_FFOX_BROWSER_LOGFILE 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setWriteBrowserLogfile(boolean)
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#BROWSER_EXECUTABLE  
-	 * @see com.mark59.selenium.drivers.SeleniumDriverBuilder#setAlternateBrowser(java.nio.file.Path) 
-	 * @see com.mark59.selenium.drivers.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#HEADLESS_MODE
+	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setHeadless(boolean)  
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#PAGE_LOAD_STRATEGY 
+	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setPageLoadStrategy(PageLoadStrategy) 
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#BROWSER_DIMENSIONS 
+	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setSize(int width, int height) 
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#PROXY 
+	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setProxy(org.openqa.selenium.Proxy)
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#UNHANDLED_PROMPT_BEHAVIOUR 
+	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setUnhandledPromptBehaviour(UnexpectedAlertBehaviour) 
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#ADDITIONAL_OPTIONS 
+	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAdditionalOptions(java.util.List) 
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#WRITE_FFOX_BROWSER_LOGFILE 
+	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setWriteBrowserLogfile(boolean)
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#BROWSER_EXECUTABLE  
+	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAlternateBrowser(java.nio.file.Path) 
+	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
 	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
 	 * @see JmeterFunctionsForSeleniumScripts
 	 * 
@@ -224,7 +253,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 */
 	@Override
 	public SampleResult runTest(JavaSamplerContext context) {
-		if (LOG.isDebugEnabled()) LOG.debug(this.getClass().getName() +  " : exectuing runTest" );
+		if (LOG.isDebugEnabled()) LOG.debug(this.getClass().getName() +  " : executing runTest" );
 		
 		AbstractThreadGroup tg = null;
 		String tgName = null;
@@ -243,17 +272,17 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		Map<String,String> jmeterRuntimeArgumentsMap = convertJmeterArgumentsToMap(context);
 
 		try {
-			seleniumDriverWrapper = new SeleniumDriverFactory().makeDriverWrapper(jmeterRuntimeArgumentsMap) ;
+			mark59SeleniumDriver = new SeleniumDriverFactory().makeMark59SeleniumDriver(jmeterRuntimeArgumentsMap) ;
 		} catch (Exception e) {
-			LOG.error("ERROR : " + this.getClass() + ". Fatal error has occured for Thread Group " + tgName
+			LOG.error("ERROR : " + this.getClass() + ". Fatal error has occurred for Thread Group " + tgName
 					+ " while attempting to initiate the selenium Driver!" );
 			LOG.error(e.getMessage());
 			e.printStackTrace();			
 			return null;
 		}
 
-		driver = seleniumDriverWrapper.getDriverPackage();
-		jm = new JmeterFunctionsForSeleniumScripts(Thread.currentThread().getName(), seleniumDriverWrapper, jmeterRuntimeArgumentsMap);   	
+		driver = mark59SeleniumDriver.getDriver();
+		jm = new JmeterFunctionsForSeleniumScripts(context, mark59SeleniumDriver, jmeterRuntimeArgumentsMap);   	
 		
 		try {
 			
@@ -267,11 +296,11 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 
 		} catch (Exception | AssertionError e) {
 
-			scriptExceptionHandling(context, e);
+			scriptExceptionHandling(context, jmeterRuntimeArgumentsMap, e);
 		
 		} finally {
 			if (! keepBrowserOpen.equals(KeepBrowserOpen.ALWAYS )     ) { 
-				seleniumDriverWrapper.driverDispose();
+				mark59SeleniumDriver.driverDispose();
 			}
 		}
 		return jm.getMainResult();
@@ -280,24 +309,55 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	
 
 	/**
-	 * Log and record this script execution as a failure.
-	 * 
+	 * Log and record this script execution as a failure.  All available mark59 logs are output for the point of failure, plus any
+	 * previously buffered logs.  Logs can be suppressed by setting a additionalTestParameters parameter controlling it's output 
+	 * to <code>false</code>: 
+	 * <ul>
+	 * <li>{@link #ON_EXCEPTION_WRITE_BUFFERED_LOGS} -  log buffered (during the script)</li>
+	 * <li>{@link #ON_EXCEPTION_WRITE_SCREENSHOT} - screenshot when exception occurred</li>
+	 * <li>{@link #ON_EXCEPTION_WRITE_PAGE_SOURCE} - page source when exception occurred</li>
+	 * <li>{@link #ON_EXCEPTION_WRITE_PERF_LOG} - Chromium Performance Log, unwritten or unbuffered records when exception occurred</li>
+	 * <li>{@link #ON_EXCEPTION_WRITE_STACK_TRACE} - Exception stack trace</li>
+	 * </ul>
+	 *    
 	 * @see #userActionsOnScriptFailure(JavaSamplerContext, JmeterFunctionsForSeleniumScripts, WebDriver)
 	 * @param context the current JavaSamplerContext  
+	 * @param jmeterRuntimeArgumentsMap  map of JMeter (Java Request) parameters 
 	 * @param e can be an exception or Assertion error
 	 */
-	protected void scriptExceptionHandling(JavaSamplerContext context, Throwable e) {
+	protected void scriptExceptionHandling(JavaSamplerContext context, Map<String, String> jmeterRuntimeArgumentsMap, Throwable e) {
 		String thread = Thread.currentThread().getName();
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
 		
-		System.err.println("["+ thread + "]  ERROR : " + this.getClass() + ". See screenshot directory for details. Stack trace: \n  " + sw.toString());
-		LOG.error("["+ thread + "]  ERROR : " + this.getClass() + ". See screenshot directory for details. Stack trace: \n  " + sw.toString());
+		System.err.println("["+ thread + "]  ERROR : " + this.getClass() + ". See Mark59 log directory for details. Stack trace: \n  " + sw.toString());
+		LOG.error("["+ thread + "]  ERROR : " + this.getClass() + ". See Mark59 log directory for details. Stack trace: \n  " + sw.toString());
 
+		String lastTxnStarted = jm.getMostRecentTransactionStarted();
+		if (StringUtils.isBlank(lastTxnStarted)){
+			lastTxnStarted =  "noTxn";
+		} 
+		
 		try {
-			seleniumDriverWrapper.documentExceptionState(new Exception(e));
+			
+			if (Boolean.parseBoolean(context.getParameter(ON_EXCEPTION_WRITE_BUFFERED_LOGS))){
+				jm.writeBufferedArtifacts();
+			}
+			if (Boolean.parseBoolean(context.getParameter(ON_EXCEPTION_WRITE_SCREENSHOT))){
+				jm.writeScreenshot(lastTxnStarted + "_EXCEPTION");	
+			}
+			if (Boolean.parseBoolean(context.getParameter(ON_EXCEPTION_WRITE_PAGE_SOURCE))){	
+				jm.writePageSource(lastTxnStarted + "_EXCEPTION" );
+			}
+			if (Boolean.parseBoolean(context.getParameter(ON_EXCEPTION_WRITE_PERF_LOG))){	
+				jm.writeDriverPerfLogs(lastTxnStarted + "_EXCEPTION_PERFLOG");
+			}
+			if (Boolean.parseBoolean(context.getParameter(ON_EXCEPTION_WRITE_STACK_TRACE))){	
+				jm.writeStackTrace(lastTxnStarted + "_EXCEPTION_STACKTRACE", e);
+			}
+			
 		} catch (Exception ex) {
-			LOG.error("["+ thread + "]  ERROR : " + this.getClass() + ".  An exception occured during scriptExceptionHandling (documentExceptionState) " 
+			LOG.error("["+ thread + "]  ERROR : " + this.getClass() + ".  An exception occurred during scriptExceptionHandling (documentExceptionState) "
 					+  ex.getClass().getName() +  " thrown",  e);
 			ex.printStackTrace();
 		}	
@@ -305,7 +365,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		try {
 			userActionsOnScriptFailure(context, jm, driver); 
 		} catch (Exception errorHandlingException) {
-			LOG.error("["+ thread + "]  ERROR : " + this.getClass() + ".  An exception occured during scriptExceptionHandling (userActionsOnScriptFailure) "
+			LOG.error("["+ thread + "]  ERROR : " + this.getClass() + ".  An exception occurred during scriptExceptionHandling (userActionsOnScriptFailure) "
 					+  errorHandlingException.getClass().getName() +  " thrown",  errorHandlingException);
 			errorHandlingException.printStackTrace();
 		}
@@ -384,12 +444,31 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 
 	
 	/**
-	 * Convenience method to a single-threaded script execution (rather than needing to use JMeter).  
+	 * Convenience method to a single-threaded script execution (ie from the IDE, rather than needing to use JMeter).
+	 * Browser will stay open only on script failure.
+	 *   
+	 * @see #runSeleniumTest(KeepBrowserOpen)
+	 * 
+	 * @see #runMultiThreadedSeleniumTest(int, int)
+	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
+	 * @return {@link SampleResult}
+	 */
+	public SampleResult runSeleniumTest() {
+		return runSeleniumTest(KeepBrowserOpen.ONFAILURE, true);
+	}
+	
+	
+	/**
+	 * Convenience method to a single-threaded script execution (ie from the IDE, rather than needing to use JMeter).  
 	 * <p>It can also be used in a JRS223 sampler in order to execute a script written directly in JMeter. See  the 
 	 * DataHunterLifecyclePvtScriptAsSingleJSR223 thread group in the the DataHunterSeleniumTestPlan.jmx test plan and
-	 * com.mark59.datahunter.performanceTest.scripts.jsr223format package in the dataHunterPerformanceTestSamples project.    
+	 * com.mark59.datahunter.samples.scripts.jsr223format package in the mark59-datahunter-samples project.    
 	 * <p>See method runMultiThreadedSeleniumTest to executed a multi-thread test
 	 * <p>You can control if the browser closes at the end of the test. 
+	 * <p>The results summary is always printed. 
 	 * EG: <b>KeepBrowserOpen.ONFAILURE</b> will keep the browser open at test end if the test fails (unless running in headless mode). 
 	 * 
 	 * @see #runSeleniumTest()
@@ -401,12 +480,33 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * 
 	 * @see com.mark59.selenium.corejmeterimpl.KeepBrowserOpen
 	 * @see Log4jConfigurationHelper
-	 * @param keepBrowserOpen  see KeepBrowserOpen
+	 * @param keepBrowserOpen  {@link KeepBrowserOpen}
 	 * @return {@link SampleResult} 
 	 */
 	public SampleResult runSeleniumTest(KeepBrowserOpen keepBrowserOpen ) {
+		return runSeleniumTest(keepBrowserOpen, true);
+	}
+
+
+
+	/**
+	 * As per {@link #runSeleniumTest(KeepBrowserOpen)}, but allowing an option for the results summary not to be printed 	 
+	 *  
+	 * @see #runSeleniumTest(KeepBrowserOpen)
+	 * @see #runMultiThreadedSeleniumTest(int, int)
+	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
+	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
+	 * @param keepBrowserOpen see {@link KeepBrowserOpen}
+	 * @param isLogResultsSummary see {@link JmeterFunctionsImpl#LOG_RESULTS_SUMMARY}
+	 * @return {@link SampleResult}
+	 */
+
+	public SampleResult runSeleniumTest(KeepBrowserOpen keepBrowserOpen, boolean isLogResultsSummary) {
 		mockJmeterProperties();
-		JavaSamplerContext context = new JavaSamplerContext( getDefaultParameters()  );
+		Arguments jmeterParameters =  getDefaultParameters();
+		JavaSamplerContext context = new JavaSamplerContext(jmeterParameters);
 		
 		this.keepBrowserOpen = keepBrowserOpen;
 		if (String.valueOf(true).equalsIgnoreCase(context.getParameter(SeleniumDriverFactory.HEADLESS_MODE))) {
@@ -418,22 +518,11 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 		return runTest(context);
 	}
 
+	
+	
 
 	/**
-	 * @see #runSeleniumTest(KeepBrowserOpen)
-	 * @see #runMultiThreadedSeleniumTest(int, int)
-	 * @see #runMultiThreadedSeleniumTest(int, int, KeepBrowserOpen) 
-	 * @see #runMultiThreadedSeleniumTest(int, int, Map) 
-	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen) 
-	 * @see #runMultiThreadedSeleniumTest(int, int, Map, KeepBrowserOpen, int, int, boolean, File) 
-	 * @return {@link SampleResult}
-	 */
-	protected SampleResult runSeleniumTest() {
-		return runSeleniumTest(KeepBrowserOpen.ONFAILURE);
-	}
-
-	/**
-	 * Convenience method to directly execute multiple script threads (rather than needing to use JMeter).  
+	 * Convenience method to directly execute multiple script threads (ie from the IDE, rather than needing to use JMeter).  
 	 * For example: <br><br>
 	 * <code>thisTest.runMultiThreadedSeleniumTest(2, 2000);</code>
 	 * 
@@ -447,12 +536,12 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param numberOfThreads number Of Java Threads
 	 * @param threadStartGapMs time between start of each thread in milliseconds
 	 */
-	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs) {
+	public void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs) {
 		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<>(), KeepBrowserOpen.NEVER, 1, 0, false, null);
 	}
 
 	/**
-	 * Convenience method to directly execute multiple script threads (rather than needing to use JMeter).  
+	 * Convenience method to directly execute multiple script threads (ie from the IDE, rather than needing to use JMeter).  
 	 * For example: <br><br>
 	 * <code>thisTest.runMultiThreadedSeleniumTest(2, 2000, KeepBrowserOpen.ONFAILURE);</code>
 	 * 
@@ -467,14 +556,14 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param threadStartGapMs time between start of each thread in milliseconds
 	 * @param keepBrowserOpen  see KeepBrowserOpen
 	 */
-	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, KeepBrowserOpen keepBrowserOpen) {
+	public void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, KeepBrowserOpen keepBrowserOpen) {
 		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, new HashMap<>(), keepBrowserOpen, 1, 0, false, null);
 		
 	}
 	
 	
 	/**
-	 * Convenience method to directly execute multiple script threads (rather than needing to use JMeter).  For example,
+	 * Convenience method to directly execute multiple script threads (from the IDE rather than needing to use JMeter).  For example,
 	 * if you want to user a user-defined parameter called "<code>USER</code>", and switch off headless mode for one of four threads running:  
 	 * <br><br><code>
 	 *  Map&lt;String, java.util.List&lt;String&gt;&gt;threadParameters = new java.util.LinkedHashMap&lt;String,java.util.List&lt;String&gt;&gt;();<br>
@@ -494,13 +583,13 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param threadStartGapMs  time between start of each thread in milliseconds
 	 * @param threadParameters  parameter key and list of values to be passed to each thread (needs to be at least as many entries as number of threads) 
 	 */
-	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters) {
+	public void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters) {
 		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, threadParameters, KeepBrowserOpen.NEVER, 1, 0, false, null );
 	}	
 	
 	
 	/**
-	 * Convenience method to directly execute multiple script threads (rather than needing to use JMeter).  For example,
+	 * Convenience method to directly execute multiple script threads (from the IDE rather than needing to use JMeter).  For example,
 	 * if you want to user a user-defined parameter called "<code>USER</code>", and switch off headless mode for one of four threads running:  
 	 * <br><br><code>
 	 *  Map&lt;String, java.util.List&lt;String&gt;&gt;threadParameters = new java.util.LinkedHashMap&lt;String,java.util.List&lt;String&gt;&gt;();<br>
@@ -521,14 +610,14 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param threadParameters  parameter key and list of values to be passed to each thread (needs to be at least as many entries as number of threads) 
 	 * @param keepBrowserOpen  see KeepBrowserOpen	 
 	 */
-	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters, KeepBrowserOpen keepBrowserOpen) {
+	public void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters, KeepBrowserOpen keepBrowserOpen) {
 		runMultiThreadedSeleniumTest(numberOfThreads, threadStartGapMs, threadParameters, KeepBrowserOpen.NEVER, 1, 0, false, null);
 	}
 
 	
 	
 	/**
-	 * 'Full Monty' convenience method to directly execute multiple script threads.  The threads can be set to run a given number of iterations, 
+	 * 'Full Monty' convenience method to directly execute multiple script threads (from the IDE). The threads can be set to run a given number of iterations, 
 	 * with a timed gap between each iteration.   Additionally you can print a transactions summary table, and/or output a CSV file with the results
 	 * of the run. 
 	 * <p>As the CSV file is in JMeter format, you can use it to generate a JMeter report or load into Trend Analysis. Note the intention here is not 
@@ -564,7 +653,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @param printResultsSummary <code>true</code> to print the summary report, <code>false</code> to not.	  
 	 * @param jmeterResultsFile  output file name.  Set to <code>null</code> if a file is not required.    
 	 */
-	protected void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters, KeepBrowserOpen keepBrowserOpen,
+	public void runMultiThreadedSeleniumTest(int numberOfThreads, int threadStartGapMs, Map<String, List<String>>threadParameters, KeepBrowserOpen keepBrowserOpen,
 			int iterateEachThreadCount, int iteratePacingGapMs, boolean printResultsSummary, File jmeterResultsFile) {
 		
 		mockJmeterProperties();
@@ -637,7 +726,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * If JMeter properties become relevant to a particular script for some reason, it is suggested the required 
 	 * 'jmeter.properties' file be included in the root of the project.
 	 */
-	protected void mockJmeterProperties() { 
+	public void mockJmeterProperties() { 
 		File f = new File("./jmeter.properties");
 		if(f.exists() && !f.isDirectory()) { 
 			LOG.debug("loading supplied jmeter.properties file");
@@ -691,7 +780,8 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 			} catch (Exception e) {	e.printStackTrace(); System.out.println(" Error " + e.getMessage()); } 
 			
 			Arguments thisThreadParameterAuguments = Mark59Utils.mergeMapWithAnOverrideMap(getDefaultParameters().getArgumentsAsMap(), thisThreadParametersOverride);
-			
+//			thisThreadParameterAuguments.removeArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY);
+//			thisThreadParameterAuguments.addArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));
 			JavaSamplerContext context = new JavaSamplerContext( thisThreadParameterAuguments  );
 			
 			if (String.valueOf(true).equalsIgnoreCase(context.getParameter(SeleniumDriverFactory.HEADLESS_MODE))) {

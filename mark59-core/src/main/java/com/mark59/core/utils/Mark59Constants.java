@@ -17,6 +17,7 @@
 package com.mark59.core.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ public class Mark59Constants {
 	/**
 	 * current Mark59 version
 	 */
-	public static final String MARK59_VERSION  = "4.2";	
+	public static final String MARK59_VERSION  = "5.0";	
 		
 	/**
 	 * TRUE
@@ -70,7 +71,20 @@ public class Mark59Constants {
 	 * Browser default dimensions (width by height) 
 	 */
 	public static final String DEFAULT_BROWSER_DIMENSIONS ="1920,1080";
-    
+
+	
+	/**
+	 * Value for {@link PropertiesKeys#MARK59_PROP_LOG_DIRECTORY_SUFFIX } 
+	 * date will suffix directory with current date
+	 */
+	public static final String DATE ="date";
+	/**
+	 * Value for {@link PropertiesKeys#MARK59_PROP_LOG_DIRECTORY_SUFFIX } 
+	 * suffix directory with date and time
+	 */
+	public static final String DATE_TIME ="datetime";
+	
+	
 	/**
 	 * REFERENCE
 	 */
@@ -96,6 +110,39 @@ public class Mark59Constants {
      * a H2 database acting as a 'client' server (useful in Docker for communication a H2 database over Docker instances) 
      */
     public static final String H2TCPCLIENT	= "h2tcpclient";
+    
+    // log name format options:
+    
+    /**
+     * THREADNAME log name format option
+     */
+    public static final String THREAD_NAME	 = "THREADNAME";  
+    /**
+     * THREADGROUP log name format option
+     */   
+    public static final String THREAD_GROUP  = "THREADGROUP"; 
+    /**
+     * SAMPLER log name format option
+     */    
+    public static final String SAMPLER		 = "SAMPLER";
+    /**
+     * LABEL log name format option  (equates to a Mark59 Transaction)
+     */  
+    public static final String LABEL		 = "LABEL";
+    /**
+     * Count used in log names (ensures uniqueness, and indicates order the log occurred in the run)
+     */  
+    public static final String LOG_COUNTER	 = "LOG_COUNTER";
+    /**
+     * The (ordered) allowable value(s) used to define the format of log names in a Mark59 screenshot directory.
+     * Done via setting the via setting the values in a comma delimited list in property 
+     * {@link PropertiesKeys#MARK59_PROP_LOGNAME_FORMAT}. Allowed value options are:
+     * <p><b><code> ThreadName, ThreadGroup, Sampler, Label </code></b><br>
+     * (case insensitive).  
+     * <p>A log counter is always included in log names (ie, the LOG_COUNTER is not an option)  
+     */
+    public static final List<String> LOGNAME_FORMAT_OPTIONS = Arrays.asList(THREAD_NAME, THREAD_GROUP, SAMPLER, LABEL); 
+    
     
     /**
      * Defines an enumeration of values used in the Mark59 framework that are used in to populate the JMeter
@@ -224,7 +271,7 @@ public class Mark59Constants {
 		}
 	}
 
-
+  
 	private Mark59Constants() {
 	}    
 }

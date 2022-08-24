@@ -46,14 +46,16 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
  * 
  * <code> &lt;Configuration status="INFO"&gt;<br>&lt;Appenders&gt;<br>&nbsp;&lt;Console name="Console" target="SYSTEM_OUT"&gt;
  * <br>&nbsp;&nbsp;&lt;PatternLayout pattern="%{dHH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" /&gt;
- * <br>&nbsp;&lt;/Console&gt;<br>&lt;/Appenders&gt;<br>&lt;Loggers&gt;<br>&nbsp;&lt;Root level="info"&gt;<br>&nbsp;&nbsp;&lt;AppenderRef ref="Console" /&gt;
- * <br>&nbsp;&lt;Root&gt;<br>&lt;/Loggers&gt;<br>&lt;/Configuration&gt;</code><p>
+ * <br>&nbsp;&lt;/Console&gt;<br>&lt;/Appenders&gt;<br>&lt;Loggers&gt;<br>&nbsp;&lt;Root level="info"&gt;
+ * <br>&nbsp;&nbsp;&lt;AppenderRef ref="Console" /&gt;
+ * <br>&nbsp;&lt;/Root&gt;<br>&lt;/Loggers&gt;<br>&lt;/Configuration&gt;</code><p>
  * 
  * Also, you need to set a jvm argument, so that log4j is aware of the configuration file.  So in Eclipse for instance, 
  * assuming the log4j config file is in the root of the project,set via  Run Configurations -  Arguments (VM Arguments) tab: <p> 
  *<code>-Dlog4j.configurationFile=./log4j2.xml</code><p>
  *
- * When <b>BOTH</b> a Log4j XML configuration has been set and an <i>init</i> method in this class is called, the log4j configuration for this class will take precedence.  
+ * When <b>BOTH</b> a Log4j XML configuration has been set and an <i>init</i> method in this class is called, the log4j configuration 
+ * for this class will take precedence.  
  *
  * @author Philip Webb
  * Written: Australian Winter 2019

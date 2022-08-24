@@ -1,13 +1,14 @@
-
+-- in pgadmin run from 'postgres' db 
 -- >  comment/uncomment as required 
 CREATE USER admin SUPERUSER PASSWORD 'admin';
--- DROP DATABASE datahunterdb;
-CREATE DATABASE datahunterdb WITH ENCODING='UTF8' OWNER=admin TEMPLATE=template0 LC_COLLATE='C' LC_CTYPE='C';
+-- DROP DATABASE mark59datahunterdb;
+CREATE DATABASE mark59datahunterdb WITH ENCODING='UTF8' OWNER=admin TEMPLATE=template0 LC_COLLATE='C' LC_CTYPE='C';
 -- <
 
 --   The utf8/C ecoding/collation is more in line with other mark59 database options (and how Java/JS sorts work). 
 --   if you use the pgAdmin tool to load data, remember to hit the 'commit' icon to save the changes! 
 
+-- in pgadmin run from 'mark59datahunterdb' db query  panel 
 
 CREATE TABLE IF NOT EXISTS POLICIES (
   APPLICATION VARCHAR(64) NOT NULL,

@@ -1,15 +1,15 @@
 
--- DROP DATABASE IF EXISTS datahunterdb;
-CREATE DATABASE datahunterdb CHARACTER SET utf8mb4  COLLATE utf8mb4_bin; 
+-- DROP DATABASE IF EXISTS mark59datahunterdb;
+CREATE DATABASE mark59datahunterdb CHARACTER SET utf8mb4  COLLATE utf8mb4_bin; 
 
-USE datahunterdb;
+USE mark59datahunterdb;
 
 
 -- PLEASE RUN  "MYSQLcreateAdminUser.sql"  TO CREATE THE 'ADMIN' USER IF YOU HAVE NOT ALREADY DONE SO.  
 
 -- Note that character set utf8mb4 is the default from MySQL 8.0.
 -- The collation for the database is set to utf8mb4_bin
--- Useful at at is allows for stuff like case-sensitive eventmapping matching.  Also aligns H2 database and Java case sensitive sorting.          
+-- Useful as it allows for stuff like case-sensitive eventmapping matching.  Also aligns H2 database and Java case sensitive sorting.          
 
 
 -- create tables  -- 

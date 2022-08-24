@@ -265,8 +265,7 @@ public class JmeterFunctionsTest {
 
 		thrown.expect(NoSuchElementException.class);
 		thrown.expectMessage(
-				"could not find SampleResult in transactionMap as it does not contain a key matching the expected value : "
-						+ transactionLabel);
+				"Could not find a transactionn to end matching the passed label : "	+ transactionLabel);
 
 		t.endTransaction(transactionLabel);
 	}
@@ -404,7 +403,7 @@ public class JmeterFunctionsTest {
 	}
 
 	private JmeterFunctionsImpl getJmeterFunctions() {
-		return new JmeterFunctionsImpl(Thread.currentThread().getName());
+		return new JmeterFunctionsImpl(null);
 	}
 
 }

@@ -38,6 +38,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/**
+ * Comment Mark59 (tidy up javadoc warnings only)
+ * @author mark59
+ */
 public class CdpVersionFinder {
   private static final Logger LOG = Logger.getLogger(CdpVersionFinder.class.getName());
   private final int fudgeFactor;
@@ -45,13 +49,21 @@ public class CdpVersionFinder {
   private static final Pattern MAJOR_VERSION_EXTRACTOR = Pattern.compile(".*/(\\d+)\\..*");
   private static final Pattern BROWSER_NAME_VERSION = Pattern.compile("(\\d+)\\..*");
 
-  public CdpVersionFinder() {
+  /**
+   * Comment Mark59 (tidy up javadoc warnings only)
+   */
+public CdpVersionFinder() {
     this(
       5,
       StreamSupport.stream(ServiceLoader.load(CdpInfo.class).spliterator(), false).collect(Collectors.toSet()));
   }
 
-  public CdpVersionFinder(int versionFudgeFactor, Collection<CdpInfo> infos) {
+  /**
+   * Comment Mark59 (tidy up javadoc warnings only)
+   * @param versionFudgeFactor versionFudgeFactor
+   * @param infos infos
+   */
+public CdpVersionFinder(int versionFudgeFactor, Collection<CdpInfo> infos) {
     this.fudgeFactor = Require.nonNegative("Version fudge factor", versionFudgeFactor);
 
     Require.nonNull("CDP versions", infos);

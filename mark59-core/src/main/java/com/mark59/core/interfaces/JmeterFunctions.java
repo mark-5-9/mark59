@@ -16,8 +16,11 @@
 
 package com.mark59.core.interfaces;
 
+import java.util.Map;
+
 import org.apache.jmeter.samplers.SampleResult;
 
+import com.mark59.core.JmeterFunctionsImpl;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 
 /**
@@ -26,6 +29,8 @@ import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
  * @author Philip Webb    
  * @author Michael Cohen
  * Written: Australian Winter 2019  
+ *
+ * @see JmeterFunctionsImpl
  */
 public interface JmeterFunctions {
 
@@ -141,6 +146,23 @@ public interface JmeterFunctions {
 
 	
 	/**
+	 * Return results from running the test
+	 * @return org.apache.jmeter.samplers.SampleResult
+	 */	
+	SampleResult getMainResult();
+
+
+	
+	/**
+	 * Returns the transaction id of the last (most recent) transaction started. 
+	 * <p>(The selenium implementation excludes SET transactions and DataPoints).
+	 * 
+	 * @return mostRecentTransactionStarted (txnId)
+	 */
+	String getMostRecentTransactionStarted();
+	
+	
+	/**
 	 * Behaviours to execute at the end of test, such as terminating transations that were started but not ended.
 	 * <p>Specific behaviours vary based on the particular implementation of Tester.</p>
 	 */
@@ -153,10 +175,84 @@ public interface JmeterFunctions {
 	void failTest();
 	
 	
+	
 	/**
-	 * Return results from running the test
-	 * @return org.apache.jmeter.samplers.SampleResult
-	 */	
-	SampleResult getMainResult();
+	 * @return the Map of the buffered screenshots
+	 */
+	Map<String, byte[]> getBufferedLogs();
+	
+	
+	/**
+	 * Writes all buffered screenshots/logs to disk (ie, all transaction-level logging
+	 * performed using a Mark59LogLevels of "BUFFER")
+	 * <p>Can be implemented by extending this class and combining with a 
+	 * {@link DriverFunctions} implementation can is capable of taking logs/screenshots  
+	 */
+	void writeBufferedArtifacts();
+
+	
+	/**
+	 * Capture and immediately write a stack track log for the passed Exception.
+	 * <p>(There's no 'Buffer' option for exceptions as it's assumed the script will not continue)
+	 * @param stackTraceName filename to use for the log (without suffix)
+	 * @param e Throwable (Exception) being loggoed
+	 */
+	void writeStackTrace(String stackTraceName, Throwable e);
+	
+	/**
+	 * Capture and immediately output a screenshot/log. Use with caution in a 
+	 * Performance and Volume test as misuse of this method may produce many more screenshots
+	 * than intended. 
+	 * <p>Instead, you could use {@link #bufferScreenshot(String)} and {@link #writeBufferedArtifacts()}.
+	 * <p>Can be implemented by extending this class and combining with a 
+	 * {@link DriverFunctions} implementation can is capable of taking logs/screenshots    
+	 * 
+	 * @param imageName filename to use for the screenshot (without suffix)
+	 */
+	void writeScreenshot(String imageName);
+	
+	
+	/**
+	 * Stores a screenshot/log in memory, ready to be written to file later.
+	 * <p>Can be implemented by extending this class and combining with a 
+	 * {@link DriverFunctions} implementation can is capable of taking logs/screenshots
+	 *      
+	 * @param imageName filename to use for the screenshot (without suffix)
+	 */
+	void bufferScreenshot(String imageName);
+
+
+	/**
+	 * Save the byte[] to the specified file name file.
+	 * 
+	 * <p>Implementations may also create the parent log directory if missing (ie initial directory creation)
+	 * 
+	 * <p>Generally meant to be used within mark59 to write pre-defined log types 
+	 * (eg Selenium screenshots, Chromium performance Logs, Exception stack traces), but can be invoked from 
+	 * a user-written script to immediately write data to a mark59 log. 
+	 * 
+	 * @param mark59LogName filename to use for the log (without suffix) 
+	 * @param mark59LogNameSuffix suffix (eg 'txt', 'jpg') of the filename to use for the log 
+	 * @param mark59LogBytes the log data 
+	 * 
+	 * @see JmeterFunctionsImpl
+	 */
+	void writeLog(String mark59LogName, String mark59LogNameSuffix, byte[] mark59LogBytes);
+	
+	
+	/**
+	 * Save a byte[] with a specified log name and suffix, ready to be written to file later. 
+	 * 
+	 * <p>Generally meant to be used within Mark59 to buffer pre-defined log types 
+	 * (eg Selenium screenshots, Chromium performance Logs), but can be invoked from 
+	 * a user-written script.
+	 * 
+	 * @param mark59LogName last part of the log filename (excluding extension)  
+	 * @param mark59LogNameSuffix suffix of the log filename (eg 'txt', 'jpg')  
+	 * @param mark59LogBytes  the log data 
+	 * 
+	 * @see JmeterFunctionsImpl
+	 */
+	void bufferLog(String mark59LogName, String mark59LogNameSuffix, byte[] mark59LogBytes);
 
 }

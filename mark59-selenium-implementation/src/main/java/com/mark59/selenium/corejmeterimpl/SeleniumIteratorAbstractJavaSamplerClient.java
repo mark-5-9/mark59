@@ -32,7 +32,7 @@ import org.openqa.selenium.WebDriver;
 
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Mark59Utils;
-import com.mark59.selenium.drivers.SeleniumDriverFactory;
+import com.mark59.selenium.driversimpl.SeleniumDriverFactory;
 
 
 /**
@@ -142,7 +142,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 	static {
 		Map<String,String> staticIterMap = new LinkedHashMap<>();
 
-		staticIterMap.put("______________________ interation settings: _____________________", "" );		
+		staticIterMap.put("______________________ interation settings: _____________________", "" );
 		staticIterMap.put(ITERATE_FOR_PERIOD_IN_SECS, 						"0");
 		staticIterMap.put(ITERATE_FOR_NUMBER_OF_TIMES,  					"1");
 		staticIterMap.put(ITERATION_PACING_IN_SECS,  						"0");
@@ -208,9 +208,9 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 		Map<String,String> jmeterRuntimeArgumentsMap = convertJmeterArgumentsToMap(context);
 
 		try {
-			seleniumDriverWrapper = new SeleniumDriverFactory().makeDriverWrapper(jmeterRuntimeArgumentsMap) ;
+			mark59SeleniumDriver = new SeleniumDriverFactory().makeMark59SeleniumDriver(jmeterRuntimeArgumentsMap) ;
 		} catch (Exception e) {
-			LOG.error("ERROR : " + this.getClass() + ". Fatal error has occured for Thread Group " + tgName
+			LOG.error("ERROR : " + this.getClass() + ". Fatal error has occurred for Thread Group " + tgName
 					+ " while attempting to initiate the selenium Driver. The Thread is stopping !" );
 			LOG.error(e.getMessage());
 			e.printStackTrace();			
@@ -218,8 +218,8 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			return null;
 		}
 		
-		driver = seleniumDriverWrapper.getDriverPackage();
-		jm = new JmeterFunctionsForSeleniumScripts(Thread.currentThread().getName(), seleniumDriverWrapper, jmeterRuntimeArgumentsMap);   	
+		driver = mark59SeleniumDriver.getDriver();
+		jm = new JmeterFunctionsForSeleniumScripts(context, mark59SeleniumDriver, jmeterRuntimeArgumentsMap);   	
 				
 		try {
 			LOG.debug(">> initiateSeleniumTest");			
@@ -270,7 +270,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 
 		} catch (Exception | AssertionError e) {
 
-			scriptExceptionHandling(context, e);	
+			scriptExceptionHandling(context, jmeterRuntimeArgumentsMap, e);	
 
 			if ("true".equalsIgnoreCase(context.getParameter(STOP_THREAD_ON_FAILURE))){
 				LOG.info("Thread Group " + tgName + " is stopping (script failure, and STOP_THREAD_ON_FAILURE is set to true)" );
@@ -279,7 +279,7 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			
 		} finally {
 			if (! this.getKeepBrowserOpen().equals(KeepBrowserOpen.ALWAYS )     ) { 
-				seleniumDriverWrapper.driverDispose();
+				mark59SeleniumDriver.driverDispose();
 			}
 		}
 		return jm.getMainResult();

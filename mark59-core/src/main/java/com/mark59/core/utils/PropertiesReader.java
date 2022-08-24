@@ -43,12 +43,18 @@ public class PropertiesReader {
 	private static final String NIX = "*NIX";
 	private static final String MARK59_PROPERTIES = "mark59.properties";
 
+	private static final Boolean EXECUTABLE = true;
+	private static final Boolean NOT_EXECUTABLE = false;
+	private static final Boolean DEPRECATED = true;
+	private static final Boolean NOT_DEPRECATED = false;
+
 	private String os;
 	private String osNameLowerCase = "nix";
 	private final Properties properties = new Properties();
 
 	private static PropertiesReader instance;
 
+	@SuppressWarnings("deprecation")
 	private PropertiesReader() throws IOException {
 
 		if (System.getProperty("os.name") != null) {
@@ -80,7 +86,7 @@ public class PropertiesReader {
 			LOG.debug(" Mark59 Properties Loaded From " + MARK59_PROPERTIES + ":");
 			properties.forEach((p, v) -> {if (((String) p).startsWith("mark59")) {LOG.debug("    " + p + " : " + v);}});
 			LOG.debug("    ----------------------- ");
-			LOG.debug("    " + MARK59_PROPERTIES + " properties may be overwritten by being set as system properties (eg directly in the Jmetar plans)   ");
+			LOG.debug("    " + MARK59_PROPERTIES + " properties may be overwritten by being set as system properties (eg directly in the JMeter plans)   ");
 		}
 
 		properties.forEach((p, v) -> {
@@ -90,13 +96,17 @@ public class PropertiesReader {
 			}
 		});
 
+		
 		LOG.info("");
 		LOG.info("Mark59 property settings : ");
-		setMark59property(PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY);
-		setMark59property(PropertiesKeys.MARK59_PROP_DRIVER_CHROME, true);
-		setMark59property(PropertiesKeys.MARK59_PROP_DRIVER_FIREFOX, true);
+		setMark59property(PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY, NOT_EXECUTABLE, DEPRECATED);
+		setMark59property(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY);
+		setMark59property(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX);
+		setMark59property(PropertiesKeys.MARK59_PROP_LOGNAME_FORMAT);
+		setMark59property(PropertiesKeys.MARK59_PROP_DRIVER_CHROME, EXECUTABLE, NOT_DEPRECATED);
+		setMark59property(PropertiesKeys.MARK59_PROP_DRIVER_FIREFOX, EXECUTABLE, NOT_DEPRECATED);
 		setMark59property(PropertiesKeys.MARK59_PROP_SERVER_PROFILES_EXCEL_FILE_PATH);
-		setMark59property(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE, true);
+		setMark59property(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE, EXECUTABLE, NOT_DEPRECATED);
 		LOG.info("    ----------------------- ");
 	}
 
@@ -153,10 +163,10 @@ public class PropertiesReader {
 						LOG.info("Using mark59.properties found on the class path (org/apache/jmeter/mark59.properties) .. ");
 					} catch (IOException e) {
 						LOG.info("mark59.properties not found (error reading classpath entry org/apache/jmeter/mark59.properties) : " + e.getMessage());
-						LOG.info("Note that mark59 properties may of been set directy in system properties (see below)");
+						LOG.info("Note that mark59 properties may of been set directly in system properties (see below)");
 					}
 				} else {
-					LOG.info("mark59.properties not found !! Note that mark59 properties may of been set directy in system properties (see below)");
+					LOG.info("mark59.properties not found !! Note that mark59 properties may of been set directly in system properties (see below)");
 				}
 			}
 		}
@@ -181,9 +191,10 @@ public class PropertiesReader {
 	}
 
 	private void setMark59property(String mark59PropertyKey) {
-		setMark59property(mark59PropertyKey, false);
+		setMark59property(mark59PropertyKey, false, false);
 	}
 
+	
 	/**
 	 * Properties in mark59.properties should already be loaded before this method is invoked. 
 	 * Here, system properties can be used to override the mark59.properties, 
@@ -191,8 +202,9 @@ public class PropertiesReader {
 	 * 
 	 * @param mark59PropertyKey  one of the Mark59 property key values
 	 * @param isExecutable indicates that the file defined by the property value is an o/s executable
+	 * @param isDeprecated indicate if a property is deprecated (deprecated properties will not be flagged as 'not set') 
 	 */
-	private void setMark59property(String mark59PropertyKey, boolean isExecutable) {
+	private void setMark59property(String mark59PropertyKey, boolean isExecutable, boolean isDeprecated) {
 		if (StringUtils.isNotEmpty(System.getProperty(mark59PropertyKey))) {
 			properties.setProperty(mark59PropertyKey, System.getProperty(mark59PropertyKey));
 			substitutePredfinedStringsIfNecessary(mark59PropertyKey, properties.getProperty(mark59PropertyKey),	isExecutable);
@@ -201,7 +213,9 @@ public class PropertiesReader {
 			substitutePredfinedStringsIfNecessary(mark59PropertyKey, properties.getProperty(mark59PropertyKey),	isExecutable);
 			LOG.info("    " + mark59PropertyKey + " has been set from " + MARK59_PROPERTIES + " : "	+ properties.getProperty(mark59PropertyKey));
 		} else {
-			LOG.info("    " + mark59PropertyKey + " has not been set. ");
+			if (!isDeprecated) {
+				LOG.info("    " + mark59PropertyKey + " has not been set. ");
+			}
 		}
 	}
 

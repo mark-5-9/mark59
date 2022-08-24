@@ -24,8 +24,8 @@ import com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage
 /**
  *  A DataHunter REST Service Client.
  *  <p>Invokes the DataHunter REST Service.  Please refer to the <code>DataHunterRestController</code> class in the mark59 DataHunter project.
- *  <p>In order to execute this program, the target jar file for the dataHunterRestApiClient project needs to be 
- *  on the class path.  Eg: for a script running in a JMeter instance DataHunterRestApiClient.jar should be placed in JMeter's lib/ext directory.        
+ *  <p>In order to execute this program, the target jar file for the mark59-datahunter-api project needs to be 
+ *  on the class path.  Eg: for a script running in a JMeter instance mark59-datahunter-api.jar should be placed in JMeter's lib/ext directory.        
  *  <p>A few general observations about the DataHunter REST Service:
  *  <ul>
  *  <li>The operations performed by the REST service align as closely as possible to the actions that are available using the DataHunter web 
@@ -46,11 +46,11 @@ public class DataHunterRestApiClient {
 	private static final Logger LOG = LogManager.getLogger(DataHunterRestApiClient.class);	
 	private static final String UTF_8 =  StandardCharsets.UTF_8.toString();
 	
-
 	String dataHunterUrl;
 	
+	
 	/**
-	 * @param dataHunterUrl target datahunter url (eg http://localhost:8081/dataHunter)
+	 * @param dataHunterUrl target datahunter url (eg http://localhost:8081/mark59-datahunter)
 	 */
 	public DataHunterRestApiClient(String dataHunterUrl) {
 		this.dataHunterUrl = dataHunterUrl;
@@ -72,7 +72,7 @@ public class DataHunterRestApiClient {
 				+ "&lifecycle="  + encode(policies.getLifecycle()) 
 				+ "&useability=" + encode(policies.getUseability()) 
 				+ "&otherdata="  + encode(policies.getOtherdata()) 
-				+ "&epochtime="  + String.valueOf(policies.getEpochtime());
+				+ "&epochtime="  + policies.getEpochtime();
 		// System.out.println("DHRAC addPolicy url = " + webServiceUrl); 
 		return invokeDataHunterRestApi(webServiceUrl);
 	}
@@ -208,6 +208,7 @@ public class DataHunterRestApiClient {
 		return invokeDataHunterRestApi(webServiceUrl);
 	}
 	
+	
 	/**
 	 * 	Lookup Next Item
 	 * 
@@ -275,11 +276,10 @@ public class DataHunterRestApiClient {
 	}	
 	
 	
-	
 	/**
-	 * Call to the DataHunter applcation's Rest controller, returning a DataHunterRestApiResponsePojo 
+	 * Call to the DataHunter Rest controller, returning a DataHunterRestApiResponsePojo
 	 * 
-	 * @param webServiceUrl
+	 * @param webServiceUrl DataHunter Rest controller URL
 	 * @return DataHunterRestApiResponsePojo
 	 */
 	private DataHunterRestApiResponsePojo invokeDataHunterRestApi(String webServiceUrl)  {
@@ -318,7 +318,6 @@ public class DataHunterRestApiClient {
 		return responsePojo;
 	}
 
-
 	
 	private String encode(String uriParm) {
 		try {
@@ -328,6 +327,7 @@ public class DataHunterRestApiClient {
 			throw new RuntimeException("UnsupportedEncodingException in policyToUrlQueryString using " + uriParm );
 		}
 	}
+	
 	
 	private String nullToEmpty(String str) {
 		return null == str ? "" : str;
