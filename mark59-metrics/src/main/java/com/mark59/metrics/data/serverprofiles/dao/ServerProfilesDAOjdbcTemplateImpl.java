@@ -32,7 +32,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mark59.metrics.data.beans.ServerProfile;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
@@ -221,7 +221,7 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		
 		
 //		String stringy = ServerMetricsWebUtils.listToTextboxFormat(new ArrayList<String>());
-		String stringy = ServerMetricsWebUtils.listToTextboxFormat(null);
+		String stringy = MetricsUtils.listToTextboxFormat(null);
 		System.out.println("stringy="+ stringy);
 		
 		

@@ -122,7 +122,7 @@ public class Mark59LoggingConfig {
 			LOG.info("Clearing any existing data from Mark59 log directory " + logDirectory.getPath());
 			FileUtils.deleteDirectory(logDirectory);
 		} else {
-			LOG.warn("   As no Mark59 log directory has been set, attempts to write logs will fail.");
+			LOG.warn("As no Mark59 log directory has been set, attempts to write logs will fail.");
 		}
 		return logDirectory;
 	}
@@ -144,8 +144,8 @@ public class Mark59LoggingConfig {
 		// set logname format to default if:  property is empty or not set, or an invalid formatter has been passed
 
 		if (mark59PropLognameFormatList.size() == 0) {
-			LOG.info("property " + PropertiesKeys.MARK59_PROP_LOGNAME_FORMAT + " was not set. '"
-					+ logNamesFormat + "' assumed.");
+			LOG.info("As property " + PropertiesKeys.MARK59_PROP_LOGNAME_FORMAT + " was not set, '"
+					+ logNamesFormat + "' is assumed.");
 			return;
 		}
 

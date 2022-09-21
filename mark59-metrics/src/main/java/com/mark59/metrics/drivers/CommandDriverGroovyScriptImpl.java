@@ -29,7 +29,7 @@ import com.mark59.metrics.data.beans.Command;
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.CommandDriverResponse;
 import com.mark59.metrics.pojos.ScriptResponse;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsUtils;
 
 
 /**
@@ -68,7 +68,7 @@ public class CommandDriverGroovyScriptImpl implements CommandDriver {
 			Map<String,String> serverProfileParms = serverProfile.getParameters()  == null ? new HashMap<>() : serverProfile.getParameters();
 			serverProfileParms.forEach(scriptParms::put);
 			
-			groovyScriptResult = (ScriptResponse)ServerMetricsWebUtils.runGroovyScript(command.getCommand().replaceAll("\\R", "\n"), scriptParms);
+			groovyScriptResult = (ScriptResponse)MetricsUtils.runGroovyScript(command.getCommand().replaceAll("\\R", "\n"), scriptParms);
 	
 			commandDriverResponse.setParsedMetrics(groovyScriptResult.getParsedMetrics());
 			commandDriverResponse.setCommandFailure(groovyScriptResult.getCommandFailure());

@@ -43,7 +43,7 @@ import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.PropertiesKeys;
 import com.mark59.core.utils.PropertiesReader;
-import com.mark59.metrics.api.utils.AppConstantsServerMetrics;
+import com.mark59.metrics.api.utils.MetricsApiConstants;
 import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsersDAO;
 import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsersDAOexcelWorkbookImpl;
 import com.mark59.metrics.data.commandparserlinks.dao.CommandParserLinksDAO;
@@ -57,11 +57,17 @@ import com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAOexcelWorkbook
 import com.mark59.metrics.drivers.ServerProfileRunner;
 import com.mark59.metrics.pojos.ParsedCommandResponse;
 import com.mark59.metrics.pojos.WebServerMetricsResponsePojo;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsConstants;
+import com.mark59.metrics.utils.MetricsUtils;
 
 /**
- * This is the initiating class for server metrics capture using a (previously downloaded) server metrics excel spreadsheet.
- * The location of the spreadsheet containing the server profile details is generally expected to set set via
+ * 
+ * <p>Intended for use as a Java Sampler in a JMeter test plan to capture metric data.
+ *  
+ * <p>It makes use of a  (previously downloaded) server metrics excel spreadsheet.  The spreadsheet can be 
+ * downloaded from the Metrics web application (profiles page).
+ * 
+ * <p>The location of the spreadsheet containing the server profile details is generally expected to set set via
  * the property 'mark59.server.profiles.excel.file.path' (in Mark59.properties).  An path override is also available
  * on the Java Request parameter list.    
  * 
@@ -95,8 +101,9 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 		staticMap.put(SERVER_PROFILE_NAME, "localhost" );
 		
 		staticMap.put(".", "");	
-		staticMap.put("_________________________ logging settings: _______________", "PRINT_ERROR_MESSAGES values: 'short' (default), 'full', 'no'");
-		staticMap.put(AppConstantsServerMetrics.PRINT_ERROR_MESSAGES, "short" );
+		staticMap.put("_________________________ logging settings: _______________", "ERROR_MESSAGES values: 'short' (default), 'full', 'no'");
+		staticMap.put(MetricsApiConstants.LOG_ERROR_MESSAGES, "short" );		
+		staticMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES, "short" );
 		staticMap.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(false));		
 		staticMap.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));			
 		staticMap.put("-", "");			
@@ -105,7 +112,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 		staticMap.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");	
 		staticMap.put("_", "");
 		staticMap.put("___________________"       , "");			
-		staticMap.put("build information: ", "mark59-metrics-api (via excel) Version: " + AppConstantsServerMetrics.MARK59_SERVER_METRICS_VERSION);			
+		staticMap.put("build information: ", "mark59-metrics-api (via excel) Version: " + MetricsConstants.MARK59_VERSION_METRICS);			
 		
 		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}
@@ -183,7 +190,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 	        	
 			response = ServerProfileRunner.commandsResponse(reqServerProfileName, testModeNo, serverProfilesDAO,
 					serverCommandLinksDAO, commandsDAO, commandParserLinksDAO, commandResponseParsersDAO,
-					AppConstantsServerMetrics.RUNNING_VIA_EXCEL);
+					MetricsApiConstants.RUNNING_VIA_EXCEL);
 	 		workbook.close();
 
 	 		ServerMetricsCaptureUtils.validateCommandsResponse(response);
@@ -212,8 +219,8 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 		additionalTestParametersMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH,
 				"./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
 		//		"./src/test/resources/duffSimpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
-		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + ServerMetricsWebUtils.obtainOperatingSystemForLocalhost());	
-		additionalTestParametersMap.put(AppConstantsServerMetrics.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'
+		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + MetricsUtils.obtainOperatingSystemForLocalhost());	
+		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'
 		// to force Results summary to log:	
 		Arguments jmeterParameters = ostest.getDefaultParameters();
 		jmeterParameters.removeArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY);
@@ -228,7 +235,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 				"./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
 		//		"./src/test/resources/duffSimpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	// TODO: messages test		
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "SimpleScriptSampleRunner");	
-		additionalTestParametersMap.put(AppConstantsServerMetrics.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'
+		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'
 		Arguments groovyscriptjmeterParameters = groovyscripttest.getDefaultParameters();
 		groovyscriptjmeterParameters.removeArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY);
 		groovyscriptjmeterParameters.addArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));	

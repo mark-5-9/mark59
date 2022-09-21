@@ -185,7 +185,7 @@ public class TrendingController {
 	
 		trendingForm.setNthRankedTxn(UtilsTrends.defaultIfBlank(reqNthRankedTxn, AppConstantsMetrics.ALL));
 		
-		System.out.println("TrendingController trendingForm : " + trendingForm  );
+		// System.out.println("TrendingController trendingForm : " + trendingForm  );
 		
 		trendingForm.setRunTimeSelectionSQL(runDAO.runsSQL(	trendingForm.getApplication(),
 															trendingForm.getSqlSelectRunLike(),

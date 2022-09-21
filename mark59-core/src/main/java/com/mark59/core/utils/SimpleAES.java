@@ -23,6 +23,11 @@ import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.mark59.core.JmeterFunctionsImpl;
+
 
 /**
  * A simple encryption program to allow for non clear-case entry of passwords in scripts. <br>
@@ -34,66 +39,50 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class SimpleAES {
 
-	private static SecretKeySpec secretKey;
-	private static byte[] key;
-
-	/**
-	 * sets the class key 
-	 * @param myKey passed key
-	 */
-	public static void setKey(String myKey) {
-		MessageDigest sha = null;
-		try {
-			key = myKey.getBytes(StandardCharsets.UTF_8);
-			sha = MessageDigest.getInstance("SHA-1");
-		} catch (Exception e) {
-			System.out.println("Error while setting key (" + myKey + ") : " + e.toString());
-		}
-		key = sha.digest(key);
-		key = Arrays.copyOf(key, 16);
-		secretKey = new SecretKeySpec(key, "AES");
-	}
-
+	private static final Logger LOG = LogManager.getLogger(JmeterFunctionsImpl.class);
+	
 	/**
 	 * @param strToEncrypt string to encrypt
-	 * @param secret secret
 	 * @return encrypted string
 	 */
-	public static String encrypt(String strToEncrypt, String secret) {
+	public static synchronized String encrypt(String strToEncrypt) {
 		try {
-			setKey(secret);
+			// set key
+			MessageDigest sha = MessageDigest.getInstance("SHA-1");
+			byte[] key = sha.digest(Mark59Constants.REFERENCE.getBytes(StandardCharsets.UTF_8));
+			SecretKeySpec secretKey = new SecretKeySpec(Arrays.copyOf(key, 16), "AES");
+			// encrypt
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
 		} catch (Exception e) {
-			System.out.println("Error while encrypting: " + e.toString());
+			LOG.error("Error while encrypting: " + e.toString());
+			e.printStackTrace();
 		}
 		return null;
 	}
 
-	/**
-	 * @param strToDecrypt string to decrypt
-	 * @return decrypted string
-	 */
-	public static String decrypt(String strToDecrypt) {
-		return decrypt(strToDecrypt, Mark59Constants.REFERENCE);
-	}
 	
 	/**
 	 * @param strToDecrypt  string to decrypt
-	 * @param secret secret
 	 * @return decrypted string
 	 */
-	public static String decrypt(String strToDecrypt, String secret) {
+	public static synchronized String decrypt(String strToDecrypt) {
 		try {
-			setKey(secret);
+			// set key
+			MessageDigest sha = MessageDigest.getInstance("SHA-1");
+			byte[] key = sha.digest(Mark59Constants.REFERENCE.getBytes(StandardCharsets.UTF_8));
+			SecretKeySpec secretKey = new SecretKeySpec(Arrays.copyOf(key, 16), "AES");
+			// decrypt
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.DECRYPT_MODE, secretKey);
 			return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
 		} catch (Exception e) {
-			System.out.println("Error while decrypting: " + e.toString());
+			LOG.error("Error while decrypting: " + e.toString());
+			e.printStackTrace();
+			// throw exception back to calling application
+			throw new RuntimeException("failure decrypting '" + strToDecrypt + "'");
 		}
-		return null;
 	}
 
 	
@@ -102,13 +91,13 @@ public class SimpleAES {
 	 * @param args no args required
 	 */
 	public static void main(String[] args) {
-//		String originalString = "My test string!";
-//		String encryptedString = SimpleAES.encrypt(originalString, Mark59Constants.REFERENCE );
-//		String decryptedString = SimpleAES.decrypt(encryptedString, Mark59Constants.REFERENCE);
-//
-//		System.out.println(originalString);
-//		System.out.println(encryptedString);
-//		System.out.println(decryptedString);
+		String originalString = "My test string!";
+		String encryptedString = SimpleAES.encrypt(originalString);
+		String decryptedString = SimpleAES.decrypt(encryptedString);
+
+		System.out.println(originalString);
+		System.out.println(encryptedString);
+		System.out.println(decryptedString);
 	}
 
 }

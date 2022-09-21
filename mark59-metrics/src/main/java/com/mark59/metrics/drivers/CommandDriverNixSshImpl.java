@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +38,8 @@ import com.mark59.core.utils.SimpleAES;
 import com.mark59.metrics.data.beans.Command;
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.CommandDriverResponse;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb.CommandExecutorDatatypes;
+import com.mark59.metrics.utils.MetricsConstants;
+import com.mark59.metrics.utils.MetricsConstants.CommandExecutorDatatypes;
 
 
 /**
@@ -65,71 +67,93 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 	@Override
 	public CommandDriverResponse executeCommand(Command command) {
 		LOG.debug("executeCommand :" + command);
-
-		String actualPassword = serverProfile.getPassword();
-		String cipherUsedLog = " user " + serverProfile.getUsername() + " (" + actualPassword + " )"; 
-		if (StringUtils.isNotBlank(serverProfile.getPasswordCipher())){
-			actualPassword = SimpleAES.decrypt(serverProfile.getPasswordCipher());
-			cipherUsedLog = "  user " + serverProfile.getUsername() + " (pwd chipher used)" ;
-		} 			
-		if ("localhost".equalsIgnoreCase(serverProfile.getServer())) {
-			cipherUsedLog = " (local execution)";
-		} 
-		
-		String IgnoreStdErrLog = "";
-		if(Mark59Utils.resolvesToTrue(command.getIngoreStderr())){
-			IgnoreStdErrLog = ". StdErr to be ignored. ";
-		}
-
-		String commandLog = cipherUsedLog + IgnoreStdErrLog + " :<br><font face='Courier'>" + command.getCommand().replaceAll("\\R", "<br>") + "</font>";
-
+		String actualPassword; 
+		String cipherUsedLog = " (local execution)";		
 		CommandDriverResponse commandDriverResponse;
+		String runtimeCommand = command.getCommand().replaceAll("\\R", "\n");
+
 		if ("localhost".equalsIgnoreCase(serverProfile.getServer())) {
-			commandDriverResponse = CommandDriver.executeRuntimeCommand(command.getCommand().replaceAll("\\R", "\n")  , command.getIngoreStderr(), CommandExecutorDatatypes.SSH_LINUX_UNIX );
+			commandDriverResponse = CommandDriver.executeRuntimeCommand(runtimeCommand, command.getIngoreStderr(), CommandExecutorDatatypes.SSH_LINUX_UNIX );
+		
 		} else {
-			commandDriverResponse = connect(serverProfile, actualPassword);
-			if (sesConnection != null) {                                                                      
-				commandDriverResponse = executeRemoteNixSystemCommand(command.getCommand().replaceAll("\\R", "\n")  , command.getIngoreStderr());
-			} 
+			
+			if (StringUtils.isBlank(serverProfile.getPasswordCipher())){
+				actualPassword = serverProfile.getPassword();
+				if (MetricsConstants.KERBEROS.equals(actualPassword)){
+					cipherUsedLog = " (connection via Kerberos)"; 
+				} else {
+					cipherUsedLog = " user " + serverProfile.getUsername() + " (not enciphered)"; 
+				}
+			} else {
+				cipherUsedLog = " (pwd chipher used)" ;
+				try {
+					actualPassword = SimpleAES.decrypt(serverProfile.getPasswordCipher());
+				} catch (Exception e) {
+					commandDriverResponse = new CommandDriverResponse();
+					commandDriverResponse.setRawCommandResponseLines(new ArrayList<>());
+					commandDriverResponse.setCommandLog("<br>" + cipherUsedLog + "<br>pwd decryption error: " + e.getMessage() + "<br>");			
+					commandDriverResponse.setCommandFailure(true);
+					return commandDriverResponse;
+				}
+			}
+
+			try {
+				connect(serverProfile, actualPassword);
+			} catch (Exception e) {
+				commandDriverResponse = new CommandDriverResponse();
+				commandDriverResponse.setRawCommandResponseLines(new ArrayList<>());
+				commandDriverResponse.setCommandLog("<br>" + cipherUsedLog + "<br>Connection failure: " + e.getMessage() + "<br>");			
+				commandDriverResponse.setCommandFailure(true);
+				return commandDriverResponse;
+			}
+			
+			commandDriverResponse = executeRemoteNixSystemCommand(runtimeCommand, command.getIngoreStderr());
 		}
 		
-		commandLog += "<br>Response :<br><font face='Courier'>" 
-				+ commandDriverResponse.getCommandLog()
-				+ String.join("<br>", commandDriverResponse.getRawCommandResponseLines()).replace(" ", "&nbsp;") + "</font><br>";
+		commandDriverResponse.setCommandLog(
+				CommandDriver.logExecution(cipherUsedLog, runtimeCommand, command.getIngoreStderr(), commandDriverResponse.getRawCommandResponseLines()));
 		
-		commandDriverResponse.setCommandLog(commandLog);
+		//System.out.println("CommandLog at end:" + commandDriverResponse.getCommandLog()  );
+		
 		return commandDriverResponse;
 	}
 
 	
-	
-	private CommandDriverResponse connect(ServerProfile serverProfile, String actualPassword) {
-		CommandDriverResponse commandDriverResponse = new CommandDriverResponse();
+	/**
+	 * The PreferredAuthentication configuration, removing Kerberos authentication (the default), as  
+	 * Kerberos can hang the client if it is installed. 
+	 * see  https://stackoverflow.com/questions/10881981/sftp-connection-through-java-asking-for-weird-authentication.
+	 * 
+	 * @param serverProfile the server profile
+	 * @param actualPassword the actual password
+	 */
+	private void connect(ServerProfile serverProfile, String actualPassword) {
 		try {
 			sesConnection = new JSch().getSession(serverProfile.getUsername(), serverProfile.getServer(), Integer.parseInt(serverProfile.getConnectionPort()));
 			sesConnection.setPassword(actualPassword);
-			sesConnection.setConfig("StrictHostKeyChecking", "no");
+			Properties connectConfig = new java.util.Properties();
+			connectConfig.put("StrictHostKeyChecking", "no");
+			if (MetricsConstants.KERBEROS.equals(actualPassword)){
+				connectConfig.put("PreferredAuthentications", "gssapi-with-mic");				
+			} else {
+				connectConfig.put("PreferredAuthentications", "publickey,keyboard-interactive,password");
+			}
+			sesConnection.setConfig(connectConfig);
 			sesConnection.connect(Integer.parseInt(serverProfile.getConnectionTimeout()));
 		} catch (JSchException jschX) {
 			try {sesConnection.disconnect();} catch (Exception ignored){}
-			commandDriverResponse.setRawCommandResponseLines(new ArrayList<>());
-			commandDriverResponse.setCommandLog("<br>A failure has occured attempting to connect : " + jschX.getMessage() + "<br>");			
-			commandDriverResponse.setCommandFailure(true);
-			sesConnection = null;
-			LOG.warn("A failure has occured attempting to connect. Server profile : " + serverProfile );
+			throw new RuntimeException(jschX.getMessage());
 		}
-		return commandDriverResponse;
 	}	
 
 	
-
 	private CommandDriverResponse executeRemoteNixSystemCommand(String runtimeCommand, String ingoreStderr) {
 		LOG.debug( "executeRemoteNixSystemCommand : " + runtimeCommand );
 		
 		CommandDriverResponse commandDriverResponse = new CommandDriverResponse();   
 		commandDriverResponse.setCommandFailure(false);
 		List<String> rawCommandResponseLines = new ArrayList<>();
-		String commandLog = "";
+		commandDriverResponse.setCommandLog("");
 		ChannelExec channelExec = null;
 		
 		try {		
@@ -148,21 +172,21 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 				}
 			} 			
 			
-			rawCommandResponseLines.addAll( readCommandInputStream(commandResponseStream) );
+			rawCommandResponseLines.addAll(readCommandInputStream(commandResponseStream));
 			
 			channelExec.getSession().disconnect();
 			channelExec.disconnect();
 			
 		} catch (Exception e) {
 			try {Objects.requireNonNull(channelExec).getSession().disconnect();channelExec.disconnect();} catch (Exception ignored){}
+			commandDriverResponse.setCommandFailure(true);	
 			StringWriter stackTrace = new StringWriter();
 			e.printStackTrace(new PrintWriter(stackTrace));
-			commandLog += "<br>A faiure has occured attempting to execute the command : " + e.getMessage() + "<br>" + stackTrace.toString() + "<br>";			
-			LOG.debug("Command failure : " + runtimeCommand + ":\n" + e.getMessage() + stackTrace.toString());
+			rawCommandResponseLines.add("<br>Command Failure: " + e.getMessage() + "<br>" + stackTrace.toString() + "<br>");
 		}
 
 		commandDriverResponse.setRawCommandResponseLines(rawCommandResponseLines);
-		commandDriverResponse.setCommandLog(commandLog);
+		LOG.debug("commandDriverResponse: " + commandDriverResponse);
 		return commandDriverResponse;
 	}
 

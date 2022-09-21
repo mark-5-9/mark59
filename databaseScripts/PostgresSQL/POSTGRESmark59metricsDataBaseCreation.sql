@@ -84,7 +84,9 @@ INSERT INTO SERVERPROFILES VALUES ('remoteLinuxServer','SSH_LINUX_UNIX','LinuxSe
 INSERT INTO SERVERPROFILES VALUES ('remoteUnixVM','SSH_LINUX_UNIX','UnixVMName','','userid','encryptMe','','22','60000','','');
 INSERT INTO SERVERPROFILES VALUES ('remoteWinServer','WMIC_WINDOWS','WinServerName','','userid','encryptMe','','','','','');
 INSERT INTO SERVERPROFILES VALUES ('SimpleScriptSampleRunner', 'GROOVY_SCRIPT', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'runs a supplied, basic groovy script sample', '{"parm1":"11","parm2":"55.7","parm3":"333"}');
-INSERT INTO SERVERPROFILES VALUES ('NewRelicTestProfile', 'GROOVY_SCRIPT', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'supplied sample New Relic API groovy script', '{"proxyPort":"","newRelicXapiKey":"","proxyServer":"","newRelicApiAppId":""}');    
+INSERT INTO SERVERPROFILES VALUES ('NewRelicSampleProfile', 'GROOVY_SCRIPT', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'supplied sample New Relic API groovy script', '{"proxyPort":"proxyPort","newRelicXapiKey":"newRelicXapiKey","proxyServer":"proxyServer","newRelicApiAppId":"newRelicApiAppId"}');
+
+
 
 
 INSERT INTO COMMANDS VALUES ('DataHunterSeleniumDeployAndExecute','WMIC_WINDOWS','process call create ''cmd.exe /c 
@@ -230,46 +232,38 @@ scriptResponse.setCommandLog(commandLogDebug);
 scriptResponse.setParsedMetrics(parsedMetrics);
 return scriptResponse;', 'N', 'supplied basic groovy script sample', '["parm1","parm2","parm3"]');
 
-INSERT INTO COMMANDS VALUES ('NewRelicSampleCmd', 'GROOVY_SCRIPT',
-'import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
+INSERT INTO COMMANDS VALUES ('NewRelicSampleCmd', 'GROOVY_SCRIPT', 'import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.URL;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import com.mark59.metrics.pojos.ParsedMetric;
 import com.mark59.metrics.pojos.ScriptResponse;
-
-ScriptResponse scriptResponse = new ScriptResponse(); 
-List<ParsedMetric> parsedMetrics = new ArrayList<ParsedMetric>();
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 String newRelicApiUrl = "https://api.newrelic.com/v2/applications/";
+String url = newRelicApiUrl + newRelicApiAppId + "/hosts.json";
+ScriptResponse scriptResponse = new ScriptResponse();
+List<ParsedMetric> parsedMetrics = new ArrayList<ParsedMetric>();
 
-String url = newRelicApiUrl + newRelicApiAppId + "/instances.json"; 
-String debugJsonResponses =  "running profile " + serverProfile.serverProfileName + ", init req : " + url ;
-JSONObject jsonResponse = null;
+Request request; Response response = null; JSONObject jsonResponse = null;
 Proxy proxy = StringUtils.isNotBlank(proxyServer + proxyPort) ? new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyServer , new Integer(proxyPort))) : null;
+OkHttpClient client = proxy != null ? new OkHttpClient.Builder().proxy(proxy).build() : new OkHttpClient();
+Headers headers = new Headers.Builder().add("X-Api-Key", newRelicXapiKey).add("Content-Type", "application/json").build();
+String debugJsonResponses =  "running profile " + serverProfile.serverProfileName + ", init req : " + url ;
 
 try {
-	HttpURLConnection conn = proxy != null ? (HttpURLConnection)new URL(url).openConnection(proxy) : (HttpURLConnection)new URL(url).openConnection();
-	conn.setRequestMethod("GET");
-	conn.addRequestProperty("X-Api-Key", newRelicXapiKey);
-	conn.setRequestProperty("Content-Type", "application/json");
-	conn.setRequestProperty("Accept", "application/json");
-	if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-		throw new Exception("rc:" + conn.getResponseCode() + "from " + url);
-	}
-	String isStr = null;
-	Scanner s = new Scanner(conn.getInputStream());
-	isStr = s.hasNext() ? s.next() : "";
-	jsonResponse = new JSONObject(isStr);
+	request = new Request.Builder().url(url).headers(headers).get().build();
+	response = client.newCall(request).execute();
+	jsonResponse = new JSONObject(response.body().string());
 	debugJsonResponses =  debugJsonResponses + "<br>init res.: " + jsonResponse.toString();
 
 	ZonedDateTime utcTimeNow = ZonedDateTime.now(ZoneOffset.UTC);
@@ -279,48 +273,37 @@ try {
 	String fromHour	= String.format("%02d", utcMinus1Min.getHour());
 	String fromMinute = String.format("%02d", utcMinus1Min.getMinute());
 	String fromDate = utcMinus1Min.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-	String toDate 	= utcTimeNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));		
+	String toDate 	= utcTimeNow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 	String urlDateRangeParmStr = "&from=" + fromDate + "T" + fromHour + "%3A" + fromMinute + "%3A00%2B00%3A00" + "&to=" + toDate + "T" + toHour + "%3A" + toMinute + "%3A00%2B00%3A00";
 
-	JSONArray application_instances = jsonResponse.getJSONArray("application_instances");
+	JSONArray application_hosts = jsonResponse.getJSONArray("application_hosts");
 
-	for (int i = 0; i < application_instances.length(); i++) {
-		JSONObject application_instance = (JSONObject) application_instances.get(i);
-		Integer instanceId = (Integer) application_instance.get("id");
-		String instanceName = ((String)application_instance.get("application_name")).replace(":","_");
-		url = newRelicApiUrl + newRelicApiAppId  + "/instances/" + instanceId + "/metrics/data.json?names%5B%5D=Memory%2FHeap%2FFree&names%5B%5D=CPU%2FUser%2FUtilization" + urlDateRangeParmStr;
-		debugJsonResponses =  debugJsonResponses + "<br><br>req." + i + ": " + url ; 
-		
-		conn = proxy != null ? (HttpURLConnection)new URL(url).openConnection(proxy) : (HttpURLConnection)new URL(url).openConnection();
-		conn.setRequestMethod("GET");
-		conn. addRequestProperty("X-Api-Key", newRelicXapiKey);
-		conn.setRequestProperty("Content-Type", "application/json");
-		conn.setRequestProperty("Accept", "application/json");
-		if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-			throw new Exception("rc:" + conn.getResponseCode() + "from " + url);
-		}
-		isStr = null;
-		s = new Scanner(conn.getInputStream());
-		isStr = s.hasNext() ? s.next() : "";
-		jsonResponse = new JSONObject(isStr);
-		debugJsonResponses =  debugJsonResponses + "<br>res." + i + ": " + jsonResponse.toString(); 
-	
-		Number totalUusedMbMemory = -1.0;
-		totalUusedMbMemory =  (Number)((JSONObject)((JSONObject)jsonResponse.getJSONObject("metric_data").getJSONArray("metrics").get(0)).getJSONArray("timeslices").get(0)).getJSONObject("values").get("total_used_mb") ;
-		parsedMetrics.add(new ParsedMetric("MEMORY_" + newRelicApiAppId + "_" + instanceId + "_" + instanceName, totalUusedMbMemory,  "MEMORY"));
-		
-		Number percentCpuUserUtilization = -1.0;
-		percentCpuUserUtilization = (Number)((JSONObject)((JSONObject)jsonResponse.getJSONObject("metric_data").getJSONArray("metrics").get(1)).getJSONArray("timeslices").get(0)).getJSONObject("values").get("percent");
-		parsedMetrics.add(new ParsedMetric("CPU_" + newRelicApiAppId + "_" + instanceId + "_" + instanceName, percentCpuUserUtilization, "CPU_UTIL"));
+	for (int i = 0; i < application_hosts.length(); i++) {
+		JSONObject application_host = (JSONObject) application_hosts.get(i);
+		Integer hostId = (Integer) application_host.get("id");
+		String hostName = ((String)application_host.get("host")).replace(":","_");
+		url = newRelicApiUrl + newRelicApiAppId  + "/hosts/" + hostId + "/metrics/data.json?names%5B%5D=Memory/Heap/Used&names%5B%5D=CPU/User Time&names%5B%5D=Memory/Physical" + urlDateRangeParmStr;
+		debugJsonResponses =  debugJsonResponses + "<br><br>req." + i + ": " + url ;
 
+		request = new Request.Builder().url(url).headers(headers).get().build();
+		response = client.newCall(request).execute();
+		jsonResponse = new JSONObject(response.body().string());
+		debugJsonResponses =  debugJsonResponses + "<br>res." + i + ": " + jsonResponse.toString();
+
+		Number memoryMetric = -1.0;
+		memoryMetric =  (Number)((JSONObject)((JSONObject)jsonResponse.getJSONObject("metric_data").getJSONArray("metrics").get(0)).getJSONArray("timeslices").get(0)).getJSONObject("values").get("used_mb_by_host") ;
+		parsedMetrics.add(new ParsedMetric("MEMORY_HEAP_USED_MB_" + hostName, memoryMetric, "MEMORY"));
+
+		Number cpuMetric = -1.0;
+		cpuMetric = (Number)((JSONObject)((JSONObject)jsonResponse.getJSONObject("metric_data").getJSONArray("metrics").get(1)).getJSONArray("timeslices").get(0)).getJSONObject("values").get("percent");
+		parsedMetrics.add(new ParsedMetric("CPU_USER_TIME_%_" + hostName, cpuMetric, "CPU_UTIL"));
 	}
 } catch (Exception e) {
-	debugJsonResponses =  debugJsonResponses + "<br>\n ERROR :  Exception last url: " + url + ", response of  : " + jsonResponse + ", message: "+ e.getMessage(); 
+	debugJsonResponses =  debugJsonResponses + "<br>\n ERROR :  Exception last url: " + url + ", response of  : " + jsonResponse + ", message: "+ e.getMessage();
 }
 scriptResponse.setCommandLog(debugJsonResponses);
 scriptResponse.setParsedMetrics(parsedMetrics);
-
-return scriptResponse;', 'N', 'NewRelic Supplied Sample', '["newRelicApiAppId","newRelicXapiKey","proxyServer","proxyPort"]'); 
+return scriptResponse;', 'N', 'NewRelic Supplied Sample', '["newRelicApiAppId","newRelicXapiKey","proxyServer","proxyPort"]');
 
 
 
@@ -493,7 +476,7 @@ INSERT INTO SERVERCOMMANDLINKS VALUES ('remoteWinServer','FreePhysicalMemory');
 INSERT INTO SERVERCOMMANDLINKS VALUES ('remoteWinServer','FreeVirtualMemory');
 INSERT INTO SERVERCOMMANDLINKS VALUES ('remoteWinServer','WinCpuCmd');
 INSERT INTO SERVERCOMMANDLINKS VALUES ('SimpleScriptSampleRunner', 'SimpleScriptSampleCmd');
-INSERT INTO SERVERCOMMANDLINKS VALUES ('NewRelicTestProfile', 'NewRelicSampleCmd'); 
+INSERT INTO SERVERCOMMANDLINKS VALUES ('NewRelicSampleProfile','NewRelicSampleCmd');
 
 
 INSERT INTO COMMANDPARSERLINKS VALUES ('DataHunterSeleniumDeployAndExecute','Return1');

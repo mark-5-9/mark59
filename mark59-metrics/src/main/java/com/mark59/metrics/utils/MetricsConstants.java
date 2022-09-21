@@ -23,15 +23,17 @@ import java.util.List;
  * @author Philip Webb
  * Written: Australian Summer 2020  
  */
-public class AppConstantsServerMetricsWeb {
+public class MetricsConstants {
 	
-	public static final String MARK59_SERVER_METRICS_VERSION = "5.0";	
+	public static final String MARK59_VERSION_METRICS = "5.1";	
 	
 	public static final String MARK59_SERVER_PROFILES_EXCEL_FILE = "mark59serverprofiles.xlsx";  
 
 	public static final String SERVER_PROFILE_NOT_FOUND  = "SERVER_PROFILE_NOT_FOUND";	
 	
 	public static final String METRICS_BASE_DIR 	= "METRICS_BASE_DIR"; 
+	
+	public static final String KERBEROS = "KERBEROS";	
 	
 	
 	public enum OS {
@@ -63,6 +65,6 @@ public class AppConstantsServerMetricsWeb {
 	
 	
 	
-    private AppConstantsServerMetricsWeb() {
+    private MetricsConstants() {
     }
 }

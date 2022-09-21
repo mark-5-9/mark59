@@ -34,9 +34,9 @@ import com.mark59.core.utils.Mark59Utils;
 import com.mark59.metrics.data.beans.Command;
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.CommandDriverResponse;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb.CommandExecutorDatatypes;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb.OS;
+import com.mark59.metrics.utils.MetricsUtils;
+import com.mark59.metrics.utils.MetricsConstants.CommandExecutorDatatypes;
+import com.mark59.metrics.utils.MetricsConstants.OS;
 
 /**
 * @author Michael Cohen
@@ -54,7 +54,7 @@ public interface CommandDriver {
 		String reportedServerId = server;
 		if ( "localhost".equalsIgnoreCase(server) && HOSTID.equals(alternateServerId) ) {
 
-			if (OS.WINDOWS.getOsName().equals(ServerMetricsWebUtils.obtainOperatingSystemForLocalhost())){				
+			if (OS.WINDOWS.getOsName().equals(MetricsUtils.obtainOperatingSystemForLocalhost())){				
 				reportedServerId = System.getenv("COMPUTERNAME");
 			} else { 
 				reportedServerId = System.getenv("HOSTNAME");
@@ -96,7 +96,7 @@ public interface CommandDriver {
 		CommandDriverResponse commandDriverResponse = new CommandDriverResponse();   
 		commandDriverResponse.setCommandFailure(false);
 		List<String> rawCommandResponseLines = new ArrayList<>();
-		String commandLog = "";
+		commandDriverResponse.setCommandLog("");
 		String line;
 				
 		Process p = null;
@@ -135,17 +135,29 @@ public interface CommandDriver {
 			commandDriverResponse.setCommandFailure(true);			
 			StringWriter stackTrace = new StringWriter();
 			e.printStackTrace(new PrintWriter(stackTrace));
-			commandLog+= "<br>A faiure has occured attempting to execute the command : " + e.getMessage() + "<br>" + stackTrace.toString() + "<br>";
-			LOG.debug("Command failure : " + runtimeCommand + ":\n" + e.getMessage() + stackTrace.toString());
+			rawCommandResponseLines.add("<br>Command Failure: " + e.getMessage() + "<br>" + stackTrace.toString() + "<br>");			
+			
 			try {Objects.requireNonNull(errors).close();} catch (Exception ignored){}
 			try {Objects.requireNonNull(reader).close();} catch (Exception ignored){}
 			try {Objects.requireNonNull(p).destroy();} catch (Exception ignored){}
 		}
 		
-		rawCommandResponseLines.forEach(LOG::debug);
 		commandDriverResponse.setRawCommandResponseLines(rawCommandResponseLines);
-		commandDriverResponse.setCommandLog(commandLog);
+		LOG.debug("commandDriverResponse: " + commandDriverResponse);
 		return commandDriverResponse;
+	}
+	
+	
+	static String logExecution(String cipherUsedLog, String runtimeCommand, String ingoreStderr, List<String> rawCommandResponseLines) {
+		String IgnoreStdErrLog = "";
+		if(Mark59Utils.resolvesToTrue(ingoreStderr)){
+			IgnoreStdErrLog = ". StdErr to be ignored. ";
+		}
+		return cipherUsedLog + IgnoreStdErrLog 
+				+ " :<br><font face='Courier'>" + runtimeCommand + "</font>"
+				+ "<br>Response :<br><font face='Courier'>" 
+				+ String.join("<br>", rawCommandResponseLines).replace(" ", "&nbsp;") 
+				+ "</font><br>";
 	}
 	
 }

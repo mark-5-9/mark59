@@ -42,35 +42,35 @@ public class PropertiesKeys {
 	 *  mark59.screenshot.directory.  Deprecated - renamed as mark59.log.directory
 	 */
 	@Deprecated
-	public static final String MARK59_PROP_SCREENSHOT_DIRECTORY 			= "mark59.screenshot.directory";
+	public static final String MARK59_PROP_SCREENSHOT_DIRECTORY	= "mark59.screenshot.directory";
 	
 	/**
 	 *  mark59.log.directory
 	 */
-	public static final String MARK59_PROP_LOG_DIRECTORY  					= "mark59.log.directory";
+	public static final String MARK59_PROP_LOG_DIRECTORY  		= "mark59.log.directory";
 
 	/**
 	 *  mark59.log.directory.suffix.  Valid values as listed :  {@link Mark59Constants#DATE} or {@link Mark59Constants#DATE_TIME} 	
 	 */
-	public static final String MARK59_PROP_LOG_DIRECTORY_SUFFIX 			= "mark59.log.directory.suffix";
+	public static final String MARK59_PROP_LOG_DIRECTORY_SUFFIX = "mark59.log.directory.suffix";
 
 
 	/**
 	 *  Formatter for log names output to the log directory. A comma delimited list of values as described {@link Mark59Constants#LOGNAME_FORMAT_OPTIONS}	
 	 *  <p>Default is <code>"ThreadName,Label"</code>
 	 */
-	public static final String MARK59_PROP_LOGNAME_FORMAT			 		= "mark59.logname.format";
+	public static final String MARK59_PROP_LOGNAME_FORMAT		= "mark59.logname.format";
 	
 	
 	/**
 	 * mark59.selenium.driver.path.chrome
 	 */
-	public static final String MARK59_PROP_DRIVER_CHROME					= "mark59.selenium.driver.path.chrome";
+	public static final String MARK59_PROP_DRIVER_CHROME		= "mark59.selenium.driver.path.chrome";
 
 	/**
 	 * mark59.selenium.driver.path.firefox
 	 */
-	public static final String MARK59_PROP_DRIVER_FIREFOX					= "mark59.selenium.driver.path.firefox";
+	public static final String MARK59_PROP_DRIVER_FIREFOX		= "mark59.selenium.driver.path.firefox";
 
 	/**
 	 * mark59.server.profiles.excel.file.path
@@ -80,7 +80,14 @@ public class PropertiesKeys {
 	/**
 	 * mark59.browser.executable  (this property can be over-ridden at script level by setting the "BROWSER_EXECUTABLE" argument) 
 	 */
-	public static final String MARK59_PROP_BROWSER_EXECUTABLE				= "mark59.browser.executable";
+	public static final String MARK59_PROP_BROWSER_EXECUTABLE	= "mark59.browser.executable";
+	
+	
+	/**
+	 * mark59.print.startup.console.messages. Set to 'true' to print Mark59 console message output on start-up (default is false) 
+	 */
+	public static final String MARK59_PRINT_STARTUP_CONSOLE_MESSAGES = "mark59.print.startup.console.messages";
+	
 	
 	/**
 	 * list of valid Mark59 property keys 
@@ -93,6 +100,6 @@ public class PropertiesKeys {
 								MARK59_PROP_DRIVER_CHROME, 
 								MARK59_PROP_DRIVER_FIREFOX,
 								MARK59_PROP_SERVER_PROFILES_EXCEL_FILE_PATH,
-								MARK59_PROP_BROWSER_EXECUTABLE};
-
+								MARK59_PROP_BROWSER_EXECUTABLE,
+								MARK59_PRINT_STARTUP_CONSOLE_MESSAGES};
 }

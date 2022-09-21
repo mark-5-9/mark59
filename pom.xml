@@ -18,6 +18,11 @@
 	     install goals as some projects are dependent on others (eg mark59-datahunter-samples is dependent on 
 	     mark59-dsl-samples, which is dependent on mark59-selenium-implementation, which is dependent
 	     on mark59-core) -->	
+	     
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>	     
+	     
 
 	<modules>
 		

@@ -96,9 +96,8 @@ public class PropertiesReader {
 			}
 		});
 
-		
 		LOG.info("");
-		LOG.info("Mark59 property settings : ");
+		LOG.info("Mark59 (Version: " +  Mark59Constants.MARK59_VERSION +") property settings : ");
 		setMark59property(PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY, NOT_EXECUTABLE, DEPRECATED);
 		setMark59property(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY);
 		setMark59property(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX);
@@ -107,9 +106,22 @@ public class PropertiesReader {
 		setMark59property(PropertiesKeys.MARK59_PROP_DRIVER_FIREFOX, EXECUTABLE, NOT_DEPRECATED);
 		setMark59property(PropertiesKeys.MARK59_PROP_SERVER_PROFILES_EXCEL_FILE_PATH);
 		setMark59property(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE, EXECUTABLE, NOT_DEPRECATED);
+		setMark59property(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES);		
 		LOG.info("    ----------------------- ");
+		
+		if (Mark59Constants.TRUE.equalsIgnoreCase(getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES))){
+			System.out.println("Using Mark59 Version: " +  Mark59Constants.MARK59_VERSION);
+			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOG_DIRECTORY 
+					+ " : "	+ getProperty(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY));
+			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX 
+					+ " : "	+ getProperty(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX));
+			System.out.println("     " + PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES 
+					+ " : "	+ getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES));			
+			System.out.println();
+		}
 	}
 
+	
 	/**
 	 * Load the JMeter properties file; if not found, then default to
 	 * "org/apache/jmeter/mark59.properties" from the classpath.

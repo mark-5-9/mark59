@@ -66,7 +66,7 @@ public class HomeController {
 		}	
 		
 		model.addAttribute("currentDatabaseProfile", currentDatabaseProfile);
-		model.addAttribute("DATAHUNTER_VERSION", DataHunterConstants.DATAHUNTER_VERSION);
+		model.addAttribute("DATAHUNTER_VERSION", DataHunterConstants.MARK59_VERSION_DATAHUNTER);
 		
 		return "welcome";
 	}	

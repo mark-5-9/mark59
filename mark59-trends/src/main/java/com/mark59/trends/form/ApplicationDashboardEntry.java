@@ -73,5 +73,17 @@ public class ApplicationDashboardEntry {
 	public void setSlaSummaryIcon(String slaSummaryIcon) {
 		this.slaSummaryIcon = slaSummaryIcon;
 	}
-
+	
+	@Override
+	public String toString(){
+		return "ApplicationDashboardEntry: "
+				+ " application= "+application 
+				+ " active="+active 
+				+ " comment="+comment 
+				+ " sinceLastRun="+sinceLastRun 
+				+ " slaTransactionResultIcon="+slaTransactionResultIcon 
+				+ " slaMetricsResultIcon="+slaMetricsResultIcon 
+				+ " slaSummaryIcon="+slaSummaryIcon 
+				;
+	}
 }

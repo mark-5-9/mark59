@@ -23,7 +23,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb;
+import com.mark59.metrics.utils.MetricsConstants;
 
 /**
  * @author Philip Webb
@@ -52,9 +52,9 @@ public class ApplicationEntry extends SpringBootServletInitializer {
     
     private static void setUserAccessibleDefinedVariables() {
     	// this variable is used in the win demo scripts (it's awkward to getting to pwd using the WMIC cmd window) 
-		System.setProperty(AppConstantsServerMetricsWeb.METRICS_BASE_DIR, System.getProperty("user.dir"));
-		LOG.trace("User variable " + AppConstantsServerMetricsWeb.METRICS_BASE_DIR + " : "
-				+ System.getProperty(AppConstantsServerMetricsWeb.METRICS_BASE_DIR));
+		System.setProperty(MetricsConstants.METRICS_BASE_DIR, System.getProperty("user.dir"));
+		LOG.trace("User variable " + MetricsConstants.METRICS_BASE_DIR + " : "
+				+ System.getProperty(MetricsConstants.METRICS_BASE_DIR));
     }
 	
 }

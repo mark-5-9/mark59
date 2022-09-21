@@ -23,7 +23,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import com.mark59.metrics.data.beans.ServerProfile;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
@@ -49,20 +49,20 @@ public class ServerProfilesDAOexcelWorkbookImpl implements ServerProfilesDAO {
             Row serverProfileRow = iterator.next();
             // System.out.println("findServerProfile key=" + ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(0)));
             
-			if (serverProfileName != null && serverProfileName.equalsIgnoreCase(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(0)))){	
+			if (serverProfileName != null && serverProfileName.equalsIgnoreCase(MetricsUtils.cellValue(serverProfileRow.getCell(0)))){	
             	notFound=false;
             	serverProfile = new ServerProfile();
-            	serverProfile.setServerProfileName	(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(0)));
-            	serverProfile.setExecutor			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(1)));
-            	serverProfile.setServer				(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(2)));
-            	serverProfile.setAlternativeServerId(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(3)));
-            	serverProfile.setUsername			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(4)));
-            	serverProfile.setPassword			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(5)));
-            	serverProfile.setPasswordCipher		(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(6)));
-            	serverProfile.setConnectionPort		(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(7)));
-            	serverProfile.setConnectionTimeout	(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(8)));
-            	serverProfile.setComment			(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(9)));
-            	serverProfile.setParameters(deserializeJsonToMap(ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(10))));
+            	serverProfile.setServerProfileName	(MetricsUtils.cellValue(serverProfileRow.getCell(0)));
+            	serverProfile.setExecutor			(MetricsUtils.cellValue(serverProfileRow.getCell(1)));
+            	serverProfile.setServer				(MetricsUtils.cellValue(serverProfileRow.getCell(2)));
+            	serverProfile.setAlternativeServerId(MetricsUtils.cellValue(serverProfileRow.getCell(3)));
+            	serverProfile.setUsername			(MetricsUtils.cellValue(serverProfileRow.getCell(4)));
+            	serverProfile.setPassword			(MetricsUtils.cellValue(serverProfileRow.getCell(5)));
+            	serverProfile.setPasswordCipher		(MetricsUtils.cellValue(serverProfileRow.getCell(6)));
+            	serverProfile.setConnectionPort		(MetricsUtils.cellValue(serverProfileRow.getCell(7)));
+            	serverProfile.setConnectionTimeout	(MetricsUtils.cellValue(serverProfileRow.getCell(8)));
+            	serverProfile.setComment			(MetricsUtils.cellValue(serverProfileRow.getCell(9)));
+            	serverProfile.setParameters(deserializeJsonToMap(MetricsUtils.cellValue(serverProfileRow.getCell(10))));
             }
         }   
 		return  serverProfile;

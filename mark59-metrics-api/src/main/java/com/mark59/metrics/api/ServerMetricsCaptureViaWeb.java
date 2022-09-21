@@ -42,17 +42,20 @@ import com.mark59.core.interfaces.JmeterFunctions;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Utils;
-import com.mark59.metrics.api.utils.AppConstantsServerMetrics;
+import com.mark59.metrics.api.utils.MetricsApiConstants;
 import com.mark59.metrics.controller.ServerMetricRestController;
 import com.mark59.metrics.pojos.ParsedCommandResponse;
 import com.mark59.metrics.pojos.WebServerMetricsResponsePojo;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsConstants;
+import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
  * Written: Australian Autumn 2020 
  * 
- * This is the initiating class for mark59-metrics-api (metrics capture via API) 
+ * This is the initiating class for mark59-metrics-api (metrics capture via API).
+ * 
+ * <p>Intended for use as a Java Sampler in a JMeter test plan to capture metric data.
  * 
  * @see ServerMetricRestController
  * 
@@ -82,8 +85,9 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 		staticMap.put(SERVER_PROFILE_NAME, "" );
 		
 		staticMap.put(".", "");	
-		staticMap.put("_________________________ logging settings: _______________", "PRINT_ERROR_MESSAGES values: 'short' (default), 'full', 'no'");
-		staticMap.put(AppConstantsServerMetrics.PRINT_ERROR_MESSAGES, "short" );
+		staticMap.put("_________________________ logging settings: _______________", "ERROR_MESSAGES values: 'short' (default), 'full', 'no'");
+		staticMap.put(MetricsApiConstants.LOG_ERROR_MESSAGES, "short" );
+		staticMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES, "short" );
 		staticMap.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(false));		
 		staticMap.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));			
 		staticMap.put("..", "");			
@@ -96,7 +100,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 		staticMap.put("-",
 				"   to capture injector metrics use the machine name or an Excel 'localhost..' entry instead (see Mark59 User Guide)");
 		staticMap.put("___________________", "");		
-		staticMap.put("build information: ", "mark59-metrics-api Version: " + AppConstantsServerMetrics.MARK59_SERVER_METRICS_VERSION);			
+		staticMap.put("build information: ", "mark59-metrics-api Version: " + MetricsConstants.MARK59_VERSION_METRICS);			
 		
 		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}
@@ -135,7 +139,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 			return null;
 		}
 		
-		JmeterFunctions jm = new JmeterFunctionsImpl(context);
+		JmeterFunctions jm = new JmeterFunctionsImpl(context, false);
 		BufferedReader in = null;
 		Integer repsonseCode = null;
 		WebServerMetricsResponsePojo response = null;
@@ -194,9 +198,9 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 		Log4jConfigurationHelper.init(Level.INFO);
 		ServerMetricsCaptureViaWeb ostest = new ServerMetricsCaptureViaWeb();
 		additionalTestParametersMap.put(MARK59_METRICS_URL, "http://localhost:8085/mark59-metrics");	
-		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + ServerMetricsWebUtils.obtainOperatingSystemForLocalhost());			
+		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + MetricsUtils.obtainOperatingSystemForLocalhost());			
 		// additionalTestParametersMap.put(SERVER_PROFILE_NAME, "remoteWinServer");   // 3 commands should fail			
-		additionalTestParametersMap.put(AppConstantsServerMetrics.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'			
+		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'			
 		// to force Results summary to log:		
 		Arguments jmeterParameters = ostest.getDefaultParameters();
 		jmeterParameters.removeArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY);
@@ -210,7 +214,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 		ServerMetricsCaptureViaWeb groovyscripttest = new ServerMetricsCaptureViaWeb();
 		additionalTestParametersMap.put(MARK59_METRICS_URL, "http://localhost:8085/mark59-metrics");	
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "SimpleScriptSampleRunner");		
-		additionalTestParametersMap.put(AppConstantsServerMetrics.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'	
+		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'	
 		Arguments groovyscriptjmeterParameters = groovyscripttest.getDefaultParameters();
 		groovyscriptjmeterParameters.removeArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY);
 		groovyscriptjmeterParameters.addArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));	

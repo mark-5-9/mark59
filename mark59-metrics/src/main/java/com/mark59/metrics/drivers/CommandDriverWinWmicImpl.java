@@ -17,17 +17,17 @@
 package com.mark59.metrics.drivers;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.SimpleAES;
 import com.mark59.metrics.data.beans.Command;
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.CommandDriverResponse;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb.CommandExecutorDatatypes;
+import com.mark59.metrics.utils.MetricsConstants;
+import com.mark59.metrics.utils.MetricsConstants.CommandExecutorDatatypes;
+import com.mark59.metrics.utils.MetricsUtils;
 
 
 /**
@@ -45,7 +45,7 @@ public class CommandDriverWinWmicImpl implements CommandDriver {
 	private static final String CHALLENGE_REPLACE_REGEX = "(^.*password:).*?(\\s.*$)";
 	private static final String CHALLENGE_REPLACE_VALUE = "$1********$2";
 
-	public static final String WMIC_DIR = ServerMetricsWebUtils.wmicExecutableDirectory();
+	public static final String WMIC_DIR = MetricsUtils.wmicExecutableDirectory();
 	
 	
 	private final ServerProfile serverProfile;
@@ -64,45 +64,47 @@ public class CommandDriverWinWmicImpl implements CommandDriver {
 	@Override
 	public CommandDriverResponse executeCommand(Command command) {
 		LOG.debug("executeCommand :" + command);
-		
-		String actualPassword = serverProfile.getPassword();
+		String actualPassword; 
+		String cipherUsedLog = " (local execution)";
+		CommandDriverResponse commandDriverResponse;
 		String runtimeCommand;
-		String runtimeCommandLog;
-		
-		String cipherUsedLog = " (no pwd chipher)"; 
-		if (StringUtils.isNotBlank(serverProfile.getPasswordCipher())){
-			actualPassword = SimpleAES.decrypt(serverProfile.getPasswordCipher());
-			cipherUsedLog = " (pwd chipher used)" ;
-		} 			
+		String runtimeCommandForLog;
 		
 		if ("localhost".equalsIgnoreCase(serverProfile.getServer())) {
 			runtimeCommand = WMIC_DIR + MessageFormat.format(WMIC_COMMAND_LOCAL_FORMAT, command.getCommand().replaceAll("\\R", " "));
-			if (System.getProperty(AppConstantsServerMetricsWeb.METRICS_BASE_DIR) != null ) {
+			if (System.getProperty(MetricsConstants.METRICS_BASE_DIR) != null ) {
 				runtimeCommand = runtimeCommand
-						.replace("%"+AppConstantsServerMetricsWeb.METRICS_BASE_DIR+"%", System.getProperty(AppConstantsServerMetricsWeb.METRICS_BASE_DIR));
+						.replace("%"+MetricsConstants.METRICS_BASE_DIR+"%", System.getProperty(MetricsConstants.METRICS_BASE_DIR));
 			}
-					
-			runtimeCommandLog = " :<br><font face='Courier'>" + runtimeCommand.replaceAll("\\R", " ")  + "</font>";
-			cipherUsedLog = " (local execution)";
+			runtimeCommandForLog = runtimeCommand;
+
 		} else {
+			
+			if (StringUtils.isBlank(serverProfile.getPasswordCipher())){
+				actualPassword = serverProfile.getPassword();
+				cipherUsedLog = " user " + serverProfile.getUsername() + " (not enciphered)"; 
+			} else {
+				cipherUsedLog = " (pwd chipher used)" ;
+				try {
+					actualPassword = SimpleAES.decrypt(serverProfile.getPasswordCipher());
+				} catch (Exception e) {
+					commandDriverResponse = new CommandDriverResponse();
+					commandDriverResponse.setRawCommandResponseLines(new ArrayList<>());
+					commandDriverResponse.setCommandLog("<br>" + cipherUsedLog + "<br>pwd decryption error: " + e.getMessage() + "<br>");			
+					commandDriverResponse.setCommandFailure(true);
+					return commandDriverResponse;
+				}
+
+			}
 			runtimeCommand = WMIC_DIR + MessageFormat.format(WMIC_COMMAND_REMOTE_FORMAT, serverProfile.getUsername(), actualPassword, serverProfile.getServer(), command.getCommand().replaceAll("\\R", " ") );
-			runtimeCommandLog = ": <br><font face='Courier'>" + runtimeCommand.replaceAll(CHALLENGE_REPLACE_REGEX, CHALLENGE_REPLACE_VALUE).replaceAll("\\R", "") + "</font>";
+			runtimeCommandForLog = runtimeCommand.replaceAll(CHALLENGE_REPLACE_REGEX, CHALLENGE_REPLACE_VALUE).replaceAll("\\R", "") + "</font>";
 		}
 
-		String IgnoreStdErrLog = "";
-		if(Mark59Utils.resolvesToTrue(command.getIngoreStderr())){
-			IgnoreStdErrLog = ". StdErr to be ignored. ";
-		}
-
-		String commandLog = cipherUsedLog + IgnoreStdErrLog + runtimeCommandLog; 
+		commandDriverResponse = CommandDriver.executeRuntimeCommand(runtimeCommand, command.getIngoreStderr(),CommandExecutorDatatypes.WMIC_WINDOWS);
 		
-		CommandDriverResponse commandDriverResponse = CommandDriver.executeRuntimeCommand(runtimeCommand, command.getIngoreStderr(),CommandExecutorDatatypes.WMIC_WINDOWS);
-		
-		commandLog += "<br>Response :<br><font face='Courier'>" 
-					+ commandDriverResponse.getCommandLog()
-					+ String.join("<br>", commandDriverResponse.getRawCommandResponseLines()) + "</font><br>";
+		commandDriverResponse.setCommandLog(
+				CommandDriver.logExecution(cipherUsedLog, runtimeCommandForLog, command.getIngoreStderr(), commandDriverResponse.getRawCommandResponseLines()));
 
-		commandDriverResponse.setCommandLog(commandLog);
 		return commandDriverResponse;
 	}
 

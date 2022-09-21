@@ -40,8 +40,8 @@ import com.mark59.metrics.data.commandparserlinks.dao.CommandParserLinksDAO;
 import com.mark59.metrics.data.commands.dao.CommandsDAO;
 import com.mark59.metrics.forms.CommandEditingForm;
 import com.mark59.metrics.forms.ParserSelector;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsConstants;
+import com.mark59.metrics.utils.MetricsUtils;
 
 
 /**
@@ -106,7 +106,7 @@ public class CommandController {
 		Command existingCommand  = commandsDAO.findCommand(command.getCommandName());
 		
 		if (existingCommand == null ){  //not trying to add something already there, so go ahead..
-			command.setParamNames(ServerMetricsWebUtils.textboxFormatToList(commandEditingForm.getParamNamesTextboxFormat()));
+			command.setParamNames(MetricsUtils.textboxFormatToList(commandEditingForm.getParamNamesTextboxFormat()));
 			commandsDAO.insertCommand(command);
 			List<String> parserNames = createListOfSelectedParsers(commandEditingForm.getParserSelectors());   
 			commandParserLinksDAO.updateCommandParserLinksForCommandName(commandEditingForm.getCommand().getCommandName(), parserNames);
@@ -139,11 +139,12 @@ public class CommandController {
 		List<CommandWithParserLinks> commandWithParserLinksList = new ArrayList<>();
 		
 		for (Command command : commandList) {
+			command.setCommand(StringUtils.abbreviate(command.getCommand(), 500));
 			CommandWithParserLinks commandWithParserLinks = commandAddParserLinks(command);
 			commandWithParserLinksList.add(commandWithParserLinks);
 		}
 
-		List<String> commandExecutors = new ArrayList<>(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());
+		List<String> commandExecutors = new ArrayList<>(MetricsConstants.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());
 		commandExecutors.add(0, "");			
 		
 		Map<String, Object> parmsMap = new HashMap<>();
@@ -160,7 +161,7 @@ public class CommandController {
 		
 		Command command = commandsDAO.findCommand(reqCommandName);
 		commandEditingForm.setCommand(command);
-		commandEditingForm.setParamNamesTextboxFormat(ServerMetricsWebUtils.listToTextboxFormat(command.getParamNames()));
+		commandEditingForm.setParamNamesTextboxFormat(MetricsUtils.listToTextboxFormat(command.getParamNames()));
 		
 		CommandWithParserLinks commandWithParserLinks = commandAddParserLinks(command);
 		commandEditingForm.setParserSelectors(createListOfAllParserSelectors(commandWithParserLinks));
@@ -180,7 +181,7 @@ public class CommandController {
 		
 		Command command = commandsDAO.findCommand(reqCommandName);
 		commandEditingForm.setCommand(command);
-		commandEditingForm.setParamNamesTextboxFormat(ServerMetricsWebUtils.listToTextboxFormat(command.getParamNames()));
+		commandEditingForm.setParamNamesTextboxFormat(MetricsUtils.listToTextboxFormat(command.getParamNames()));
 
 		CommandWithParserLinks commandWithParserLinks = commandAddParserLinks(command);
 		commandEditingForm.setParserSelectors(createListOfAllParserSelectors(commandWithParserLinks));
@@ -198,7 +199,7 @@ public class CommandController {
 	public String updateCommand(@RequestParam(required=false) String reqExecutor, @ModelAttribute CommandEditingForm commandEditingForm) {
 
 		Command command = commandEditingForm.getCommand();
-		command.setParamNames(ServerMetricsWebUtils.textboxFormatToList(commandEditingForm.getParamNamesTextboxFormat()));
+		command.setParamNames(MetricsUtils.textboxFormatToList(commandEditingForm.getParamNamesTextboxFormat()));
 		
 		commandsDAO.updateCommand(command);
 		List<String> parserNames = createListOfSelectedParsers(commandEditingForm.getParserSelectors());   
@@ -277,7 +278,7 @@ public class CommandController {
 		Map<String, Object> map = new HashMap<String, Object>(); 
 		List<String> listOfCommandExecutors = new ArrayList<>();
 		listOfCommandExecutors.add("");
-		listOfCommandExecutors.addAll(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
+		listOfCommandExecutors.addAll(MetricsConstants.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
 		map.put("commandExecutors",listOfCommandExecutors);		
 		map.put("ingoreStderrYesNo",populateYesNoDropdown());		
 		return map;

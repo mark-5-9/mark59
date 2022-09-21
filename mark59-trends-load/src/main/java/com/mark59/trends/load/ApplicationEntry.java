@@ -44,7 +44,7 @@ public class ApplicationEntry  implements CommandLineRunner  {
 
 	public static void main(String[] args) {
   
-		System.out.println("Starting Trends Load..   Version: "  + AppConstantsMetrics.MARK59_TRENDING_VERSION );
+		System.out.println("Starting Trends Load..   Version: "  + AppConstantsMetrics.MARK59_VERSION_TRENDING );
 
 //		args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","mysql", "-h","localhost", "-p", "3306", "-q", "?allowPublicKeyRetrieval=true&useSSL=false", "-t", "JMETER", "-r", "sample_run_01" };
 //		args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","pg",    "-h","localhost", "-t", "JMETER", "-q", "?sslmode=disable", "-r", "sample_run_pg01"  };

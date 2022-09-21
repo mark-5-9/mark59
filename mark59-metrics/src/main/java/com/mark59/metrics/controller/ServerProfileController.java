@@ -42,6 +42,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,9 +64,9 @@ import com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAO;
 import com.mark59.metrics.forms.CommandParameter;
 import com.mark59.metrics.forms.CommandSelector;
 import com.mark59.metrics.forms.ServerProfileEditingForm;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb.CommandExecutorDatatypes;
+import com.mark59.metrics.utils.MetricsConstants;
+import com.mark59.metrics.utils.MetricsUtils;
+import com.mark59.metrics.utils.MetricsConstants.CommandExecutorDatatypes;
 
 /**
  * @author Philip Webb
@@ -100,7 +101,7 @@ public class ServerProfileController {
 			HttpHeaders httpHeaders = new HttpHeaders();
 			httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 			httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-							"attachment; filename=" + AppConstantsServerMetricsWeb.MARK59_SERVER_PROFILES_EXCEL_FILE);
+							"attachment; filename=" + MetricsConstants.MARK59_SERVER_PROFILES_EXCEL_FILE);
 			ByteArrayOutputStream stream = serverProfilesToExcelFile();
 			return new ResponseEntity<>(new ByteArrayResource(stream.toByteArray()), httpHeaders, HttpStatus.CREATED);
 		} catch (Exception e) {
@@ -325,7 +326,8 @@ public class ServerProfileController {
 			Command command = commandsDAO.findCommand(serverProfileEditingForm.getSelectedScriptCommandName());
 			if (command != null) {
 				for (String paramName : command.getParamNames()) {
-					commandParameters.add(new CommandParameter(paramName, "") );
+					String paramValue = copyParamValueIfPresent(paramName,serverProfileEditingForm.getCommandParameters());
+					commandParameters.add(new CommandParameter(paramName, paramValue));
 				} 
 			}
 			serverProfileEditingForm.setCommandParameters(commandParameters);
@@ -358,7 +360,7 @@ public class ServerProfileController {
 			List<String> commandNames = new ArrayList<>();
 			if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())){
 				commandNames.add(serverProfileEditingForm.getSelectedScriptCommandName()); 
-				serverProfile.setParameters(ServerMetricsWebUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
+				serverProfile.setParameters(MetricsUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
 			} else { // win or nix
 				commandNames = createListOfSelectedCommands(serverProfileEditingForm.getCommandSelectors());
 				serverProfile.setParameters(new HashMap<>());
@@ -402,7 +404,7 @@ public class ServerProfileController {
 		
 		List<String> commandExecutors = new ArrayList<>();
 		commandExecutors.add("");
-		commandExecutors.addAll(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
+		commandExecutors.addAll(MetricsConstants.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
 		
 		
 		Map<String, Object> parmsMap = new HashMap<>();
@@ -505,7 +507,8 @@ public class ServerProfileController {
 			List<CommandParameter> commandParameters = new ArrayList<>();
 			if (command != null) {
 				for (String paramName : command.getParamNames()) {
-					commandParameters.add(new CommandParameter(paramName, ""));
+					String paramValue = copyParamValueIfPresent(paramName,serverProfileEditingForm.getCommandParameters());
+					commandParameters.add(new CommandParameter(paramName, paramValue));
 				}
 			}
 			serverProfileEditingForm.setCommandParameters(commandParameters);
@@ -523,7 +526,7 @@ public class ServerProfileController {
 		if (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equals(serverProfile.getExecutor())) {
 			commandNames.add(serverProfileEditingForm.getSelectedScriptCommandName());
 			serverProfile.setParameters(
-					ServerMetricsWebUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
+					MetricsUtils.createParmsMap(serverProfileEditingForm.getCommandParameters()));
 		} else {
 			commandNames = createListOfSelectedCommands(serverProfileEditingForm.getCommandSelectors());
 		}
@@ -618,7 +621,19 @@ public class ServerProfileController {
 		}
 		return editableParameters;
 	}
+
 	
+	private String copyParamValueIfPresent(String paramName, List<CommandParameter> existingCommandParameters) {
+		if (! CollectionUtils.isEmpty(existingCommandParameters)) {
+			for (CommandParameter existingCommandParameter : existingCommandParameters) {
+				if (paramName.equals(existingCommandParameter.getParamName())) {
+					return existingCommandParameter.getParamValue();
+				}
+			} 
+		}	
+		return "";
+	}
+
 	
 	private List<String> createListOfSelectedCommands(List<CommandSelector> commandSelectors) {
 		List<String> commandNames = new ArrayList<>();
@@ -637,7 +652,7 @@ public class ServerProfileController {
 		Map<String, Object> map = new HashMap<>();
 		List<String> listOfCommandExecutors = new ArrayList<>();
 		listOfCommandExecutors.add("");
-		listOfCommandExecutors.addAll(AppConstantsServerMetricsWeb.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
+		listOfCommandExecutors.addAll(MetricsConstants.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
 		map.put("commandExecutors",listOfCommandExecutors);	
 		return map;
 	}

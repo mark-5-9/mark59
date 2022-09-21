@@ -22,7 +22,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import com.mark59.metrics.data.beans.Command;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
@@ -49,15 +49,15 @@ public class CommandsDAOexcelWorkbookImpl implements CommandsDAO
             Row commandRow = iterator.next();
             // System.out.println("command key=" + ServerMetricsWebUtils.cellValue(commandRow.getCell(0)));
             
-			if (commandName != null && commandName.equalsIgnoreCase(ServerMetricsWebUtils.cellValue(commandRow.getCell(0)))){	            
+			if (commandName != null && commandName.equalsIgnoreCase(MetricsUtils.cellValue(commandRow.getCell(0)))){	            
             	notFound=false;
             	command =new Command();
-            	command.setCommandName 	(ServerMetricsWebUtils.cellValue(commandRow.getCell(0)));
-            	command.setExecutor		(ServerMetricsWebUtils.cellValue(commandRow.getCell(1)));
-            	command.setCommand		(ServerMetricsWebUtils.cellValue(commandRow.getCell(2)));
-            	command.setIngoreStderr	(ServerMetricsWebUtils.cellValue(commandRow.getCell(3)));
-            	command.setComment		(ServerMetricsWebUtils.cellValue(commandRow.getCell(4)));
-            	command.setParamNames(deserializeJsonToList(ServerMetricsWebUtils.cellValue(commandRow.getCell(5))));
+            	command.setCommandName 	(MetricsUtils.cellValue(commandRow.getCell(0)));
+            	command.setExecutor		(MetricsUtils.cellValue(commandRow.getCell(1)));
+            	command.setCommand		(MetricsUtils.cellValue(commandRow.getCell(2)));
+            	command.setIngoreStderr	(MetricsUtils.cellValue(commandRow.getCell(3)));
+            	command.setComment		(MetricsUtils.cellValue(commandRow.getCell(4)));
+            	command.setParamNames(deserializeJsonToList(MetricsUtils.cellValue(commandRow.getCell(5))));
             }
         }   
 		return  command;

@@ -31,8 +31,8 @@ import org.junit.Test;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.metrics.drivers.CommandDriver;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsConstants;
+import com.mark59.metrics.utils.MetricsUtils;
 
 public class ServerMetricsCaptureViaExcelTest  {
 	
@@ -70,12 +70,12 @@ public class ServerMetricsCaptureViaExcelTest  {
 	@Test
     public final void testSimpleSheetWithLocalhostProfileForEachOs()
     {
-		if (AppConstantsServerMetricsWeb.OS.WINDOWS.getOsName().equals(ServerMetricsWebUtils.obtainOperatingSystemForLocalhost()) ||
-		      AppConstantsServerMetricsWeb.OS.LINUX.getOsName().equals(ServerMetricsWebUtils.obtainOperatingSystemForLocalhost())){
+		if (MetricsConstants.OS.WINDOWS.getOsName().equals(MetricsUtils.obtainOperatingSystemForLocalhost()) ||
+		      MetricsConstants.OS.LINUX.getOsName().equals(MetricsUtils.obtainOperatingSystemForLocalhost())){
 			
 			Log4jConfigurationHelper.init(Level.INFO);	
 			ServerMetricsCaptureViaExcel smExcel = new ServerMetricsCaptureViaExcel();
-			JavaSamplerContext context = new JavaSamplerContext( setArgs(smExcel, "localhost_" + ServerMetricsWebUtils.obtainOperatingSystemForLocalhost()) );
+			JavaSamplerContext context = new JavaSamplerContext( setArgs(smExcel, "localhost_" + MetricsUtils.obtainOperatingSystemForLocalhost()) );
 			smExcel.setupTest(context);
 			SampleResult srMain = smExcel.runTest(context);   
 			
@@ -90,16 +90,16 @@ public class ServerMetricsCaptureViaExcelTest  {
 			System.out.println("list of txns:responses " + listOfTxnNames + " : " + listOfResponses );
 			
 			String server = CommandDriver.obtainReportedServerId("localhost", ""); 
-			String localhostOs = ServerMetricsWebUtils.obtainOperatingSystemForLocalhost();  
+			String localhostOs = MetricsUtils.obtainOperatingSystemForLocalhost();  
 			
 			
-			if (AppConstantsServerMetricsWeb.OS.WINDOWS.getOsName().equals(localhostOs)){
+			if (MetricsConstants.OS.WINDOWS.getOsName().equals(localhostOs)){
 				assertEquals("wrong txn count", 3, subResArray.length);
 				assertTrue(listOfTxnNames + " isnt right, no listng for Memory_"+server+"_FreePhysicalG" , listOfTxnNames.contains( "Memory_"+server+"_FreePhysicalG") );
 				assertTrue(listOfTxnNames + " isnt right, no listng for Memory_"+server+"_FreeVirtualG"  , listOfTxnNames.contains( "Memory_"+server+"_FreeVirtualG") );
 				assertTrue(listOfTxnNames + " isnt right, no listng for CPU_"+server   				     , listOfTxnNames.contains( "CPU_"+server) );
 				assertTrue(listOfResponses + " isnt right"  , "PASSPASSPASS".equals(listOfResponses));
-			} else if (AppConstantsServerMetricsWeb.OS.LINUX.getOsName().equals(localhostOs)){  // LINUX  
+			} else if (MetricsConstants.OS.LINUX.getOsName().equals(localhostOs)){  // LINUX  
 				assertTrue("wrong txn count (subResArray.length): should be 3 or 4", subResArray.length >= 3 && subResArray.length <= 4 );			
 				assertTrue(listOfTxnNames + " isnt right, no listng for Memory_server_freeG"  		, listOfTxnNames.contains( "Memory_"+server+"_freeG") );
 				assertTrue(listOfTxnNames + " isnt right, no listng for Memory_server_totalG"   	, listOfTxnNames.contains( "Memory_"+server+"_totalG") );
@@ -108,7 +108,7 @@ public class ServerMetricsCaptureViaExcelTest  {
 				assertTrue(listOfResponses + " isnt right"  , listOfResponses.startsWith("PASSPASSPASS"));
 			} 
 		}else {
-			System.out.println("This test is not set up for the " + ServerMetricsWebUtils.obtainOperatingSystemForLocalhost() + " o/s ... bypassing test case."  );
+			System.out.println("This test is not set up for the " + MetricsUtils.obtainOperatingSystemForLocalhost() + " o/s ... bypassing test case."  );
 		}
     }
 

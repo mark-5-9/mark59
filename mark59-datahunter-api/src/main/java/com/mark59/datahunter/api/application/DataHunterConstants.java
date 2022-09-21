@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class DataHunterConstants {
 
-	public static final String DATAHUNTER_VERSION 			= "5.0";  
+	public static final String MARK59_VERSION_DATAHUNTER = "5.1" ;  
 	
 	public static final String UNSELECTED 					= "";  
 	

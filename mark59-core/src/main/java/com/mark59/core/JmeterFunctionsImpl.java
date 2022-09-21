@@ -151,9 +151,28 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * @param context the JMeter JavaSamplerContext
 	 */
 	public JmeterFunctionsImpl(JavaSamplerContext context) {
+		this(context, true);
+	}
+
+	
+	/**
+	 * Some implementations will not require any information from mark59.properties. That is, they will not log to a 'Mark59 log' directory,
+	 * do not need the location of a Selenium driver location, the location of a profiles excel sheet, or any other property that may be set
+	 * in mark59.properties.  For example, the metrics capture via web Java Request does not rely on mark59.properties at all.
+	 * 
+	 * <p>For such implementations, this constructor should be used.  This prevents INFO/WARNIMG messages about mark59.properties not being 
+	 * set in a JMeter test, in the situation the test only contains these types of implementations. 
+	 * 
+	 * @param context the JMeter JavaSamplerContext
+	 * @param isMark59PropertyConfigurationRequired determines if mark59 properties will be accessed using this implementation 
+	 */
+	public JmeterFunctionsImpl(JavaSamplerContext context, boolean isMark59PropertyConfigurationRequired) {
 		threadName =Thread.currentThread().getName();
-		loggingConfig = Mark59LoggingConfig.getInstance();
-		leadingPartOfLogNames = formLeadingPartOfLogNames(loggingConfig.getLogNamesFormat(), context);
+		
+		if (isMark59PropertyConfigurationRequired){
+			loggingConfig = Mark59LoggingConfig.getInstance();
+			leadingPartOfLogNames = formLeadingPartOfLogNames(loggingConfig.getLogNamesFormat(), context);
+		}
 		
 		logResultSummary(false);
 		if (context!=null && String.valueOf(true).equalsIgnoreCase(context.getParameter(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(false)))) {
@@ -167,7 +186,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 
 		mainResult.sampleStart();
 	}
-
+	
 	
 	/**
 	 * The leading components a for log name of a given Selenium script are constant, so can be set during 

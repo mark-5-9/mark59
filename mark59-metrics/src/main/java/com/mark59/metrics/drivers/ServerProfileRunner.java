@@ -40,9 +40,9 @@ import com.mark59.metrics.pojos.CommandDriverResponse;
 import com.mark59.metrics.pojos.ParsedCommandResponse;
 import com.mark59.metrics.pojos.ParsedMetric;
 import com.mark59.metrics.pojos.WebServerMetricsResponsePojo;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb.CommandExecutorDatatypes;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
+import com.mark59.metrics.utils.MetricsConstants;
+import com.mark59.metrics.utils.MetricsConstants.CommandExecutorDatatypes;
+import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * Invokes the commands to be processed for a given Server Profile 
@@ -65,10 +65,15 @@ public class ServerProfileRunner {
 	private static int parsingFailureCount;
 		
 	/**
-	 * Builds and returns a response object  holding the results of executing a server profile. 
+	 * Builds and returns a response object  holding the results of executing a server profile.  Invoked via the 
+	 * metrics API, and also used directly in the Metrics Web application to run and test outside of the API. 
+	 * 
+	 * <p>When running via the Metrics web application, logging for command and parser failures is sent to the 
+	 * application log (log4j).  To prevent excessive logging error message are abbreviated (currently to 2000 chars
+	 * for command failures and 1200 chars for parser failures).	
 	 * 
 	 * <p>Logging is turned off for command and parser failures when running locally via the Excel spreadsheet
-	 * (ServerProfileRunner) to prevent duplicate logging of failed commands and parsers in the JMeter log and console.
+	 * to prevent duplicate logging of failed commands and parsers in the JMeter log and console.
 	 * 
 	 * @param reqServerProfileName server profile
 	 * @param reqTestMode if running in test mode (eg via the web app UI) - populates the response 'testModeResult'
@@ -105,7 +110,7 @@ public class ServerProfileRunner {
 			
 			if (serverProfile == null ) {
 				response.setServerProfileName(reqServerProfileName); 
-				response.setFailMsg(AppConstantsServerMetricsWeb.SERVER_PROFILE_NOT_FOUND + " (" + reqServerProfileName + ")" ); 
+				response.setFailMsg(MetricsConstants.SERVER_PROFILE_NOT_FOUND + " (" + reqServerProfileName + ")" ); 
 				return response;
 			}
 
@@ -142,9 +147,9 @@ public class ServerProfileRunner {
 					
 					commandFailureCount++;
 					
-					String failureMsg = "Server Profile " + reqServerProfileName + "<br> command "
-							+ command.getCommandName() + " has failed." + "<br> Command Log : "
-							+ commandDriverResponse.getCommandLog() + ".";
+					String failureMsg = "<br>Server Profile " + reqServerProfileName 
+							+ "<br> command " + command.getCommandName() + " has failed." 
+							+ "<br> Command Log : "	+ commandDriverResponse.getCommandLog() + ".";
 					
 					logLines.add(failureMsg);					
 					logLines.add("<br><font color='red'><b>Execution has errored. </b></font><br><br>" );
@@ -183,7 +188,7 @@ public class ServerProfileRunner {
 						logLines.add(commandDriverResponse.getCommandLog());
 					}	
 	
-					String commandResponseAsString = ServerMetricsWebUtils.createMultiLineLiteral(commandDriverResponse.getRawCommandResponseLines());
+					String commandResponseAsString = MetricsUtils.createMultiLineLiteral(commandDriverResponse.getRawCommandResponseLines());
 					parsedCommandResponse.setCommandResponse(commandResponseAsString);
 					List<ParsedMetric> parsedMetrics = new ArrayList<>(); 
 					List<CommandParserLink> commandParserLinks = commandParserLinksDAO.findCommandParserLinksForCommand(command.getCommandName());
@@ -255,7 +260,7 @@ public class ServerProfileRunner {
 
 	private static ParsedMetric RunParser(CommandResponseParser commandResponseParser,	String commandResponseAsString, ParsedMetric parsedMetric) {
 		try {
-			Object groovyScriptResult = ServerMetricsWebUtils.runGroovyScript(commandResponseParser.getScript(), commandResponseAsString);
+			Object groovyScriptResult = MetricsUtils.runGroovyScript(commandResponseParser.getScript(), commandResponseAsString);
 
 			if (isaParsableDouble(groovyScriptResult.toString())) {
 				

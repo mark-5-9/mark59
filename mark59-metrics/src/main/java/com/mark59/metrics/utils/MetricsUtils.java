@@ -11,12 +11,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 
 import com.mark59.metrics.forms.CommandParameter;
-import com.mark59.metrics.utils.AppConstantsServerMetricsWeb.OS;
+import com.mark59.metrics.utils.MetricsConstants.OS;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
-public class ServerMetricsWebUtils {
+public class MetricsUtils {
 
 	
 	public static String obtainOperatingSystemForLocalhost() {	
@@ -118,8 +118,8 @@ public class ServerMetricsWebUtils {
 			}				
 			listOfStrings = Arrays.asList(spaceDelimitedStr.split("\\s+")); 
 		} 
-		System.out.println(">> textboxFormatToList stringTextboxFormat=" +  stringTextboxFormat); 
-		System.out.println("<< textboxFormatToList listOfStrings=" +  listOfStrings); 
+		// System.out.println(">> textboxFormatToList stringTextboxFormat=" +  stringTextboxFormat); 
+		// System.out.println("<< textboxFormatToList listOfStrings=" +  listOfStrings); 
 		return listOfStrings;
 	}
 	

@@ -66,7 +66,7 @@
     <th>Command Name</th>
     <th>Command Executor<br><form:select id='executor' path="parmsMap" items="${parmsMap.commandExecutors}"  onChange="resendCommandListExecutor()" /></th>
     <th>Command</th>
-    <th>Ingnore<br>StdErr?</th>
+    <th>Ignore<br>StdErr?</th>
     <th>Comment</th> 
     <th>Response<br>Parsers</th>   
    </tr>
@@ -77,7 +77,7 @@
      <td><a href="deleteCommand?reqCommandName=${commandWithParsers.command.commandName}&reqExecutor=${parmsMap.reqExecutor}" onclick="return confirm('Are you sure (commmand name : ${commandWithParsers.command.commandName})?');" title="Delete"><img src="images/delete.png"/></a></td>
      <td>${commandWithParsers.command.commandName}</td>     
      <td>${commandWithParsers.command.executor}</td>     
-     <td>${commandWithParsers.command.command}</td> 
+     <td class="small">${commandWithParsers.command.command}</td> 
      <td>${commandWithParsers.command.ingoreStderr}</td>   
      <td>${commandWithParsers.command.comment}</td>
      <td>

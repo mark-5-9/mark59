@@ -20,7 +20,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Server Metrics Via Web - Overview</title>
+<title>Metrics Capture Overview</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
@@ -33,16 +33,14 @@
 
 	<div class="content"> 
 	  
-		<h1>Server Metrics Via Web - Overview</h1>     
+		<h1>Metrics Capture Overview</h1>     
 		
 		<p>Maintains a database of server details ('profiles'), which can be used to enable connectivity from JMeter tests to servers for monitoring purposes during a performance test.</p>
-
-		<p>This may be particularly useful when you are running a test in an environment where you do not have direct access to the application servers.</p>
-		
+	
 		<p>A 'profile' can also be used to parameterize a user-written Groovy 'command' script.  Useful for actions or metrics obtained from tools such as New Relic,
 		where direct server access is not a requirement, or possibly where security rules will not allow you do directly access servers you want to monitor from JMeter.</p>
 
-		<p>Version: 5.0   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+		<p>Version: 5.1   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 	</div>
 </body>

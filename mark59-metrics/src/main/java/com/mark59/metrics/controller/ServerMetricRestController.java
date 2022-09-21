@@ -19,6 +19,8 @@ package com.mark59.metrics.controller;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.SimpleAES;
 import com.mark59.metrics.data.beans.CommandResponseParser;
@@ -37,10 +38,7 @@ import com.mark59.metrics.data.servercommandlinks.dao.ServerCommandLinksDAO;
 import com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAO;
 import com.mark59.metrics.drivers.ServerProfileRunner;
 import com.mark59.metrics.pojos.TestCommandParserResponsePojo;
-import com.mark59.metrics.utils.ServerMetricsWebUtils;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * Controls API calls from the server metrics web application, and from any JMeter Java Sampler implementation using a direct API call
@@ -98,7 +96,7 @@ public class ServerMetricRestController {
 	public ResponseEntity<Object> cipher(@RequestParam(required=false) String pwd) {
 		// System.out.println("cipher called pwd : [" + pwd +"]");
 		LOG.debug("cipher called pwd : [" + pwd +"]");
-		String encrypted = SimpleAES.encrypt(pwd, Mark59Constants.REFERENCE );
+		String encrypted = SimpleAES.encrypt(pwd);
 		if (encrypted == null ) {
 			encrypted = "Oops. Something went wrong attempting to encrypt this password (" + pwd + ")";
 		}
@@ -121,7 +119,7 @@ public class ServerMetricRestController {
 		
 		Object groovyScriptResult;
 		try {
-			groovyScriptResult = ServerMetricsWebUtils.runGroovyScript(commandResponseParser.getScript(), commandResponseParser.getSampleCommandResponse());
+			groovyScriptResult = MetricsUtils.runGroovyScript(commandResponseParser.getScript(), commandResponseParser.getSampleCommandResponse());
 		} catch (Exception e) {
 			testResponse.setSummary("<font color='red'>Script failure</font>");
 			StringWriter outError = new StringWriter();

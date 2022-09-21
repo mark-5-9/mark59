@@ -30,6 +30,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import com.mark59.core.utils.Mark59Constants;
 import com.mark59.trends.data.beans.EventMapping;
 
 /**
@@ -42,7 +43,10 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 	@Autowired  
 	private DataSource dataSource;
 
+    @Autowired
+    private String currentDatabaseProfile;	
  	
+    
 	@Override
 	public void insertData(EventMapping eventMapping) {
 		String sql = "INSERT INTO EVENTMAPPING "
@@ -179,7 +183,12 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 					+ "\n   ,for eventType = " + mdbEventType + ", eventName = " + mdbEventName );
 		}
 		
-		String sql = "SELECT count(*) col FROM dual where '" + mdbEventType + "'" + " = :matchWhenLikeSplit and '" + mdbEventName + "' like :mdbEventName "; 		
+		String sql; 
+		if (Mark59Constants.PG.equals(currentDatabaseProfile)){ 
+			sql = "SELECT count(*) col where '" + mdbEventType + "'" + " = :matchWhenLikeSplit and '" + mdbEventName + "' like :mdbEventName "; 
+		} else {
+			sql =  "SELECT count(*) col FROM dual where '" + mdbEventType + "'" + " = :matchWhenLikeSplit and '" + mdbEventName + "' like :mdbEventName "; 
+		}
 
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("matchWhenLikeSplit", matchWhenLikeSplit[1] )
@@ -187,8 +196,8 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 		
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		int matchCount = Integer.parseInt(Objects.requireNonNull(jdbcTemplate.queryForObject(sql, sqlparameters, String.class)));
-
-		//			System.out.println("     Event matched using sql: " + sql  + "     RESULT = " +  matchCount  );
+		// System.out.println("     Event matched using sql: " + sql  + "     RESULT = " +  matchCount  );
+		
 		return matchCount > 0;
 	}
 
