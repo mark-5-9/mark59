@@ -108,8 +108,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jmeterAdditionalParameters.put("DATAHUNTER_URL", "http://localhost:8081/mark59-datahunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST");
 		jmeterAdditionalParameters.put("FORCE_TXN_FAIL_PERCENT", "20");
-		//jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(false));
-		jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(true));
+		jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(false));
 		jmeterAdditionalParameters.put("USER", "default_user");				
 
 		// optional selenium driver related settings (defaults apply)
@@ -353,7 +352,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		devToolsDsl.addListenerResponseReceived(jm
 				, res -> "Document".equalsIgnoreCase(res.getType().toJson()) && jm.getMostRecentTransactionStarted() != null
 				, (req,res) -> {
-					String urlAction = StringUtils.substringBeforeLast(StringUtils.substringAfter(res.getResponse().getUrl(), "dataHunter/"), "?");
+					String urlAction = StringUtils.substringBeforeLast(StringUtils.substringAfter(res.getResponse().getUrl(), "mark59-datahunter/"), "?");
 					String[] splitCurrTxn = StringUtils.split(jm.getMostRecentTransactionStarted(), "_", 4);
 					return splitCurrTxn[0] + "_" + splitCurrTxn[1] + "_" + splitCurrTxn[2] + "__net_" + urlAction;
 				});
