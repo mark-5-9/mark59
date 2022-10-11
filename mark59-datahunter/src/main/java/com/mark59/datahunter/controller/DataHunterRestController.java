@@ -90,7 +90,12 @@ public class DataHunterRestController {
 		policies.setIdentifier(identifier);
 		policies.setLifecycle(lifecycle);
 		policies.setUseability(useability);
-		policies.setOtherdata(otherdata);
+		
+		if (DataHunterUtils.isEmpty(otherdata)){
+			policies.setOtherdata("");
+		} else {
+			policies.setOtherdata(otherdata);
+		}
 		
 		if (!StringUtils.isNumeric(epochtime)){
 			policies.setEpochtime(System.currentTimeMillis());
@@ -508,7 +513,7 @@ public class DataHunterRestController {
 		updateUseStateAndEpochTime.setToUseability(toUseability);
 		
 		if (StringUtils.isNumeric(toEpochTime)) {
-			updateUseStateAndEpochTime.setToEpochTime(Long.parseLong(toUseability.trim()));
+			updateUseStateAndEpochTime.setToEpochTime(Long.parseLong(toEpochTime.trim()));
 		} else {
 			updateUseStateAndEpochTime.setToEpochTime(null);		
 		}

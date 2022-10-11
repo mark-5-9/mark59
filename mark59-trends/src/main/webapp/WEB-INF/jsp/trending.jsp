@@ -35,8 +35,8 @@
 <link type="text/css" rel="stylesheet" href="visgraph3d/visGraph.css" >
 </head>	
 
-<body onload="load(); 
- 	showHideElementIfCheckboxTicked('useRawRunSQL1','runTimeSelectionSQL'); 
+<body onload="
+	showHideElementIfCheckboxTicked('useRawRunSQL1','runTimeSelectionSQL'); 
  	showHideElementIfCheckboxTicked('useRawSQL1','transactionIdsSQL');
  	setElementReadonlyIfCheckboxTicked('manuallySelectRuns1','chosenRuns');
  	setElementReadonlyIfCheckboxTicked('manuallySelectTxns1','chosenTxns' );
@@ -48,7 +48,8 @@
  	trendingBuildPageLink();  
  	buildEventMappingLink(); 
  	buildGraphMappingLink();
-	showHideElement('comparetab');draw();">  
+	showHideElement('comparetab');
+	load();">  
 
 <form:form modelAttribute="trendingForm">
 
@@ -234,7 +235,7 @@
      
       <table>
          <tr> 
-           <td width="15%"><b>Version: 5.1</b> </td> <td width="85%"></td> 	
+           <td width="15%"><b>Version: 5.2</b> </td> <td width="85%"></td> 	
          </tr> 
 
          <tr> 

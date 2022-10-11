@@ -192,18 +192,7 @@
 	
 	
 	function buildApiLink(){
-		//eg:  http://mysever:8085/mark59-metrics/api/metric?reqServerProfileName=localhost_WINDOWS
 		var host =  window.location.host; 	
-		// url="http://" + host + "/mark59-metrics/api/metric?reqServerProfileName=" + document.getElementById("serverProfile").innerText
-		document.getElementById('apiLInk').href = htmlDecode("http://" + host + "/mark59-metrics/api/metric?reqServerProfileName=" + document.getElementById("serverProfile").innerText);  	
+		document.getElementById('apiLInk').href = "http://" + host + "/mark59-metrics/api/metric?reqServerProfileName=" + encodeURIComponent(document.getElementById("serverProfile").innerText);  	
 	}
-	
-function htmlDecode(url) {
-  var doc = new DOMParser().parseFromString(encodeURI(url), "text/html");
-  return doc.documentElement.textContent;
-}
-
-	
-	
-		
 		

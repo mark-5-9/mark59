@@ -42,7 +42,7 @@ function load() {
 	document.getElementById("legendLabel").value = "";
 	document.getElementById("showPerspective").checked = false;			
 
-	draw()   // not necessary? 
+	draw();
 }
 
 
@@ -698,12 +698,12 @@ function trendingBuildPageLink() {
 	
 	var reqSqlSelectLikeUrlParm = "";	
 	if (document.getElementById("sqlSelectLike").value != "%" ){
-		reqSqlSelectLikeUrlParm = "&reqSqlSelectLike=" 	+ encodeURIComponent(document.getElementById("sqlSelectLike").value)
+		reqSqlSelectLikeUrlParm = "&reqSqlSelectLike=" 	+ encodeURIComponent(document.getElementById("sqlSelectLike").value);
 	}
 	
 	var reqSqlSelectNotLikeUrlParm = "";	
 	if (document.getElementById("sqlSelectNotLike").value != "" ){
-		reqSqlSelectNotLikeUrlParm = "&reqSqlSelectNotLike=" 	+ encodeURIComponent(document.getElementById("sqlSelectNotLike").value)
+		reqSqlSelectNotLikeUrlParm = "&reqSqlSelectNotLike=" 	+ encodeURIComponent(document.getElementById("sqlSelectNotLike").value);
 	}
 
 	var reqManuallySelectTxnsParm = "";
@@ -725,18 +725,18 @@ function trendingBuildPageLink() {
 	
 	var reqSqlSelectRunLikeUrlParm = "";	
 	if (document.getElementById("sqlSelectRunLike").value != "%" ){
-		reqSqlSelectRunLikeUrlParm = "&reqSqlSelectRunLike=" 	+ encodeURIComponent(document.getElementById("sqlSelectRunLike").value)
+		reqSqlSelectRunLikeUrlParm = "&reqSqlSelectRunLike=" 	+ encodeURIComponent(document.getElementById("sqlSelectRunLike").value);
 	}
 	
 	var reqSqlSelectRunNotLikeUrlParm = "";	
 	if (document.getElementById("sqlSelectRunNotLike").value != "" ){
-		reqSqlSelectRunNotLikeUrlParm = "&reqSqlSelectRunNotLike=" 	+ encodeURIComponent(document.getElementById("sqlSelectRunNotLike").value)
+		reqSqlSelectRunNotLikeUrlParm = "&reqSqlSelectRunNotLike=" 	+ encodeURIComponent(document.getElementById("sqlSelectRunNotLike").value);
 	}
 	
 	var manuallySelectedRunsListUrlParm = "";
 	if(document.getElementById("manuallySelectRuns1").checked) {
 		manuallySelectedRunsListUrlParm = "&reqManuallySelectRuns=" + document.getElementById("manuallySelectRuns1").checked 
-		+ "&reqChosenRuns="         + document.getElementById("chosenRuns").value;
+		+ "&reqChosenRuns="         + encodeURIComponent(document.getElementById("chosenRuns").value);
 	} 
 	
 	var reqUseRawRunSQLUrlParm = "";
@@ -748,12 +748,12 @@ function trendingBuildPageLink() {
 	
 	var reqAppListSelectorParm = "";
 	if(document.getElementById("appListSelector").value == "All"  ) {
-		reqAppListSelectorParm = "&reqAppListSelector="	+ document.getElementById("appListSelector").value 
+		reqAppListSelectorParm = "&reqAppListSelector="	+ encodeURIComponent(document.getElementById("appListSelector").value); 
 	} 
 
-	document.getElementById('trendingLink').href = htmlDecode( "http://" + host + "/mark59-trends/trending"  
-		+ "?reqApp=" 				+ document.getElementById("application").value 		
-		+ "&reqGraph=" 	    		+ document.getElementById("graph").value
+	url= "http://" + host + "/mark59-trends/trending"  
+		+ "?reqApp=" 				+ encodeURIComponent(document.getElementById("application").value) 		
+		+ "&reqGraph=" 	    		+ encodeURIComponent(document.getElementById("graph").value)
 		+ reqSqlSelectLikeUrlParm
 		+ reqSqlSelectNotLikeUrlParm
 		+ reqManuallySelectTxnsParm
@@ -764,63 +764,56 @@ function trendingBuildPageLink() {
 		+ manuallySelectedRunsListUrlParm
 		+ reqUseRawRunSQLUrlParm
 		+ reqAppListSelectorParm
-		+ "&reqMaxRun=" 			+ document.getElementById("maxRun").value
-		+ "&reqMaxBaselineRun=" 	+ document.getElementById("maxBaselineRun").value
-		+ "&reqShowCdpOption=" 		+ document.getElementById("showCdpOption").value);		
+		+ "&reqMaxRun=" 			+ encodeURIComponent(document.getElementById("maxRun").value)
+		+ "&reqMaxBaselineRun=" 	+ encodeURIComponent(document.getElementById("maxBaselineRun").value)
+		+ "&reqShowCdpOption=" 		+ encodeURIComponent(document.getElementById("showCdpOption").value);		
 		
-	// document.getElementById('trendingLink').href = url;
+	document.getElementById('trendingLink').href = url;
 }
 
 
 function buildTitleHomePageLink(){
-	var host =  window.location.host; 	
-	// url="http://" + host + "/mark59-trends/overview?reqApp=" + document.getElementById("application").value
-	document.getElementById('titleHomePageLink').href = htmlDecode("http://" + host + "/mark59-trends/overview?reqApp=" + document.getElementById("application").value);  
+	var host =  encodeURIComponent(window.location.host); 	
+	var application  =  encodeURIComponent(document.getElementById("application").value)
+	document.getElementById('titleHomePageLink').href = "http://" + window.location.host + "/mark59-trends/overview?reqApp=" + application;  
 }
 
 function buildHomePageLink(){
-	var host =  window.location.host; 	
-	// url="http://" + host + "/mark59-trends/overview?reqApp=" + document.getElementById("application").value
-	document.getElementById('homePageLink').href = htmlDecode("http://" + host + "/mark59-trends/overview?reqApp=" + document.getElementById("application").value);  	
+	var host =  encodeURIComponent(window.location.host); 	
+	var application  =  encodeURIComponent(document.getElementById("application").value)
+	document.getElementById('homePageLink').href =  "http://" + window.location.host + "/mark59-trends/overview?reqApp=" + application;  	
 };  	
 
 function buildSlaDatabaseLink(){
-	//eg: http://MYSERVER:PORT/mark59-trends/viewSlaList?reqApp=MYAPP
-	var host =  window.location.host; 	
-	// url="http://" + host + "/mark59-trends/slaList?reqApp=" + document.getElementById("application").value
-	document.getElementById('slaDatabaseLink').href = htmlDecode("http://" + host + "/mark59-trends/slaList?reqApp=" + document.getElementById("application").value);  	
+	var host =  encodeURIComponent(window.location.host); 	
+	var application  =  encodeURIComponent(document.getElementById("application").value)
+	document.getElementById('slaDatabaseLink').href = "http://" + window.location.host + "/mark59-trends/slaList?reqApp=" + application;  	
 }
 
 function buildMetricSlaDatabaseLink(){
-	// eg: http://MYSERVER:PORT/v/metricSlaList?reqApp=MYAPP
-	var host =  window.location.host; 	
-	// url="http://" + host + "/mark59-trends/metricSlaList?reqApp=" + document.getElementById("application").value
-	document.getElementById('slaMetricDatabaseLink').href = htmlDecode("http://" + host + "/mark59-trends/metricSlaList?reqApp=" + document.getElementById("application").value);  	
+	var host =  encodeURIComponent(window.location.host); 	
+	var application  =  encodeURIComponent(document.getElementById("application").value)	
+	document.getElementById('slaMetricDatabaseLink').href = "http://" + window.location.host + "/mark59-trends/metricSlaList?reqApp=" + application;  	
 }
 
 function buildRunsListLink(){
-	// eg:http://MYSERVER:PORT/mark59-trends/runsList?reqApp=CI_MYAPP
-	var host =  window.location.host; 	
-	// url="http://" + host + "/mark59-trends/runsList?reqApp=" + document.getElementById("application").value
-	document.getElementById('runsListLink').href = htmlDecode("http://" + host + "/mark59-trends/runsList?reqApp=" + document.getElementById("application").value);  	
+	var host =  encodeURIComponent(window.location.host); 	
+	var application  =  encodeURIComponent(document.getElementById("application").value)
+	document.getElementById('runsListLink').href = "http://" + window.location.host + "/mark59-trends/runsList?reqApp=" + application;  	
 }
 
 function buildEventMappingLink(){
-	var host =  window.location.host; 	
-	// url="http://" + host + "/mark59-trends/eventMappingList"
-	document.getElementById('eventMappingLink').href = htmlDecode("http://" + host + "/mark59-trends/eventMappingList");  	
+	var host =  encodeURIComponent(window.location.host); 	
+	var application  =  encodeURIComponent(document.getElementById("application").value) 	
+	document.getElementById('eventMappingLink').href = "http://" + window.location.host + "/mark59-trends/eventMappingList";  	
 }
 
 function buildGraphMappingLink(){
-	var host =  window.location.host; 	
-	// url="http://" + host + "/mark59-trends/graphMappingList"
-	document.getElementById('graphMappingLink').href = htmlDecode("http://" + host + "/mark59-trends/graphMappingList");  	
+	var host =  encodeURIComponent(window.location.host); 	
+	var application  =  encodeURIComponent(document.getElementById("application").value)	
+	document.getElementById('graphMappingLink').href = "http://" + window.location.host + "/mark59-trends/graphMappingList";  	
 }
 
-function htmlDecode(url) {
-  var doc = new DOMParser().parseFromString(encodeURI(url), "text/html");
-  return doc.documentElement.textContent;
-}
 
 function trendingLinkGetNewPage() {
 	document.getElementById('trendingLink').click();

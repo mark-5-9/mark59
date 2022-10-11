@@ -30,7 +30,7 @@ public class MetricsApiConstants {
 	/**
 	 * Intention is that this string is used as a JMeter Parameter in a Java Request
 	 * of one of the classes controlling metrics capture in a JMeter test, to determine 
-	 * if (or what length) error message should be be logged via log4j (eg jmeter.log)
+	 * if (or what length) error message should be logged via log4j (eg jmeter.log)
 	 * when an attempt to retrieve a metric throws an error. 
 	 * <p>The default currently set is a 'short' message will be logged. 
 	 * <p>** Please Note ** This is independent of any logging done by the 'metrics' application

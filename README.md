@@ -1,8 +1,20 @@
-# Mark59 Documention, Guides, Downloads and More ..
+
+## Mark59 Documention, Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+
+<p>Release 5.2<br>
+
+  <ul>  
+	<li>DataHunter Rest - 'otherdata' field is now optional when adding an Item</li>	
+	<li>Selenium to 4.5.0 (chrome v106+), spring-boot to 2.7.4</li>
+	<li>Bug Fix: Spurious characters when using % sign in Trends Advanced selectors</li>
+	<li>Bug Fix: Broken links in Trends when graph is empty</li>	
+  </ul>
+
 
 <p>Release 5.1<br>
 
@@ -16,9 +28,9 @@
 	<li>New mark59 property mark59.print.startup.console.messages.  'true' will output some basic config messages to console</li>
 	<li>Metrics - Improved New Relic sample (now uses okhttp).  SQL 5.0 to 5.1 conversions included in Release</li>	
 	<li>spring-boot to 2.7.3</li>
-	<li>Bug: Metrics discontinues Nix commands immediately on connection failure (was attempting to run a command after the failure)</li>
-	<li>Bug: An Encryption class in Metrics was not thread-safe (caused occasional dropout of Nix/Win connections during tests</li>
-	<li>Bug: Trends Load - invalid use of DUAL in PG database when loading Loadrunner mdb Session files</li>	
+	<li>Bug Fix: Metrics discontinues Nix commands immediately on connection failure (was attempting to run a command after the failure)</li>
+	<li>Bug Fix: An Encryption class in Metrics was not thread-safe (caused occasional dropout of Nix/Win connections during tests</li>
+	<li>Bug Fix: Trends Load - invalid use of DUAL in PG database when loading Loadrunner mdb Session files</li>	
   </ul>
 
 <p>Release 5.0<br>
