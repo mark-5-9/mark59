@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -34,6 +34,7 @@ public class ServerProfileEditingForm {
 	String selectedScriptCommandName;
 	String selectedScriptCommandNameChanged;
 	List<CommandParameter> commandParameters;
+	String apiAuthToken;
 	
 	public ServerProfile getServerProfile() {
 		return serverProfile;
@@ -90,6 +91,14 @@ public class ServerProfileEditingForm {
 	public void setCommandParameters(List<CommandParameter> commandParameters) {
 		this.commandParameters = commandParameters;
 	}
+	
+	public String getApiAuthToken() {
+		return apiAuthToken;
+	}
+
+	public void setApiAuthToken(String apiAuthToken) {
+		this.apiAuthToken = apiAuthToken;
+	}
 
 	@Override 
     public String toString() {
@@ -100,6 +109,7 @@ public class ServerProfileEditingForm {
         		", selectedScriptCommandName = "+ selectedScriptCommandName + 
         		", selectedScriptCommandNameChanged = "+ selectedScriptCommandNameChanged + 
         		", commandParameters = "+ commandParameters + 
+        		", apiAuthToken = "+ apiAuthToken + 
         		"]";
 	}
 		

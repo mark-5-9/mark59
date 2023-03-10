@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class DataHunterConstants {
 
-	public static final String MARK59_VERSION_DATAHUNTER 	= "5.2";  
+	public static final String MARK59_VERSION_DATAHUNTER 	= "5.3";  
 	
 	public static final String UNSELECTED 					= "";  
 	
@@ -55,11 +55,11 @@ public class DataHunterConstants {
 	public static final List<String>  APPLICATION_OPERATORS =  
 			Arrays.asList( EQUALS, STARTS_WITH);
 
-	public static final String UPDATE_USEABILITY_ON_EXISTING_ENTRIES = "UPDATE_USEABILITY_ON_EXISTING_ENTRIES";  
-	public static final String LEAVE_EXISTING_ENTRIES_UNCHANGED      = "LEAVE_EXISTING_ENTRIES_UNCHANGED";  
+	public static final String UPDATE_USEABILITY_ON_EXISTING_ENTRIES 			= "UPDATE_USEABILITY_ON_EXISTING_ENTRIES";  
+	public static final String LEAVE_USEABILITY_ON_EXISTING_ENTRIES_UNCHANGED	= "LEAVE_USEABILITY_ON_EXISTING_ENTRIES_UNCHANGED";  
 	
 	public static final List<String>  UPDATE_OR_BYPASS      =  
-			Arrays.asList( UPDATE_USEABILITY_ON_EXISTING_ENTRIES, LEAVE_EXISTING_ENTRIES_UNCHANGED);
+			Arrays.asList( UPDATE_USEABILITY_ON_EXISTING_ENTRIES, LEAVE_USEABILITY_ON_EXISTING_ENTRIES_UNCHANGED);
 	
 	
 	public static final String USE							= "USE";  

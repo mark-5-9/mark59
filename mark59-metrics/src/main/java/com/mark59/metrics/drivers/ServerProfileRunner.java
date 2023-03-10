@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -46,10 +46,11 @@ import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * Invokes the commands to be processed for a given Server Profile 
- * (Groovy script or on the server profile target server).  
+ * (Groovy script or to run on the profile's target server).  
  * 
  * <p>This class runs within the Mark59 'metrics' application when invoked via the Web APIs,
- * but runs locally (on the server running JMeter) when invoked via the Excel spreadsheet.  
+ * but runs locally (eg on the server running JMeter) when invoked via in the Excel spreadsheet.
+ * Refer to ServerMetricsCaptureViaExcel in the mark59-metrics-api project.  
  * 
  * @author Philip Webb
  * Written: Australian Autumn 2020 

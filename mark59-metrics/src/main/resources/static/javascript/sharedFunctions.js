@@ -1,5 +1,5 @@
 /*
-  Copyright 2019 Insurance Australia Group Limited
+  Copyright 2019 Mark59.com
  
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,31 +47,47 @@
 	}
 
 	
-	function testConnection() {
-
-		document.getElementById('testConnectionTestModeResult').innerHTML = "Processing your request ..."	;
-		hideElement('responseTable');	
+	function testConnection(outputFormat) {
+		if (outputFormat == 'formatted' ){ 
+			document.getElementById('testConnectionTestModeResult').innerHTML = "Processing your request ..."	;
+			hideElement('responseTable');	
+		}	
 			
 		var serverProfile = document.getElementById('serverProfile').innerHTML
 		
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				populateTestConnectionResult(this.responseText)
+				if (outputFormat == 'formatted' ){ 
+					populateTestConnectionResultFormatted(this.responseText)
+				} else {
+					populateTestConnectionResultRaw(this.responseText)
+				}	
 			}
 		};
 		xhttp.open("GET", encodeURI("api/metric?reqServerProfileName="	+ serverProfile  + "&reqTestMode=true" ), true);
+		//xhttp.setRequestHeader("Authorization", "Basic " + "c2FtcGxldXNlcjpzYW1wbGVwYXNz" );
+		if (!isEmpty(document.getElementById('apiAuthToken').value)) { 
+			xhttp.setRequestHeader("Authorization", "Basic " + document.getElementById('apiAuthToken').value);
+		}	
 		xhttp.send();
 	}
 
 	
-	function populateTestConnectionResult(testConnectionResponse) {
+	function populateTestConnectionResultFormatted(testConnectionResponse) {
 		showElement('responseTable');
 		var jsonResp = JSON.parse(testConnectionResponse);
 		document.getElementById('testConnectionTestModeResult').innerHTML = jsonResp.testModeResult;
 		document.getElementById('testConnectionServerProfile').innerHTML =  jsonResp.serverProfileName;  
 		document.getElementById('testConnectionCommandResponses').innerHTML =  formatJSONkeyValues(jsonResp.parsedCommandResponses);
 		document.getElementById('testConnectionLogLines').innerHTML =  jsonResp.logLines;
+	}
+
+	
+	function populateTestConnectionResultRaw(connectionResponse) {
+		var tab = window.open('about:blank', '_blank');
+		tab.document.write("<!doctype html><html><body><textarea style='width:100%;height:500px;'>" + connectionResponse + "</textarea></body></html>" ); 
+		tab.document.close();
 	}
 	
 	
@@ -191,8 +207,8 @@
 	}
 	
 	
-	function buildApiLink(){
-		var host =  window.location.host; 	
-		document.getElementById('apiLInk').href = "http://" + host + "/mark59-metrics/api/metric?reqServerProfileName=" + encodeURIComponent(document.getElementById("serverProfile").innerText);  	
+	function isEmpty(str) {
+		return str === null || str === ""
 	}
+
 		

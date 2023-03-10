@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -19,6 +19,7 @@ package com.mark59.dsl.samples.seleniumDSL.core;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 
 /**
@@ -60,5 +61,28 @@ public class _GenericPage {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("window.scrollBy( " +  pxRight + ", " + pxDown + ")", "");	
 	}
-
+	
+	/**
+	 * Useful wait for a new tab be loaded and accessible in selenium.
+	 * <p>Note: This method just uses the default setting for Timeout and Polling when building the Fluent Wait
+	 * <p>Sample Usage:
+	 * <p><code>
+	 * 
+	 *   driver.switchTo().newWindow(WindowType.TAB);<br>
+	 *   // ( or some page action that causes the application to open a second tab) , then..<br>
+     *   currentPage.waitUntilExpectedNumberOfWindowsToBe(2); <br>
+     *   List<String> browserTabs = new ArrayList<String> (driver.getWindowHandles());<br>
+     *   driver.switchTo().window(browserTabs.get(1));  <br>    
+     *   newTabPage.someElementThatShouldBeClickable().waitUntilClickable();<br>
+     *   ...
+	 * </code>
+	 *
+	 * @param expectedNumberOfWindows
+	 * @return _GenericPage
+	 */
+	public _GenericPage waitUntilExpectedNumberOfWindowsToBe(int expectedNumberOfWindows){
+		FluentWaitFactory.getFluentWait(driver).until(ExpectedConditions.numberOfWindowsToBe(expectedNumberOfWindows));
+		return this;
+	}
+	
 }

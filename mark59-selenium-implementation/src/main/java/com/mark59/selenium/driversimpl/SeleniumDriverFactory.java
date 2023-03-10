@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -42,12 +42,8 @@ import com.mark59.selenium.interfaces.DriverFunctionsSelenium;
 import com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder;
 
 /**
- * @author Michael Cohen
- * @author Philip Webb
- * Written: Australian Winter 2019  
- * 
- * <p>Defines and controls the matching of many of the parameters used in the creation of a Selenium Webdriver, 
- * from an implementation of SeleniumAbstractJavaSamplerClient.
+ * <p>Defines and controls the parameters used in the creation of a Selenium Webdriver suitable for 
+ * use in a Mark59 script. In Mark59 currently invoked by {@link SeleniumAbstractJavaSamplerClient} )
  *
  * @see SeleniumDriverFactory#makeMark59SeleniumDriver(Map)
  * @see SeleniumDriverFactory#SeleniumDriverFactory()
@@ -71,6 +67,7 @@ import com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder;
  * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
  * @see JmeterFunctionsForSeleniumScripts
  *
+ * @author Michael Cohen 
  * @author Philip Webb
  * Written: Australian Winter 2019  
  * 
@@ -162,14 +159,16 @@ public class SeleniumDriverFactory {
 	private PropertiesReader pr;
 
 	/**
-	 *  Reads the mark59 properties file on instantiation, initializing the Screenshot logging directory.
+	 *  Note that in the normal course of events for a Mark59 Selenium script, the (first) instantiation of this class will be  
+	 *  when a the properties reader instance is created (a core class), and the mark59 properties set.
+	 *  
+	 *  @see SeleniumDriverFactory
+	 *  
 	 */
 	public SeleniumDriverFactory() {
 		// https://stackoverflow.com/questions/52975287/selenium-chromedriver-disable-logging-or-redirect-it-java
 		// Note: May not be a general solution (loggers can be re-created - they are "WeakReferences"), but it seems to works here.
 		java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.WARNING);
-
-//		note all properties related to mark59 are loaded by core
 		
 		try {
 			pr = PropertiesReader.getInstance();
@@ -182,11 +181,10 @@ public class SeleniumDriverFactory {
 
 	
 	/**
-	 *  Controls the matching of driver related parameters from an implementation of SeleniumAbstractJavaSamplerClient.
-	 *  These are the parameters that are either required as part of the framework by default, or can be
-	 *  entered / overridden by a script       
+	 *  Controls the matching of driver related arguments from an implementation of {@link SeleniumAbstractJavaSamplerClient},
+	 *  with the type and options used to create the Selenium driver.    
 	 *  
-	 *  <p>The following parameters are catered for here:
+	 *  <p>The following arguments are catered for here:
 	 *  <br><b>SeleniumDriverFactory.DRIVER</b>&emsp;("DRIVER") ('CHROME' or 'FIREFOX') - defaults to 'CHROME'  
 	 *  <br><b>SeleniumDriverFactory.HEADLESS_MODE</b>&emsp;("HEADLESS_MODE") - default true  
 	 *  <br><b>SeleniumDriverFactory.PAGE_LOAD_STRATEGY</b>&emsp;("PAGE_LOAD_STRATEGY") - PageLoadStrategy.NONE / PageLoadStrategy.NORMAL
@@ -307,13 +305,15 @@ public class SeleniumDriverFactory {
 		Map<String, Object> rawMap = new TreeMap<>();
 		
 		for (String proxyArgumentString : proxyArgumentsList) {
-			String[] proxyArgumentArray =  StringUtils.split(proxyArgumentString, "=");
-			if (proxyArgumentArray.length != 2) { 
-			     throw new IllegalArgumentException("Unexpected PROXY argument - expected a key-value pair delimited by '=' symbol but got : [" + proxyArgumentString + "]."   );
+			String[] proxyArgumentArray = StringUtils.split(proxyArgumentString, "=");
+			if (proxyArgumentArray.length != 2) {
+				throw new IllegalArgumentException(
+						"Unexpected PROXY argument - expected a key-value pair delimited by '=' symbol but got : ["
+								+ proxyArgumentString + "].");
 			}
-			rawMap.put(proxyArgumentArray[0] , proxyArgumentArray[1]);
-			LOG.debug("proxy setting : [" + proxyArgumentArray[0] + "=" + proxyArgumentArray[1] + "]" );			
-		} 
+			rawMap.put(proxyArgumentArray[0], proxyArgumentArray[1]);
+			LOG.debug("proxy setting : [" + proxyArgumentArray[0] + "=" + proxyArgumentArray[1] + "]");
+		}
 		
 		Proxy proxy = new Proxy(rawMap);
 		builder.setProxy(proxy);

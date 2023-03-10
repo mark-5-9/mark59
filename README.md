@@ -6,6 +6,23 @@
 ## Releases 
 
 
+<p>Release 5.3<br>
+
+  <ul>  
+	<li>Java 17 minimum version for the Web Applications and their APIs (excluding DataHunter API)</li>	
+	<li>Option to add a Basic Authentication Header to the Metrics API call</li>
+	<li>Selenium DSL - scrollIntoViewThenClick, scrollToCentreThenClick methods added </li>
+	<li>Selenium DSL - demo New Tab handling and control </li>	
+	<li>try/catch separated for browser close and quit (reduce potential of dead chromedriver processes</li>		
+	<li>Selenium to 4.8.1 (chrome V110+), spring-boot to 3.0.2 </li>
+	<li>sb 3.0.2 moved sfrom javax.servlet to jakarta.servlet - required multiple updates in web applications</li>
+	<li>Selenium-Implementation - add --remote-allow-origins=* driver option (caters for Chrome 111)</li>		
+	<li>Metrics - Removal of Spring Security dependency (using standard Java filter servlet)</li>	
+	<li>DataHunter - Upload process simplified to standard Java (removal of commons and spring code)</li>		
+	<li>Improve Metrics project JUnit testing, multiple small JavaDocs updates</li>	
+  </ul>
+
+
 <p>Release 5.2<br>
 
   <ul>  

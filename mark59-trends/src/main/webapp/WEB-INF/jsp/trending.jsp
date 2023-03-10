@@ -1,4 +1,4 @@
-<!-- Copyright 2019 Insurance Australia Group Limited
+<!-- Copyright 2019 Mark59.com
  
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
   -->
   
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" 	pageEncoding="ISO-8859-1"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ page session="false" %>
@@ -235,7 +235,7 @@
      
       <table>
          <tr> 
-           <td width="15%"><b>Version: 5.2</b> </td> <td width="85%"></td> 	
+           <td width="15%"><b>Version: 5.3</b> </td> <td width="85%"></td> 	
          </tr> 
 
          <tr> 

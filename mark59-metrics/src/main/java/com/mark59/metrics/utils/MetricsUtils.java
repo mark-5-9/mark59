@@ -1,8 +1,10 @@
 package com.mark59.metrics.utils;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +47,7 @@ public class MetricsUtils {
 	}
 
 	
-	public static Object runGroovyScript(String groovyScript, Map<String,Object> scriptParms  ) {
+	public static Object runGroovyScript(String groovyScript, Map<String,Object> scriptParms){
 		Binding binding = new Binding();
 		for(Map.Entry<String,Object> scriptParam : scriptParms.entrySet()) {
 			binding.setVariable(scriptParam.getKey(), scriptParam.getValue());
@@ -148,6 +150,15 @@ public class MetricsUtils {
 		if (cell == null) return ""; 
 		return cell.getStringCellValue();
 	}
+
 	
+	/**
+	 * Not actually used within the application itself, included to indicate how to encode user/password for 
+	 * API Basic Authentication.  Review the test case of this method for usage example. 
+	 */
+	public static String createBasicAuthToken(String user, String pass) {
+		String basicAuthToken = Base64.getEncoder().encodeToString((user + ":" + pass).getBytes(StandardCharsets.UTF_8));
+		return basicAuthToken;
+	}	
 	
 }

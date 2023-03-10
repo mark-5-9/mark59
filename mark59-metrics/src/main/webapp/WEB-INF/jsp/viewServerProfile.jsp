@@ -1,4 +1,4 @@
-<!-- Copyright 2019 Insurance Australia Group Limited
+<!-- Copyright 2019 Mark59.com
  
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
   
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,9 +36,17 @@ table { border-collapse: collapse;}
 table
 .nb td {  background-color: white; border: 2px white solid; color: black; }
 </style>
+
+<script type="text/javascript">
+function myFunction(myMessage) {
+    alert(myMessage);
+}
+</script>
+
+
 </head>
 
-<body onload="hideElement('responseTable'); buildApiLink()" > 
+<body onload="hideElement('responseTable');" > 
 
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
@@ -113,7 +121,7 @@ table
  
 	<tr><td colspan="3"><td><br></tr>
     <tr>
-      <td><button type="button" onclick="testConnection()">Run Profile</button></td><td></td><td id='testConnectionTestModeResult'></td>
+      <td><button type="button" onclick="testConnection('formatted')">Run Profile</button></td><td></td><td id='testConnectionTestModeResult'></td>
     </tr>
     <tr><td colspan="3"><td><br></tr>
     
@@ -134,12 +142,13 @@ table
       <td colspan="3">
         <a href="serverProfileList?reqExecutor=${map.reqExecutor}">Servers Profiles</a>&nbsp;&nbsp;
         <a href="editServerProfile?&reqServerProfileName=${map.serverProfileEditingForm.serverProfile.serverProfileName}&reqExecutor=${map.reqExecutor}">Edit Server Profile</a>&nbsp;&nbsp;
-    	<a id="apiLInk"	href="see_buildApiLink_JS" target="_blank" >API Link</a>         
+    	<a href="javascript:testConnection('raw')" >API Link</a>     
       </td>
     </tr>
    </table>
      
   </div>
+  <input type="hidden" id="apiAuthToken" value="${serverProfileEditingForm.apiAuthToken}" />
 
 </div>
 </body>

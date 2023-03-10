@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -51,8 +51,11 @@ import com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder;
 
 /**
  * <p>Creates a chromium Selenium driver to be used in the scripts.
- * <p> {@link ChromeDriverService.Builder} is created, selenium {@link ChromeOptions} chromeOptions' are set, which are used
- * by the service builder during driver creation
+ * <p>Invocation of the {@link #build(Map)} method will creates the a Chrom(ium) Selenium driver.
+ * A {@link ChromeDriverService.Builder} is created, and Selenium {@link ChromeOptions} (which in Mark59 have been
+ *  set by the {@link SeleniumDriverFactory}) are used by the service builder during driver creation.
+ * 
+ * @see DriverFunctionsSeleniumBuilder
  * 
  * @author Michael Cohen
  * @author Philip Webb
@@ -81,16 +84,12 @@ public class DriverFunctionsSeleniumChromeBuilder implements DriverFunctionsSele
 		// https://stackoverflow.com/questions/48450594/selenium-timed-out-receiving-message-from-renderer
 		// + linux issue: "unknown error: DevToolsActivePort file doesn't exist" 
 		// https://stackoverflow.com/questions/50642308/webdriverexception-unknown-error-devtoolsactiveport-file-doesnt-exist-while-t
+		// Chromium 111 required "--remote-allow-origins=*"  
 		((ChromeOptions) options).addArguments("--no-sandbox");
 		options.addArguments("--disable-dev-shm-usage"); 		
 		options.addArguments("--disable-gpu");
 		options.addArguments("--disable-gpu-sandbox");	
-		
-		//workaround for Chrome 76 ?
-		// https://stackoverflow.com/questions/56558361/driver-manage-logs-getloglogtype-browser-no-longer-working-in-chromedriver-v/56596616#56596616
-		// https://stackoverflow.com/questions/56507652/selenium-chrome-cant-see-browser-logs-invalidargumentexception
-		// selenium 4.x never include this line:
-		//options.setExperimentalOption("w3c", false);
+		options.addArguments("--remote-allow-origins=*");	
 	}
 
 		
@@ -101,10 +100,11 @@ public class DriverFunctionsSeleniumChromeBuilder implements DriverFunctionsSele
 	}
 	
 	
-	
 	@Override
 	public DriverFunctionsSeleniumBuilder<ChromeOptions> setHeadless(boolean isHeadless) {
-		options.setHeadless(isHeadless);
+		if (isHeadless) {
+			options.addArguments("--headless");
+		}
 		return this;
 	}
 
@@ -180,7 +180,7 @@ public class DriverFunctionsSeleniumChromeBuilder implements DriverFunctionsSele
 	}
 
 	
-	/* 
+	/** 
 	 * Creates a Selenium WebDriver, 'wrapping' it as a class variable in a Mark59SeleniumDriver implementation.
 	 * 
 	 * Note that the ChromeDriverService used is per instance of the driver, rather than one service for entire JVM (ie, the entire 
@@ -190,11 +190,9 @@ public class DriverFunctionsSeleniumChromeBuilder implements DriverFunctionsSele
 	@Override
 	public DriverFunctionsSelenium<ChromeDriver> build(Map<String, String> arguments) { 
 		ChromeDriver driver = null;
-		
 		if (LOG.isDebugEnabled()) LOG.debug("chrome options : " + Arrays.toString(options.asMap().entrySet().toArray()));	
 		
 		try {
-			
 			ChromeDriverService chromeDriverService = (ChromeDriverService)serviceBuilder.build(); 
 			chromeDriverService.sendOutputTo(new OutputStream(){@Override public void write(int b){}});  // send to null		
 			
@@ -208,9 +206,18 @@ public class DriverFunctionsSeleniumChromeBuilder implements DriverFunctionsSele
 				Map<String, String> chromeReturnedCapsMap = (Map<String, String>) caps.getCapability("chrome");
 				LOG.debug("  Chrome Driver Version    : " + chromeReturnedCapsMap.get("chromedriverVersion"));
 				LOG.debug("  Chrome Driver Temp Dir   : " + chromeReturnedCapsMap.get("userDataDir"));
+				LOG.debug("  >>  sysinfo for driver.executeCdpCommand(\"Browser.getVersion\" -- ");
+				Map<String, Object> sysinfo = driver.executeCdpCommand("Browser.getVersion", new HashMap <String, Object>() );
+				for (Map.Entry<String, Object> entry : sysinfo.entrySet()) {
+					String key = entry.getKey();
+					Object val = entry.getValue();
+					LOG.debug("  key : " + key + ",  value = " + val) ;
+				}
+				LOG.debug("  <<  end SystemInfo.ProcessInfo -- ");
 			}
-			
+		
 			String emulateNetworkConditions = arguments.get(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS);
+			
 			if (StringUtils.isNotBlank(emulateNetworkConditions)) {
 				List<String> emulateNetworkConditionsArray = Mark59Utils.commaDelimStringToStringList(emulateNetworkConditions);
 				if (emulateNetworkConditionsArray.size() != 3 ) {
@@ -219,19 +226,16 @@ public class DriverFunctionsSeleniumChromeBuilder implements DriverFunctionsSele
 							!StringUtils.isNumeric(emulateNetworkConditionsArray.get(1)) || 
 							!StringUtils.isNumeric(emulateNetworkConditionsArray.get(2) )){
 					LOG.warn("Invalid EMULATE_NETWORK_CONDITIONS passed (only integer values allowed) and will be ignored : " + emulateNetworkConditions);
-					
 				} else {
-
 					Map<String, Object> map = new HashMap<>();
 					map.put("offline", false);
-					map.put("download_throughput", 	Integer.parseInt(emulateNetworkConditionsArray.get(0)) * 128);  	// kbps to bytes/sec (1024/8)
-					map.put("upload_throughput",   	Integer.parseInt(emulateNetworkConditionsArray.get(1)) * 128);  	// kbps to bytes/sec (1024/8)
+					map.put("download_throughput", 	Integer.parseInt(emulateNetworkConditionsArray.get(0)) * 128); 	// kbps to bytes/sec (1024/8)
+					map.put("upload_throughput",   	Integer.parseInt(emulateNetworkConditionsArray.get(1)) * 128); 	// kbps to bytes/sec (1024/8)
 					map.put("latency", 				Integer.valueOf(emulateNetworkConditionsArray.get(2)));			// msecs
 
 					CommandExecutor executor = driver.getCommandExecutor();
 					executor.execute(new Command(driver.getSessionId(),
 							"setNetworkConditions", ImmutableMap.of("network_conditions", ImmutableMap.copyOf(map))));
-					
 					LOG.debug("  EMULATE_NETWORK_CONDITIONS triggered   : " + emulateNetworkConditions);
 				}
 			}

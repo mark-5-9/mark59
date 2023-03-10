@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -41,6 +41,13 @@ import com.mark59.selenium.interfaces.DriverFunctionsSelenium;
 import com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder;
 
 /**
+ * <p>Invoking the {@link #build(Map)} method will create a Firefox (Geko) driver to be used in Mark59 scripts.
+ * <p>Selenium {@link FirefoxOptions} (which in Mark59 have been set by the {@link SeleniumDriverFactory}) 
+ * are used by the service builder during driver creation.
+ * 
+ * @see DriverFunctionsSeleniumBuilder 
+ * 
+ * 
  * @author Michael Cohen
  * Written: Australian Winter 2019  
  */
@@ -73,7 +80,9 @@ public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSel
 	
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setHeadless(boolean isHeadless) {
-		options.setHeadless(isHeadless);
+		if (isHeadless) {
+			options.addArguments("--headless");
+		}
 		return this;
 	}
 

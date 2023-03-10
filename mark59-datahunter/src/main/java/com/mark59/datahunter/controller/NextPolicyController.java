@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -16,12 +16,9 @@
 
 package com.mark59.datahunter.controller;
 
-import com.mark59.datahunter.application.DataHunterConstants;
-import com.mark59.datahunter.application.DataHunterUtils;
-import com.mark59.datahunter.application.SqlWithParms;
-import com.mark59.datahunter.data.beans.Policies;
-import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
-import com.mark59.datahunter.model.PolicySelectionCriteria;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,9 +28,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
+import com.mark59.datahunter.application.DataHunterConstants;
+import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.SqlWithParms;
+import com.mark59.datahunter.data.beans.Policies;
+import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
+import com.mark59.datahunter.model.PolicySelectionCriteria;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author Philip Webb Written: Australian Winter 2019

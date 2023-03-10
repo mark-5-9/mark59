@@ -1,4 +1,4 @@
-<%-- Copyright 2019 Insurance Australia Group Limited
+<%-- Copyright 2019 Mark59.com
  
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -38,7 +38,7 @@
  <b>Upload File</b> 
  <br>
   <div>
-   <form:form method="post" action="upload_action" modelAttribute="uploadFile"  enctype="multipart/form-data">	
+   <form:form method="post" action="upload_action" modelAttribute="uploadFile"  enctype="multipart/form-data">
      
 	<p style="color:red"><b>${validationerror}</b></p> 
     
@@ -51,7 +51,8 @@
      <tr>
       <td></td>   
       <td></td>
-      <td style="font-size: 12px" ><br>Lifecycle is optional. If unsure just leave blank.</td> 
+      <td style="font-size: 12px" ><br>Lifecycle is optional - can be left)<b>blank</b> 
+      		<br>(May be used as a tie-breaker if your data has multiple rows that use the same Identifier).</td> 
      </tr>     
      <tr>     
      <tr>
@@ -75,15 +76,13 @@
      <tr>
       <td><br></td>   
       <td></td>
-      <td style="font-size: 12px"><br>
-      	<br>The contents of the file should contain one identifier per line. 
-      	<br>The other key values are taken from the Application and Lifecycle fields, and Useability set from the field above. 
-      	<br>Note that files with a large number of lines (over 100K) may take several minutes to load.<br><br></td> 
+      <td style="font-size: 12px" ><br><br>Note that files with a large number of lines (over 100K) may take several minutes to load <br>
+       Application MaxFileSize = 5GB, but you may hit other application or network capacity limits below this size<br><br></td> 
       </tr>     
      <tr>
       <td></td>   
       <td></td>
-      <td><input type="file" name="myfile" /></td>  <%-- set via @RequestParam --%>
+      <td><input type="file" name="file" /></td>  <%-- set via @RequestParam --%>
      </tr>   
    
      <tr>
@@ -98,7 +97,7 @@
  </center>
  
  <br><br>
- <a href="/mark59-datahunter?application=${uploadFile.application}">Home Page</a>
+ <a href="/dataHunter?application=${uploadFile.application}">Home Page</a>
    
 </body>
 </html>

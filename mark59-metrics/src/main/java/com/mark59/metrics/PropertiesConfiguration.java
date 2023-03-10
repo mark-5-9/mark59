@@ -17,7 +17,10 @@ public class PropertiesConfiguration {
 	private String mark59metricsid;
 	private String mark59metricspasswrd;
 	private String mark59metricshide;
-	private String mark59metricswmicdelay;
+
+	private String mark59metricsapiauth;
+	private String mark59metricsapiuser;
+	private String mark59metricsapipass;
 	
 	public String getMark59metricsid() {
 		return mark59metricsid;
@@ -37,10 +40,23 @@ public class PropertiesConfiguration {
 	public void setMark59metricshide(String mark59metricshide) {
 		this.mark59metricshide = mark59metricshide;
 	}
-	public String getMark59metricswmicdelay() {
-		return mark59metricswmicdelay;
+	public String getMark59metricsapiauth() {
+		return mark59metricsapiauth;
 	}
-	public void setMark59metricswmicdelay(String mark59metricswmicdelay) {
-		this.mark59metricswmicdelay = mark59metricswmicdelay;
+	public void setMark59metricsapiauth(String mark59metricsapiauth) {
+		this.mark59metricsapiauth = mark59metricsapiauth;
 	}
+	public String getMark59metricsapiuser() {
+		return mark59metricsapiuser;
+	}
+	public void setMark59metricsapiuser(String mark59metricsapiuser) {
+		this.mark59metricsapiuser = mark59metricsapiuser;
+	}
+	public String getMark59metricsapipass() {
+		return mark59metricsapipass;
+	}
+	public void setMark59metricsapipass(String mark59metricsapipass) {
+		this.mark59metricsapipass = mark59metricsapipass;
+	}
+
 }

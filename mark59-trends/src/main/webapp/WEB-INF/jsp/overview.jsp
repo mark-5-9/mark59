@@ -1,4 +1,4 @@
-<!-- Copyright 2019 Insurance Australia Group Limited
+<!-- Copyright 2019 Mark59.com
  
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@
 	
 		<br>
 		<br>
-		<p>Version: 5.2  Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+		<p>Version: 5.3  Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 	</div>
 </body>

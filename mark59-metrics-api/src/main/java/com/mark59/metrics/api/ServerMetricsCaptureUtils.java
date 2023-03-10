@@ -121,7 +121,7 @@ public class ServerMetricsCaptureUtils {
 	public static void logUnexpectedException(WebServerMetricsResponsePojo response, Throwable e, String source) {
 		StringWriter stackTrace = new StringWriter();
 		e.printStackTrace(new PrintWriter(stackTrace));
-		String errorMsg = "Error: Unexpected Failure during" + source + " execution.\n" + e.getMessage() + "\n" + stackTrace.toString();
+		String errorMsg = "Error: Unexpected Failure during " + source + " execution.\n" + e.getMessage() + "\n" + stackTrace.toString();
 		LOG.error(errorMsg);
 		System.out.println(errorMsg);
 		if (response != null) {

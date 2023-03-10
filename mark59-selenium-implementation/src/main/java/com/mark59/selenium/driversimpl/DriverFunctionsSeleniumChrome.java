@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -30,7 +30,7 @@ import com.mark59.selenium.interfaces.DriverFunctionsSelenium;
 
 /**
  * 
- * Chrom(ium) implementation of a Mark59SeleniumDriver.  
+ * Chrom(ium) implementation of {@link DriverFunctionsSelenium}  
  * 
  * @author Michael Cohen
  * @author Philip Webb
@@ -92,15 +92,28 @@ public class DriverFunctionsSeleniumChrome extends DriverFunctionsSelenium<Chrom
 	/**
 	 * Doing a close() before quit() appears to help chromeDriver cleanup its temp directories
 	 * https://stackoverflow.com/questions/43289035/chromedriver-not-deleting-scoped-dir-in-temp-folder-after-test-is-complete/
+	 * <p>The close and quit are 'try'ed separately, as we've observed failure on <code>driver.close</code> when multiple
+	 * session targetIds(windows/tabs/cdp sessions) have been activated - and we always want the 'quit' to execute..
 	 */
 	@Override
 	public void driverDispose() {
+
 		try {
-			this.getDriver().close();
+			getDriver().close();
+		} catch (Exception e) {
+			LOG.warn("Failure on Chromedriver close : " + e.getClass() + " : " + e.getMessage());
+			if (LOG.isDebugEnabled()){
+				e.printStackTrace();				
+			}
+		}
+			
+		try {
 			this.getDriver().quit();
 		} catch (Exception e) {
-			LOG.info("unexpected error trying to close the chomeDriver" + e.getMessage() );
-			System.out.println("unexpected error trying to close the chomeDriver" + e.getMessage() );
+			LOG.warn("Failure on Chromedriver quit : " + e.getClass() + " : " + e.getMessage());
+			if (LOG.isDebugEnabled()){
+				e.printStackTrace();				
+			}
 		}
 	}
 	

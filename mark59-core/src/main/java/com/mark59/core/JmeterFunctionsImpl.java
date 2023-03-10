@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -148,6 +148,12 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 
 	
 	/**
+	 * On instantiation will use mark59.properties to setup Mark59 logging configuration (directory naming),
+	 * if not already done.
+	 * 
+	 * <p>Also see {@link #JmeterFunctionsImpl(JavaSamplerContext, boolean) } 
+	 * (which is invoked with isMark59PropertyConfigurationRequired set to true). 
+	 * 
 	 * @param context the JMeter JavaSamplerContext
 	 */
 	public JmeterFunctionsImpl(JavaSamplerContext context) {
@@ -156,12 +162,14 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 
 	
 	/**
-	 * Some implementations will not require any information from mark59.properties. That is, they will not log to a 'Mark59 log' directory,
+	 * On instantiation will start the 'main' JMeter sampler timer (to which 'sub-results' can be added to using the methods of this class) 
+	 * 
+	 * <p>Some implementations will not require any information from mark59.properties. That is, they will not log to a 'Mark59 log' directory,
 	 * do not need the location of a Selenium driver location, the location of a profiles excel sheet, or any other property that may be set
 	 * in mark59.properties.  For example, the metrics capture via web Java Request does not rely on mark59.properties at all.
 	 * 
-	 * <p>For such implementations, this constructor should be used.  This prevents INFO/WARNIMG messages about mark59.properties not being 
-	 * set in a JMeter test, in the situation the test only contains these types of implementations. 
+	 * <p>For such implementations, this constructor should be used, with 'isMark59PropertyConfigurationRequired' set as false.
+	 * This will stop INFO/WARNIMG messages about mark59.properties not being set in a JMeter test. 
 	 * 
 	 * @param context the JMeter JavaSamplerContext
 	 * @param isMark59PropertyConfigurationRequired determines if mark59 properties will be accessed using this implementation 
@@ -347,8 +355,42 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		subResult.setResponseMessage(result.getOutcomeText());
 		subResult.setResponseCode(responseCode);     // 200 | -1 | responseCode (passed string)
 		subResult.setSampleLabel(transactionLabel);
-		mainResult.addSubResult(subResult, false);   // prevents strange indexed named transactions (from Jmeter 5.0)		
+		mainResult.addSubResult(subResult, false);   // 'false' prevents strange indexed named transactions (from Jmeter 5.0)		
 
+		transactionMap.remove(transactionLabel);
+		return subResult;
+	}
+
+	
+	/**
+	 * Ends an existing transaction (SampleResult), stopping the running timer.
+	 * 
+	 * <p>Functions as per {@link #endTransaction(String, Outcome, String)}, but does <b>NOT</b> add this transaction into
+	 * the main results.  That is, the transaction will not appear in the reported results.       
+	 * 
+	 * @param transactionLabel transactionLabel label for the transaction
+	 * @param result the success or failure state of the transaction
+	 * @param responseCode response message (useful for error transactions) 
+	 * @return the JMeter subresult for this transaction - which includes the transaction time (getTime)
+	 */
+	public SampleResult endTransactionTimingButDontRecordResult(String transactionLabel, Outcome result, String responseCode) {
+		if (StringUtils.isBlank(transactionLabel))
+			throw new IllegalArgumentException("transactionLabel cannot be null or empty");
+
+		if (!transactionMap.containsKey(transactionLabel))
+			throw new NoSuchElementException(
+					"Could not find a transactionn to end matching the passed label : "	+ transactionLabel);
+
+		if (StringUtils.isBlank(responseCode)) 
+			responseCode = result.getOutcomeResponseCode();
+		
+		// timing is captured and returned but NOT added to the main Result
+		SampleResult subResult = transactionMap.get(transactionLabel);
+		subResult.sampleEnd();
+		subResult.setSuccessful(result.isOutcomeSuccess());
+		subResult.setResponseMessage(result.getOutcomeText());
+		subResult.setResponseCode(responseCode);     // 200 | -1 | responseCode (passed string)
+		subResult.setSampleLabel(transactionLabel);
 		transactionMap.remove(transactionLabel);
 		return subResult;
 	}

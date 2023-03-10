@@ -5,20 +5,21 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.4</version>
+		<version>3.0.2</version>	
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-trends-load</artifactId>
-	<version>5.2</version>
+	<version>5.3</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-trends-load</name>
 
 	<properties>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.release>17</maven.compiler.release>		
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -27,17 +28,10 @@
 
 		<!-- this project uses java classes from the metrics project -->
 
-		<!-- overrides 'managed' defaults for h2 -->
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-        	<version>2.1.214</version><!--$NO-MVN-MAN-VER$-->
-		</dependency>
-
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-trends</artifactId>
-			<version>5.2</version>
+			<version>5.3</version>
 		</dependency>
 		
 		<!-- standard Maven dependencies -->

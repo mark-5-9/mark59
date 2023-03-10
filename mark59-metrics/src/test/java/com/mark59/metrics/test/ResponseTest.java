@@ -1,36 +1,26 @@
 package com.mark59.metrics.test;
 
-import static org.junit.Assert.assertEquals;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 import com.mark59.metrics.data.beans.ServerProfile;
-import com.mark59.metrics.drivers.ServerProfileRunnerTest;
 import com.mark59.metrics.pojos.ParsedMetric;
 import com.mark59.metrics.pojos.ScriptResponse;
 
-public class UtilsTest   {
-	
 
-    public void emptyTest()
-    {
-        System.out.println( "tesing not implemented");
-        
+/**
+ * Running as 'testng' 
+ */
+public class ResponseTest{	
+	
+	@Test
+	public void testCheckScriptResponseFormatTest() {
 		
-		System.out.println("************  running the test ***********************");
-		
-		ScriptResponse scriptResponse = ServerProfileRunnerTest.runScript();
-	
-		assertEquals("[[label=a_memory_txn, result=123, dataType=MEMORY, success=true], "
-				+ "[label=a_cpu_util_txn, result=33.3, dataType=CPU_UTIL, success=true], "
-				+ "[label=some_datapoint, result=44.6, dataType=DATAPOINT, success=true], "
-				+ "[label=set_a_failure, result=66.6, dataType=DATAPOINT, success=false]]"
-				+ "", scriptResponse.getParsedMetrics().toString() );
-	}	
-	
-	
-	public static ScriptResponse runScript() {
 		ServerProfile serverProfile = new ServerProfile();
 		serverProfile.setServerProfileName("Some_Server_Profile");
 
@@ -47,8 +37,12 @@ public class UtilsTest   {
 
 		scriptResponse.setCommandLog(commandLogForDebugging);
 		scriptResponse.setParsedMetrics(parsedMetrics);
-		return scriptResponse;
-
+		
+		Assert.assertEquals("[[label=a_memory_txn, result=123, dataType=MEMORY, success=true, parseFailMsg=null], "
+				+ "[label=a_cpu_util_txn, result=33.3, dataType=CPU_UTIL, success=true, parseFailMsg=null], "
+				+ "[label=some_datapoint, result=44.6, dataType=DATAPOINT, success=true, parseFailMsg=null], "
+				+ "[label=set_a_failure, result=66.6, dataType=DATAPOINT, success=false, parseFailMsg=null]]"
+				+ "", scriptResponse.getParsedMetrics().toString() );
 	}
-
+	
 }

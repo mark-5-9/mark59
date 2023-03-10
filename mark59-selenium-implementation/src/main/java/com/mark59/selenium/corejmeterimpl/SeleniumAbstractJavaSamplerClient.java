@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -214,8 +214,8 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	
 	/**
 	 * Used to define required parameters for the test, or override their default values.
-	 * <p>Internally the values are used to build a Map of parameters that will be available throughout the
-	 *  'Mark59' framework for whatever customization is required for your test, or for the Webdriver implementation.</p>
+	 * <p>Internally the values are used to build a Map of parameters that will be available throughout
+	 * 'Mark59' for whatever customization is required for your test, or for the Webdriver implementation.</p>
 	 * <p>Please see link(s) below for more detail.  
 	 * 
 	 * @see SeleniumDriverFactory#makeMark59SeleniumDriver(Map)
@@ -299,7 +299,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 			scriptExceptionHandling(context, jmeterRuntimeArgumentsMap, e);
 		
 		} finally {
-			if (! keepBrowserOpen.equals(KeepBrowserOpen.ALWAYS )     ) { 
+			if (! keepBrowserOpen.equals(KeepBrowserOpen.ALWAYS) ){ 
 				mark59SeleniumDriver.driverDispose();
 			}
 		}

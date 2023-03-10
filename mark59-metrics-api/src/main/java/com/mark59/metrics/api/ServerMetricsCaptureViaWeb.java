@@ -1,6 +1,6 @@
 
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
@@ -57,6 +58,12 @@ import com.mark59.metrics.utils.MetricsUtils;
  * 
  * <p>Intended for use as a Java Sampler in a JMeter test plan to capture metric data.
  * 
+ *  <p> A basic Authentication header will be required when the property mark59metricsapiauth has been set to 'true' 
+ *  in the mark59-metrics application. Credentials on the auth the header will need to match the values of properties 
+ *  also set in mark59-metrics.  Refer to ServerMetricRestController.
+ *  The credentials token should be placed in the <b>API_AUTH</b> JMeter argument.  
+ *  (see the main below for creds token set-up example)
+ *  
  * @see ServerMetricRestController
  * 
  */
@@ -68,6 +75,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 	public static final String DEFAULT_MARK59_METRICS_URL 	= "http://localhost:8085/mark59-metrics";
 
 	public static final String SERVER_PROFILE_NAME 	= "SERVER_PROFILE_NAME";
+	public static final String API_AUTH 			= "API_AUTH";
 	
 	public static final String FULL	= "full";
 	public static final String NO	= "no";
@@ -83,6 +91,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 	
 		staticMap.put(MARK59_METRICS_URL, DEFAULT_MARK59_METRICS_URL );
 		staticMap.put(SERVER_PROFILE_NAME, "" );
+		staticMap.put(API_AUTH, "" );
 		
 		staticMap.put(".", "");	
 		staticMap.put("_________________________ logging settings: _______________", "ERROR_MESSAGES values: 'short' (default), 'full', 'no'");
@@ -148,6 +157,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 		try {
 			
 			String reqServerProfileName  = context.getParameter(SERVER_PROFILE_NAME); 
+			String apiAuth  = context.getParameter(API_AUTH); 
 						
 			webServiceUrl = context.getParameter(MARK59_METRICS_URL) 	+ "/api/metric?reqServerProfileName=" + reqServerProfileName;
 			LOG.debug("webServiceUrl : " + webServiceUrl);
@@ -155,7 +165,10 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 			URL url = new URL(webServiceUrl);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
-
+			
+			if (StringUtils.isNotBlank(apiAuth)){
+				con.setRequestProperty ("Authorization", "Basic " + apiAuth);
+			}
 			repsonseCode = con.getResponseCode();
 			
 			in = new BufferedReader( new InputStreamReader(con.getInputStream()));
@@ -189,18 +202,21 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 	
 	
 	/**
-	 * Quick and dirty on the spot test.
+	 * Quick and dirty on the spot tests and basic auth formatter.
 	 * Expects server metrics web to be running on url and have profile(s) localhost_WINDOWS / localhost_LINUX 
 	 * (or properly set SCRIPT profile) 
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		Log4jConfigurationHelper.init(Level.INFO);
+	
 		ServerMetricsCaptureViaWeb ostest = new ServerMetricsCaptureViaWeb();
 		additionalTestParametersMap.put(MARK59_METRICS_URL, "http://localhost:8085/mark59-metrics");	
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + MetricsUtils.obtainOperatingSystemForLocalhost());			
 		// additionalTestParametersMap.put(SERVER_PROFILE_NAME, "remoteWinServer");   // 3 commands should fail			
 		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'			
+		// include this line when using API basic auth for user [myuser], password [mypass] :
+//		additionalTestParametersMap.put(API_AUTH, "bXl1c2VyOm15cGFzcw=="); 		
 		// to force Results summary to log:		
 		Arguments jmeterParameters = ostest.getDefaultParameters();
 		jmeterParameters.removeArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY);
@@ -215,13 +231,15 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 		additionalTestParametersMap.put(MARK59_METRICS_URL, "http://localhost:8085/mark59-metrics");	
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "SimpleScriptSampleRunner");		
 		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'	
+		// include this line when using API basic auth for user [myuser], password [mypass] :
+//		additionalTestParametersMap.put(API_AUTH, "bXl1c2VyOm15cGFzcw=="); 		
 		Arguments groovyscriptjmeterParameters = groovyscripttest.getDefaultParameters();
 		groovyscriptjmeterParameters.removeArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY);
 		groovyscriptjmeterParameters.addArgument(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));	
 		JavaSamplerContext groovyscriptcontext = new JavaSamplerContext(groovyscriptjmeterParameters);
 		groovyscripttest.setupTest(groovyscriptcontext);
 		groovyscripttest.runTest(groovyscriptcontext);	
+		
 	}
 		
-
 }

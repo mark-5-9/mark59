@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -214,8 +214,9 @@ public class PropertiesReader {
 	 * 
 	 * @param mark59PropertyKey  one of the Mark59 property key values
 	 * @param isExecutable indicates that the file defined by the property value is an o/s executable
-	 * @param isDeprecated indicate if a property is deprecated (deprecated properties will not be flagged as 'not set') 
+	 * @param isDeprecated indicate if a property is deprecated.  
 	 */
+	@SuppressWarnings("deprecation")
 	private void setMark59property(String mark59PropertyKey, boolean isExecutable, boolean isDeprecated) {
 		if (StringUtils.isNotEmpty(System.getProperty(mark59PropertyKey))) {
 			properties.setProperty(mark59PropertyKey, System.getProperty(mark59PropertyKey));
@@ -229,8 +230,17 @@ public class PropertiesReader {
 				LOG.info("    " + mark59PropertyKey + " has not been set. ");
 			}
 		}
+		
+		// Specific message for the the use of deprecated 'mark59.screenshot.directory'property
+		
+		if (PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY.equals(mark59PropertyKey)
+				&& (StringUtils.isNotEmpty(System.getProperty(mark59PropertyKey))
+						|| StringUtils.isNotEmpty(properties.getProperty(mark59PropertyKey)))) {
+			LOG.warn("!   " + PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY + " is deprecated and will be removed in a future release."
+					+ " Please delete. Use property key value "	+ PropertiesKeys.MARK59_PROP_LOG_DIRECTORY + " instead.");
+		}
 	}
-
+		
 	
 	private void substitutePredfinedStringsIfNecessary(String mark59PropertyKey, String propertyValue,	boolean isExecutable) {
 		

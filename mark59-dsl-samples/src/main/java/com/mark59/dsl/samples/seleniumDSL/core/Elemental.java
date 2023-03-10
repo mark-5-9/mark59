@@ -1,7 +1,7 @@
 package com.mark59.dsl.samples.seleniumDSL.core;
 
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -68,6 +69,22 @@ public class Elemental {
 		if (webElement != null ) {
 			webElement.click();
 		}
+		return this;
+	}
+	
+	public Elemental scrollIntoViewThenClick() {
+		WebElement element = waitForAndFindElement();
+	    JavascriptExecutor js = (JavascriptExecutor) driver;  
+	    js.executeScript("arguments[0].scrollIntoView(true);", element);
+	    element.click();
+		return this;
+	}
+	
+	public Elemental scrollToCentreThenClick() {
+		WebElement element = waitForAndFindElement();
+	    JavascriptExecutor js = (JavascriptExecutor) driver;  
+	    js.executeScript("arguments[0].scrollIntoView({block: \"center\"});", element);
+	    element.click();
 		return this;
 	}
 	

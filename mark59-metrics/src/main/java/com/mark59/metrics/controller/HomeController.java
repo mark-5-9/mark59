@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -16,17 +16,22 @@
 
 package com.mark59.metrics.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.security.core.Authentication;
+//import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.mark59.metrics.PropertiesConfiguration;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author Philip Webb Written: Australian Summer 2020
@@ -34,25 +39,63 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class HomeController {
-
-	@GetMapping("/login")
-	public String login() {
-		return "login";
-	}
 	
-   @RequestMapping(value="/logout", method = RequestMethod.GET)
-    public String logoutPage (HttpServletRequest request, HttpServletResponse response) {
-	   	// https://stackoverflow.com/questions/40885178/logout-is-not-working-in-spring-security
-	   Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null){
-            new SecurityContextLogoutHandler().logout(request, response, auth);
+	@Autowired
+	PropertiesConfiguration springBootConfiguration;
+
+	
+	@RequestMapping("/login")
+	public String loginUrl() {
+		return "/login";
+	}	
+	
+	
+	@RequestMapping("/loginAction")
+   	public String loginAction(HttpServletRequest httpServletRequest, HttpServletResponse response, 
+   			Model model){
+
+		String id = springBootConfiguration.getMark59metricsid();
+		String passwrd  = springBootConfiguration.getMark59metricspasswrd();
+		
+        String username = httpServletRequest.getParameter("username");
+        String password = httpServletRequest.getParameter("password");		
+ 	
+        HttpSession session = httpServletRequest.getSession(true);
+
+        if (id.equals(username) && passwrd.equals(password)) {
+            session.setAttribute("authState", "authOK");
+            session.setMaxInactiveInterval(15*60);    //setting session to expire in 15 minutes
+        	return "redirect:/serverProfileList";
+        	
+        } else {
+        	session.setAttribute("authState", "invalid");
+    		Map<String, Object> map = new HashMap<>();
+    		map.put("reqErr", "<font color=red>Bad credentials.</font>");
+      		model.addAttribute("map", map);	
+        	return "login";
         }
+	}
+  
+   
+	@RequestMapping("/logout")
+    public String logoutPage (HttpServletRequest httpServletRequest, HttpServletResponse response) {
+	     HttpSession existingSession = httpServletRequest.getSession(false);
+	     if (existingSession != null) {
+	    	 existingSession.setAttribute("authState", "invalid");
+	     }
         return "login";
     }
-	
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String welcome(Model model, HttpServletRequest request) {
-		return "welcome";
+
+   
+	@RequestMapping(value = "/")
+	public String root(Model model, HttpServletRequest request) {
+        return "login";
 	}	
+	
+	
+	@RequestMapping(value = "/welcome")
+	public String overview(Model model, HttpServletRequest request) {
+        return "welcome";
+	}		
 	
 }

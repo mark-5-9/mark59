@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -68,7 +68,7 @@ import com.mark59.metrics.utils.MetricsUtils;
  * downloaded from the Metrics web application (profiles page).
  * 
  * <p>The location of the spreadsheet containing the server profile details is generally expected to set set via
- * the property 'mark59.server.profiles.excel.file.path' (in Mark59.properties).  An path override is also available
+ * the property 'mark59.server.profiles.excel.file.path' (in mark59.properties).  An path override is also available
  * on the Java Request parameter list.    
  * 
  * <p>Using details provided on the spreadsheet, calls a functions which controls and executed commands on the target servers, 

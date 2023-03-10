@@ -14,12 +14,12 @@ ECHO The database has been set to %DATABASE%
 IF [%DATABASE%] == [] (
 	ECHO 'DATABASE' variable not set, assuming H2 
 	rem Using H2 Database.  Starting the DataHunter Web Application (default values) 
-	java -jar ./target/mark59-datahunter.war  --spring.profiles.active=h2 --port=8081
+	java -Djdk.util.jar.enableMultiRelease=false -jar ./target/mark59-datahunter.war  --spring.profiles.active=h2 --port=8081
 )
 
 IF "%DATABASE%" == "H2" (
 	rem Using H2 Database.  Starting the DataHunter Web Application (default values) 
-	java -jar ./target/mark59-datahunter.war  --spring.profiles.active=h2 --port=8081
+	java -Djdk.util.jar.enableMultiRelease=false -jar ./target/mark59-datahunter.war  --spring.profiles.active=h2 --port=8081
 )
 
 IF "%DATABASE%" == "H2MEM" (
@@ -29,16 +29,16 @@ IF "%DATABASE%" == "H2MEM" (
 
 IF "%DATABASE%" == "MYSQL" (
 	rem Using MySQL. Starting DataHunter providing DB connection and server information (using default values) 
-	java -jar ./target/mark59-datahunter.war  --spring.profiles.active=mysql --port=8081 --mysql.server=localhost --mysql.port=3306 --mysql.schema=mark59datahunterdb --mysql.xtra.url.parms="?allowPublicKeyRetrieval=true&useSSL=false" --mysql.username=admin --mysql.password=admin
+	java -jar -Djdk.util.jar.enableMultiRelease=false ./target/mark59-datahunter.war  --spring.profiles.active=mysql --port=8081 --mysql.server=localhost --mysql.port=3306 --mysql.schema=mark59datahunterdb --mysql.xtra.url.parms="?allowPublicKeyRetrieval=true&useSSL=false" --mysql.username=admin --mysql.password=admin
 )
 
 rem -- another MySQL example -- 
 rem Using MySQL  Starting DataHunter defaults  (will default to MySQL database, application URL port of 8081) 
-rem java -jar ./target/mark59-datahunter.war 
+rem java -jar -Djdk.util.jar.enableMultiRelease=false ./target/mark59-datahunter.war 
 
 IF "%DATABASE%"=="POSTGRES" (
 	rem Using Postgres.  Starting DataHunter providing DB connection and server information (using postgres default values) 
-	java -jar ./target/mark59-datahunter.war --spring.profiles.active=pg ---port=8081  --pg.server=localhost --pg.port=5432  --pg.database=mark59datahunterdb --pg.xtra.url.parms=" " --pg.username=admin --pg.password=admin
+	java -jar -Djdk.util.jar.enableMultiRelease=false ./target/mark59-datahunter.war --spring.profiles.active=pg ---port=8081  --pg.server=localhost --pg.port=5432  --pg.database=mark59datahunterdb --pg.xtra.url.parms=" " --pg.username=admin --pg.password=admin
 
 	
 )

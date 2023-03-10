@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -18,7 +18,9 @@ package com.mark59.metrics.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.mark59.metrics.PropertiesConfiguration;
 import com.mark59.metrics.data.base.dao.BaseDAO;
 import com.mark59.metrics.data.beans.Command;
 import com.mark59.metrics.data.beans.CommandParserLink;
@@ -92,7 +95,10 @@ public class ServerProfileController {
 	CommandResponseParsersDAO commandResponseParsersDAO; 
 	
 	@Autowired
-	BaseDAO baseDAO; 
+	BaseDAO baseDAO;
+	
+	@Autowired
+	PropertiesConfiguration springBootConfiguration;	
 	
 	
 	@GetMapping("/downloadServerProfiles")
@@ -406,7 +412,6 @@ public class ServerProfileController {
 		commandExecutors.add("");
 		commandExecutors.addAll(MetricsConstants.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
 		
-		
 		Map<String, Object> parmsMap = new HashMap<>();
 		parmsMap.put("serverProfileWithCommandLinksList", serverProfileWithCommandLinksList);
 		parmsMap.put("commandExecutors",commandExecutors);	
@@ -431,6 +436,15 @@ public class ServerProfileController {
 		} else {  
 			serverProfileEditingForm.setCommandSelectors(createListOfAllCommandSelectors(serverProfileWithCommandLinks));
 		}
+		
+		serverProfileEditingForm.setApiAuthToken("");
+		if (String.valueOf(true).equalsIgnoreCase(springBootConfiguration.getMark59metricsapiauth())) {
+			String basicAuthToken = Base64.getEncoder().encodeToString((
+					springBootConfiguration.getMark59metricsapiuser() + ":" +
+					springBootConfiguration.getMark59metricsapipass()).getBytes(StandardCharsets.UTF_8));
+			serverProfileEditingForm.setApiAuthToken(basicAuthToken);
+		}		
+		
 		model.addAttribute("serverProfileEditingForm", serverProfileEditingForm);
 		
 		Map<String, Object> map = createMapOfDropdowns();

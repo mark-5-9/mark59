@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -18,8 +18,6 @@ package com.mark59.trends.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +50,8 @@ import com.mark59.trends.metricSla.MetricSlaResult;
 import com.mark59.trends.metricSla.SlaResultTypeEnum;
 import com.mark59.trends.sla.SlaChecker;
 import com.mark59.trends.sla.SlaTransactionResult;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author Philip Webb

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -17,7 +17,9 @@
 package com.mark59.datahunter.samples.scripts;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,6 +34,7 @@ import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WindowType;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import com.mark59.core.JmeterFunctionsImpl;
@@ -304,7 +307,14 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		LOG.debug("HTML demo: USED=" + used + ", UNUSED=" + unused); 
 		
 // 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
+// 		- using a new tab just as a demo   
 		jm.startTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");		
+
+		driver.switchTo().newWindow(WindowType.TAB);
+		deleteMultiplePoliciesPage.waitUntilExpectedNumberOfWindowsToBe(2);
+		List<String> browserTabs = new ArrayList<String>(driver.getWindowHandles());
+		driver.switchTo().window(browserTabs.get(1)); 
+		
 		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		deleteMultiplePoliciesPage.lifecycle().waitUntilClickable();		
 		jm.endTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");	

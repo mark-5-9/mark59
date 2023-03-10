@@ -1,4 +1,4 @@
-<!-- Copyright 2019 Insurance Australia Group Limited
+<!-- Copyright 2019 Mark59.com
  
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@
 		<p>A 'profile' can also be used to parameterize a user-written Groovy 'command' script.  Useful for actions or metrics obtained from tools such as New Relic,
 		where direct server access is not a requirement, or possibly where security rules will not allow you do directly access servers you want to monitor from JMeter.</p>
 
-		<p>Version: 5.2   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+		<p>Version: 5.3   Please see our User Guide and more at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 	</div>
 </body>

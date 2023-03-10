@@ -5,24 +5,24 @@
 #   |  Files are derived from source git repo plus the built executables in target folders, and any other artefacts
 #   |  required for execution (eg bat and shell files).
 #   | 
-#   |  Source is also included for mark59-datahunter-samples and mark59-dsl-samples projects. 
+#   |  Source is also included for mark59-datahunter-samples and mark59-dsl-samples projects (the  . 
+#   |  target folder is excluded for mark59-dsl-samples projects - so it contains source only)     
 #   |  
-#   |  mark59-core, mark59-datahunter-api, mark59-selenium-implementation are excluded as they are can be accessed
-#   |  or directly downloaded via Maven Central.  Aslo, for demonstration purposes, they are all dependencies of 
-#   |  the mark59-datahunter-samples project. 
+#   |  mark59-core, mark59-datahunter-api, mark59-selenium-implementation are excluded as they are accessed
+#   |  or directly downloaded via Maven Central.
 #   |   
 #   --------------------------------------------------------------------------------------------------------------
 # SOURCE_DIR=~/gitrepo/mark-5-9/mark59-wip/
 # DEST_DIR=~/mark59-x.y"
 
 SOURCE_DIR=~/gitrepo/mark59-wip/
-DEST_DIR=~/mark59-5.1/ 
+DEST_DIR=~/mark59-5.3/ 
 
 rm -rf ${DEST_DIR}
 mkdir -p ${DEST_DIR}
 cd ~/gitrepo/mark59-wip/
 
-## All projects (other then the ones where you also want source code and artefacts copied) 
+## All projects except the sample projects where you want source code copied 
 
 rsync -av -m --exclude '.*' --exclude '*.yml' --exclude '*/src' --exclude '*/webapp' --exclude '*/test' --exclude '*/WEB-INF' --exclude '*/classes' --exclude '*/test-classes' --exclude 'TESTDATA' --exclude '*/maven*' --exclude 'archive-tmp' --exclude '*/m2e-wtp*' --exclude '*/surefire*' --exclude '*/bin'  --exclude '*.log' --exclude '*.png' --exclude '*.gif' --exclude '*.original' --exclude '*.java' --exclude 'dockerfile' --exclude 'UtilityCreateMark59Zip.*' --exclude 'pom.xml'  --exclude 'mark59-datahunter.jar' --exclude 'mark59-metrics.jar' --exclude 'mark59-trends.jar' --exclude 'mark59-datahunter-samples' --exclude 'mark59-dsl-samples' --exclude 'mark59-core' --exclude 'mark59-datahunter-api' --exclude 'mark59-selenium-implementation' "${SOURCE_DIR}" "${DEST_DIR}"
 

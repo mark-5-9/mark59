@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 Insurance Australia Group Limited
+ *  Copyright 2019 Mark59.com
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License. 
@@ -37,7 +37,7 @@ import com.mark59.selenium.driversimpl.DriverFunctionsSeleniumFirefox;
  * 
  * <p>As well as the WebDriver itself, additional functionality around screenshots, logging and exception 
  * handling are included.  This class is intended as an internal class within the Mark59 framework, with its     
- * functionality accessible for a script via {@link JmeterFunctionsForSeleniumScripts}
+ * functionality accessible in a script via {@link JmeterFunctionsForSeleniumScripts}
  * 
  * <p>Note: Ending a Selenium connection is slightly different between FireFox and Chrom(ium), so 
  * {@link #driverDispose()} methods have been written in the implementation of those Mark59 drivers 
