@@ -25,16 +25,27 @@ import java.util.List;
  */
 public class MetricsConstants {
 	
-	public static final String MARK59_VERSION_METRICS = "5.3";	
-	
+	public static final String MARK59_VERSION_METRICS = "5.4";	
 	public static final String MARK59_SERVER_PROFILES_EXCEL_FILE = "mark59serverprofiles.xlsx";  
-
 	public static final String SERVER_PROFILE_NOT_FOUND  = "SERVER_PROFILE_NOT_FOUND";	
 	
+	public static final boolean RUNNING_VIA_WEB = true;
+	
+	// pre-defined (non-Groovy) command parameter names
 	public static final String METRICS_BASE_DIR 	= "METRICS_BASE_DIR"; 
-	
-	public static final String KERBEROS = "KERBEROS";	
-	
+	public static final String PROFILE_NAME			= "PROFILE_NAME";	
+	public static final String PROFILE_SERVER		= "PROFILE_SERVER";	
+	public static final String PROFILE_USERNAME		= "PROFILE_USERNAME";	
+	public static final String PROFILE_PASSWORD		= "PROFILE_PASSWORD";
+
+	public static final String PROFILE_PASSWORD_VAR	= "${"+PROFILE_PASSWORD+"}";
+
+	// unix connection via Jsch 
+	public static final String KERBEROS = "KERBEROS";
+	public static final String SSH_PREFERRED_AUTHENTICATIONS = "SSH_PREFERRED_AUTHENTICATIONS";
+	public static final String SSH_KNOWN_HOSTS = "SSH_KNOWN_HOSTS";
+	public static final String SSH_IDENTITY = "SSH_IDENTITY";
+	public static final String SSH_PASSPHRASE = "SSH_PASSPHRASE";	
 	
 	public enum OS {
 		WINDOWS("WINDOWS"), LINUX("LINUX"), UNIX("UNIX"), UNKNOWN("UNKNOWN");
@@ -47,7 +58,7 @@ public class MetricsConstants {
 	
 	
 	public enum CommandExecutorDatatypes {
-		WMIC_WINDOWS("WMIC_WINDOWS"), SSH_LINUX_UNIX("SSH_LINUX_UNIX"), GROOVY_SCRIPT("GROOVY_SCRIPT");
+		WMIC_WINDOWS("WMIC_WINDOWS"), POWERSHELL_WINDOWS("POWERSHELL_WINDOWS"), SSH_LINUX_UNIX("SSH_LINUX_UNIX"), GROOVY_SCRIPT("GROOVY_SCRIPT");
 
 		private final String executorText;
 		

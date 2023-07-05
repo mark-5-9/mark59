@@ -43,6 +43,7 @@ import com.mark59.metrics.data.servercommandlinks.dao.ServerCommandLinksDAO;
 import com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAO;
 import com.mark59.metrics.drivers.ServerProfileRunner;
 import com.mark59.metrics.pojos.TestCommandParserResponsePojo;
+import com.mark59.metrics.utils.MetricsConstants;
 import com.mark59.metrics.utils.MetricsUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -83,10 +84,11 @@ public class ServerMetricRestController {
 	/**
 	 *  <p>Invoke Server Profile execution for a mark59-metrics-api call. 
 	 *  <p>Controls and executes commands on the target servers, and returns a formatted response to the Api call.
-	 *  <p>Will be used by implementation(s) of JMeter Java Samplers designed to cater for 
-	 *  metrics capture directly via this API call (refer to com.mark59.metrics.api.ServerMetricsCaptureViaWeb).
-	 *  <p> For example using profile localhost_HOSTID, and from default setting localhost, the api url used would be <br>
-	 *  http://localhost:8085/mark59-metrics/api/metric?reqServerProfileName=localhost_HOSTID
+	 *  <p>Will be used by implementation(s) of JMeter Java Samplers designed to cater for metrics captured  
+	 *  directly via this API call (refer to com.mark59.metrics.api.ServerMetricsCaptureViaWeb).
+	 *  <p> For example using profile localhost_LINUX (to capture local metrics when you are on a Linux machine) 
+	 *  the api url used would be <br>
+	 *  http://localhost:8085/mark59-metrics/api/metric?reqServerProfileName=localhost_LINUX
 	 *  <p> A basic Authentication header is required on the api request when the property mark59metricsapiauth has been
 	 *  set to 'true'. Credentials from the header need to match the values of properties mark59metricsapiuser and 
 	 *  mark59metricsapipass.  
@@ -105,8 +107,9 @@ public class ServerMetricRestController {
 					springBootConfiguration.getMark59metricsapipass());
 
 		if (apiAuthOK) {
-			return ResponseEntity.ok(ServerProfileRunner.commandsResponse(reqServerProfileName, reqTestMode, 
-					serverProfilesDAO, serverCommandLinksDAO, commandsDAO, commandParserLinksDAO, commandResponseParsersDAO, true));	
+			return ResponseEntity.ok(ServerProfileRunner.commandsResponse(reqServerProfileName, reqTestMode,
+					serverProfilesDAO, serverCommandLinksDAO, commandsDAO, commandParserLinksDAO,
+					commandResponseParsersDAO, MetricsConstants.RUNNING_VIA_WEB));	
 		} else {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		}

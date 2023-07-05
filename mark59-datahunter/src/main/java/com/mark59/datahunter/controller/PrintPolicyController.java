@@ -58,7 +58,7 @@ public class PrintPolicyController {
 	public ModelAndView printPolicyAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, HttpServletRequest httpServletRequest) {
 		DataHunterUtils.expireSession(httpServletRequest);
 		
-		policySelectionCriteria.setSelectClause(" application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
 		
 		List<Policies> policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);

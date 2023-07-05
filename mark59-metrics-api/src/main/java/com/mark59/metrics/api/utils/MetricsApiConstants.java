@@ -48,7 +48,6 @@ public class MetricsApiConstants {
 	 */
 	public static final String PRINT_ERROR_MESSAGES	= "PRINT_ERROR_MESSAGES";
 	
-	public static final boolean RUNNING_VIA_WEB = true;
 	public static final boolean RUNNING_VIA_EXCEL = false;
 
 }

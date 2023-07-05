@@ -22,24 +22,26 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.mark59.core.utils.Mark59Utils;
-import com.mark59.core.utils.SimpleAES;
 import com.mark59.metrics.data.beans.Command;
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.CommandDriverResponse;
 import com.mark59.metrics.utils.MetricsConstants;
 import com.mark59.metrics.utils.MetricsConstants.CommandExecutorDatatypes;
+import com.mark59.metrics.utils.MetricsUtils;
 
 
 /**
@@ -60,49 +62,48 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 	
 	
 	/**
-	 * Executes the command on the requested server via SSHn 
+	 * Executes a Nix command locally, or on the requested server via SSH using the JSch library  
+	 * 
+	 * <p><b>Jsch Connections configuration notes:</b>
+	 * <ul>
+	 * <li>Default PreferredAuthentications is "<code>publickey,keyboard-interactive,password</code>". 
+	 * <li>If serverprofile password is set to <code>KERBEROS</code>, PreferredAuthentications will be set to 
+	 * "<code>gssapi-with-mic</code>", as "<code>Kerberos/GSSAPI</code>" authentication (the default), as 
+	 * can hang if Kerberos is installed on client. Actual password can still be stored in the Password Cipher field.  
+	 * See <br>https://stackoverflow.com/questions/10881981/sftp-connection-through-java-asking-for-weird-authentication.
+	 * <li>A parameter named <b>SSH_PREFERRED_AUTHENTICATIONS</b> can be passed to explicitly set 
+	 * PreferredAuthentications. 
+	 * <li>A parameter named <b>SSH_KNOWN_HOSTS</b> can be passed to setIdentity (filename)   
+	 * <li>A parameter named <b>SSH_IDENTITY</b> can be used to set a private key location (filename), See
+	 * https://www.svlada.com/ssh-public-key-authentication/   
+	 * </ul>
 	 * @param command Command
+	 * @param cmdParms parameters (for the server profile in use)
 	 * @return CommandDriverResponse
 	 */
 	@Override
-	public CommandDriverResponse executeCommand(Command command) {
+	public CommandDriverResponse executeCommand(Command command, Map<String, String> cmdParms, boolean testMode) {
 		LOG.debug("executeCommand :" + command);
-		String actualPassword; 
-		String cipherUsedLog = " (local execution)";		
 		CommandDriverResponse commandDriverResponse;
-		String runtimeCommand = command.getCommand().replaceAll("\\R", "\n");
-
-		if ("localhost".equalsIgnoreCase(serverProfile.getServer())) {
-			commandDriverResponse = CommandDriver.executeRuntimeCommand(runtimeCommand, command.getIngoreStderr(), CommandExecutorDatatypes.SSH_LINUX_UNIX );
+		StringSubstitutor parmSubstitutor = new StringSubstitutor(cmdParms);		
 		
-		} else {
-			
-			if (StringUtils.isBlank(serverProfile.getPasswordCipher())){
-				actualPassword = serverProfile.getPassword();
-				if (MetricsConstants.KERBEROS.equals(actualPassword)){
-					cipherUsedLog = " (connection via Kerberos)"; 
-				} else {
-					cipherUsedLog = " user " + serverProfile.getUsername() + " (not enciphered)"; 
-				}
-			} else {
-				cipherUsedLog = " (pwd chipher used)" ;
-				try {
-					actualPassword = SimpleAES.decrypt(serverProfile.getPasswordCipher());
-				} catch (Exception e) {
-					commandDriverResponse = new CommandDriverResponse();
-					commandDriverResponse.setRawCommandResponseLines(new ArrayList<>());
-					commandDriverResponse.setCommandLog("<br>" + cipherUsedLog + "<br>pwd decryption error: " + e.getMessage() + "<br>");			
-					commandDriverResponse.setCommandFailure(true);
-					return commandDriverResponse;
-				}
-			}
-
+		String runtimeCommand = parmSubstitutor.replace(command.getCommand()).replaceAll("\\R", "\n");
+		
+		String runtimeCommandForLog = parmSubstitutor.replace(command.getCommand()
+				.replace(MetricsConstants.PROFILE_PASSWORD_VAR, "********")).replaceAll("\\R", "\n");	
+		
+		if ("localhost".equalsIgnoreCase(serverProfile.getServer())) {
+			commandDriverResponse = CommandDriver.executeRuntimeCommand(runtimeCommand, command.getIngoreStderr(),
+					CommandExecutorDatatypes.SSH_LINUX_UNIX);
+		
+		} else { // remote connection
+					
 			try {
-				connect(serverProfile, actualPassword);
+				connect(serverProfile, cmdParms);
 			} catch (Exception e) {
 				commandDriverResponse = new CommandDriverResponse();
 				commandDriverResponse.setRawCommandResponseLines(new ArrayList<>());
-				commandDriverResponse.setCommandLog("<br>" + cipherUsedLog + "<br>Connection failure: " + e.getMessage() + "<br>");			
+				commandDriverResponse.setCommandLog("<br>Connection failure: " + e.getMessage() + "<br>");			
 				commandDriverResponse.setCommandFailure(true);
 				return commandDriverResponse;
 			}
@@ -110,39 +111,72 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 			commandDriverResponse = executeRemoteNixSystemCommand(runtimeCommand, command.getIngoreStderr());
 		}
 		
-		commandDriverResponse.setCommandLog(
-				CommandDriver.logExecution(cipherUsedLog, runtimeCommand, command.getIngoreStderr(), commandDriverResponse.getRawCommandResponseLines()));
-		
-		//System.out.println("CommandLog at end:" + commandDriverResponse.getCommandLog()  );
-		
-		return commandDriverResponse;
+		commandDriverResponse.setCommandLog(CommandDriver.logExecution(runtimeCommandForLog, command.getIngoreStderr(),
+				commandDriverResponse.getRawCommandResponseLines(), testMode));
+		return commandDriverResponse;		
 	}
 
 	
 	/**
-	 * The PreferredAuthentication configuration, removing Kerberos authentication (the default), as  
-	 * Kerberos can hang the client if it is installed. 
-	 * see  https://stackoverflow.com/questions/10881981/sftp-connection-through-java-asking-for-weird-authentication.
-	 * 
-	 * @param serverProfile the server profile
-	 * @param actualPassword the actual password
+	 * @param serverProfile serverProfile
+	 * @param cmdParms the command parms (using the 'experimental' nix connection ones here)y    
+	 * @return a description of the connection (for debug purposes) 
 	 */
-	private void connect(ServerProfile serverProfile, String actualPassword) {
+	private void connect(ServerProfile serverProfile,  Map<String, String> cmdParms) {
+		LOG.debug( "CommandDriverNixSshImpl connect, serverProfile : " + serverProfile);
+		String connDesc = " Remote Execution "; 
+
+		JSch jsch = new JSch();
 		try {
-			sesConnection = new JSch().getSession(serverProfile.getUsername(), serverProfile.getServer(), Integer.parseInt(serverProfile.getConnectionPort()));
-			sesConnection.setPassword(actualPassword);
+			String preferredAuthentications = "publickey,keyboard-interactive,password";
+			if (MetricsConstants.KERBEROS.equals(serverProfile.getPassword())){
+				preferredAuthentications = "gssapi-with-mic";				
+			} else if (StringUtils.isNotEmpty(cmdParms.get(MetricsConstants.SSH_PREFERRED_AUTHENTICATIONS))) {
+				preferredAuthentications = cmdParms.get(MetricsConstants.SSH_PREFERRED_AUTHENTICATIONS); 
+			}
+			connDesc +=  "<br>&nbsp;&nbsp;, PreferredAuthentications=" + preferredAuthentications;
+
+			if (StringUtils.isNotEmpty(cmdParms.get(MetricsConstants.SSH_KNOWN_HOSTS))){
+				String knownHosts = cmdParms.get(MetricsConstants.SSH_KNOWN_HOSTS);
+				connDesc +=  "<br>&nbsp;&nbsp;, KnownHosts =" + knownHosts;
+				jsch.setKnownHosts(knownHosts);
+			};
+
+			if (StringUtils.isNotEmpty(cmdParms.get(MetricsConstants.SSH_IDENTITY)) 
+					&& StringUtils.isEmpty(cmdParms.get(MetricsConstants.SSH_PASSPHRASE))){
+				String identity = cmdParms.get(MetricsConstants.SSH_IDENTITY);
+				connDesc += " <br>&nbsp;&nbsp;, Identity=" + identity
+						+ " <br>&nbsp;&nbsp;&nbsp;&nbsp; (note: don't set a password in the serverProfile for a prv key connection."
+						+ " No passphase was entered - is that right? )";
+				jsch.addIdentity(identity);
+			};
+			
+			if (StringUtils.isNotEmpty(cmdParms.get(MetricsConstants.SSH_IDENTITY)) 
+					&& StringUtils.isNotEmpty(cmdParms.get(MetricsConstants.SSH_PASSPHRASE))){
+				String identity = cmdParms.get(MetricsConstants.SSH_IDENTITY);
+				String passphrase = cmdParms.get(MetricsConstants.SSH_PASSPHRASE);				
+				connDesc += " <br>&nbsp;&nbsp;, Identity=" + identity
+						+ " <br>&nbsp;&nbsp;&nbsp;&nbsp; (note: don't set a password in the serverProfile for a prv key connection.";
+				jsch.addIdentity (identity, passphrase);
+			};
+			
+			sesConnection = jsch.getSession(serverProfile.getUsername(), serverProfile.getServer(), Integer.parseInt(serverProfile.getConnectionPort()));
+			
+			String actualPwd = MetricsUtils.actualPwd(serverProfile);
+			if (StringUtils.isNotEmpty(actualPwd)) {
+				sesConnection.setPassword(actualPwd);
+				connDesc +=  "<br>&nbsp;&nbsp, Password set (from serverProfile details)";
+			} else {
+				connDesc +=  "<br>&nbsp;&nbsp, connection password not set";
+			}
 			Properties connectConfig = new java.util.Properties();
 			connectConfig.put("StrictHostKeyChecking", "no");
-			if (MetricsConstants.KERBEROS.equals(actualPassword)){
-				connectConfig.put("PreferredAuthentications", "gssapi-with-mic");				
-			} else {
-				connectConfig.put("PreferredAuthentications", "publickey,keyboard-interactive,password");
-			}
+			connectConfig.put("PreferredAuthentications", preferredAuthentications);
 			sesConnection.setConfig(connectConfig);
 			sesConnection.connect(Integer.parseInt(serverProfile.getConnectionTimeout()));
 		} catch (JSchException jschX) {
 			try {sesConnection.disconnect();} catch (Exception ignored){}
-			throw new RuntimeException(jschX.getMessage());
+			throw new RuntimeException(jschX.getMessage() + "<br><br>Connection Details : " +  connDesc);
 		}
 	}	
 
@@ -178,7 +212,10 @@ public class CommandDriverNixSshImpl implements CommandDriver {
 			channelExec.disconnect();
 			
 		} catch (Exception e) {
-			try {Objects.requireNonNull(channelExec).getSession().disconnect();channelExec.disconnect();} catch (Exception ignored){}
+			try {
+				Objects.requireNonNull(channelExec).getSession().disconnect();
+				channelExec.disconnect();
+			} catch (Exception ignored) {}
 			commandDriverResponse.setCommandFailure(true);	
 			StringWriter stackTrace = new StringWriter();
 			e.printStackTrace(new PrintWriter(stackTrace));

@@ -61,7 +61,7 @@ public class PrintSelectedPoliciesController {
 	@RequestMapping("/print_selected_policies_action")
 	public ModelAndView printSelectedPoliciesAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria,  Model model, HttpServletRequest httpServletRequest) {
 
-		policySelectionCriteria.setSelectClause(" application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
 		
 		List<Policies> policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);

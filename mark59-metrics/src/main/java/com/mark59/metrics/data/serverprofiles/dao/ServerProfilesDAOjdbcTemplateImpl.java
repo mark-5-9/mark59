@@ -200,7 +200,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		map.put("key3", "value3");
 		
 		ObjectMapper mapper = new ObjectMapper();
-//		String serializedJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
 		String serializedJson = mapper.writeValueAsString(map);
 		
 		System.out.println(">> Serialized string" );
@@ -218,12 +217,9 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		System.out.println(">> iterate map" );
 		dmap.forEach((k, v) -> System.out.println((k + ":" + v)));
 		System.out.println("<< iterate map" );
-		
-		
-//		String stringy = ServerMetricsWebUtils.listToTextboxFormat(new ArrayList<String>());
+
 		String stringy = MetricsUtils.listToTextboxFormat(null);
 		System.out.println("stringy="+ stringy);
-		
 		
 		List<String> strlist = new ArrayList<>();
 		strlist.add("parm1");
@@ -231,31 +227,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		strlist.add("parm3");
 		strlist.add("parm4");
 		System.out.println("strlist=" + strlist);
-		
-		
-//		List<CommandParameter> commandParameters = new ArrayList<CommandParameter>();
-//		commandParameters.add(new CommandParameter("nameOne", "valueOne"));
-//		commandParameters.add(new CommandParameter("nameTwo", "valueTwo"));
-//		commandParameters.add(new CommandParameter("nameThree", "33"));
-//
-//		ObjectMapper omapper = new ObjectMapper();
-//		String serializedJsonParameters = omapper.writerWithDefaultPrettyPrinter().writeValueAsString(commandParameters);	
-//		
-//		System.out.println(">> Serialized string" );
-//		System.out.println(serializedJsonParameters);
-//		System.out.println("<< Serialized string");		
-//		
-//		TypeReference<ArrayList<CommandParameter>> ArrayListTypeRef = new TypeReference<ArrayList<CommandParameter>>(){};
-//		List<CommandParameter> paramsList = mapper.readValue(serializedJsonParameters, ArrayListTypeRef);
-//		
-//		System.out.println(">> DeSerialized arraylist" );
-//		System.out.println(paramsList);
-//		System.out.println("<< Deerialized arraylist");
-//		System.out.println();
-//		
-//		for (CommandParameter commandParameter : paramsList) {
-//			System.out.println("param: " + commandParameter.getParamName() + " : "  + commandParameter.getParamValue());
-//		}
 	}
 
 }

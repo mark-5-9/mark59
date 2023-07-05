@@ -45,7 +45,7 @@ public class UploadFileController {
 		// System.out.println("uploadFile: " + uploadFile);
 
 		PolicySelectionCriteria policySelectionCriteria = new PolicySelectionCriteria();
-		policySelectionCriteria.setSelectClause(" count(*)  as counter ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COUNTS);
 		policySelectionCriteria.setSelectOrder(DataHunterConstants.SELECT_UNORDERED);
 		policySelectionCriteria.setApplication(uploadFile.getApplication().trim());
 		policySelectionCriteria.setLifecycle(uploadFile.getLifecycle().trim());

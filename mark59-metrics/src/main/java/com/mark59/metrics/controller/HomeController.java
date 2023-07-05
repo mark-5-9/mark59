@@ -64,7 +64,7 @@ public class HomeController {
 
         if (id.equals(username) && passwrd.equals(password)) {
             session.setAttribute("authState", "authOK");
-            session.setMaxInactiveInterval(15*60);    //setting session to expire in 15 minutes
+            session.setMaxInactiveInterval(30*60);    //setting session to expire in 30 minutes
         	return "redirect:/serverProfileList";
         	
         } else {

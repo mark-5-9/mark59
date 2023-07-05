@@ -29,7 +29,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.Test;
 
-import com.mark59.metrics.api.utils.MetricsApiConstants;
+import com.mark59.metrics.common.MetricsApiConstants;
 import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsersDAO;
 import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsersDAOexcelWorkbookImpl;
 import com.mark59.metrics.data.commandparserlinks.dao.CommandParserLinksDAO;
@@ -52,7 +52,7 @@ public class ServerProfileRunnerViaExcelTest  {
     public final void testServerProfileRunnerUsingSimpleScriptSampleRunnerViaExcel() throws EncryptedDocumentException, IOException
     {
 		String testModeNo = "Y";  // a hack to get the test summary
-		File excelFile = new File("./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");
+		File excelFile = new File("./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");
 		String reqServerProfileName = "SimpleScriptSampleRunner";
     	 
     	Workbook workbook = WorkbookFactory.create(excelFile, null, true);  // Factory class necessary to avoid excel file being 'touched' 
@@ -84,8 +84,18 @@ public class ServerProfileRunnerViaExcelTest  {
 		assertEquals(parsedMetrics.get(1).toString(), "[label=a_cpu_util_txn, result=33.3, dataType=CPU_UTIL, success=true, parseFailMsg=null]");		
 		assertEquals(parsedMetrics.get(2).toString(), "[label=some_datapoint, result=66.6, dataType=DATAPOINT, success=true, parseFailMsg=null]");		
 		assertEquals(response.getFailMsg(), "");
+		
+		System.out.println(">>>> loglines >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println(response.getLogLines());
+		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+		System.out.println(">>>> getTestModeResult>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println(response.getTestModeResult());
+		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+		
+		
+		
 		assertTrue(response.getLogLines(), response.getTestModeResult().contains(
-				"<font color='green'> You have received metrics results!  Please check the values are as you expect.</font>"));		
+				"<font color='green'> You have received metrics results!  Please check the values are as you expect. ["));		
     }
 
 	
@@ -93,7 +103,7 @@ public class ServerProfileRunnerViaExcelTest  {
     public final void testServerProfileRunnerUsingDuffSimpleScriptSampleRunnerExcelSheet() throws EncryptedDocumentException, IOException
     {
 		String testModeNo = "Y"; // a hack to get the test summary
-		File excelFile = new File("./src/test/resources/duffSimpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");
+		File excelFile = new File("./src/test/resources/duffSimple/mark59serverprofiles.xlsx");
 		String reqServerProfileName = "SimpleScriptSampleRunner";
     	 
     	Workbook workbook = WorkbookFactory.create(excelFile, null, true);  // Factory class necessary to avoid excel file being 'touched' 
@@ -119,14 +129,19 @@ public class ServerProfileRunnerViaExcelTest  {
 		assertEquals("number of commands", 1, response.getParsedCommandResponses().size());
 		assertEquals(parsedCommandResponse.isCommandFailure(), true);
 
+		
+		System.out.println("parsedCommandResponse.getCommandResponse() = " + parsedCommandResponse.getCommandResponse() );
+		
 		assertTrue(parsedCommandResponse.getCommandResponse().contains(
 				"Failure attempting to execute groovy script command : No such property: scriptResponseZ"));
 	
 		List<ParsedMetric> parsedMetrics = parsedCommandResponse.getParsedMetrics();
 		assertEquals("number of parsed metrics", 0, parsedMetrics.size());
 		
+		System.out.println("response.getLogLines() = " + response.getLogLines());
+		
 		assertTrue(response.getLogLines(), response.getLogLines().contains(
-				"command SimpleScriptSampleCmd has failed"));	 		
+				"Command SimpleScriptSampleCmd, on Server Profile SimpleScriptSampleRunner has failed."));	 		
 		assertTrue(response.getTestModeResult(), response.getTestModeResult().contains(
 				"<font color='red'> You have not received any metrics back!  Please check your commands (1 failures recorded)"));	
 		assertEquals(response.getFailMsg(), "");

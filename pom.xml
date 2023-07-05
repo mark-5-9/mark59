@@ -33,7 +33,8 @@
 		<module>mark59-datahunter</module>
 		<module>mark59-datahunter-samples</module>
 		<module>mark59-dsl-samples</module>		
-				
+
+		<module>mark59-metrics-common</module>						
 		<module>mark59-metrics</module>		
 		<module>mark59-metrics-api</module>		
 		

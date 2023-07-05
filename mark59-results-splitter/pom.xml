@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-results-splitter</artifactId>
-	<version>5.3</version>
+	<version>5.4</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-results-splitter</name>
@@ -55,17 +55,19 @@
 			<!-- Wraps all the project classes and their dependencies into a single executable Jar -->
 		
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>			
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.3.0</version>				
+				<version>3.3.0</version>
 				<configuration>
 					<appendAssemblyId>false</appendAssemblyId>
-						<descriptorRefs><descriptorRef>jar-with-dependencies</descriptorRef></descriptorRefs>
-						<archive>
-							<manifest>
-								<mainClass>com.mark59.results.splitter.ResultsSplitter</mainClass>
-							</manifest>
-						</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>com.mark59.results.splitter.ResultsSplitter</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>
@@ -73,7 +75,7 @@
 						<goals><goal>single</goal></goals>
 					</execution>
 				</executions>
-			</plugin>					
+			</plugin>
 
 		</plugins>
 		<finalName>${project.artifactId}</finalName>

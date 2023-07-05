@@ -17,7 +17,9 @@
 package com.mark59.metrics.controller;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,8 +112,15 @@ public class CommandController {
 			commandsDAO.insertCommand(command);
 			List<String> parserNames = createListOfSelectedParsers(commandEditingForm.getParserSelectors());   
 			commandParserLinksDAO.updateCommandParserLinksForCommandName(commandEditingForm.getCommand().getCommandName(), parserNames);
-			map.put("commandEditingForm", commandEditingForm);			
-			return "redirect:/commandList?reqExecutor=" + reqExecutor;			
+			map.put("commandEditingForm", commandEditingForm);	
+			
+			if ("continue".equalsIgnoreCase(commandEditingForm.getSaveCmdAction())){
+				return "redirect:/editCommand?&reqCommandName=" + command.getCommandName() + "&reqExecutor=" + reqExecutor
+						+ "&reqLastSavedTimestamp=" + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()).replace(":","%3A")   ;
+			} else { // exit
+				return "redirect:/commandList?reqExecutor=" + reqExecutor;	
+			}
+
 		} else {
 			map.put("commandEditingForm", commandEditingForm);		
 			map.put("reqErr","Oh, a listing for a command named " + existingCommand.getCommandName() + " AlreadyExists");	
@@ -176,12 +185,22 @@ public class CommandController {
 	
 	
 	@RequestMapping("/editCommand")
-	public String editCommand(@RequestParam String reqCommandName, @RequestParam(required=false) String reqExecutor,  
+	public String editCommand(@RequestParam String reqCommandName, @RequestParam(required=false) String reqExecutor, 
+			@RequestParam(required=false) String reqLastSavedTimestamp,
 			@ModelAttribute CommandEditingForm commandEditingForm, Model model) {
-		
+
 		Command command = commandsDAO.findCommand(reqCommandName);
 		commandEditingForm.setCommand(command);
 		commandEditingForm.setParamNamesTextboxFormat(MetricsUtils.listToTextboxFormat(command.getParamNames()));
+		
+		commandEditingForm.setLastSavedTimestamp("");
+		String spanTag = "<span style='font-size: 10px'>&nbsp;&nbsp;&nbsp;";
+		if (StringUtils.isNotBlank(reqLastSavedTimestamp)){
+			commandEditingForm.setLastSavedTimestamp(" Last saved " + reqLastSavedTimestamp);
+			commandEditingForm.setLastSavedTimestamp(spanTag + "Last saved "+reqLastSavedTimestamp+"</span>");
+		} else {
+			commandEditingForm.setLastSavedTimestamp(spanTag + "Inactivity timeout: 30 min</span>");
+		}
 
 		CommandWithParserLinks commandWithParserLinks = commandAddParserLinks(command);
 		commandEditingForm.setParserSelectors(createListOfAllParserSelectors(commandWithParserLinks));
@@ -197,7 +216,7 @@ public class CommandController {
 
 	@RequestMapping("/updateCommand")
 	public String updateCommand(@RequestParam(required=false) String reqExecutor, @ModelAttribute CommandEditingForm commandEditingForm) {
-
+		
 		Command command = commandEditingForm.getCommand();
 		command.setParamNames(MetricsUtils.textboxFormatToList(commandEditingForm.getParamNamesTextboxFormat()));
 		
@@ -207,8 +226,14 @@ public class CommandController {
 		
 		Map<String, Object> map = createMapOfDropdowns();			
 		map.put("reqExecutor", reqExecutor);
-		map.put("commandEditingForm", commandEditingForm);			
-		return "redirect:/commandList?reqExecutor=" + reqExecutor;	
+		map.put("commandEditingForm", commandEditingForm);
+		
+		if ("continue".equalsIgnoreCase(commandEditingForm.getSaveCmdAction())){
+			return "redirect:/editCommand?&reqCommandName=" + command.getCommandName() + "&reqExecutor=" + reqExecutor
+					+ "&reqLastSavedTimestamp=" + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()).replace(":","%3A")   ;
+		} else { // exit
+			return "redirect:/commandList?reqExecutor=" + reqExecutor;	
+		}
 	}
 
 

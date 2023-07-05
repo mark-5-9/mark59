@@ -25,13 +25,15 @@ public class CommandParameter {
 	
 	String paramName;
 	String paramValue;
+	String paramDuplicated;
 	
 	public CommandParameter() {
 	}
 
-	public CommandParameter(String paramName, String paramValue) {
+	public CommandParameter(String paramName, String paramValue, String paramDuplicated){
 		this.paramName = paramName;
 		this.paramValue = paramValue;
+		this.paramDuplicated = paramDuplicated;
 	}
 	
 	public String getParamName() {
@@ -50,10 +52,19 @@ public class CommandParameter {
 		this.paramValue = paramValue;
 	}
 
+	public String getParamDuplicated() {
+		return paramDuplicated;
+	}
+
+	public void setParamDuplicated(String paramDuplicated) {
+		this.paramDuplicated = paramDuplicated;
+	}
+
 	@Override
     public String toString() {
         return   "[paramName="+ paramName + 
         		", paramValue="+ paramValue + 
+        		", paramDuplicated="+ paramDuplicated + 
         		"]";
 	}
 		

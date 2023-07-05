@@ -44,7 +44,7 @@ public class ServerMetricsCaptureViaExcelTest  {
 		ServerMetricsCaptureViaExcel groovyscripttest = new ServerMetricsCaptureViaExcel();
 		Map<String,String> additionalTestParametersMap = new LinkedHashMap<String,String>();
 		additionalTestParametersMap.put(ServerMetricsCaptureViaExcel.OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH , 
-				"./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");
+				"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");
 		JavaSamplerContext groovyscriptcontext = new JavaSamplerContext( setArgs(groovyscripttest, "SimpleScriptSampleRunner") );
 		groovyscripttest.setupTest(groovyscriptcontext);
 		SampleResult srMain = groovyscripttest.runTest(groovyscriptcontext);
@@ -66,7 +66,6 @@ public class ServerMetricsCaptureViaExcelTest  {
     }
 
 
-	
 	@Test
     public final void testSimpleSheetWithLocalhostProfileForEachOs()
     {
@@ -91,7 +90,6 @@ public class ServerMetricsCaptureViaExcelTest  {
 			
 			String server = CommandDriver.obtainReportedServerId("localhost", ""); 
 			String localhostOs = MetricsUtils.obtainOperatingSystemForLocalhost();  
-			
 			
 			if (MetricsConstants.OS.WINDOWS.getOsName().equals(localhostOs)){
 				assertEquals("wrong txn count", 3, subResArray.length);
@@ -119,7 +117,7 @@ public class ServerMetricsCaptureViaExcelTest  {
 		
 		Map<String,String> testMap = new LinkedHashMap<String,String>();
 		testMap.put(ServerMetricsCaptureViaExcel.OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH , 
-					"./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");
+					"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");
 		testMap.put(ServerMetricsCaptureViaExcel.SERVER_PROFILE_NAME, serverProfileName);
 		Arguments testargs = Mark59Utils.mergeMapWithAnOverrideMap(argmap,testMap);
 		return testargs; 

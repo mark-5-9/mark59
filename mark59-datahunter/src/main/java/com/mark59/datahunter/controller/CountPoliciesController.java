@@ -62,7 +62,7 @@ public class CountPoliciesController {
 		// https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc
 		// HttpServletRequest request .. fields of ModelAttribute are actually request parameters (eg "application") 
 
-		policySelectionCriteria.setSelectClause(" count(*)  as counter ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COUNTS);
 		policySelectionCriteria.setSelectOrder(DataHunterConstants.SELECT_UNORDERED);
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
 		int rowsAffected = policiesDAO.runCountSql(sqlWithParms);

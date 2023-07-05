@@ -5,82 +5,55 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.2</version>
+		<version>3.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics</artifactId>
 	<packaging>war</packaging>
-	<version>5.3</version>
+	<version>5.4</version>
 	<name>mark59-metrics</name>
 
 	<properties>
-		<maven.compiler.release>17</maven.compiler.release>		
+		<maven.compiler.release>17</maven.compiler.release>
 		<maven.compiler.target>17</maven.compiler.target>
 		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>	
 
 	<dependencies>
-
+		
+		<!-- shared classes between the metrics api and the web application -->
 		<dependency>
 			<groupId>com.mark59</groupId>
-			<artifactId>mark59-core</artifactId>
-			<version>5.3</version>
+			<artifactId>mark59-metrics-common</artifactId>
+			<version>5.4</version>
 		</dependency>
-      
-   		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
-   		<!-- (note there's a reported dep issue with the newer 5.0.0 poi's) -->
-		<dependency>
-		    <groupId>org.apache.poi</groupId>
-		    <artifactId>poi</artifactId>
-		    <version>4.1.2</version>
-		</dependency>
-      
-		<dependency>
-		    <groupId>org.apache.poi</groupId>
-		    <artifactId>poi-ooxml</artifactId>
-		    <version>4.1.2</version>
-		</dependency>
-	
-		<dependency>
-			<groupId>com.jcraft</groupId>
-			<artifactId>jsch</artifactId>
-			<version>0.1.55</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all -->
-		<!-- (note alignment to this artifact in JMeter)-->
-		<dependency>
-		    <groupId>org.codehaus.groovy</groupId>
-		    <artifactId>groovy-all</artifactId>
-		    <version>3.0.11</version>
-		    <type>pom</type>
+ 
+ 		<!-- exclusions and log4j-slf4j entries to get the correct log4j 'SFLF bindings' 
+			 refer https://www.slf4j.org/codes.html#StaticLoggerBinder -->	
+ 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>			
+			</exclusions>	
 		</dependency>
 		
-		<!-- https://mvnrepository.com/artifact/org.json/json -->
-		<!-- added for the New Relic sample (org.json.* classes)-->
 		<dependency>
-		    <groupId>org.json</groupId>
-		    <artifactId>json</artifactId>
-		    <version>20211205</version>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-slf4j-impl</artifactId>
+		    <scope>runtime</scope>
 		</dependency>
-
-		<!-- added to simplify (Groovy) api scripting (eg  New Relic )-->
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>okhttp</artifactId>
-		</dependency>	
-
+		
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 			
 		<dependency>
@@ -114,11 +87,6 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-lang3</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
@@ -137,16 +105,13 @@
 	</dependencies>
 	
 	<build>
-
 		<!-- phase/goals: clean package    (install not needed as the maven-install-plugin is set to run in the package phase) -->
-
 		<plugins>
-		
-			<!-- override spring boot managed version maven-compiler-plugin.version (3.8.1), added due to corporate log4j security scans -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version><!--$NO-MVN-MAN-VER$-->
+				
 			</plugin>
 
 			<!-- spring boot maven plugin -->

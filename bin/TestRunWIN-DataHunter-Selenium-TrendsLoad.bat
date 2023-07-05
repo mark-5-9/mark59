@@ -10,14 +10,16 @@ REM   |  JMeter input results file expected at C:\Mark59_Runs\Jmeter_Results\Dat
 REM   |
 REM   |  Loaded run can be seen at http://localhost:8083/mark59-trends/trending?reqApp=DataHunter    (assuming default setup)
 REM   |
-REM   |  *** YOU NEED TO SELECT WHICH DATABASE TO LOAD RESULTS TO BEFORE EXECUTION ***
+REM   |  *** YOU NEED TO PASS OR SELECT WHICH DATABASE TO LOAD RESULTS TO (DEFAULT IS H2) ***
 REM   |
 REM   -------------------------------------------------------------------------------------------------------------------------------------------------
 CD /D "%~dp0"
 
-echo  "YOU NEED TO SELECT WHICH DATABASE TO LOAD RESULTS TO BEFORE EXECUTION (DEFAULT IS H2) "; 
+echo  "YOU NEED TO PASS OR SELECT WHICH DATABASE TO LOAD RESULTS TO (DEFAULT IS H2) "; 
 
-SET "DATABASE=H2"
+SET DATABASE=%1
+
+rem SET "DATABASE=H2"
 rem SET "DATABASE=MYSQL"
 rem SET "DATABASE=POSTGRES"
 

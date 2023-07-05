@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.mark59.core.interfaces.JmeterFunctions;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
-import com.mark59.metrics.api.utils.MetricsApiConstants;
+import com.mark59.metrics.common.MetricsApiConstants;
 import com.mark59.metrics.drivers.ServerProfileRunner;
 import com.mark59.metrics.pojos.ParsedCommandResponse;
 import com.mark59.metrics.pojos.ParsedMetric;

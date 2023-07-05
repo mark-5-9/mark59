@@ -61,21 +61,15 @@
 
      <tr>
       <td></td>
-      <td id="winOnlyPredefinedVars" style="color:grey;font-size:small;"><b>predefined (win only):&nbsp;&nbsp;</b>%METRICS_BASE_DIR%</td>          
-     </tr>
-
-     <tr>
-      <td></td>
-      <td id="groovyPredefinedVars"  style="color:grey;font-size:small;"> Available variables : <b>parameter names</b> (as listed below)
-             , serverProfile (eg <b>serverProfile.serverProfileName</b>), to be returned : <b>scriptResponse</b></td>
+      <td id="predefinedVars" style="color:grey;font-size:small;"></td>          
      </tr>
 
      <tr>
       <td>Command&nbsp;:</td>
-      <td><form:textarea path="command.command" value="" spellcheck="false" maxlength="8000"  /></td>
+      <td><form:textarea path="command.command" value="" spellcheck="false" /></td>
      </tr>
   
-     <tr>
+     <tr id=ignoreStdErrRow>
       <td>Ignore&nbsp;StdErr?:</td>
       <td><form:select path="command.ingoreStderr"  items="${map.ingoreStderrYesNo}" value="${map.ingoreStderr}" />
           <span style="font-size: 10px">&nbsp;&nbsp;&nbsp;( If you are unsure, just leave as '<b>N</b>' )</span></td>      
@@ -87,7 +81,12 @@
      </tr>
      <tr><td><br></td><td></td></tr>
      
-     <tr id=paramNamesRow >
+     <tr>
+      <td></td>
+      <td id="specialParamNames" style="color:grey;font-size:small;"></td>          
+     </tr>
+      
+     <tr id=paramNamesRow>
       <td>Parameter&nbsp;Names&nbsp;:</td>
       <td><form:textarea path="paramNamesTextboxFormat" spellcheck="false" maxlength="1000"/></td>
      </tr>
@@ -111,7 +110,10 @@
  
      <tr>
       <td> </td>
-      <td><input type="submit" value="Save" /></td>
+      <td><button type="button" onclick="submitSaveCommand('exit')">Save and Exit</button>      
+          <button type="button" onclick="submitSaveCommand('continue')">Save and Continue</button>
+          <span style="font-size: 10px">&nbsp;&nbsp;&nbsp;Inactivity timeout: 30 min</span> 
+      </td>
      </tr>
 
      <tr>
@@ -119,6 +121,8 @@
      </tr>
 
     </table>
+    
+    <form:hidden path="saveCmdAction" />        
      
    </form:form>
   </div>

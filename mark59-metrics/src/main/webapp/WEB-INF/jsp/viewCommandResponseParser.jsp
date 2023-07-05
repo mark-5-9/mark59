@@ -34,7 +34,8 @@ table { border-collapse: collapse;}
 .cb { border: 0px }
 .cb th { font-size: 14px; color: white; background-color: maroon; border: 1px solid maroon; text-align: left;}
 .cb td { border: 1px solid maroon;}
-.readonly { background-color: cornsilk; border: 0px solid white;}
+.readonly { background-color: #f1f1f1; border: 0px solid white;}
+.readonly:focus{border: 0 none #FFF; overflow: hidden; outline:none;}
 </style>
 
 </head>

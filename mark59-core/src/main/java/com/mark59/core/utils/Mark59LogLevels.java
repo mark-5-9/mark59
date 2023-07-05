@@ -24,12 +24,15 @@ import com.mark59.core.interfaces.JmeterFunctions;
  * 
  * <p>This enumeration is used in the mark59-selenium-implementation of {@link JmeterFunctionsImpl}, and should be used
  * for any further {@link JmeterFunctions} implementations that require buffering/writing of logs.   
- * 
+ * <p>
  *  <b>WRITE</b> will force output of the log type being set to the Mark59 logging directory (as set by the property "mark59.log.directory").<p>
  *  <b>BUFFER</b> will keep the log data for the log type being set in memory, and will only be printed should the script fail, 
  *  or explicitly requested to by written via a  writeBufferedArtifacts() call (refer below),  otherwise the log data is cleared at the end of the script<p>
  *  <b>OFF</b> will switch off logging for the log type    
- *    
+ *  
+ *  <p>The string values of these enumerations are : "<b>default</b>", "<b>buffer</b>", "<b>write</b>", "<b>off</b>" 
+ *  (not case sensitive).    
+ *  
  *  <p><b>DEFAULT</b> uses these setting :
  *  <p> At Log4J Trace Level:
  *  <ul>
@@ -45,8 +48,8 @@ import com.mark59.core.interfaces.JmeterFunctions;
  *  </ul>
  *  <p> At Log4j Info Level and above transaction-level logging is switched off (although exceptions are written).
  *
+ * @see JmeterFunctionsImpl#writeBufferedArtifacts()
  * @see JmeterFunctions
- * @see JmeterFunctionsImpl
  * @see PropertiesKeys
  * 
  * @author Philip Webb

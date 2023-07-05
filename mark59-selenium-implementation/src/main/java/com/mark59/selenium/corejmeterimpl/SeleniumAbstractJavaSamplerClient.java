@@ -237,7 +237,8 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#BROWSER_EXECUTABLE  
 	 * @see com.mark59.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAlternateBrowser(java.nio.file.Path) 
 	 * @see com.mark59.selenium.driversimpl.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
-	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
+	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
+	 * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)   
 	 * @see JmeterFunctionsForSeleniumScripts
 	 * 
 	 * @return the updated map of JMeter arguments with any required changes
@@ -309,8 +310,12 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	
 
 	/**
-	 * Log and record this script execution as a failure.  All available mark59 logs are output for the point of failure, plus any
-	 * previously buffered logs.  Logs can be suppressed by setting a additionalTestParameters parameter controlling it's output 
+	 * Invoked when a script Exception | AssertionError is caught.
+	 * 
+	 * <p>Logs and records this script execution as a failure.  By default all available mark59 logs are output for the point of failure, 
+	 * including previously buffered logs.  
+	 * 
+	 * <p>Logs can be suppressed by setting a parameter in additionalTestParameters controlling it's output 
 	 * to <code>false</code>: 
 	 * <ul>
 	 * <li>{@link #ON_EXCEPTION_WRITE_BUFFERED_LOGS} -  log buffered (during the script)</li>
@@ -319,6 +324,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends AbstractJavaSamp
 	 * <li>{@link #ON_EXCEPTION_WRITE_PERF_LOG} - Chromium Performance Log, unwritten or unbuffered records when exception occurred</li>
 	 * <li>{@link #ON_EXCEPTION_WRITE_STACK_TRACE} - Exception stack trace</li>
 	 * </ul>
+	 *    
+	 * <p>For example, to suppress buffered logs being output when a script fails, in additionalTestParameters:<br><br>
+	 * <code>jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS, String.valueOf(false));</code>      
 	 *    
 	 * @see #userActionsOnScriptFailure(JavaSamplerContext, JmeterFunctionsForSeleniumScripts, WebDriver)
 	 * @param context the current JavaSamplerContext  

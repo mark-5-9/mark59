@@ -142,10 +142,10 @@ public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSel
 			LOG.info("Note: FireFox driver logging directed to " + firefoxBrowserLog);
 			File firefoxBrowserLogFile = new File(firefoxBrowserLog);
 			new File(firefoxBrowserLogFile.getParent()).mkdirs();
-			System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE, firefoxBrowserLog);
+			System.setProperty(GeckoDriverService.GECKO_DRIVER_LOG_PROPERTY, firefoxBrowserLog);
 		} else {
 			LOG.debug("Note: FireFox driver logging is being suppressed.");
-			System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
+			System.setProperty(GeckoDriverService.GECKO_DRIVER_LOG_PROPERTY,"/dev/null");
 		}	
 		return this;
 	}

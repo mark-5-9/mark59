@@ -5,14 +5,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 
-import com.mark59.metrics.forms.CommandParameter;
+import com.mark59.core.utils.SimpleAES;
+import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.utils.MetricsConstants.OS;
 
 import groovy.lang.Binding;
@@ -59,7 +59,6 @@ public class MetricsUtils {
 
 
 	public static String createMultiLineLiteral(List<String> multiLineStringList) {
-		
 		String [] multiLineStringArray = multiLineStringList.toArray(new String[0]);
 		StringBuilder sb = new StringBuilder();
 		
@@ -72,27 +71,6 @@ public class MetricsUtils {
 		return sb.toString();
 	}
 
-	
-	public static Map<String,String> createParmsMap(List<CommandParameter> commandParameters) {
-		if (commandParameters == null) { 
-			return new HashMap<String,String>();
-		}
-		Map<String,String> parametersMap = new HashMap<String,String>(); 
-		for (CommandParameter commandParameter : commandParameters) {
-			parametersMap.put(commandParameter.getParamName() , commandParameter.getParamValue());
-		}
-		return parametersMap;
-	}
-	
-	public static List<CommandParameter> createParmsList(Map<String,String> parametersMap) {
-		List<CommandParameter> commandParameters = new ArrayList<CommandParameter>(); 
-		if (parametersMap == null) { 
-			return commandParameters;
-		}
-		parametersMap.forEach((k, v) -> commandParameters.add(new CommandParameter(k,v)));
-		return commandParameters;
-	}
-	
 	
 	public static String listToTextboxFormat(List<String> listOfStrings) {
 		if (listOfStrings == null) {
@@ -110,6 +88,7 @@ public class MetricsUtils {
 		return textboxFormatSb.toString();
 	}
 
+	
 	public static List<String> textboxFormatToList(String stringTextboxFormat) {
 		List<String> listOfStrings = new ArrayList<String>();
 		if ( stringTextboxFormat != null ){
@@ -151,6 +130,21 @@ public class MetricsUtils {
 		return cell.getStringCellValue();
 	}
 
+	
+	public static String actualPwd(ServerProfile serverProfile) {
+		String actualPwd = "";
+		if (StringUtils.isBlank(serverProfile.getPasswordCipher())) {
+			actualPwd = serverProfile.getPassword();
+		} else {
+			try {
+				actualPwd = SimpleAES.decrypt(serverProfile.getPasswordCipher());
+			} catch (Exception e) {
+				throw new RuntimeException("pwd decryption error: " + e.getMessage());
+			}
+		}
+		return actualPwd;
+	}
+	
 	
 	/**
 	 * Not actually used within the application itself, included to indicate how to encode user/password for 

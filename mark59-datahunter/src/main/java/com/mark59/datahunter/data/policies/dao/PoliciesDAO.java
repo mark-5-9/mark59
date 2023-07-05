@@ -34,6 +34,9 @@ import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
  */
 public interface PoliciesDAO 
 {
+	public final String SELECT_POLICY_COUNTS  = " count(*)  as counter ";
+	public final String SELECT_POLICY_COLUMNS = " application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ";
+	
 	SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect);
 
 	SqlWithParms constructSelectPoliciesSql(PolicySelectionCriteria policySelectionCriteria);

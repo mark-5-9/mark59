@@ -64,8 +64,7 @@ public class NextPolicyController {
 //		System.out.println( "lookupOrUsePathVariable :" + lookupOrUsePathVariable ); 
 //		System.out.println( "mapping :" + httpServletRequest.getServletPath() ); 
 
-		policySelectionCriteria.setSelectClause(
-				" application, identifier, lifecycle, useability, otherdata, created, updated, epochtime ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
 
 		DataHunterUtils.expireSession(httpServletRequest);
 

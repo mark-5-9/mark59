@@ -60,21 +60,15 @@
 
      <tr>
       <td></td>
-      <td id="winOnlyPredefinedVars" style="color:grey;font-size:small;"><b>predefined (win only):&nbsp;&nbsp;</b>%METRICS_BASE_DIR%</td>          
-     </tr>
-
-     <tr>
-      <td></td>
-      <td id="groovyPredefinedVars"  style="color:grey;font-size:small;"> Available variables : <b>parameter names</b> (as listed below)
-             , serverProfile (eg <b>serverProfile.serverProfileName</b>), to be returned : <b>scriptResponse</b></td>
+      <td id="predefinedVars" style="color:grey;font-size:small;"></td>          
      </tr>
 
      <tr>
       <td>Command&nbsp;:</td>
-      <td><form:textarea path="command.command" spellcheck="false" maxlength="8000"/></td>
+      <td><form:textarea path="command.command" spellcheck="false" /></td>
      </tr>
    
-     <tr>
+     <tr id=ignoreStdErrRow>
       <td>Ignore&nbsp;StdErr?:</td>
       <td><form:select path="command.ingoreStderr"  items="${map.ingoreStderrYesNo}" value="${map.commandEditingForm.command.ingoreStderr}" /></td>      
      </tr>
@@ -85,6 +79,11 @@
       <td><form:input path="command.comment"  size="100" maxlength="128"  height="20" /></td>
      </tr>
      <tr><td><br></td><td></td></tr>
+     
+     <tr>
+      <td></td>
+      <td id="specialParamNames" style="color:grey;font-size:small;"></td>          
+     </tr>     
          
      <tr id=paramNamesRow >
       <td>Parameter&nbsp;Names&nbsp;:</td>
@@ -110,7 +109,10 @@
   
      <tr>
       <td> </td>
-      <td><input type="submit" value="Save" /></td>
+      <td><button type="button" onclick="submitSaveCommand('exit')">Save and Exit</button>      
+          <button type="button" onclick="submitSaveCommand('continue')">Save and Continue</button>
+          ${map.commandEditingForm.lastSavedTimestamp}
+      </td>
      </tr>
 
      <tr>
@@ -120,7 +122,8 @@
     </table>
      
     <form:hidden path="command.commandName" />     
-    <form:hidden path="command.executor" />     
+    <form:hidden path="command.executor" /> 
+    <form:hidden path="saveCmdAction" />        
      
    </form:form>
   </div>

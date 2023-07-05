@@ -38,7 +38,7 @@ function resubmitExecutorSelection() {
 </script>
 </head>
 
-<body onload="enableOrdisableCreateCipherBtn('serverProfile.');')"> 
+<body onload="enableOrdisableCreateCipherBtn('serverProfile.');visibilityForLocalhost();"> 
 
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
@@ -68,10 +68,14 @@ function resubmitExecutorSelection() {
      
      <c:set var="commandexecutor" value="${serverProfileEditingForm.serverProfile.executor}" />
 
+	 <!-- For Server Profile Registration, only allow profile name entry until executor selected  -->
+     <c:if test="${!commandexecutor.equals('')}">
+
+
      <c:if test="${!commandexecutor.equals('GROOVY_SCRIPT')}">
 	     <tr>
 	      <td>Server&nbsp;:</td>
-	      <td><form:input path="serverProfile.server" size="64" maxlength="64"  height="20" /></td>
+	      <td><form:input path="serverProfile.server" size="64" maxlength="64"  height="20" onchange="visibilityForLocalhost()" /></td>
 	     </tr>
 	     <tr>
 	      <tr><td><br></td>
@@ -81,33 +85,52 @@ function resubmitExecutorSelection() {
 	      <td>Alternative&nbsp;Server&nbsp;Id&nbsp;:</td>
 	      <td><form:input path="serverProfile.alternativeServerId" size="64" maxlength="64"  height="20" /></td>
 	     </tr>
-	     <tr>
+	     <tr id=usernameRow>
 	      <td>Username&nbsp;:</td>
 	      <td><form:input path="serverProfile.username" size="64" maxlength="64"  height="20" /></td>
 	     </tr>
-	     <tr>
+	     <tr id=passwordRow>
 	      <td>Password&nbsp;:</td>
 	      <td><form:input path="serverProfile.password" size="64" maxlength="64"  height="20"  onkeyup="enableOrdisableCreateCipherBtn('serverProfile.')"/>&nbsp;&nbsp;
 	   	       <button type="button" id="createCipherBtn" onclick="createCipher('serverProfile.')">Create Cipher</button></td>
 	     </tr>
-	     <tr>
+	     <tr id=passwordCipherRow>
 	      <td>Password&nbsp;Cipher&nbsp;:</td>
 	      <td><form:input path="serverProfile.passwordCipher" size="64" maxlength="64"  height="20" /></td>
 	     </tr>
-	     <tr>
-	      <td>Connection&nbsp;Port&nbsp;:</td>
-	      <td><form:input path="serverProfile.connectionPort" size="10"  height="20"  type="number" min="0" max="2147483647"  /></td>
-	     </tr>
-	     <tr>
-	      <td>Connection&nbsp;Timeout&nbsp;:</td>
-	      <td><form:input path="serverProfile.connectionTimeout" size="10" height="20"  type="number" min="0" max="2147483647"  /></td>
-	     </tr> 
+	     <c:if test="${commandexecutor.equals('SSH_LINUX_UNIX')}">
+		     <tr>
+		      <td>Connection&nbsp;Port&nbsp;:</td>
+		      <td><form:input path="serverProfile.connectionPort" size="10"  height="20"  type="number" min="0" max="2147483647"  /></td>
+		     </tr>
+		     <tr>
+		      <td>Connection&nbsp;Timeout&nbsp;:</td>
+		      <td><form:input path="serverProfile.connectionTimeout" size="10" height="20"  type="number" min="0" max="2147483647"  /></td>
+		     </tr>
+	     </c:if>  
      </c:if> 
             
      <tr>
       <td>Comment&nbsp;:</td>
       <td><form:input path="serverProfile.comment"  size="100" maxlength="128"  height="20"  /></td>
      </tr>     
+
+     <tr><td><br></td><td></td></tr>
+     <tr> 
+	   <td>Parameters</td>
+	   <td>
+	 	 <table>    
+	       <c:forEach items="${serverProfileEditingForm.commandParameters}" var="commandParameter"  varStatus="status" >
+	   		 <tr id="commandParameters${status.index}">
+	  		   <td>${commandParameter.paramName}${commandParameter.paramDuplicated}</td>
+	  		   <td><form:hidden path="commandParameters[${status.index}].paramName" /></td> 
+	  		   <td><form:hidden path="commandParameters[${status.index}].paramDuplicated" /></td> 	  		   
+	   		   <td><form:input path="commandParameters[${status.index}].paramValue"  size="100" height="20"  /></td>     
+	   		 </tr>
+	       </c:forEach>
+	     </table> 
+	   </td> 
+	 </tr> 
       
      <tr><td><br></td><td></td></tr>
 
@@ -117,16 +140,16 @@ function resubmitExecutorSelection() {
          <td>
  		  <table>    
           <c:forEach items="${serverProfileEditingForm.commandSelectors}" var="commandSelector"  varStatus="status"   >
-     		<tr id="commandSelectors${status.index}">
-     		   <c:set var="thisrowexecutor" value="${commandSelector.executor}" />
-     		   <c:if test="${commandexecutor.equals(thisrowexecutor)}">
-	     		   <td><form:checkbox path="commandSelectors[${status.index}].commandChecked" /></td>     		   
+     		<c:set var="thisrowexecutor" value="${commandSelector.executor}" />
+     		<c:if test="${commandexecutor.equals(thisrowexecutor)}">
+     		    <tr id="commandSelectors${status.index}">
+	     		   <td><form:checkbox path="commandSelectors[${status.index}].commandChecked" onChange="resubmitToRefreshParm()" /></td>     		   
 	     		   <td><a href="editCommand?&reqCommandName=${commandSelector.commandName}">${commandSelector.commandName}</a></td>
 	    		   <td><form:hidden path="commandSelectors[${status.index}].commandName" /></td>
 	    		   <td style="font-size: 10px">&nbsp;&nbsp;(${commandSelector.executor})</td>
 	    		   <td><form:hidden path="commandSelectors[${status.index}].executor" /></td>   
-	    	   </c:if>       		   
-     		</tr>
+     		    </tr>
+	    	</c:if>       		   
           </c:forEach>
           </table> 
          <td>          
@@ -139,22 +162,9 @@ function resubmitExecutorSelection() {
 		 <td><form:select path="selectedScriptCommandName"  items="${serverProfileEditingForm.commandNames}" 
 		 					value="${serverProfileEditingForm.selectedScriptCommandName}" onChange="resubmitToRefreshParm()" /></td>
 	   </tr> 
-       <tr><td><br></td><td></td></tr>
-	   <tr> 
-	     <td>Parameters</td>
-	     <td>
-	 	<table>    
-	        <c:forEach items="${serverProfileEditingForm.commandParameters}" var="commandParameter"  varStatus="status" >
-	     		<tr id="commandParameters${status.index}">
-	    		   <td>${commandParameter.paramName}</td>
-	    		   <td><form:hidden path="commandParameters[${status.index}].paramName" /></td> 
-	     		   <td><form:input path="commandParameters[${status.index}].paramValue"  size="100" height="20"  /></td>     
-	     		</tr>
-	        </c:forEach>
-	        </table> 
-	      </td> 
-	   </tr> 
    	 </c:if>
+   	 
+   	 </c:if> <!-- end c:if For Server Profile Registration, only allow profile name entry until executor selected -->
    	     
      <tr><td><br></td><td></td></tr>
           

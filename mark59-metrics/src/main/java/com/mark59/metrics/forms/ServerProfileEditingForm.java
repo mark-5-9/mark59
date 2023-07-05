@@ -102,7 +102,7 @@ public class ServerProfileEditingForm {
 
 	@Override 
     public String toString() {
-        return   "[serverProfileName ="+ serverProfile.getServerProfileName() + 
+        return   "[serverProfile ="+ serverProfile + 
         		", selectedExecutorChanged = "+ selectedExecutorChanged +         		
         		", commandSelectors = "+ commandSelectors + 
         		", commandNames = "+ commandNames + 

@@ -31,7 +31,8 @@ public class CommandEditingForm {
 	Command command;
 	List<ParserSelector> parserSelectors;
 	String paramNamesTextboxFormat;
-
+	String saveCmdAction;
+	String lastSavedTimestamp;
 	
 	public CommandEditingForm() {
 	}
@@ -59,6 +60,22 @@ public class CommandEditingForm {
 	public void setParamNamesTextboxFormat(String paramNamesTextboxFormat) {
 		this.paramNamesTextboxFormat = paramNamesTextboxFormat;
 	}
+	
+	public String getSaveCmdAction() {
+		return saveCmdAction;
+	}
+
+	public void setSaveCmdAction(String saveCmdAction) {
+		this.saveCmdAction = saveCmdAction;
+	}
+	
+	public String getLastSavedTimestamp() {
+		return lastSavedTimestamp;
+	}
+
+	public void setLastSavedTimestamp(String lastSavedTimestamp) {
+		this.lastSavedTimestamp = lastSavedTimestamp;
+	}
 
 	@Override
     public String toString() {
@@ -69,6 +86,8 @@ public class CommandEditingForm {
         		", command.parmNames="+ command.getParamNames() + 
         		", parserSelectors = "+ Arrays.toString(parserSelectors.toArray()) + 
         		", paramNamesTextboxFormat = " + paramNamesTextboxFormat + 
+        		", saveCmdAction = " + saveCmdAction + 
+        		", lastSavedTimestamp = " + lastSavedTimestamp + 
         		"]";
 	}
 		

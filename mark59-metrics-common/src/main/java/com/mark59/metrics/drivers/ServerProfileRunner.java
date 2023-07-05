@@ -17,8 +17,14 @@ package com.mark59.metrics.drivers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -48,12 +54,12 @@ import com.mark59.metrics.utils.MetricsUtils;
  * Invokes the commands to be processed for a given Server Profile 
  * (Groovy script or to run on the profile's target server).  
  * 
- * <p>This class runs within the Mark59 'metrics' application when invoked via the Web APIs,
- * but runs locally (eg on the server running JMeter) when invoked via in the Excel spreadsheet.
- * Refer to ServerMetricsCaptureViaExcel in the mark59-metrics-api project.  
+ * <p>This class runs within the Mark59 'metrics' web application when invoked via the Web APIs or directly using a
+ * 'Run Profile' option in the application, but runs locally (eg on the server running JMeter) when invoked via the Excel
+ *  spreadsheet. Refer to ServerMetricsCaptureViaExcel in the mark59-metrics-api project.  
  * 
  * @author Philip Webb
- * Written: Australian Autumn 2020 
+ * <br>Written: Australian Autumn 2020 
  */
 public class ServerProfileRunner {
 
@@ -66,24 +72,25 @@ public class ServerProfileRunner {
 	private static int parsingFailureCount;
 		
 	/**
-	 * Builds and returns a response object  holding the results of executing a server profile.  Invoked via the 
+	 * Builds and returns a response object holding the results of executing a server profile.  Invoked via the 
 	 * metrics API, and also used directly in the Metrics Web application to run and test outside of the API. 
 	 * 
 	 * <p>When running via the Metrics web application, logging for command and parser failures is sent to the 
 	 * application log (log4j).  To prevent excessive logging error message are abbreviated (currently to 2000 chars
 	 * for command failures and 1200 chars for parser failures).	
 	 * 
-	 * <p>Logging is turned off for command and parser failures when running locally via the Excel spreadsheet
-	 * to prevent duplicate logging of failed commands and parsers in the JMeter log and console.
+	 * <p>Logging is turned to a minimum for command and parser failures when running locally via the Excel spreadsheet
+	 * to prevent excess logging of failed commands and parsers in the JMeter log and console.
 	 * 
 	 * @param reqServerProfileName server profile
-	 * @param reqTestMode if running in test mode (eg via the web app UI) - populates the response 'testModeResult'
+	 * @param reqTestMode if set, (eg when executing a profile via the web app UI), returns a more detailed formatted
+	 *  response, including logged command details ('password' fields masked), and a 'testModeResult' summary.
 	 * @param serverProfilesDAO  serverProfilesDAO
 	 * @param serverCommandLinksDAO  serverCommandLinksDAO
 	 * @param commandsDAO  commandsDAO
 	 * @param commandParserLinksDAO  commandParserLinksDAO
 	 * @param commandResponseParsersDAO  commandResponseParsersDAO
-	 * @param runningViaWeb  'false' will will switch log4j Warn messages off for command and parser fails
+	 * @param runningViaWeb 'false' will shorten log4j WARN messages to a minimum for Command and Parser failures
 	 * 
 	 * @return WebServerMetricsResponsePojo  response
 	 */
@@ -93,6 +100,7 @@ public class ServerProfileRunner {
 			boolean runningViaWeb) {
 		
 		LOG.debug("ServerProfileRunner.commandsResponse profile =" + reqServerProfileName);
+		boolean testMode = Mark59Utils.resolvesToTrue(reqTestMode);
 
 		WebServerMetricsResponsePojo response = new WebServerMetricsResponsePojo();
 		response.setServerProfileName(reqServerProfileName);
@@ -102,12 +110,12 @@ public class ServerProfileRunner {
 		commandCount = 0;		
 		commandFailureCount = 0;		
 		parsingSuccessCount = 0;
-		parsingFailureCount = 0;		
+		parsingFailureCount = 0;	
+		Instant serverProfileStarts = Instant.now();
 		
 		try {
 	
 			ServerProfile serverProfile = serverProfilesDAO.findServerProfile(reqServerProfileName);
-			boolean testMode = Mark59Utils.resolvesToTrue(reqTestMode);
 			
 			if (serverProfile == null ) {
 				response.setServerProfileName(reqServerProfileName); 
@@ -122,6 +130,11 @@ public class ServerProfileRunner {
 					serverProfile.getServer(),serverProfile.getAlternativeServerId()));
 			response.setFailMsg("");
 			
+			Map<String,String> cmdParms = null; 
+			if (!CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equalsIgnoreCase(serverProfile.getExecutor())){
+				cmdParms = createNonGroovyPredefinedParms(serverProfile, response);
+			}
+			
 			List<ParsedCommandResponse> parsedCommandResponses = new ArrayList<>();
 			List<ServerCommandLink> serverCommandLinks = serverCommandLinksDAO.findServerCommandLinksForServerProfile(
 					serverProfile.getServerProfileName());  
@@ -135,10 +148,10 @@ public class ServerProfileRunner {
 				CommandDriver driver =  CommandDriver.init(command.getExecutor(), serverProfile);
 				ShortPauseBetweenOScommands(commandCount); 
 				
-				CommandDriverResponse commandDriverResponse = driver.executeCommand(command); 
-	
-				logLines.add("<b><a href=./editCommand?&reqCommandName=" + command.getCommandName() + ">"
-						+ command.getCommandName() + "</a></b> command invoked:");
+				CommandDriverResponse commandDriverResponse = driver.executeCommand(command, cmdParms, testMode);
+				
+				testModeLog(logLines,"<b><a href=./editCommand?&reqCommandName=" + command.getCommandName() + ">"
+						+ command.getCommandName() + "</a></b>");
 				
 				ParsedCommandResponse parsedCommandResponse = new ParsedCommandResponse(); 
 				parsedCommandResponse.setCommandName(command.getCommandName());
@@ -148,24 +161,33 @@ public class ServerProfileRunner {
 					
 					commandFailureCount++;
 					
-					String failureMsg = "<br>Server Profile " + reqServerProfileName 
-							+ "<br> command " + command.getCommandName() + " has failed." 
-							+ "<br> Command Log : "	+ commandDriverResponse.getCommandLog() + ".";
+					String failureMsg = "<br>Command " + command.getCommandName() 
+						+ ", on Server Profile " + reqServerProfileName + " has failed." 
+						+ "<br>" + commandDriverResponse.getCommandLog() + ".";
 					
-					logLines.add(failureMsg);					
-					logLines.add("<br><font color='red'><b>Execution has errored. </b></font><br><br>" );
-
+					testModeLog(logLines, failureMsg);
+					testModeLog(logLines, "<br><font color='red'><b>Execution has errored. </b></font><br><br>");
+					
 					parsedCommandResponse.setParsedMetrics(new ArrayList<ParsedMetric>() );
 					parsedCommandResponse.setCommandResponse(failureMsg.replace("<br>", "\n"));
 					parsedCommandResponses.add(parsedCommandResponse);
 					
 					if (runningViaWeb) {
-						LOG.warn(StringUtils.abbreviate(failureMsg.replace("<br>", "\n"), 2000));
+						if (StringUtils.contains(failureMsg, "Response :") && failureMsg.length() > 2000 ){  
+							// caters for long 'invoked commands', to ensure at least part of the response is output
+							String failnl = failureMsg.replace("<br>", "\n").replace("&nbsp;", " ");
+							String cmdInvoked  = StringUtils.abbreviate(StringUtils.substringBefore(failnl, "Response :"), 1000);
+							String cmdResponse = StringUtils.substringAfter(failnl, "Response :");
+							LOG.warn(StringUtils.abbreviate(cmdInvoked + "\nResponse : " + cmdResponse, 2000));
+						} else {
+							LOG.warn(StringUtils.abbreviate(failureMsg.replace("<br>", "\n"), 2000));
+						}
+					} else { // excel
+						LOG.warn("Cmd " + command.getCommandName() + ", Profile " + reqServerProfileName + " failed");
 					}
-				
 				} else if  (CommandExecutorDatatypes.GROOVY_SCRIPT.getExecutorText().equalsIgnoreCase(command.getExecutor())){
 					// Groovy script command responses don't need to invoke a 'Parser'. 
-					// The metrics just need to be copied from the 'driver' command response into the response parsed metrics list    
+					// The metrics just need to be copied from the 'driver' command response to the response parsed metrics list    
 					
 					for (ParsedMetric parsedMetric : commandDriverResponse.getParsedMetrics() ) {	
 						if ( parsedMetric.getSuccess())	{				
@@ -176,18 +198,15 @@ public class ServerProfileRunner {
 					}
 					parsedCommandResponse.setParsedMetrics(commandDriverResponse.getParsedMetrics()  );
 					parsedCommandResponse.setCommandResponse(commandDriverResponse.getCommandLog());
-					if (testMode) {
-						logLines.add(commandDriverResponse.getCommandLog());
-						logLines.addAll(logParsedMetrics(parsedCommandResponse.getParsedMetrics()));
-					}					
+					
+					testModeLog(logLines, commandDriverResponse.getCommandLog());
+					testModeLog(logLines, logParsedMetrics(parsedCommandResponse.getParsedMetrics()));
+			
 					parsedCommandResponses.add(parsedCommandResponse);
 
 				} else {      // invoke Parsers on a successful non-Groovy command response 
 				
-					if (testMode) {
-						logLines.add("<br>" + command.getCommand() + "<br>");
-						logLines.add(commandDriverResponse.getCommandLog());
-					}	
+					testModeLog(logLines, commandDriverResponse.getCommandLog());
 	
 					String commandResponseAsString = MetricsUtils.createMultiLineLiteral(commandDriverResponse.getRawCommandResponseLines());
 					parsedCommandResponse.setCommandResponse(commandResponseAsString);
@@ -208,19 +227,21 @@ public class ServerProfileRunner {
 					
 						parsedMetric = RunParser(commandResponseParser, commandResponseAsString, parsedMetric );
 
-						if (testMode) {
-							logLines.add(indent + "<b><a href=./viewCommandResponseParser?&reqParserName=" 
-									+ commandParserLink.getParserName() + ">" + commandParserLink.getParserName()+ "</a></b> parser"  );
-							logLines.addAll(logParsedMetric(parsedMetric));							
-
-						}
-						if (!parsedMetric.getSuccess()  &&  runningViaWeb ) {
-							LOG.warn(StringUtils.abbreviate("Parser Fails for profile: " + reqServerProfileName + " command: " + command.getCommandName() 
-									+ "\ndetails: " +  parsedMetric.getParseFailMsg(), 1200)); 
-						}
+						testModeLog(logLines, indent + "<b><a href=./viewCommandResponseParser?&reqParserName=" 
+								+ commandParserLink.getParserName() + ">" + commandParserLink.getParserName()+ "</a></b> parser");
+						testModeLog(logLines, logParsedMetric(parsedMetric)); 
+						
+						if (!parsedMetric.getSuccess()) {
+							if (runningViaWeb) {
+								LOG.warn(StringUtils.abbreviate("Parser Fails for profile " + reqServerProfileName + ", command " 
+										+ command.getCommandName() + "\ndetails: " +  parsedMetric.getParseFailMsg(), 1200)); 
+							} else { // excel
+								LOG.warn("Parser Fails for profile " + reqServerProfileName + ", command " + command.getCommandName());
+							}
+						}						
 						parsedMetrics.add(parsedMetric);
 					}
-					logLines.add("<br>");
+					testModeLog(logLines, "<br>"); 
 					parsedCommandResponse.setParsedMetrics(parsedMetrics);
 					parsedCommandResponses.add(parsedCommandResponse);
 				}
@@ -228,7 +249,7 @@ public class ServerProfileRunner {
 	
 			response.setParsedCommandResponses(parsedCommandResponses);
 			response.setLogLines(String.join("", logLines));			
-			response.setTestModeResult(summariseResponse(testMode));
+			response.setTestModeResult(summariseResponse(testMode, serverProfileStarts, Instant.now()));
 		
 		} catch (Exception e) {
 			StringWriter stackTrace = new StringWriter();
@@ -236,9 +257,11 @@ public class ServerProfileRunner {
 			String failureMsg = "Error: Unexpected Failure attempting to execute server profile. \n" +
 								"reqServerProfileName : " + reqServerProfileName + "\n" + e.getMessage() + "\n" + stackTrace.toString();
 			response.setFailMsg(failureMsg);
-			response.setLogLines(response.getLogLines() + failureMsg.replaceAll("\\R", "<br>"));
-			response.setTestModeResult("<font color='red'>Error: Unexpected Failure attempting to execute server profile."
-					+ "<br>Server Profile : " + reqServerProfileName + "<br>Error Message : " + e.getMessage()); 
+			if (testMode) {
+				response.setLogLines(response.getLogLines() + failureMsg.replaceAll("\\R", "<br>"));
+				response.setTestModeResult("<font color='red'>Error: Unexpected Failure attempting to execute server profile."
+						+ "<br>Server Profile : " + reqServerProfileName + "<br>Error Message : " + e.getMessage());
+			}
 			LOG.warn(failureMsg);
 			LOG.debug("    loglines : " + response.getLogLines());
 		}
@@ -248,13 +271,39 @@ public class ServerProfileRunner {
 
 
 	/**
+	 * As a non-Groovy profile can have multiple commands, and each commands has the same parameters passed, 
+	 * the parameter list is built at profile level and passed to each of the command(s).
+	 * <p>The pre-defined parameters for the non-Groovy profiles are also created here. Note password is only 
+	 * available in PowerShell (even then the recommendation is to create a SecureString parameter instead).
+	 *     
+	 * @param serverProfile  a (non-Groovy) serverProfile
+	 * @param response WebServerMetricsResponsePojo
+	 * @return map of command parameters (including pre-defined parametera).
+	 */
+	private static Map<String, String> createNonGroovyPredefinedParms(ServerProfile serverProfile, WebServerMetricsResponsePojo response) {
+		Map<String,String> cmdParms = serverProfile.getParameters()==null ? new HashMap<>() : serverProfile.getParameters();
+		if (System.getProperty(MetricsConstants.METRICS_BASE_DIR) != null){
+			cmdParms.put(MetricsConstants.METRICS_BASE_DIR, System.getProperty(MetricsConstants.METRICS_BASE_DIR));
+		}
+		cmdParms.put(MetricsConstants.PROFILE_NAME, serverProfile.getServerProfileName());
+		cmdParms.put(MetricsConstants.PROFILE_SERVER, serverProfile.getServer());
+		cmdParms.put(MetricsConstants.PROFILE_USERNAME, serverProfile.getUsername());
+		
+		if (CommandExecutorDatatypes.POWERSHELL_WINDOWS.getExecutorText().equals(serverProfile.getExecutor())){  
+			cmdParms.put(MetricsConstants.PROFILE_PASSWORD, MetricsUtils.actualPwd(serverProfile));
+		}
+		return cmdParms;
+	}
+
+	
+	/**
 	 * A short 100ms pause between Nix and Win commands could assist command stability under load. 
 	 * Not relevant for Groovy Server Profiles as they only run a single command.
 	 * @param commandCount the current command count
 	 **/
 	private static void ShortPauseBetweenOScommands(int commandCount) {
 		if (commandCount > 1) {
-			   SafeSleep.sleep(100L);
+			SafeSleep.sleep(100L);
 		}
 	}
 
@@ -341,22 +390,37 @@ public class ServerProfileRunner {
 	}
 
 
-	private static String summariseResponse(boolean testMode) {
+	private static String summariseResponse(boolean testMode, Instant serverProfileStarts, Instant serverProfileEnds) {
 		String testModeResult= "";
+		
 		if (testMode){
-			if (parsingSuccessCount == 0 ){
+			String elapsedSec = " [" + new BigDecimal(Duration.between(serverProfileStarts, serverProfileEnds)
+					.toMillis()).setScale(2, RoundingMode.HALF_UP)
+					.divide(new BigDecimal(1000)).setScale(2, RoundingMode.HALF_UP)	+ "s]";
+
+			if (parsingSuccessCount == 0) {
 				testModeResult = "<font color='red'> You have not received any metrics back!  "
 						+ "Please check your commands (" + commandFailureCount + " failures recorded), "
-						+ "connectivity and other settings.</font>";
-			} else if (parsingFailureCount > 0  || commandFailureCount > 0 ){
-				testModeResult = "<font color='orange'> " + parsingFailureCount + " out of " + (parsingSuccessCount + parsingFailureCount)
-						+ " command response parser(s) have failed, " + commandFailureCount + " command(s) failed.</font>";
+						+ "connectivity and other settings." + elapsedSec + "</font>";
+			} else if (parsingFailureCount > 0 || commandFailureCount > 0) {
+				testModeResult = "<font color='orange'> " + parsingFailureCount + " out of "
+						+ (parsingSuccessCount + parsingFailureCount) + " command response parser(s) have failed, "
+						+ commandFailureCount + " command(s) failed." + elapsedSec + "</font>";
 			} else {
 				testModeResult = "<font color='green'> You have received metrics results!  "
-						+ "Please check the values are as you expect.</font>";
+						+ "Please check the values are as you expect." + elapsedSec + "</font>";
 			}
-		}	
+		}
 		return testModeResult;
+	}
+
+	
+	private static void testModeLog(List<String> logLines, String string) {
+		logLines.add(string);
+	}
+	
+	private static void testModeLog(List<String> logLines, List<String> stringList) {
+		logLines.addAll(stringList);
 	}
 
 	

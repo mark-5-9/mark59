@@ -5,6 +5,7 @@ REM   |
 REM   |  Note the use of double quotes in a few places, required to cater for the & (ampersand) char, or to enter a space (equates to a blank blank here). 
 REM   |
 REM   |  Setting a 'logging.level.root' Environment Variable to 'ERROR' will prevent application warning messages appearing (command and parser failures).
+REM   |  Setting a 'logging.level.com.mark59.' Environment Variable to 'DEBUG' will ouput debug level application  messages.
 REM   |
 REM   ---------------------------------------------------------------------------------------------------------------------------------------------------
 @echo off
@@ -13,9 +14,11 @@ rem SET "DATABASE=MYSQL"
 
 SET "logging.level.root=INFO"
 rem SET "logging.level.root=ERROR"
+rem SET "logging.level.com.mark59.=DEBUG"
 
 ECHO The database has been set to %DATABASE%
-ECHO The logging level has been set to %logging.level.root%
+ECHO 'logging.level.root' set to %logging.level.root%
+ECHO 'logging.level.com.mark59.' set to %logging.level.com.mark59.%
 
 IF [%DATABASE%] == [] (
 	ECHO 'DATABASE' variable not set, assuming H2 

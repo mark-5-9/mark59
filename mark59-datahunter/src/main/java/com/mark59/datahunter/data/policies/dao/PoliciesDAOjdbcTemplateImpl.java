@@ -56,8 +56,14 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	@Override	
 	public SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect){
 	
-		String sql = "SELECT " + policySelect.getSelectClause() + " FROM POLICIES "
-				+ "WHERE APPLICATION = :application "
+		String sql = "";
+		if (PoliciesDAO.SELECT_POLICY_COUNTS.equals(policySelect.getSelectClause())){
+			sql = "SELECT " + PoliciesDAO.SELECT_POLICY_COUNTS + " FROM POLICIES ";
+		} else {
+			sql = "SELECT " + PoliciesDAO.SELECT_POLICY_COLUMNS + " FROM POLICIES ";
+		}
+		
+		sql += "WHERE APPLICATION = :application "
 				+ "  AND IDENTIFIER = :identifier "
 				+ "  AND LIFECYCLE = :lifecycle ";
 
@@ -82,11 +88,16 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		MapSqlParameterSource sqlparameters = sqlWithParms.getSqlparameters()
 				.addValue("application", policySelect.getApplication());
 
-		String sql = "SELECT " + policySelect.getSelectClause() + " FROM POLICIES "
-				+ "WHERE APPLICATION = :application "
-				+ sqlWithParms.getSql();
-
-		if (DataHunterUtils.isEmpty(policySelect.getSelectOrder())) {   							//default ordering: most recently created firstt 
+		String sql = "";
+		if (PoliciesDAO.SELECT_POLICY_COUNTS.equals(policySelect.getSelectClause())){
+			sql = "SELECT " + PoliciesDAO.SELECT_POLICY_COUNTS + " FROM POLICIES ";
+		} else {
+			sql = "SELECT " + PoliciesDAO.SELECT_POLICY_COLUMNS + " FROM POLICIES ";
+		}
+		
+		sql += "WHERE APPLICATION = :application " + sqlWithParms.getSql();;		
+			
+		if (DataHunterUtils.isEmpty(policySelect.getSelectOrder())) {   							//default ordering: most recently created first 
 			sql += " ORDER BY CREATED DESC ";
 		} else if (DataHunterConstants.SELECT_UNORDERED.equals(policySelect.getSelectOrder())){ 	//eg when just selecting count(*)      
 			sql += "";			

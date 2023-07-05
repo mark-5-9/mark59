@@ -27,9 +27,6 @@
 		xhttp.send();
 	}
 
-	function isEmptyOrSpaces(str) {
-		return str === null || str.match(/^ *$/) !== null;
-	}
 
 	function populatePasswordCipher(pwdCipher, idprefix) {
 		var passwordCipherId = document.getElementById(idprefix + 'passwordCipher');
@@ -39,16 +36,18 @@
 	}
 
 	function enableOrdisableCreateCipherBtn(idprefix) {
-		if (isEmptyOrSpaces(document.getElementById(idprefix + 'password').value)) {
-			document.getElementById("createCipherBtn").disabled = true;
-		} else {
-			document.getElementById("createCipherBtn").disabled = false;
+		if (document.getElementById(idprefix + 'password') !== null){
+			if (isEmpty(document.getElementById(idprefix + 'password').value)) {
+				document.getElementById("createCipherBtn").disabled = true;
+			} else {
+				document.getElementById("createCipherBtn").disabled = false;
+			}
 		}
 	}
 
 	
-	function testConnection(outputFormat) {
-		if (outputFormat == 'formatted' ){ 
+	function testConnection(testMode) {
+		if (testMode == 'true' ){ 
 			document.getElementById('testConnectionTestModeResult').innerHTML = "Processing your request ..."	;
 			hideElement('responseTable');	
 		}	
@@ -58,14 +57,14 @@
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				if (outputFormat == 'formatted' ){ 
+				if (testMode == 'true' ){ 
 					populateTestConnectionResultFormatted(this.responseText)
 				} else {
 					populateTestConnectionResultRaw(this.responseText)
 				}	
 			}
 		};
-		xhttp.open("GET", encodeURI("api/metric?reqServerProfileName="	+ serverProfile  + "&reqTestMode=true" ), true);
+		xhttp.open("GET", encodeURI("api/metric?reqServerProfileName="	+ serverProfile  + "&reqTestMode=" + testMode ), true);
 		//xhttp.setRequestHeader("Authorization", "Basic " + "c2FtcGxldXNlcjpzYW1wbGVwYXNz" );
 		if (!isEmpty(document.getElementById('apiAuthToken').value)) { 
 			xhttp.setRequestHeader("Authorization", "Basic " + document.getElementById('apiAuthToken').value);
@@ -157,37 +156,68 @@
 	}
 	
 	
-	function populateOsDefaults(idprefix) {
-		selectedExecutor = document.getElementById(idprefix + 'executor').value;
-		if (selectedExecutor == 'SSH_LINUX_UNIX') {
-			document.getElementById(idprefix + 'connectionPort').value = '22';
-			document.getElementById(idprefix + 'connectionTimeout').value = '60000'
-		} else {
-			document.getElementById(idprefix + 'connectionPort').value = '';
-			document.getElementById(idprefix + 'connectionTimeout').value = ''
+	function visibilityForLocalhost() {
+		if (document.getElementById("serverProfile.server") !== null){
+			var server = document.getElementById("serverProfile.server").value;
+			var usernameRow = document.getElementById("usernameRow");
+			var passwordRow = document.getElementById("passwordRow");
+			var passwordCipherRow = document.getElementById("passwordCipherRow");
+	
+			usernameRow.style.display = 'table-row';
+			passwordRow.style.display = 'table-row';
+			passwordCipherRow.style.display = 'table-row';
+	
+			if (server == 'localhost') {
+				usernameRow.style.display = 'none';
+				passwordRow.style.display = 'none';
+				passwordCipherRow.style.display = 'none';
+				document.getElementById("serverProfile.username").value = ''
+				document.getElementById("serverProfile.password").value = ''
+				document.getElementById("serverProfile.passwordCipher").value = ''
+			}
 		}
 	}
 		
 	
 	function visibilyForCommandExecutor(){
 		var executor = document.getElementById("command.executor").value;
-		var winOnlyPredefinedVars = document.getElementById("winOnlyPredefinedVars");
-		var groovyPredefinedVars  = document.getElementById("groovyPredefinedVars");
-		var paramNamesRow = document.getElementById("paramNamesRow");
+		var predefinedVars = document.getElementById("predefinedVars");
+		var ignoreStdErrRow = document.getElementById("ignoreStdErrRow");
+		var specialParamNames = document.getElementById("specialParamNames");		
 		var responseParsersRow = document.getElementById("responseParsersRow");
 
-		winOnlyPredefinedVars.style.display = 'none';
-		groovyPredefinedVars.style.display  = 'none';
-		paramNamesRow.style.display         = 'none';
-		responseParsersRow.style.display    = 'none';
-				
+		// stdEr output is not relevent for Groovy scripts, so hide 
+		ignoreStdErrRow.style.display = 'table-row';
 		if (executor == "GROOVY_SCRIPT"){
-			groovyPredefinedVars.style.display  = 'block';
-			paramNamesRow.style.display = 'table-row';
-		} else if (executor == "WMIC_WINDOWS" || executor == "SSH_LINUX_UNIX"){
-			responseParsersRow.style.display    = 'table-row';
-			if (executor == "WMIC_WINDOWS" ) {
-				winOnlyPredefinedVars.style.display = 'block';
+			ignoreStdErrRow.style.display = 'none';
+		} 
+		
+		// for *nix special parms can be defined for alternate ssh connection. 
+		specialParamNames.innerHTML  = '';
+		if (executor == "SSH_LINUX_UNIX"){
+			specialParamNames.innerHTML  = 'SSH_IDENTITY, SSH_PASSPHRASE, SSH_KNOWN_HOSTS, SSH_PREFERRED_AUTHENTICATIONS ' + 
+					'can be added for alternative connection types. See Overview or Mark59 User Guide.';
+		} 
+		
+		// Parsers are not used for Groovy commandss 
+		responseParsersRow.style.display = 'table-row';
+		if (executor == "GROOVY_SCRIPT" ){
+			responseParsersRow.style.display = 'none';
+		} 
+
+		// print pre-defined params available for each command type	
+		if (isEmpty(executor)){
+			predefinedVars.innerHTML  = '';
+		} else if (executor == "GROOVY_SCRIPT"){
+			predefinedVars.innerHTML  = '<b>predefined parameter:</b> serverProfile (eg serverProfile.serverProfileName). ' + 
+										'<b>return:</b> an object of type ScriptResponse should be returned';
+		} else if (executor == "WMIC_WINDOWS" || executor == "POWERSHELL_WINDOWS" || executor == "SSH_LINUX_UNIX"){
+			predefinedVars.innerHTML  = '<b>predefined parameters:</b> ${PROFILE_NAME}, ${PROFILE_SERVER}, ${PROFILE_USERNAME}';
+			if (executor == "POWERSHELL_WINDOWS" ) {
+				predefinedVars.innerHTML += ', ${PROFILE_PASSWORD} (actual)'; 
+			} 			
+			if (executor == "WMIC_WINDOWS" || executor == "POWERSHELL_WINDOWS") {
+				predefinedVars.innerHTML += ', ${METRICS_BASE_DIR}'; 
 			} 			
 		}
 	}
@@ -205,6 +235,12 @@
 		document.getElementById("selectedScriptCommandNameChanged").value = 'true';
 		document.getElementById("serverProfileEditingForm").submit();
 	}
+	
+	function submitSaveCommand(saveCmdAction) {
+		document.getElementById("saveCmdAction").value = saveCmdAction;
+		document.getElementById("commandEditingForm").submit();
+	}
+	
 	
 	
 	function isEmpty(str) {

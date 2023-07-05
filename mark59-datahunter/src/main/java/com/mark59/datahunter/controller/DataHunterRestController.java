@@ -149,7 +149,7 @@ public class DataHunterRestController {
 		policySelectionCriteria.setLifecycle(lifecycle);
 		policySelectionCriteria.setUseability(useability);
 		
-		policySelectionCriteria.setSelectClause(" count(*)  as counter ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COUNTS);
 		policySelectionCriteria.setSelectOrder(DataHunterConstants.SELECT_UNORDERED);
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
 		int rowsAffected = policiesDAO.runCountSql(sqlWithParms);
@@ -231,7 +231,7 @@ public class DataHunterRestController {
 		policySelectionCriteria.setApplication(application);
 		policySelectionCriteria.setIdentifier(identifier);
 		policySelectionCriteria.setLifecycle(lifecycle);
-		policySelectionCriteria.setSelectClause(" application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
 
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
 		List<Policies> policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
@@ -271,7 +271,7 @@ public class DataHunterRestController {
 		policySelectionCriteria.setLifecycle(lifecycle);
 		policySelectionCriteria.setUseability(useability);
 		
-		policySelectionCriteria.setSelectClause(" application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
 		
 		List<Policies> policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
@@ -428,8 +428,7 @@ public class DataHunterRestController {
 		policySelectionCriteria.setApplication(application);
 		policySelectionCriteria.setLifecycle(lifecycle);
 		policySelectionCriteria.setUseability(useability);
-		policySelectionCriteria.setSelectClause(
-				" application, identifier, lifecycle, useability, otherdata, created, updated, epochtime ");
+		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
 		policySelectionCriteria.setSelectOrder(selectOrder);
 
 		List<Policies> policiesList;

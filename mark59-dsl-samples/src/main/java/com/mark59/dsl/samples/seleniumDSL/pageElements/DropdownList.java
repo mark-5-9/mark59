@@ -50,4 +50,13 @@ public class DropdownList extends Elemental {
 		return this;
 	}
 
+	public DropdownList selectByValue(String selectionValue) {
+		WebElement webElement = FluentWaitFactory.getFluentWait(driver, FluentWaitFactory.DEFAULT_TIMEOUT)
+				.until(ExpectedConditions.elementToBeClickable(by));
+		Select dropdown = new Select(webElement);
+		dropdown.selectByValue(selectionValue);
+		return this;
+	}
+	
+
 }

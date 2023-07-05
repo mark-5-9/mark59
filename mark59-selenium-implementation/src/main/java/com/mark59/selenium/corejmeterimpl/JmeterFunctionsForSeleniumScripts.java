@@ -76,6 +76,7 @@ import com.mark59.selenium.interfaces.DriverFunctionsSelenium;
  * 
  * @see Mark59LogLevels
  * @see JmeterFunctionsImpl
+ * @see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
  * 
  * @author Philip Webb
  * Written: Australian Winter 2019  
@@ -137,15 +138,18 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 
 	
 	/**
-	 *  Allows JMeter parameters to override of the  default state of mark59 logging at script transaction level.
-	 *  <p>The JMeter parameters can be set from the Java Request for the script.  The table below lists the names of the parameters. 
-	 *  <p>For example, to :
+	 *  Allows overriding of the default state of mark59 logging using the JMeter Java Request Parameters panel for a script,
+	 *  or setting values in the additionalTestParameters() method of a script.
+	 *  <p>The table below lists the names of the parameters.  The values need to be one of the string values of the 
+	 *  {@link  Mark59LogLevels} enumeration. 
+	 *  For example, to :
 	 *  <ul>
 	 *  <li>buffer all Screenshot JPGs at transaction start and end,</li>
 	 *  <li>always write Html Page Source at transaction start,</li>
 	 *  <li>never write Html Page Source at transaction end</li>
+	 *  <li>leave the Performance Log using defaults (there's no effect adding this entry)</li>
 	 *  </ul>
-	 *  the entries in the entries in the Java Request Parameters section for a script would be:   
+	 *  the entries in JMeter Java Request Parameters panel for a script would be:   
 	 *  <p>
 	 * <table>
 	 * 	<tr><td>Name</td>									  <td>|</td><td>Value  </td><td></td></tr>
@@ -490,7 +494,7 @@ public class JmeterFunctionsForSeleniumScripts extends JmeterFunctionsImpl {
 	
 	/**
 	 * Screenshot logs to be written or buffered at the start transactions
-	 * @param configLogLevel  configuration used to set actions when writing logs
+	 * @param configLogLevel Used to set actions when writing logs
 	 */
 	public void logScreenshotsAtStartOfTransactions(Mark59LogLevels configLogLevel) {
 		bufferScreenshotsAtStartOfTransactions = false;

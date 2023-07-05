@@ -1,9 +1,39 @@
+This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT always be in a completely consistent state.<br><br>
+
 
 ## Mark59 Documention, Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+<p>Release 5.4<br>
+
+  <ul>  
+	<li>This release was built and tested using JMeter 5.5.  
+	<br>There are incompatibilities with the recently released 5.6 version of JMeter, so please deploy to JMeter 5.5.
+	<br>We plan to work on a JMeter 5.6 compatible version of Mark59 as a priority for our next release.</li>
+  </ul>
+
+  <ul>
+	<li>Metrics - PowerShell option added.</li>
+	<li>Metrics - SSH Private/Public Key authentication option added for Linux/Unix connections.</li>		
+	<li>Metrics - Parameters (string substition) added for non-Groovy Commands and Profiles.</li>
+	<li>Metrics - Database Updates: Increase size of scripts allowed, reconfigured and added new samples (in particular for PowerShell and Linux SSH Keys).
+		<br>Please review databaseScripts MYSQL_mark59_v5.3_to_v5.4_conversion.sql / POSTGRES_mark59_v5.3_to_v5.4_conversion.sql</li>	
+	<li>Metrics - (Breaking Change) Predefined variable %METRICS_BASE_DIR% has been renamed to ${METRICS_BASE_DIR}, in line with the newly added
+		paramters format convention.  Note this is only a breaking change if you have referenced it in your own WMIC scripts - 
+		the samples on the database have been updated.</li>		
+	<li>Metrics - Multiple improvements to data-entry screens (particularly around Commands and Profiles).</li>
+	<li>Metrics - Logging improved.  'Actual Commmand Run' is now only provided when running directly from the Web Application.</li>	  
+	<li>Metrics - Time taken for Profile execution is shown when running directly in the Web Application.</li>
+	<li>Metrics - Web Application TimeOut extended to 30 min (code change).</li>
+	<li>Metrics - Improved documentation on the Web Application's Overview Page.</li>	  
+	<li>Java 8 Compatability - Mark59 Projects refactored so that all artefacts that are deployed to JMeter are compatable with Java 8+.
+		Note that the Mark59 Web Applications are all built uses Java 17, and we suggest using Java 17 for JMeter instances as well if possible.</li>
+	<li>Multiple small improvements to JavaDocs</li>		  
+	<li>Selenium to 4.10.0 (chrome v114+), spring-boot to 3.1.0</li>	  
+  </ul>
 
 
 <p>Release 5.3<br>

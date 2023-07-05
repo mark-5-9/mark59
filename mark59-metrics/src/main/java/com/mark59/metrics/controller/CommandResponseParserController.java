@@ -139,9 +139,7 @@ public class CommandResponseParserController {
 		
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqMetricTxnType", reqMetricTxnType);
-		
 		// System.out.println( "commandResponseParser=" + commandResponseParser );
-		
 		map.put("commandResponseParser", commandResponseParser);
 		model.addAttribute("map", map);	
 		return "editCommandResponseParser";

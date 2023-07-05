@@ -60,16 +60,16 @@
      
      <tr>
       <td width="9%">Script</td><td> </td>
-      <td width="90%"><form:textarea path="script" maxlength="4000" /></td>
+      <td width="90%"><form:textarea path="script" /></td>
      </tr>
      <tr>
       <td width="9%">Comment</td><td> </td>
-      <td width="90%"><form:textarea path="comment" style="width:100%;height:20px"  maxlength="1000" /></td>
+      <td width="90%"><form:textarea path="comment" style="width:100%;height:20px" maxlength="1000" /></td>
      </tr>
  
      <tr>
       <td width="9%">Sample&nbsp;Response</td><td> </td>
-      <td width="90%"><form:textarea path="sampleCommandResponse" maxlength="1000" /></td>
+      <td width="90%"><form:textarea path="sampleCommandResponse" maxlength="8000" /></td>
      </tr>
  
      <tr>

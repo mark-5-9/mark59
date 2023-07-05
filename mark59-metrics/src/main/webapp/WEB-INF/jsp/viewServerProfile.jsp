@@ -28,11 +28,14 @@
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
 <script type="text/javascript" src="javascript/sharedFunctions.js"></script>
+
 <style>
 table { border-collapse: collapse;}
 .cb { border: 0px }
 .cb th { font-size: 14px; color: white; background-color: maroon; border: 1px solid maroon; text-align: left;}
 .cb td { border: 1px solid maroon;}
+.readonly { background-color: #f1f1f1; border: 0px solid white;}
+.readonly:focus{border: 0 none #FFF; overflow: hidden; outline:none;}
 table
 .nb td {  background-color: white; border: 2px white solid; color: black; }
 </style>
@@ -80,6 +83,22 @@ function myFunction(myMessage) {
      <tr><td>Comment</td>           <td>:</td><td>${map.serverProfileEditingForm.serverProfile.comment}</td><tr>
      <tr><td><br></td><td></td><td></td></tr>
 
+     <tr> 
+      <td>Parameters</td><td>:</td>
+      <td>
+ 		<table>    
+        <c:forEach items="${serverProfileEditingForm.commandParameters}" var="commandParameter"  varStatus="status" >
+     		<tr id="commandParameters${status.index}" >
+    		   <td>${commandParameter.paramName}${commandParameter.paramDuplicated}</td>
+    		   <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    		   <td><textarea class="readonly" readonly style="width:600px;height:16px" >${commandParameter.paramValue}</textarea></td>
+     		</tr>
+        </c:forEach>
+        </table> 
+      </td> 
+     </tr> 
+     <tr><td><br></td><td></td></tr>
+
      <c:if test="${!commandexecutor.equals('GROOVY_SCRIPT')}">
 	     <tr> 
 	      <td>Selected Commands</td><td>:</td>
@@ -101,27 +120,11 @@ function myFunction(myMessage) {
 		  <td><a href="editCommand?&reqCommandName=${serverProfileEditingForm.selectedScriptCommandName}">${serverProfileEditingForm.selectedScriptCommandName}</a></td>
 	     </tr> 
 	     <tr><td><br></td><td></td></tr>
-	    
-	     <tr> 
-	      <td>Parameters</td><td>:</td>
-	      <td>
-	 		<table>    
-	        <c:forEach items="${serverProfileEditingForm.commandParameters}" var="commandParameter"  varStatus="status" >
-	     		<tr id="commandParameters${status.index}" >
-	    		   <td>${commandParameter.paramName}&nbsp;&nbsp;</td>
-	    		   <td>${commandParameter.paramValue}</td>
-	     		</tr>
-	        </c:forEach>
-	        </table> 
-	      </td> 
-	     </tr> 
    	 </c:if>    
-     <tr><td><br></td><td></td></tr>
-
  
 	<tr><td colspan="3"><td><br></tr>
     <tr>
-      <td><button type="button" onclick="testConnection('formatted')">Run Profile</button></td><td></td><td id='testConnectionTestModeResult'></td>
+      <td><button type="button" onclick="testConnection('true')">Run Profile</button></td><td></td><td id='testConnectionTestModeResult'></td>
     </tr>
     <tr><td colspan="3"><td><br></tr>
     
@@ -142,7 +145,7 @@ function myFunction(myMessage) {
       <td colspan="3">
         <a href="serverProfileList?reqExecutor=${map.reqExecutor}">Servers Profiles</a>&nbsp;&nbsp;
         <a href="editServerProfile?&reqServerProfileName=${map.serverProfileEditingForm.serverProfile.serverProfileName}&reqExecutor=${map.reqExecutor}">Edit Server Profile</a>&nbsp;&nbsp;
-    	<a href="javascript:testConnection('raw')" >API Link</a>     
+    	<a href="javascript:testConnection('false')" >API Link</a>     
       </td>
     </tr>
    </table>
