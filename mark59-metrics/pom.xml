@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.0</version>
+		<version>3.1.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics</artifactId>
 	<packaging>war</packaging>
-	<version>5.4</version>
+	<version>5.5</version>
 	<name>mark59-metrics</name>
 
 	<properties>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-metrics-common</artifactId>
-			<version>5.4</version>
+			<version>5.5</version>
 		</dependency>
  
  		<!-- exclusions and log4j-slf4j entries to get the correct log4j 'SFLF bindings' 
@@ -65,6 +65,7 @@
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
+		
 		<dependency>
 			<groupId>jakarta.servlet.jsp.jstl</groupId>
 			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
@@ -80,11 +81,14 @@
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- Other project dependencies -->
 
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -101,6 +105,14 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
+		
+		<!-- the following only required for testing (junit dep in common -->
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 	
@@ -111,7 +123,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				
 			</plugin>
 
 			<!-- spring boot maven plugin -->
@@ -162,7 +173,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 
 		</plugins>
 		<finalName>${project.artifactId}</finalName>

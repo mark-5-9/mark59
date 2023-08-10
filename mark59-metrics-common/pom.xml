@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-common</artifactId>
-	<version>5.4</version>
+	<version>5.5</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-common</name>
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>5.4</version>
+			<version>5.5</version>
 		</dependency>
 
 		<dependency>
@@ -58,11 +58,12 @@
 		    <version>4.1.2</version>
 		</dependency>
 
-		<!-- Note: common to SpringBoot and JMeter-->
+		<!-- Note: kept in line with version used by JMeter
+		     (note from SpringBoot 3.1.2, groovy 4.x.x deps are used)-->
 		<dependency>
 		    <groupId>org.codehaus.groovy</groupId>
 		    <artifactId>groovy-all</artifactId>
-		    <version>3.0.11</version>
+		    <version>3.0.17</version>
 		    <type>pom</type>
 		</dependency>
 		
@@ -96,17 +97,17 @@
 		    <version>3.12.0</version>
 		</dependency>
 		
-		<!-- Note: common to SpringBoot and JMeter-->
+		<!-- Note: common to SpringBoot and JMeter (version may differ)-->
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>
-		    <version>2.15.0</version>
+		    <version>2.15.2</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
-		    <version>2.15.0</version>
+		    <version>2.15.2</version>
 			<scope>provided</scope>		    
 		</dependency>
 		

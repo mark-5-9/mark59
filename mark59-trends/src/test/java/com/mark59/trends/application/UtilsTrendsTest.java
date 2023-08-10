@@ -16,93 +16,81 @@
 
 package com.mark59.trends.application;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
-
-public class UtilsTrendsTest   extends TestCase  {
+public class UtilsTrendsTest  {
 	
-    public void testUtilsStringListToCommaDelimString()
-    {
+	@Test
+    public void testUtilsStringListToCommaDelimString(){
+    	
  		List<String> ListOfStrings = new ArrayList<>();
 		String commaDelimString = UtilsTrends.stringListToCommaDelimString(ListOfStrings);
-        assertEquals(0, commaDelimString.length());
-        assertNotNull(commaDelimString);
+		Assert.assertEquals(0, commaDelimString.length());
+		Assert.assertNotNull(commaDelimString);
                 
  		ListOfStrings = new ArrayList<>();
  		ListOfStrings.add("onetsring");
 		commaDelimString = UtilsTrends.stringListToCommaDelimString(ListOfStrings);
-        assertEquals("onetsring", commaDelimString);
+		Assert.assertEquals("onetsring", commaDelimString);
      
  		ListOfStrings = new ArrayList<>();
  		ListOfStrings.add("string1");
  		ListOfStrings.add("string2");
 		commaDelimString = UtilsTrends.stringListToCommaDelimString(ListOfStrings);
-        assertEquals("string1,string2", commaDelimString);
+		Assert.assertEquals("string1,string2", commaDelimString);
     }
 
-    
-    public void testUtilsCommaDelimStringToStringList()
-    {
+	@Test
+    public void testUtilsCommaDelimStringToStringList(){
+    	
  		List<String> ListOfStrings = new ArrayList<>();
  		String commaDelimString = UtilsTrends.stringListToCommaDelimString(ListOfStrings);  //so we should have an empty string
-        assertEquals("", commaDelimString);
+ 		Assert.assertEquals("", commaDelimString);
   		ListOfStrings = UtilsTrends.commaDelimStringToStringList(commaDelimString);   
-        assertTrue( ListOfStrings.isEmpty()  );
+  		Assert.assertTrue(ListOfStrings.isEmpty()  );
 
  		ListOfStrings = UtilsTrends.commaDelimStringToStringList(null);
-        assertTrue( ListOfStrings.isEmpty()  );
+ 		Assert.assertTrue( ListOfStrings.isEmpty()  );
         
         commaDelimString = "singleString";
  		ListOfStrings = UtilsTrends.commaDelimStringToStringList(commaDelimString);   
-        assertFalse( ListOfStrings.isEmpty()  );
-        assertEquals(1, ListOfStrings.size());
-        assertEquals("singleString", ListOfStrings.get(0));
+ 		Assert.assertFalse(ListOfStrings.isEmpty()  );
+        Assert.assertEquals(1, ListOfStrings.size());
+        Assert.assertEquals("singleString", ListOfStrings.get(0));
 
         commaDelimString = "firststr,secstr";
  		ListOfStrings = UtilsTrends.commaDelimStringToStringList(commaDelimString);   
-        assertFalse( ListOfStrings.isEmpty()  );
-        assertEquals(2, ListOfStrings.size());
-        assertEquals("firststr", ListOfStrings.get(0));
-        assertEquals("secstr", ListOfStrings.get(1));
+ 		Assert.assertFalse( ListOfStrings.isEmpty()  );
+        Assert.assertEquals(2, ListOfStrings.size());
+        Assert.assertEquals("firststr", ListOfStrings.get(0));
+        Assert.assertEquals("secstr", ListOfStrings.get(1));
 
         commaDelimString = "firststr,secstr,3rdstr";
  		ListOfStrings = UtilsTrends.commaDelimStringToStringList(commaDelimString);   
-        assertFalse( ListOfStrings.isEmpty()  );
-        assertEquals(3, ListOfStrings.size());
-        assertEquals("firststr", ListOfStrings.get(0));
-        assertEquals("secstr", ListOfStrings.get(1));
-        assertEquals("3rdstr", ListOfStrings.get(2));
+ 		Assert.assertFalse( ListOfStrings.isEmpty()  );
+        Assert.assertEquals(3, ListOfStrings.size());
+        Assert.assertEquals("firststr", ListOfStrings.get(0));
+        Assert.assertEquals("secstr", ListOfStrings.get(1));
+        Assert.assertEquals("3rdstr", ListOfStrings.get(2));
     }	
-
     
-    
-    public void testCommaDelimStringToSortedStringArray()
-    {
+	@Test
+    public void testCommaDelimStringToSortedStringArray(){
     	Comparator<Object> reverse = Collections.reverseOrder();
-		assertArrayEquals( new String[]{"b","a"}, UtilsTrends.commaDelimStringToSortedStringArray("a,b", reverse));
-		assertArrayEquals( new String[]{"c","b","a"}, UtilsTrends.commaDelimStringToSortedStringArray("a,c,b", reverse));
-		assertArrayEquals( new String[]{"c","b","a"}, UtilsTrends.commaDelimStringToSortedStringArray(" a  , c,  b", reverse));
-		assertArrayEquals( new String[]{"x"}, UtilsTrends.commaDelimStringToSortedStringArray("x", reverse));
-		assertArrayEquals( new String[]{}, UtilsTrends.commaDelimStringToSortedStringArray(null, reverse));
-		assertArrayEquals( new String[]{}, UtilsTrends.commaDelimStringToSortedStringArray("", reverse));
-		assertArrayEquals( new String[]{}, UtilsTrends.commaDelimStringToSortedStringArray("  ", reverse));
-		assertArrayEquals( new String[]{"3","1","02" }, UtilsTrends.commaDelimStringToSortedStringArray("1,02,3", reverse));
+    	Assert.assertArrayEquals( new String[]{"b","a"}, UtilsTrends.commaDelimStringToSortedStringArray("a,b", reverse));
+    	Assert.assertArrayEquals( new String[]{"c","b","a"}, UtilsTrends.commaDelimStringToSortedStringArray("a,c,b", reverse));
+    	Assert.assertArrayEquals( new String[]{"c","b","a"}, UtilsTrends.commaDelimStringToSortedStringArray(" a  , c,  b", reverse));
+    	Assert.assertArrayEquals( new String[]{"x"}, UtilsTrends.commaDelimStringToSortedStringArray("x", reverse));
+    	Assert.assertArrayEquals( new String[]{}, UtilsTrends.commaDelimStringToSortedStringArray(null, reverse));
+    	Assert.assertArrayEquals( new String[]{}, UtilsTrends.commaDelimStringToSortedStringArray("", reverse));
+    	Assert.assertArrayEquals( new String[]{}, UtilsTrends.commaDelimStringToSortedStringArray("  ", reverse));
+    	Assert.assertArrayEquals( new String[]{"3","1","02" }, UtilsTrends.commaDelimStringToSortedStringArray("1,02,3", reverse));
     }
-   
-    
-    
-    
-    
-    
-    
-    
-    
-    
+     
 }

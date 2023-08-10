@@ -235,7 +235,7 @@
      
       <table>
          <tr> 
-           <td width="15%"><b>Version: 5.4</b> </td> <td width="85%"></td> 	
+           <td width="15%"><b>Version: 5.5</b> </td> <td width="85%"></td> 	
          </tr> 
 
          <tr> 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.5">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.2">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DataHunter Selenium Using Downloaded Excel Profiles File" enabled="true">
       <stringProp name="TestPlan.comments">                                                                                                                                       ** BEFORE YOU RUN **
@@ -20,8 +20,8 @@ Finally, the &apos;Quick Start&apos; instructions should of been completed.   Th
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group " enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">0</stringProp>
@@ -96,8 +96,8 @@ log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycle" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">2</stringProp>
         <stringProp name="ThreadGroup.ramp_time">25</stringProp>
@@ -105,6 +105,7 @@ log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
       </ThreadGroup>
       <hashTree>
         <BeanShellTimer guiclass="TestBeanGUI" testclass="BeanShellTimer" testname="Iteration Pacing Timer" enabled="true">
@@ -188,7 +189,6 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle" enabled="true">
-          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/mark59-datahunter</stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
@@ -328,31 +328,28 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: __________________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ miscellaneous: __________________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
                 <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="EMULATE_NETWORK_CONDITIONS" elementType="Argument">
                 <stringProp name="Argument.name">EMULATE_NETWORK_CONDITIONS</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="script build information: " elementType="Argument">
-                <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.4</stringProp>
+              <elementProp name="script build information:" elementType="Argument">
+                <stringProp name="Argument.name">script build information:</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.5</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/mark59-datahunter</stringProp>
           <stringProp name="classname">com.mark59.datahunter.samples.scripts.DataHunterLifecyclePvtScript</stringProp>
         </JavaSampler>
         <hashTree/>
@@ -360,8 +357,8 @@ return 0;</stringProp>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">2</stringProp>
         <stringProp name="ThreadGroup.ramp_time">20</stringProp>
@@ -369,6 +366,7 @@ return 0;</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
       </ThreadGroup>
       <hashTree>
         <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
@@ -387,7 +385,6 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator" enabled="true">
-          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/mark59-datahunter</stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
@@ -412,7 +409,6 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="______________________ interation settings: _____________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ interation settings: _____________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="ITERATE_FOR_PERIOD_IN_SECS" elementType="Argument">
@@ -472,7 +468,6 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
                 <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="WRITE_FFOX_BROWSER_LOGFILE" elementType="Argument">
@@ -552,31 +547,28 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: __________________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ miscellaneous: __________________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
                 <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="EMULATE_NETWORK_CONDITIONS" elementType="Argument">
                 <stringProp name="Argument.name">EMULATE_NETWORK_CONDITIONS</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="script build information: " elementType="Argument">
-                <stringProp name="Argument.name">script build information: </stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.4</stringProp>
+              <elementProp name="script build information:" elementType="Argument">
+                <stringProp name="Argument.name">script build information:</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.5</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/mark59-datahunter</stringProp>
           <stringProp name="classname">com.mark59.datahunter.samples.scripts.DataHunterLifecycleIteratorPvtScript</stringProp>
         </JavaSampler>
         <hashTree/>
@@ -584,8 +576,8 @@ return 0;</stringProp>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost_via_Excel" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">5</stringProp>
@@ -594,6 +586,7 @@ return 0;</stringProp>
         <stringProp name="ThreadGroup.delay">5</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <stringProp name="TestPlan.comments">this captures metrics for machine(s) running the this test plan using the downloaded excel spreadsheet</stringProp>
+        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
       </ThreadGroup>
       <hashTree>
         <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
@@ -606,7 +599,6 @@ return 0;</stringProp>
         </ConstantThroughputTimer>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_excel" enabled="true">
-          <stringProp name="TestPlan.comments">will run the &apos;localhost_WINDOWS_HOSTID&apos;  or &apos; &apos;localhost_LINUX&apos;  proflle ( see the setUp Thread Group)   TODO: create a profile called &apos;localhost_LINUX_HOSTID&apos; for consistency !! </stringProp>
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
@@ -616,7 +608,6 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="." elementType="Argument">
                 <stringProp name="Argument.name">.</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="_________________________ logging settings: _______________" elementType="Argument">
@@ -646,41 +637,36 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="-" elementType="Argument">
                 <stringProp name="Argument.name">-</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: ____________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ miscellaneous: ____________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH" elementType="Argument">
                 <stringProp name="Argument.name">OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
                 <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="_" elementType="Argument">
                 <stringProp name="Argument.name">_</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="build information: " elementType="Argument">
-                <stringProp name="Argument.name">build information: </stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 5.4</stringProp>
+              <elementProp name="build information:" elementType="Argument">
+                <stringProp name="Argument.name">build information:</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 5.5</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
+          <stringProp name="TestPlan.comments">will run the &apos;localhost_WINDOWS_HOSTID&apos;  or &apos; &apos;localhost_LINUX&apos;  proflle ( see the setUp Thread Group)   TODO: create a profile called &apos;localhost_LINUX_HOSTID&apos; for consistency !! </stringProp>
           <stringProp name="classname">com.mark59.metrics.api.ServerMetricsCaptureViaExcel</stringProp>
         </JavaSampler>
         <hashTree/>

@@ -1,20 +1,16 @@
 package com.mark59.metrics.test;
 
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
-
-
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.ParsedMetric;
 import com.mark59.metrics.pojos.ScriptResponse;
 
 
 /**
- * Running as 'testng' 
+ * Tests run in build using via Maven Surefire Plugin 
  */
 public class ResponseTest{	
 	

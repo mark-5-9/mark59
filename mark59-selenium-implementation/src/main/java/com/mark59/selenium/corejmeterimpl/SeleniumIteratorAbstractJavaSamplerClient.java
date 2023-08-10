@@ -26,8 +26,9 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.AbstractThreadGroup;
-import org.apache.logging.log4j.Logger;
+import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
 import com.mark59.core.utils.IpUtilities;
@@ -191,9 +192,12 @@ public abstract class SeleniumIteratorAbstractJavaSamplerClient  extends  Seleni
 			return null;
 		}
 		
+		// JMeter 5.5 and 5.6 compatibility: JavaSamplerContext.getJMeterVariables() was changed from 'final' to 'static'
+		// copying their common code to prevent 'static accessed' warning: "return JMeterContextService.getContext().getVariables();"
+		
 		Long jMeterTestStartMs = 0L;
-		if (context.getJMeterVariables() != null) {
-			jMeterTestStartMs = convertToLong("TESTSTART.MS", context.getJMeterVariables().get("TESTSTART.MS"));
+		if (JMeterContextService.getContext().getVariables() != null) {
+			jMeterTestStartMs = convertToLong("TESTSTART.MS", JMeterContextService.getContext().getVariables().get("TESTSTART.MS"));
 		} else {
 			LOG.debug("JMeterVariables do not exist (probably executing outside JMeter - so any STOP_THREAD_AFTER_TEST_START_IN_SECS condition is not checked");
 		}

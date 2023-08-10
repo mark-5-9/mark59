@@ -30,7 +30,7 @@ public class Mark59Constants {
 	/**
 	 * current Mark59 version
 	 */
-	public static final String MARK59_VERSION  = "5.4";	
+	public static final String MARK59_VERSION  = "5.5";	
 		
 	/**
 	 * TRUE

@@ -16,7 +16,7 @@
 # DEST_DIR=~/mark59-x.y"
 
 SOURCE_DIR=~/gitrepo/mark59-wip/
-DEST_DIR=~/mark59-5.4/ 
+DEST_DIR=~/mark59-5.5/ 
 
 rm -rf ${DEST_DIR}
 mkdir -p ${DEST_DIR}

@@ -21,6 +21,7 @@ import org.openqa.selenium.WebDriver;
 
 import com.mark59.dsl.samples.seleniumDSL.core._GenericPage;
 import com.mark59.dsl.samples.seleniumDSL.pageElements.PageTextElement;
+import com.mark59.dsl.samples.seleniumDSL.pageElements.PageTextElementVariablePolling;
 
 
 /**
@@ -36,8 +37,8 @@ public class _GenericDataHunterActionPage extends  _GenericPage {
 	public PageTextElement sql() {
 		return new PageTextElement(driver, By.id("sql"));
 	}
-	public PageTextElement sqlResult() {
-		return new PageTextElement(driver, By.id("sqlResult"));
+	public PageTextElementVariablePolling sqlResult() {
+		return new PageTextElementVariablePolling(driver, By.id("sqlResult"));
 	}
 	public PageTextElement rowsAffected() {
 		return new PageTextElement(driver, By.id("rowsAffected"));

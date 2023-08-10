@@ -24,10 +24,13 @@ public class DataHunterRestApiClientSampleUsage {
 	
 	
 	/**
-	 * This is functionally equivalent to the DataHunterSeleniumFunctionalTest.asyncLifeCycleTestWithUseabilityUpdate() web application test 
-	 * in the dataHunterFunctionalTest project (held on the mark-5-9/mark59-xtras GitHub repo), but running the REST API instead of the web 
-	 * 'Asynchronous Message Analyzer' function.
-	 *  
+	 * Example of using the the asyncMessageAnalyzer method of the REST API (the api equivalent of the 
+	 * 'Asynchronous Message Analyzer' function in the DataHunter UI.
+	 * 
+	 * For an example of how to create JMeter transactions for the matched rows (in a script that does not
+	 * require the use of selenium), refer to the sample script DataHunterLifecyclePvtNoSeleniumUsesRestApi
+	 * in the mark59-datahunter-samples project.
+	 * 
 	 * @param dhApiClient DataHunterRestApiClient
 	 */
 	public void asyncLifeCycleTestWithUseabilityUpdate(DataHunterRestApiClient dhApiClient) {

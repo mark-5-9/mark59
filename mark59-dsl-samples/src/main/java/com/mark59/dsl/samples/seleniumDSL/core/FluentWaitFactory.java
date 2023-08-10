@@ -17,6 +17,9 @@
 package com.mark59.dsl.samples.seleniumDSL.core;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+
 import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.InvalidElementStateException;
@@ -38,11 +41,20 @@ public class FluentWaitFactory {
 
 	public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(60);
 	public static final Duration DEFAULT_POLLING = Duration.ofMillis(200);
+	
+	/**
+	 * A list of polling interval times (milliseconds) intended to be used in the custom class {@link FluentWaitVariablePolling},
+	 * which iterates over the list to set intervals between the condition test. Once the last entry on the list is reached, 
+	 * all subsequent intervals will be set to that value.   
+	 */
+	public static final List<Long> DEFAULT_VARIABLE_POLLING = Arrays.asList(10L, 100L, 250L, 400L, 600L, 600L, 800L);
+
 
 	private FluentWaitFactory() {
 
 	}
 
+	
 	/**
 	 * Returns a new FluentWait object pre-configured to ignore the following
 	 * exceptions:<br>
@@ -71,6 +83,7 @@ public class FluentWaitFactory {
 				.ignoring(WebDriverException.class);
 	}
 
+	
 	/**
 	 * Returns a new FluentWait object pre-configured with a polling Duration
 	 * defined in FluentWaitFactory.DEFAULT_POLLING, and to ignore the following
@@ -93,6 +106,7 @@ public class FluentWaitFactory {
 		return getFluentWait(driver, timeout, DEFAULT_POLLING);
 	}
 
+	
 	/**
 	 * Returns a new FluentWait object pre-configured with a polling Duration
 	 * defined in FluentWaitFactory.DEFAULT_POLLING, and a timeout Duration defined
@@ -114,6 +128,81 @@ public class FluentWaitFactory {
 	public static FluentWait<WebDriver> getFluentWait(WebDriver driver) {
 		return getFluentWait(driver, DEFAULT_TIMEOUT, DEFAULT_POLLING);
 	}
+	
+	
+	/**
+	 * Returns a new FluentWaitVariablePolling object pre-configured to ignore the following
+	 * exceptions:<br>
+	 * 
+	 * <ul>
+	 * <li>StaleElementReferenceException</li>
+	 * <li>NoSuchElementException</li>
+	 * <li>ElementClickInterceptedException</li>
+	 * <li>ElementNotInteractableException</li>
+	 * <li>InvalidElementStateException</li>
+	 * <li>WebDriverException</li>
+	 * </ul>
+	 * 
+	 * @param driver webdriver
+	 * @param timeout secs
+	 * @param pollingFreqsMs a list of polling frequencies (milliseconds)
+	 * @return a FluentWaitVariablePolling
+	 */
+	public static FluentWaitVariablePolling<WebDriver> getFluentWaitVariablePolling(WebDriver driver, Duration timeout,
+			List<Long> pollingFreqsMs) {
+		return new FluentWaitVariablePolling<>(driver).withTimeout(timeout).withPollingFrequencies(pollingFreqsMs)
+				.ignoring(StaleElementReferenceException.class)
+				.ignoring(NoSuchElementException.class)
+				.ignoring(ElementClickInterceptedException.class)
+				.ignoring(ElementNotInteractableException.class)
+				.ignoring(InvalidElementStateException.class)
+				.ignoring(WebDriverException.class);
+	}
+	
+	/**
+	 * Returns a new FluentWaitVariablePolling object pre-configured with a polling frequencies
+	 * defined in {@link #DEFAULT_VARIABLE_POLLING}, and to ignore the following
+	 * exceptions:<br>
+	 * 
+	 * <ul>
+	 * <li>StaleElementReferenceException</li>
+	 * <li>NoSuchElementException</li>
+	 * <li>ElementClickInterceptedException</li>
+	 * <li>ElementNotInteractableException</li>
+	 * <li>InvalidElementStateException</li>
+	 * <li>WebDriverException</li>
+	 * </ul>
+	 * 
+	 * @param driver webdriver
+	 * @param timeout secs
+	 * @return a FluentWaitVariablePolling
+	 */
+	public static FluentWaitVariablePolling<WebDriver> getFluentWaitVariablePolling(WebDriver driver, Duration timeout) {
+		return getFluentWaitVariablePolling(driver, timeout, DEFAULT_VARIABLE_POLLING);
+	}
+
+	
+	/**
+	 * Returns a new FluentWaitVariablePolling object pre-configured with a polling frequencies
+	 * defined in {@link #DEFAULT_VARIABLE_POLLING}, and a timeout Duration defined
+	 * in {@link #DEFAULT_TIMEOUT}, and to ignore the following
+	 * exceptions:<br>
+	 * 
+	 * <ul>
+	 * <li>StaleElementReferenceException</li>
+	 * <li>NoSuchElementException</li>
+	 * <li>ElementClickInterceptedException</li>
+	 * <li>ElementNotInteractableException</li>
+	 * <li>InvalidElementStateException</li>
+	 * <li>WebDriverException</li>
+	 * </ul>
+	 * 
+	 * @param driver webdriver
+	 * @return a FluentWaitVariablePolling
+	 */
+	public static FluentWaitVariablePolling<WebDriver> getFluentWaitVariablePolling(WebDriver driver) {
+		return getFluentWaitVariablePolling(driver, DEFAULT_TIMEOUT, DEFAULT_VARIABLE_POLLING);
+	}
 
 	
 	/**
@@ -133,10 +222,6 @@ public class FluentWaitFactory {
 	 */
 	public static FluentWait<WebDriver> getFluentWaitDebugMode(WebDriver driver, Duration timeout, Duration pollingFrequency) {
 		return new FluentWait<>(driver).withTimeout(timeout).pollingEvery(pollingFrequency);
-
-		
 	}
-	
-
 
 }

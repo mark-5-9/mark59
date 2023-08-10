@@ -59,6 +59,8 @@ import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.PrintSelectedPo
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages._GenericDataHunterActionPage;
 import com.mark59.datahunter.samples.dsl.helpers.DslConstants;
 import com.mark59.dsl.samples.devtoolsDSL.DevToolsDSL;
+import com.mark59.dsl.samples.seleniumDSL.core.ElementalUsingVariablePolling;
+import com.mark59.dsl.samples.seleniumDSL.core.FluentWaitVariablePolling;
 import com.mark59.dsl.samples.seleniumDSL.pageElements.HtmlTable;
 import com.mark59.dsl.samples.seleniumDSL.pageElements.HtmlTableRow;
 import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
@@ -79,6 +81,13 @@ import com.mark59.selenium.driversimpl.SeleniumDriverFactory;
  * pages don't require it. Also, for Note 2, the <code>checkSqlOk</code> already has a wait built into it (<code>getText</code> for the SQL result,
  * so that would give you the correct timing anyway). Included to demonstrate what would be required in more complex situations, such as on pages 
  * where you need to wait for async processes to execute.
+ * 
+ * <p>**Note 4.  Instead of using the Elemental class which works in conjunction with Selenium's standard FluentWait, class 
+ * {@link ElementalUsingVariablePolling} is used which works in conjunction with a custom version of FluentWaint, {@link FluentWaitVariablePolling}.
+ * It takes a list of polling interval times, rather than just the one constant value using in FluentWaint for waiting between polls.  
+ * For example, you can set a very short polling time for the first polling (has been found useful in some situations like 'waitUntilStale'
+ * conditions or modal spinners), and/or then increase polling intervals incrementally (the last value in the list is just repeated), 
+ * to reduce CPU load.    
  * 
  * <p>In a performance test, DataHunter should be invoked using it's API. Review 
  * {@link com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage}, and 
@@ -215,11 +224,11 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 			
 			jm.startTransaction("DH_lifecycle_0200_addPolicy");
 			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
-			addPolicyPage.submit().submit().waitUntilClickable( addPolicyActionPage.backLink() );   // ** note 2;	
-			waitForSqlResultsTextOnActionPageAndCheckOk(addPolicyActionPage);
+			addPolicyPage.submit().submit().waitUntilClickable( addPolicyActionPage.backLink() );   // ** note 2	
+			waitForSqlResultsTextOnActionPageAndCheckOk(addPolicyActionPage);						// ** note 4 
 			jm.endTransaction("DH_lifecycle_0200_addPolicy");
 			
-			addPolicyActionPage.backLink().click().waitUntilClickable( addPolicyPage.submit() ).thenSleep();    // ** note 2 & note 3
+			addPolicyActionPage.backLink().click().waitUntilClickable( addPolicyPage.submit() ).thenSleep();    // ** note 2, 3 
 		} 
 	
 //		dummy transaction just to test transaction failure behavior
@@ -374,10 +383,10 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 
 	/*
 	 * At first glance this may seem not to have any 'wait for element' conditions.  However the 'getText()'
-	 * method (indirectly) invokes a Fluent Wait condition 
+	 * method (indirectly) invokes a Fluent Wait (actually, a custom FlentWait is used - see note 4 above). 
 	 */
 	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDataHunterActionPage _genericDatatHunterActionPage) {
-		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();
+		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();											// ** note 4	
 		if (!"PASS".equals(sqlResultText)) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ") : " +
 						_genericDatatHunterActionPage.formatResultsMessage(_genericDatatHunterActionPage.getClass().getName()));

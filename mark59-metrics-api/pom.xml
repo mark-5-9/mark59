@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-api</artifactId>
-	<version>5.4</version>
+	<version>5.5</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-api</name>
@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>5.4</version>
+			<version>5.5</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>*</groupId>
@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-metrics-common</artifactId>
-			<version>5.4</version>
+			<version>5.5</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>*</groupId>
@@ -49,9 +49,16 @@
 		<dependency>
 			<groupId>org.apache.jmeter</groupId>
 			<artifactId>ApacheJMeter_java</artifactId>
-			<version>5.5</version>
+			<version>5.6.2</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.jmeter</groupId>
+		    <artifactId>jorphan</artifactId>
+		    <version>5.6.2</version>
+			<scope>provided</scope>		    
+		</dependency>		
 		
    		<!-- add back jars from metrics-commons not included in ApacheJmeter
    		     but used by this this project -->

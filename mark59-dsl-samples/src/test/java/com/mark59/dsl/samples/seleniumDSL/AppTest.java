@@ -1,28 +1,15 @@
 package com.mark59.dsl.samples.seleniumDSL;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * Unit test for simple App.
+ * Blank junit test .
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+public class AppTest {
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+	@Test
+    public void testApp(){
+    	Assert.assertTrue(true);
     }
 }

@@ -123,7 +123,7 @@ SECURE_STRING_TXT: the value of $secureStringTxt in the example
 		There is much more detail available including a fully worked example of adding a Profile, a Command and its Parser,
 		 in the User Guide available at <a href="https://mark59.com">The Mark59 Website</a>. 
 		
-		<p>Mark59 Version: 5.4</p>  
+		<p>Mark59 Version: 5.5</p>  
 			
 	</div>
 </body>

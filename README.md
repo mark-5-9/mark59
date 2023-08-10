@@ -1,11 +1,21 @@
-This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT always be in a completely consistent state.<br><br>
-
 
 ## Mark59 Documention, Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+<p>Release 5.5<br>
+
+  <ul>
+	<li>Backward incompatibilities with previous 5.x JMeter releases resolved<br>
+	(tested on JMeter 5.5, 5.6.2)</li>
+	<li>Fix JUnit tests in the build (some tests where not being executed)</li>
+	<li>Sample script DataHunterLifecycleScriptUsingRestApiClient renamed to DataHunterLifecyclePvtNoSeleniumUsesRestApi and now includes example of async processing via Api</li>			
+	<li>Include a FluentWaitVariablePolling class in dsl samples, usage demonstrated in DataHunterLifecyclePvtScript sample script</li>			
+	<li>Dependencies: JMeter to 5.6.2, spring-boot to 3.1.2, selenium to 4.11.0 (to chrome v115)</li>	  
+  </ul>
+
 
 <p>Release 5.4<br>
 
@@ -18,7 +28,7 @@ This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT 
   <ul>
 	<li>Metrics - PowerShell option added.</li>
 	<li>Metrics - SSH Private/Public Key authentication option added for Linux/Unix connections.</li>		
-	<li>Metrics - Parameters (string substition) added for non-Groovy Commands and Profiles.</li>
+	<li>Metrics - Parameters (string substitution) added for non-Groovy Commands and Profiles.</li>
 	<li>Metrics - Database Updates: Increase size of scripts allowed, reconfigured and added new samples (in particular for PowerShell and Linux SSH Keys).
 		<br>Please review databaseScripts MYSQL_mark59_v5.3_to_v5.4_conversion.sql / POSTGRES_mark59_v5.3_to_v5.4_conversion.sql</li>	
 	<li>Metrics - (Breaking Change) Predefined variable %METRICS_BASE_DIR% has been renamed to ${METRICS_BASE_DIR}, in line with the newly added

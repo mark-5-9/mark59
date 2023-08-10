@@ -1,11 +1,11 @@
 package com.mark59.metrics.test;
 
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.ScriptResponse;
