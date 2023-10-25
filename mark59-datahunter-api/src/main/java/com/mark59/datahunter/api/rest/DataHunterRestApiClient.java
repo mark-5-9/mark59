@@ -19,6 +19,7 @@ import com.mark59.datahunter.api.application.DataHunterConstants;
 import com.mark59.datahunter.api.application.DataHunterUtils;
 import com.mark59.datahunter.api.data.beans.Policies;
 import com.mark59.datahunter.api.model.DataHunterRestApiResponsePojo;
+import com.mark59.datahunter.api.model.PolicySelectionFilter;
 import com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage;
 
 /**
@@ -44,7 +45,6 @@ import com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage
  */
 public class DataHunterRestApiClient {
 	private static final Logger LOG = LogManager.getLogger(DataHunterRestApiClient.class);	
-	private static final String UTF_8 =  StandardCharsets.UTF_8.toString();
 	
 	String dataHunterUrl;
 	
@@ -59,10 +59,11 @@ public class DataHunterRestApiClient {
 
 	/**
 	 * Add an Item to DataHunter  
-	 * <br>The Item key is application|identifier|lifecycle, and must be unique
-	 * <br>usability : {@link DataHunterConstants#USEABILITY_LIST} 
 	 * 
-	 * @param policies policy to add (for epochtime the current time is used if is not passed a numeric value)
+	 * @param policies :
+	 * 	  <br>&nbsp;  The Item key is application|identifier|lifecycle, and must be unique
+	 * 	  <br>&nbsp;  usability : One of {@link DataHunterConstants#USEABILITY_LIST} 
+	 *    <br>&nbsp;  epochtime : for epochtime the system current time is used a numeric value is not passed
 	 * @return DataHunterRestApiResponsePojo
 	 */
 	public DataHunterRestApiResponsePojo addPolicy(Policies policies) {
@@ -73,7 +74,6 @@ public class DataHunterRestApiClient {
 				+ "&useability=" + encode(policies.getUseability()) 
 				+ "&otherdata="  + encode(policies.getOtherdata()) 
 				+ "&epochtime="  + policies.getEpochtime();
-		// System.out.println("DHRAC addPolicy url = " + webServiceUrl); 
 		return invokeDataHunterRestApi(webServiceUrl);
 	}
 
@@ -83,7 +83,8 @@ public class DataHunterRestApiClient {
 	 * 
 	 * @param application application
 	 * @param lifecycle   blank to select all lifecycle values matching the other criteria
-	 * @param useability  {@link DataHunterConstants#USEABILITY_LIST}, blank to select all useability values matching the other criteria
+	 * @param useability  blank to select all useability values matching the other criteria, 
+	 *                    otherwise one of {@link DataHunterConstants#USEABILITY_LIST}
 	 * @return DataHunterRestApiResponsePojo indicates the count of policies satisfying selection criteria
 	 */
 	public DataHunterRestApiResponsePojo countPolicies(String application, String lifecycle, String useability){
@@ -94,7 +95,7 @@ public class DataHunterRestApiClient {
 	
 	
 	/**
-	 * Breakdown counts by application, lifecycle and useability for Items matching the selection criteria. 
+	 * Breakdown of counts by application, lifecycle and useability for Items matching the selection criteria. 
 	 * <br>The breakdown will appear in the <b>countPoliciesBreakdown</b> element of the response 
 	 *  
 	 * @param applicationStartsWithOrEquals  must be "EQUALS" or "STARTS_WITH" (applied to application selection)
@@ -106,8 +107,8 @@ public class DataHunterRestApiClient {
 	 * is used to indicate the selection request (note: just to provide visibility of all request params in the response, 
 	 * the OtherData fields is populated with the applicationStartsWithOrEquals param)   
 	 */
-	public DataHunterRestApiResponsePojo countPoliciesBreakdown(String applicationStartsWithOrEquals, String application, String lifecycle, String useability){
-		String webServiceUrl = dataHunterUrl + "/api/countPoliciesBreakdown?applicationStartsWithOrEquals=" + encode(applicationStartsWithOrEquals) + 
+	public DataHunterRestApiResponsePojo policiesBreakdown(String applicationStartsWithOrEquals, String application, String lifecycle, String useability){
+		String webServiceUrl = dataHunterUrl + "/api/policiesBreakdown?applicationStartsWithOrEquals=" + encode(applicationStartsWithOrEquals) + 
 				"&application=" + encode(application) + "&lifecycle=" + encode(lifecycle) + "&useability=" + encode(useability); 
 		return invokeDataHunterRestApi(webServiceUrl);
 	}
@@ -127,7 +128,7 @@ public class DataHunterRestApiClient {
 	
 	
 	/**
-	 * Retrieve the Item matching the application/id/lifecycle 
+	 * Retrieve the Item matching the application/id/lifecycle key 
 	 * 
 	 * @param application application
 	 * @param identifier identifier
@@ -145,12 +146,15 @@ public class DataHunterRestApiClient {
 	
 	
 	/**
-	 * Retrieve selected Items 
+	 * Retrieve selected Items (basic selection)
+	 * 
+	 * <p>Note the maximum number of items that will be returned is 100 (the default LIMIT).
 	 * 
 	 * @param application application
 	 * @param lifecycle leave blank to select all lifecycle values matching the other criteria
 	 * @param useability {@link DataHunterConstants#USEABILITY_LIST}, leave blank to select all useability values matching the other criteria
-	 * @return DataHunterRestApiResponsePojo list of items matching the above criteria
+	 * @return DataHunterRestApiResponsePojo list of items matching the above criteria (limited t0 100 rows, natural key order) 
+	 * @see #printSelectedPolicies(PolicySelectionFilter) 	 
 	 */
 	public DataHunterRestApiResponsePojo printSelectedPolicies(String application, String lifecycle, String useability){
 		String webServiceUrl = dataHunterUrl + "/api/printSelectedPolicies?" 
@@ -158,6 +162,58 @@ public class DataHunterRestApiClient {
 		return invokeDataHunterRestApi(webServiceUrl);
 	}
 	
+	/**
+	 * Retrieve selected Items (with optional filters) 
+	 * 
+	 * <p>To get a feel of Policy Selection Filter usage, refer to the Datahunter UI page 
+	 * ../mark59-datahunter/print_selected_policies, and the Mark59 User Guide ('DataHunter' chapter)
+	 * 
+	 * <p>The filters have the same format as per the UI : 
+	 * <br> application  	application (required)
+	 * <br> lifecycle    	blank to select all lifecycles matching the other criteria
+	 * <br> useability   	{@link DataHunterConstants#USEABILITY_LIST},or blank to select all useabilities matching the other criteria
+	 * <br> selectOrder		field used to ORDER the list by {@link DataHunterConstants#FILTERED_SELECT_ORDER_LIST} default is natural key order
+	 * <br> otherdataSelected true|false to filter on otherdata
+	 * <br> otherdata     	otherdata filter - SQL 'LIke' format is used eg %5other% 
+	 * <br> createdSelected true|false to filter on a created date range
+	 * <br> createdFrom  	eg 2001-01-01 01:01:10.000001 
+	 * <br> createdTo		eg 2099-12-31 23:59:59.999999
+	 * <br> updatedSelected true|false to filter on an updated date range
+	 * <br> updatedFrom		eg 2001-01-01 01:01:10.000001
+	 * <br> updatedTo		eg 2099-12-31 23:59:59.999999
+	 * <br> epochtimeSelected true|false to filter on an epochtime range
+	 * <br> epochtimeFrom 	eg 0   (max 13 numerics)
+	 * <br> epochtimeTo		eg 4102444799999 (max 13 numerics)
+	 * <br> orderDirection  ASCENDING (default) | DESCENDING  {@link DataHunterConstants#ORDER_DIRECTION_LIST}
+	 * <br> limit			0 to 1000  (default 100, if gt 1000 will be set to 1000)
+ 	 * 
+	 * @param policySelectionFilter selection criteria for Item selection  
+	 * @return DataHunterRestApiResponsePojo list of items matching the above criteria
+	 * @see #printSelectedPolicies(String, String, String)
+	 */
+	public DataHunterRestApiResponsePojo printSelectedPolicies(PolicySelectionFilter policySelectionFilter){
+		String webServiceUrl = dataHunterUrl + "/api/printSelectedPolicies?"
+				+ "application=" 		+ encode(policySelectionFilter.getApplication())  
+				+ "&lifecycle="  		+ encode(policySelectionFilter.getLifecycle()) 
+				+ "&useability=" 		+ encode(policySelectionFilter.getUseability())
+				+ "&selectOrder=" 		+ encode(policySelectionFilter.getSelectOrder())
+				+ "&otherdataSelected=" + Boolean.valueOf(policySelectionFilter.isOtherdataSelected()) 
+				+ "&otherdata="  		+ encode(policySelectionFilter.getOtherdata())
+				+ "&createdSelected=" 	+ Boolean.valueOf(policySelectionFilter.isCreatedSelected())
+				+ "&createdFrom="  		+ encode(policySelectionFilter.getCreatedFrom()) 				
+				+ "&createdTo="  		+ encode(policySelectionFilter.getCreatedTo()) 
+				+ "&updatedSelected=" 	+ Boolean.valueOf(policySelectionFilter.isUpdatedSelected())
+				+ "&updatedFrom="  		+ encode(policySelectionFilter.getUpdatedFrom()) 				
+				+ "&updatedTo="  		+ encode(policySelectionFilter.getUpdatedTo())
+				+ "&epochtimeSelected=" + Boolean.valueOf(policySelectionFilter.isEpochtimeSelected())
+				+ "&epochtimeFrom="  	+ encode(policySelectionFilter.getEpochtimeFrom()) 				
+				+ "&epochtimeTo="  		+ encode(policySelectionFilter.getEpochtimeTo())
+				+ "&orderDirection=" 	+ encode(policySelectionFilter.getOrderDirection())  
+				+ "&limit=" 			+ encode(policySelectionFilter.getLimit()) ;
+		
+		return invokeDataHunterRestApi(webServiceUrl);
+	}
+
 	
 	/**
 	 * Delete an Item
@@ -176,12 +232,13 @@ public class DataHunterRestApiClient {
 	
 	
 	/**
-	 * Delete multiple Items
+	 * Delete multiple Policies (basic selection)
 	 * 
 	 * @param application application
 	 * @param lifecycle leave blank to delete all lifecycle values matching the other criteria
 	 * @param useability {@link DataHunterConstants#USEABILITY_LIST}, useability leave blank to delete all useability values matching the other criteria
 	 * @return DataHunterRestApiResponsePojo will indicate how many policies were deleted
+	 * @see #deleteMultiplePolicies(PolicySelectionFilter)
 	 */
 	public DataHunterRestApiResponsePojo deleteMultiplePolicies(String application, String lifecycle, String useability){
 		String webServiceUrl = dataHunterUrl + "/api/deleteMultiplePolicies?application=" + encode(application) + 
@@ -191,20 +248,69 @@ public class DataHunterRestApiClient {
 	
 	
 	/**
-	 * Use Next Item
+	 * Delete multiple Policies (with optional filters)
 	 * 
-	 * <br>Updates the 'next' Item (determined by the selection criteria) to a useability of 'USED' 
-	 * (unless a REUSABLE item, in which the Item is left as REUSABLE).     
+	 * <p>To get a feel of Policy Selection Filter usage, refer to the Datahunter UI page 
+	 * ../mark59-datahunter/select_multiple_policies, and the Mark59 User Guide ('DataHunter' chapter)
 	 * 
-	 * @param application application 
-	 * @param lifecycle   blank to delete all lifecycle values matching the other criteria 
-	 * @param useability  {@link DataHunterConstants#USEABILITY_LIST}
-	 * @param selectOrder {@link DataHunterConstants#GET_NEXT_POLICY_SELECTOR}
-	 * @return DataHunterRestApiResponsePojo if fetched, next Item will be the only the element in the policies list 
+	 * <p>The filters have the same format as per the UI : 
+	 * <br> application  	application (required)
+	 * <br> lifecycle    	blank to select all lifecycles matching the other criteria
+	 * <br> useability   	{@link DataHunterConstants#USEABILITY_LIST},or blank to select all useabilities matching the other criteria
+	 * <br> otherdataSelected true|false to filter on otherdata
+	 * <br> otherdata     	otherdata filter - SQL 'LIke' format is used eg %5other% 
+	 * <br> createdSelected true|false to filter on a created date range
+	 * <br> createdFrom  	eg 2001-01-01 01:01:10.000001 
+	 * <br> createdTo		eg 2099-12-31 23:59:59.999999
+	 * <br> updatedSelected true|false to filter on an updated date range
+	 * <br> updatedFrom		eg 2001-01-01 01:01:10.000001
+	 * <br> updatedTo		eg 2099-12-31 23:59:59.999999
+	 * <br> epochtimeSelected true|false to filter on an epochtime range
+	 * <br> epochtimeFrom 	eg 0   (max 13 numerics)
+	 * <br> epochtimeTo		eg 4102444799999 (max 13 numerics)
+ 	 * 
+	 * @param policySelectionFilter selection criteria for Item selection  
+	 * @return DataHunterRestApiResponsePojo will indicate how many policies were deleted
+	 * @see #deleteMultiplePolicies(String, String, String)
 	 */
-	public DataHunterRestApiResponsePojo useNextPolicy(String application, String lifecycle,String useability, String selectOrder ){
-		String webServiceUrl = dataHunterUrl + "/api/useNextPolicy?application=" + encode(application)	+ "&lifecycle=" + encode(lifecycle) + 
-				"&useability=" + encode(useability) + "&selectOrder=" + encode(selectOrder);
+	public DataHunterRestApiResponsePojo deleteMultiplePolicies(PolicySelectionFilter policySelectionFilter){
+		String webServiceUrl = dataHunterUrl + "/api/deleteMultiplePolicies?"
+				+ "application=" 		+ encode(policySelectionFilter.getApplication())  
+				+ "&lifecycle="  		+ encode(policySelectionFilter.getLifecycle()) 
+				+ "&useability=" 		+ encode(policySelectionFilter.getUseability())
+				+ "&otherdataSelected=" + Boolean.valueOf(policySelectionFilter.isOtherdataSelected()) 
+				+ "&otherdata="  		+ encode(policySelectionFilter.getOtherdata())
+				+ "&createdSelected=" 	+ Boolean.valueOf(policySelectionFilter.isCreatedSelected())
+				+ "&createdFrom="  		+ encode(policySelectionFilter.getCreatedFrom()) 				
+				+ "&createdTo="  		+ encode(policySelectionFilter.getCreatedTo()) 
+				+ "&updatedSelected=" 	+ Boolean.valueOf(policySelectionFilter.isUpdatedSelected())
+				+ "&updatedFrom="  		+ encode(policySelectionFilter.getUpdatedFrom()) 				
+				+ "&updatedTo="  		+ encode(policySelectionFilter.getUpdatedTo())
+				+ "&epochtimeSelected=" + Boolean.valueOf(policySelectionFilter.isEpochtimeSelected())
+				+ "&epochtimeFrom="  	+ encode(policySelectionFilter.getEpochtimeFrom()) 				
+				+ "&epochtimeTo="  		+ encode(policySelectionFilter.getEpochtimeTo());
+		return invokeDataHunterRestApi(webServiceUrl);
+	}
+	
+	
+	/**
+	 * Update an existing Item
+	 *   
+	 * @param policies an existing to be  updated:
+	 * 		<br>&nbsp;  The Item key is <i>application|identifier|lifecycle</i>.  No action if the item does not exist 
+	 * 		<br>&nbsp;  <i>usability</i> : One of {@link DataHunterConstants#USEABILITY_LIST}
+	 * 		<br>&nbsp;  <i>otherdata</i> : otherdata (set empty if null passed) 
+	 * 		<br>&nbsp;  <i>epochtime</i> : a long value, or if blank or non-numeric will to set to System.currentTimeMillis().
+	 * @return DataHunterRestApiResponsePojo
+	 */
+	public DataHunterRestApiResponsePojo updatePolicy(Policies policies) {
+		String webServiceUrl = dataHunterUrl + "/api/updatePolicy?"
+				+ "application=" + encode(policies.getApplication())  
+				+ "&identifier=" + encode(policies.getIdentifier()) 
+				+ "&lifecycle="  + encode(policies.getLifecycle()) 
+				+ "&useability=" + encode(policies.getUseability()) 
+				+ "&otherdata="  + encode(policies.getOtherdata()) 
+				+ "&epochtime="  + policies.getEpochtime();
 		return invokeDataHunterRestApi(webServiceUrl);
 	}
 	
@@ -215,7 +321,7 @@ public class DataHunterRestApiClient {
 	 *  <br><br>As for {@link #useNextPolicy}, except the Item not updated..
 	 * 
 	 * @param application application 
-	 * @param lifecycle   blank to delete all lifecycle values matching the other criteria 
+	 * @param lifecycle   blank to include all lifecycle values matching the other criteria 
 	 * @param useability  {@link DataHunterConstants#USEABILITY_LIST}
 	 * @param selectOrder {@link DataHunterConstants#GET_NEXT_POLICY_SELECTOR}
 	 * @return DataHunterRestApiResponsePojo if fetched, next Item will be the only the element in the policies list  
@@ -228,21 +334,63 @@ public class DataHunterRestApiClient {
 	
 	
 	/**
-	 * Change the Use State for an Item, or for multiple Items in an Application
+	 * Use Next Policy
 	 * 
-	 * @param application application
-	 * @param identifier (optional) blank to select all identifier values matching the other criteria (application, useability)
-	 * @param useability {@link DataHunterConstants#USEABILITY_LIST}(optional) blank to select all useability values matching the other criteria
-	 *  (the parameters above)
-	 * @param toUseability {@link DataHunterConstants#USEABILITY_LIST}. Items matching the selection criteria (the parameters above), will have 
-	 *  useability changed to this value  
-	 * @param toEpochTime (optional, numeric) current epochtime is used if no, blank or non-numeric value passed   
+	 * <br>Updates the 'next' Item (determined by the selection criteria) to a useability of 'USED' 
+	 * 
+	 * @param application application 
+	 * @param lifecycle   blank to include all lifecycle values matching the other criteria 
+	 * @param useability  {@link DataHunterConstants#USEABILITY_LIST}
+	 * @param selectOrder {@link DataHunterConstants#GET_NEXT_POLICY_SELECTOR}
+	 * @return DataHunterRestApiResponsePojo if fetched, next Item will be the only the element in the policies list 
+	 */
+	public DataHunterRestApiResponsePojo useNextPolicy(String application, String lifecycle,String useability, String selectOrder ){
+		String webServiceUrl = dataHunterUrl + "/api/useNextPolicy?application=" + encode(application)	+ "&lifecycle=" + encode(lifecycle) + 
+				"&useability=" + encode(useability) + "&selectOrder=" + encode(selectOrder);
+		return invokeDataHunterRestApi(webServiceUrl);
+	}
+	
+
+	/**
+	 * Change the Use State for an Item, or for multiple Items in an Application (no lifecycle selection)
+	 * 
+	 * <p>Included for backwards compatibility only (equivalent of passing an empty lifecycle value in
+	 * {@link #updatePoliciesUseState(String, String, String, String, String, String)})  
+	 * 
+	 * @param application  application
+	 * @param identifier   blank to select all identifier values matching the other criteria (application, useability)
+	 * @param useability   blank to select all useability values matching the other criteria, otherwise 
+	 *                     {@link DataHunterConstants#USEABILITY_LIST} 
+	 * @param toUseability One of {@link DataHunterConstants#USEABILITY_LIST}.
+	 * @param toEpochTime  is only updated if passed a numeric value. Eg contains the System.currentTimeMillis() or another integer     
+	 * 
 	 * @return DataHunterRestApiResponsePojo indicates number of rows updated
 	 */	
 	public DataHunterRestApiResponsePojo updatePoliciesUseState(String application, String identifier, String useability, 
 			String toUseability, String toEpochTime){
 		String webServiceUrl = dataHunterUrl + "/api/updatePoliciesUseState?application=" + encode(application)	+ "&identifier=" + encode(identifier) + 
 				"&useability=" + encode(useability) + "&toUseability=" + encode(toUseability) + "&toEpochTime=" + encode(toEpochTime);
+		return invokeDataHunterRestApi(webServiceUrl);
+	}
+
+	
+	/**
+	 * Change the Use State for an Item, or for multiple Items in an Application
+	 * 
+	 * @param application  application
+	 * @param identifier   blank to select all identifier values matching the other criteria (application, lifecycle, useability)
+	 * @param lifecycle    blank to select all identifier values matching the other criteria (application, identifier, useability)
+	 * @param useability   blank to select all useability values matching the other criteria, otherwise 
+	 *                     {@link DataHunterConstants#USEABILITY_LIST} 
+	 * @param toUseability One of {@link DataHunterConstants#USEABILITY_LIST}.
+	 * @param toEpochTime  is only updated if passed a numeric value. Eg contains the System.currentTimeMillis() or another integer   
+	 * @return DataHunterRestApiResponsePojo indicates number of rows updated
+	 */	
+	public DataHunterRestApiResponsePojo updatePoliciesUseState(String application, String identifier, String lifecycle, String useability, 
+			String toUseability, String toEpochTime){
+		String webServiceUrl = dataHunterUrl + "/api/updatePoliciesUseState?application=" + encode(application)	+ "&identifier=" + encode(identifier) + 
+				"&lifecycle=" + encode(lifecycle) + "&useability=" + encode(useability) + "&toUseability=" + encode(toUseability) + 
+				"&toEpochTime=" + encode(toEpochTime);
 		return invokeDataHunterRestApi(webServiceUrl);
 	}
 	
@@ -258,12 +406,10 @@ public class DataHunterRestApiClient {
 	 * @see DataHunterRestApiClientSampleUsage#workingWithAsyncMessages(DataHunterRestApiClient)
 	 *    
 	 * @param applicationStartsWithOrEquals  must be "EQUALS" or "STARTS_WITH" (applied to application selection)
-	 * @param application application
-	 * @param identifier identifier leave blank to select all identifier values matching the other criteria (application, useability)
-	 * @param useability {@link DataHunterConstants#USEABILITY_LIST} leave blank to select all useability values matching the other criteria
-	 *  (the parameters above).  Note that the value 'UNPAIRED' was specifically created for use in this function (but you have the option to use other values).  
-	 * @param toUseability {@link DataHunterConstants#USEABILITY_LIST}. 'Matched' Items satisfying the selection criteria (the parameters above), will have
-	 *  useability changed to this value 
+	 * @param application  application (or application that start with this value) 
+	 * @param identifier   blank to select all identifier values matching the other criteria
+	 * @param useability   blank to select all useability values matching the other criteria, otherwise {@link DataHunterConstants#USEABILITY_LIST}   
+	 * @param toUseability blank to not update useability, otherwise one of {@link DataHunterConstants#USEABILITY_LIST}.
 	 * @return  DataHunterRestApiResponsePojo  The getAsyncMessageaAnalyzerResults list in the response provides the results, including the max time difference
 	 *  between each set of matched rows.  
 	 */
@@ -319,12 +465,16 @@ public class DataHunterRestApiClient {
 	}
 
 	
+	/**
+	 * @param uriParm  Parameter to encode
+	 * @return encoded parameter
+	 */
 	private String encode(String uriParm) {
 		try {
-			return URLEncoder.encode(nullToEmpty(uriParm), UTF_8);
+			return URLEncoder.encode(nullToEmpty(uriParm), StandardCharsets.UTF_8.toString());
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			throw new RuntimeException("UnsupportedEncodingException in policyToUrlQueryString using " + uriParm );
+			throw new RuntimeException("UnsupportedEncodingException using url : " + uriParm );
 		}
 	}
 	

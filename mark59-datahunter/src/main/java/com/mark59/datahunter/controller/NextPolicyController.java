@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -48,28 +47,35 @@ public class NextPolicyController {
 
 	@RequestMapping("/next_policy")
 	public String lookupNextPolicyUrl(@RequestParam(required = false) String application,
-			@RequestParam String pUseOrLookup, @ModelAttribute PolicySelectionCriteria policySelectionCriteria,	Model model) {
-//		System.out.println("/lookupNextPolicyUrl called in mode " + pUseOrLookup );		
+			@RequestParam String pUseOrLookup, @RequestParam(required = false) String pNextId,
+			@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model) {
 		List<String> getNextPolicySelector = new ArrayList<>(DataHunterConstants.GET_NEXT_POLICY_SELECTOR);
 		model.addAttribute("getNextPolicySelector", getNextPolicySelector);
 		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		model.addAttribute("Useabilities", usabilityList);
 		model.addAttribute("UseOrLookup", pUseOrLookup);
+		model.addAttribute("NextId", pNextId);
 		return "/next_policy";
 	}
 
-	@RequestMapping("/{lookupOrUsePathVariable}_next_policy_action")
-	public ModelAndView nextPolicyAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model,
-			@PathVariable String lookupOrUsePathVariable, HttpServletRequest httpServletRequest) {
-//		System.out.println( "lookupOrUsePathVariable :" + lookupOrUsePathVariable ); 
-//		System.out.println( "mapping :" + httpServletRequest.getServletPath() ); 
-
-		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
+	
+	@RequestMapping("/next_policy_action")
+	public ModelAndView nextPolicyAction(@RequestParam String pUseOrLookup, @ModelAttribute PolicySelectionCriteria policySelectionCriteria,
+			Model model, HttpServletRequest httpServletRequest) {
 
 		DataHunterUtils.expireSession(httpServletRequest);
-
+		model.addAttribute("UseOrLookup", pUseOrLookup);
+		
 		List<Policies> policiesList;
-		SqlWithParms selectSqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
+		SqlWithParms selectSqlWithParms = policiesDAO.constructSelectNextPolicySql(policySelectionCriteria);
+	
+		String navUrParms = "application=" + DataHunterUtils.encode(policySelectionCriteria.getApplication())
+			+ "&lifecycle="    + DataHunterUtils.encode(policySelectionCriteria.getLifecycle()) 
+			+ "&useability="   + DataHunterUtils.encode(policySelectionCriteria.getUseability())
+			+ "&selectOrder="  + DataHunterUtils.encode(policySelectionCriteria.getSelectOrder())
+			+ "&pUseOrLookup=" + pUseOrLookup;
+	
+		model.addAttribute("navUrParms", navUrParms);			
 		model.addAttribute("sql", selectSqlWithParms);
 
 		synchronized (this) {
@@ -102,15 +108,11 @@ public class NextPolicyController {
 	
 			Policies nextPolicy = policiesList.get(0);
 			model.addAttribute("policies", nextPolicy);
+			
+			navUrParms += "&pNextId=" + DataHunterUtils.encode(nextPolicy.getIdentifier()); 
+			model.addAttribute("navUrParms", navUrParms);	
 	
-			if (DataHunterConstants.USE.equalsIgnoreCase(lookupOrUsePathVariable)){
-	
-				if (DataHunterConstants.REUSABLE.equalsIgnoreCase(nextPolicy.getUseability())) {
-					model.addAttribute("sqlResult", "PASS");
-					model.addAttribute("sqlResultText", "Policy " + nextPolicy.getIdentifier()
-							+ " NOT updated as it is marked as REUSABLE");
-					return new ModelAndView("/next_policy_action", "model", model);
-				}
+			if (DataHunterConstants.USE.equalsIgnoreCase(pUseOrLookup)){
 	
 				model = updateNextPolicy(model, selectSqlWithParms, nextPolicy);
 	

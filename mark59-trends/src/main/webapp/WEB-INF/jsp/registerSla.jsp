@@ -27,6 +27,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
 <body>
@@ -51,11 +52,11 @@
     <table>
      <tr>
       <td>Application :</td>
-      <td><form:input path="application"  value="${map.reqApp}" size="32" maxlength="32" /></td>
+      <td><form:input path="application"  value="${map.reqApp}" size="32" maxlength="32" onchange="trimkey(this)" /></td>
      </tr>
      <tr>
       <td>Transaction name :</td>
-      <td><form:input path="txnId" size="80" maxlength="122" /></td>
+      <td><form:input path="txnId" size="80" maxlength="122" onchange="trimkey(this)" /></td>
      </tr>
      <tr>
       <td>CDP Txn?</td>
@@ -72,31 +73,31 @@
      </tr>
      <tr>
       <td>90th percentile :</td>
-      <td><form:input path="sla90thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
+      <td><form:input path="sla90thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" onchange="trimkey(this)" /></td>     
      </tr>
      <tr>
       <td>95th percentile :</td>
-      <td><form:input path="sla95thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
+      <td><form:input path="sla95thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" onchange="trimkey(this)" /></td>     
      </tr>     
      <tr>
       <td>99th percentile :</td>
-      <td><form:input path="sla99thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" /></td>     
+      <td><form:input path="sla99thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="-1.0" onchange="trimkey(this)" /></td>     
      </tr>     
      <tr>
       <td>Pass count :</td>
-      <td><form:input path="slaPassCount" type="text" pattern="-?\d*"  value="-1" /></td>     
+      <td><form:input path="slaPassCount" type="text" pattern="-?\d*"  value="-1" onchange="trimkey(this)" /></td>     
      </tr>
      <tr>
       <td>Pass count variance % :</td>
-      <td><form:input path="slaPassCountVariancePercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="10.0" /></td>     
+      <td><form:input path="slaPassCountVariancePercent" type="text" pattern="^-?\d*\.{0,1}\d+$" value="10.0" onchange="trimkey(this)" /></td>     
      </tr>     
      <tr>
       <td>Fail count :</td>
-      <td><form:input path="slaFailCount" type="text" pattern="-?\d*"  value="-1" /></td>     
+      <td><form:input path="slaFailCount" type="text" pattern="-?\d*" value="-1" onchange="trimkey(this)" /></td>     
      </tr>
      <tr>
       <td>Fail percent :</td>
-      <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="2.0" /></td>     
+      <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="2.0" onchange="trimkey(this)" /></td>     
      </tr>
      <tr>
       <td>Is Active :</td>
@@ -108,15 +109,15 @@
      </tr>        
      <tr>
       <td>Txn delay :</td>
-      <td><form:input path="txnDelay" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
+      <td><form:input path="txnDelay" type="text" pattern="^-?\d*\.{0,1}\d+$" value="0.0" onchange="trimkey(this)" /></td>     
      </tr>       
      <tr>
       <td>Xtra num :</td>
-      <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$"  value="0.0" /></td>     
+      <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$" value="0.0" onchange="trimkey(this)" /></td>     
      </tr>
      <tr>
       <td>Xtra int :</td>
-      <td><form:input path="xtraInt" type="text" pattern="-?\d*" value="0"/></td>      
+      <td><form:input path="xtraInt" type="text" pattern="-?\d*" value="0" onchange="trimkey(this)"/></td>      
      </tr>      
      <tr>
       <td><br>Reference :</td>

@@ -26,6 +26,7 @@ import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.model.AsyncMessageaAnalyzerResult;
 import com.mark59.datahunter.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
+import com.mark59.datahunter.model.PolicySelectionFilter;
 import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
 
 /**
@@ -35,11 +36,14 @@ import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
 public interface PoliciesDAO 
 {
 	public final String SELECT_POLICY_COUNTS  = " count(*)  as counter ";
-	public final String SELECT_POLICY_COLUMNS = " application, identifier, lifecycle, useability,otherdata, created, updated, epochtime ";
+	public final String SELECT_POLICY_COLUMNS = " application, identifier, lifecycle, useability, otherdata, created, updated, epochtime ";
 	
 	SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect);
 
-	SqlWithParms constructSelectPoliciesSql(PolicySelectionCriteria policySelectionCriteria);
+	SqlWithParms constructSelectPoliciesFilterSql(PolicySelectionFilter PolicySelectionFilter);
+	SqlWithParms constructSelectPoliciesFilterSql(PolicySelectionFilter policySelectionFilter, boolean applyLimit);	
+	SqlWithParms constructSelectNextPolicySql(PolicySelectionCriteria policySelect);
+	SqlWithParms constructCountPoliciesSql(PolicySelectionCriteria policySelect);
 	SqlWithParms constructCountPoliciesBreakdownSql(PolicySelectionCriteria policySelectionCriteria);
 	SqlWithParms constructAsyncMessageaAnalyzerSql(PolicySelectionCriteria policySelectionCriteria);
 	
@@ -50,10 +54,11 @@ public interface PoliciesDAO
 	
 	SqlWithParms constructInsertDataSql(Policies policies);
 	SqlWithParms constructDeletePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
-	SqlWithParms constructDeleteMultiplePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
-	
-	SqlWithParms constructUpdatePoliciesUseStateSql(UpdateUseStateAndEpochTime updateUse);
+	SqlWithParms constructDeleteMultiplePoliciesSql(PolicySelectionFilter policySelectionFilter);
+
+	SqlWithParms constructUpdatePoliciesSql(Policies policies);
 	SqlWithParms constructUpdatePolicyToUsedSql(Policies nextPolicy);
+	SqlWithParms constructUpdatePoliciesUseStateSql(UpdateUseStateAndEpochTime updateUse);
 
 	List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList, 
 			String toUseability);
@@ -67,6 +72,5 @@ public interface PoliciesDAO
 
 	void getLock(String lockResouceString, int timeout);
 	void releaseLock(String lockResouceString) throws SQLException;
-
 
 }

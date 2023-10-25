@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -95,9 +96,19 @@ public class Elemental {
 	
 	public Elemental waitUntilClickable(Elemental elemental) {
 		waitUntilCondition(ExpectedConditions.elementToBeClickable(elemental.getBy()));
-		return  this;
+		return this;
 	}
 
+	public Elemental waitUntilAlertisPresent() {
+		waitUntilCondition(ExpectedConditions.alertIsPresent());
+		return this;
+	}
+		
+	public void acceptAlert(){
+		Alert alert = driver.switchTo().alert();
+		alert.accept();
+	}
+	
 	public Elemental waitUntilStale() {
 		return waitUntilStale(this);
 	}

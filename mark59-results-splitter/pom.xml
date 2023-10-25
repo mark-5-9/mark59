@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-results-splitter</artifactId>
-	<version>5.5</version>
+	<version>5.6</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-results-splitter</name>
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
-			<version>5.3</version>
+			<version>5.8</version>
 		</dependency>
 
 		<dependency>

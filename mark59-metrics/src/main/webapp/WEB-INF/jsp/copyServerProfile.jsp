@@ -51,7 +51,7 @@
     <table>
      <tr>
       <td>Server&nbsp;Profile&nbsp;:</td>
-      <td><form:input path="serverProfile.serverProfileName" size="64" maxlength="64"  height="20" /></td>
+      <td><form:input path="serverProfile.serverProfileName" size="64" maxlength="64" height="20" onchange="trimkey(this)" /></td>
      </tr> 
      
      <tr><td>Command(s)&nbsp;Executor&nbsp;:</td><td>${map.serverProfileEditingForm.serverProfile.executor}</td></tr>
@@ -61,7 +61,7 @@
      <c:if test="${!commandexecutor.equals('GROOVY_SCRIPT')}">
 	     <tr>
 	      <td>Server&nbsp;:</td>
-	      <td><form:input path="serverProfile.server" size="64" maxlength="64"  height="20" onchange="visibilityForLocalhost()" /></td>
+	      <td><form:input path="serverProfile.server" size="64" maxlength="64" height="20" onchange="visibilityForLocalhost()" /></td>
 	     </tr>
 	     <tr>
 	      <tr><td><br></td>

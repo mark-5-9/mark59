@@ -28,7 +28,6 @@ public class CountPoliciesBreakdown extends PolicySelectionCriteria   {
 		
 	}
 
-
 	public Long getRowCount() {
 		return rowCount;
 	}

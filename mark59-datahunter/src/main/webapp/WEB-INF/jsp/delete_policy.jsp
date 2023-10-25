@@ -15,61 +15,62 @@
   Author:  Philip Webb
   Date:    Australian Winter 2019
   --%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c"%>
 <html>
 <head>
-<title>Delete an Item</title>
+<title>Delete Item</title>
 <link rel="shortcut icon"  href="favicon.png" />
-<style>
-  body { font-size: 20px; color: purple; font-family: Calibri; }
-  table.metricsTable  { width: 100%; border-collapse: collapse; }
-  table.metricsTable th { font-size: 18px; color: white;   background-color: purple; border: 1px solid #9344BB; padding: 3px 7px 2px 7px; text-align: left; }
-  table.metricsTable td { font-size: 15px; color: #000000; background-color: white;  border: 1px solid #9344BB; padding: 3px 7px 2px 7px; }
-</style>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
+<script type="text/javascript">
 
+function buildHomeLink() {
+	document.getElementById('HomeLink').innerHTML="Home Page";
+	homeLinkUrl = "/mark59-datahunter" 
+		+ "?application="+ encodeURIComponent(document.getElementById("application").value)
+		+ "&identifier=" + encodeURIComponent(document.getElementById("identifier").value)
+		+ "&lifecycle="	 + encodeURIComponent(document.getElementById("lifecycle").value);
+	document.getElementById('HomeLink').href = homeLinkUrl;
+}
+
+</script>
 </head>
-<body>
- <center>
-  
- <br><br><br>
- 
- <b>Delete an Item</b> 
+<body onload="buildHomeLink();"> 
+<%-- Include navigation element --%>
+<jsp:include page="include/navigation.jsp" />
+<div class="content"> 
 
-  <br><br><br> 
-  <div>
+  <h1>Delete an Item</h1>   		 
+
+  <form:form method="post" action="delete_policy_action" modelAttribute="policySelectionCriteria">
+   <table >
+    <tr>
+     <td>Application</td>
+     <td>:</td>      
+     <td><form:input path="application" size="64" height="20" onchange="trimkey(this)" /></td>  
+    </tr>
+    <tr>
+     <td>Identifier</td>
+     <td>:</td>      
+     <td><form:input path="identifier" size="64" height="20" onchange="trimkey(this)" /></td>
+    </tr>
+    <tr>
+     <td>Lifecycle</td>
+     <td>:</td>      
+     <td><form:input path="lifecycle" size="64" height="20" onchange="trimkey(this)" /></td>
+    </tr>     
+    <tr>
+     <td colspan="3"><br><br><input type="submit" value="submit" id="submit" /></td>
+    </tr>
+   </table>
+  </form:form>
  
-   <form:form method="post" action="delete_policy_action" modelAttribute="policySelectionCriteria">
-    <table >
-     <tr>
-      <td width="71">Application</td>
-      <td width="6">:</td>      
-      <td width="301"><form:input path="application" /></td>  
-     </tr>
-     <tr>
-      <td width="71">Identifier</td>
-      <td width="6">:</td>      
-      <td width="301"><form:input path="identifier" /></td>
-     </tr>
-     <tr>
-      <td width="71">Lifecycle</td>
-      <td width="6">:</td>      
-      <td width="301"><form:input path="lifecycle" /></td>
-     </tr>     
-     <tr>
-      <td colspan="3"><br><br><input type="submit" value="submit"  id="submit"  /></td>
-     </tr>
-    </table>
-   </form:form>
-   
-  </div>
- </center>
- 
- <br><br>
- <a href="/mark59-datahunter?application=${policySelectionCriteria.application}">Home Page</a>
- 
+ <br><a id="HomeLink" href="see_buildHomeLink_JS">Home Page</a> 
+</div>
 </body>
 </html>

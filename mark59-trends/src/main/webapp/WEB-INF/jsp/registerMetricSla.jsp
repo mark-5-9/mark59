@@ -27,6 +27,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
 <body>
@@ -51,11 +52,11 @@
     <table>
      <tr>
       <td>Application :</td>
-      <td><form:input path="application"  value="${map.reqApp}" size="32" maxlength="32" /></td>
+      <td><form:input path="application"  value="${map.reqApp}" size="32" maxlength="32" onchange="trimkey(this)"/></td>
      </tr>
       <tr>
       <td>Metric Name :</td>
-      <td><form:input path="metricName"  size="80" maxlength="126"/></td>
+      <td><form:input path="metricName"  size="80" maxlength="126" onchange="trimkey(this)" /></td>
      </tr>
       <tr>
       <td>Metric Type :</td>
@@ -67,11 +68,11 @@
      </tr>
      <tr>
       <td>Min Value :</td>
-      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="0.0" /></td>     
+      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="0.0" onchange="trimkey(this)" /></td>     
      </tr>     
      <tr>
       <td>Max Value :</td>
-      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="0.0" /></td>     
+      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="0.0" onchange="trimkey(this)" /></td>     
      </tr>
      <tr>
       <td>Is Active :</td>

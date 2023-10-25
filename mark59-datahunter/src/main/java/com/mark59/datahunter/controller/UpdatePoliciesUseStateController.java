@@ -66,6 +66,19 @@ public class UpdatePoliciesUseStateController {
 		SqlWithParms sqlWithParms = policiesDAO.constructUpdatePoliciesUseStateSql(updateUseStateAndEpochTime);
 		model.addAttribute("sql", sqlWithParms);
 
+		
+		String navUrParms = "application=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getApplication())
+			+ "&identifier=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getIdentifier()) 
+			+ "&lifecycle=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getLifecycle()) 
+			+ "&useability=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getUseability())
+			+ "&toUseability="  + DataHunterUtils.encode(updateUseStateAndEpochTime.getToUseability())
+			+ "&toEpochTime=";
+		
+		if (updateUseStateAndEpochTime.getToEpochTime()!=null) {
+			navUrParms +=  String.valueOf(updateUseStateAndEpochTime.getToEpochTime());
+		} 
+		model.addAttribute("navUrParms", navUrParms);		
+
 		int rowsAffected;
 		try {
 			rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);

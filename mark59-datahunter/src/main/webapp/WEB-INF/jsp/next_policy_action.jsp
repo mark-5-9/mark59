@@ -15,91 +15,75 @@
   Author:  Philip Webb
   Date:    Australian Winter 2019
   --%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c"%>
 <html>
 <head>
-<title>${lookupOrUsePathVariable} Next Item Action</title>
+<title>${UseOrLookup} Next Item</title>
+<%-- <title>${lookupOrUsePathVariable} Next Item</title> --%>
 <link rel="shortcut icon"  href="favicon.png" />
-<style>
-  body { font-size: 20px; color: purple; font-family: Calibri; }
-  table.metricsTable  { width: 100%; border-collapse: collapse; }
-  table.metricsTable th { font-size: 18px; color: white;   background-color: purple; border: 1px solid #9344BB; padding: 3px 7px 2px 7px; text-align: left; }
-  table.metricsTable td { font-size: 15px; color: #000000; background-color: white;  border: 1px solid #9344BB; padding: 3px 7px 2px 7px; }
-</style>
-
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
 </head>
 <body>
-<center>
-  
- <br><br><br>
- 
- <b>${lookupOrUsePathVariable} Next Item</b> 
+<%-- Include navigation element --%>
+<jsp:include page="include/navigation.jsp" />
+<div class="content">
+
+ <h1>${UseOrLookup} Next Item - Result</h1>   		 
+<%--  <h1>${lookupOrUsePathVariable} Next Item - Result</h1>   		  --%>
+
+ <table >
+   <tr>
+    <td>Application </td><td>:</td>
+    <td id=application>${policies.application}</td>
+   </tr>
+   <tr>
+    <td>Identifier </td><td>:</td>
+    <td id=identifier>${policies.identifier}</td>
+   </tr>      
+   <tr>
+    <td>Lifecycle </td><td>:</td>
+    <td id=lifecycle>${policies.lifecycle}</td>
+   </tr> 
+   <tr>
+    <td>Useability </td><td>:</td>
+    <td id=useability>${policies.useability}</td>
+   </tr> 
+   <tr>
+    <td>Otherdata </td><td>:</td>
+    <td id=otherdata>${policies.otherdata}</td>
+   </tr>    
+   <tr>
+    <td>Created </td><td>:</td>
+    <td id=created>${policies.created}</td>
+   </tr>
+   
+  <tr>
+    <td>Updated </td><td>:</td>
+    <td id=updated>${policies.updated}</td>
+   </tr>         
+  <tr>
+    <td>Epochtime </td><td>:</td>
+    <td id=epochtime>${policies.epochtime}</td>
+  </tr>         
+ </table>
+
  <br><br>
-  
- <table >
-     <tr>
-      <td>Application </td><td>:</td>
-      <td  id=application>${policies.application}</td>
-     </tr>
-     
-     <tr>
-      <td>Identifier </td><td>:</td>
-      <td id=identifier>${policies.identifier}</td>
-     </tr>      
-         
-     <tr>
-      <td>Lifecycle </td><td>:</td>
-      <td id=lifecycle>${policies.lifecycle}</td>
-     </tr> 
-           
-     <tr>
-      <td>Useability </td><td>:</td>
-      <td id=useability>${policies.useability}</td>
-     </tr> 
-    
-     <tr>
-      <td>Otherdata </td><td>:</td>
-      <td id=otherdata>${policies.otherdata}</td>
-     </tr>    
-       
-     <tr>
-      <td>Created </td><td>:</td>
-      <td id=created>${policies.created}</td>
-     </tr>
-     
-    <tr>
-      <td>Updated </td><td>:</td>
-      <td id=updated>${policies.updated}</td>
-     </tr>         
+ <div style='background-color:YELLOW;text-align:center;font-family:arial;color:brown;font-size:120px;' id=prettyidentifier>${policies.identifier}</div>
 
-    <tr>
-      <td>Epochtime </td><td>:</td>
-      <td id=epochtime>${policies.epochtime}</td>
-    </tr>         
-     
- </table>
-
- </center>
-
-<br><br>
-<div style='background-color:YELLOW;text-align:center;font-family:arial;color:brown;font-size:120px;' id=prettyidentifier>${policies.identifier}</div>
-<br><br><br>
-
-<br><br><br><br>
-
- <table >
-     <tr><td>sql statement</td>	<td>:</td><td id=sql>${model.sql}</td></tr> 
-     <tr><td>result</td>		<td>:</td><td id=sqlResult>${model.sqlResult}</td></tr>
-     <tr><td>rows affected</td>	<td>:</td><td id=rowsAffected>${model.rowsAffected}</td></tr>
-     <tr><td>details</td>		<td>:</td><td id=sqlResultText>${model.sqlResultText}</td></tr>     
+ <br><br>
+ <table class="tip">
+     <tr><td>sql&nbsp;statement</td><td>{</td><td id=sql>${model.sql}</td></tr> 
+     <tr><td>result</td>			<td>:</td><td id=sqlResult>${model.sqlResult}</td></tr>
+     <tr><td>rows&nbsp;affected</td><td>:</td><td id=rowsAffected>${model.rowsAffected}</td></tr>
+     <tr><td>details</td>			<td>:</td><td id=sqlResultText>${model.sqlResultText}</td></tr>     
  </table>
  
-<br><br><br>
- <a href='next_policy?application=${policySelectionCriteria.application}&useability=${policySelectionCriteria.useability}&pUseOrLookup=${lookupOrUsePathVariable}'>Back</a>
- 
+ <br><a href='next_policy?${model.navUrParms}'>Back</a>
+</div> 
 </body>
 </html>

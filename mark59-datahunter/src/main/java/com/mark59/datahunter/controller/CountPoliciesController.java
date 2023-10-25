@@ -49,7 +49,6 @@ public class CountPoliciesController {
 	
 	@RequestMapping("/count_policies")
 	public String countPoliciesUrl(@RequestParam(required=false) String application,@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model  ) { 
-//		System.out.println("/count_policies");
 		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		usabilityList.add(0,"");
 		model.addAttribute("Useabilities",usabilityList);
@@ -62,12 +61,15 @@ public class CountPoliciesController {
 		// https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc
 		// HttpServletRequest request .. fields of ModelAttribute are actually request parameters (eg "application") 
 
-		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COUNTS);
-		policySelectionCriteria.setSelectOrder(DataHunterConstants.SELECT_UNORDERED);
-		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesSql(policySelectionCriteria);
+		SqlWithParms sqlWithParms = policiesDAO.constructCountPoliciesSql(policySelectionCriteria);
 		int rowsAffected = policiesDAO.runCountSql(sqlWithParms);
 //		System.out.println("countPoliciesAction" + policySelectionCriteria +  " count=" + rowsAffected);
 
+		String navUrParms = "application=" + DataHunterUtils.encode(policySelectionCriteria.getApplication())
+			+ "&lifecycle="  + DataHunterUtils.encode(policySelectionCriteria.getLifecycle()) 
+			+ "&useability=" + DataHunterUtils.encode(policySelectionCriteria.getUseability());		
+		
+		model.addAttribute("navUrParms", navUrParms);		
 		model.addAttribute("sql", sqlWithParms);
 		model.addAttribute("sqlResult", "PASS");
 		model.addAttribute("rowsAffected", rowsAffected);

@@ -61,7 +61,7 @@
      </tr>
      <tr>
       <td width="9%">Metric&nbsp;Name&nbsp;Suffix</td><td>:</td>
-      <td width="90%"><form:input path="metricNameSuffix" size="64" maxlength="64"  height="20" /></td>
+      <td width="90%"><form:input path="metricNameSuffix" size="64" maxlength="64" height="20" onchange="trimkey(this)" /></td>
      </tr>
      
      <tr><td width="9%"></td><td></td><td width="90%" style="color:grey;font-size:small;">Available variable: <b>commandResponse</b></td></tr>

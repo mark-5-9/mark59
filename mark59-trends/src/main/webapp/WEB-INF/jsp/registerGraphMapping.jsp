@@ -27,7 +27,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
-
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 <body>
 
@@ -50,12 +50,12 @@
     <table>
      <tr>
       <td>Dropdown list order:</td>
-      <td><form:input path="listOrder" size="8" maxlength="8" /></td>
+      <td><form:input path="listOrder" size="8" maxlength="8" onchange="trimkey(this)" /></td>
       <td></td>
      </tr>
       <tr>
       <td>Graph name:</td>
-      <td><form:input path="graph"  size="64" maxlength="64"/></td>
+      <td><form:input path="graph"  size="64" maxlength="64" onchange="trimkey(this)"/></td>
       <td></td>
      </tr>
      

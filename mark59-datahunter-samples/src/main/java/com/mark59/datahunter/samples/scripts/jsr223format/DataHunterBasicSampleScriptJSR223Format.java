@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.logging.log4j.Level;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
@@ -30,11 +31,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 	
 	@SuppressWarnings("unused")
 	final class TestConstants {
-		public static final String DELETE_MULTIPLE_POLICIES_URL_PATH    = "/delete_multiple_policies";
 		public static final String COUNT_POLICIES_URL_PATH              = "/count_policies";	
 		public static final String ADD_POLICY_URL_PATH                  = "/add_policy";
-		public static final String PRINT_SELECTED_POLICIES_URL_PATH     = "/print_selected_policies";
-		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = "/count_policies_breakdown";		
+		public static final String SELECT_MULTIPLE_POLICIES_URL_PATH	= "/select_multiple_policies";
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = "/policies_breakdown";		
 		public static final String NEXT_POLICY_URL_PATH                 = "/next_policy";	
 		public static final String UNUSED                               = "UNUSED";  
 		public static final String EQUALS                               = "EQUALS";
@@ -80,15 +80,17 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		String user 			= context.getParameter("USER");
 
 // 		delete any existing policies for this application/thread combination
-		
+
 		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
-		driver.get(dataHunterUrl + TestConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + TestConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);
+		driver.findElement(By.id("submit")).submit();	
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");
 		
-		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);
-
-        jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
-		driver.findElement(By.id("submit")).submit();
+		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
+		driver.findElement(By.partialLinkText("Delete Selected Items")).click();
+		Alert alert = driver.switchTo().alert();
+		alert.accept();		
 		checkSqlOk(driver.findElement(By.id("sqlResult")));
 		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	
@@ -122,7 +124,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 
 	private void checkSqlOk(WebElement sqlResultWebElement) {
 		String sqlResultText = sqlResultWebElement.getText();
-		if ( !"PASS".equals(sqlResultText) ) {
+		if (sqlResultText==null || !sqlResultText.contains("PASS")) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ")");   
 		}
 	}

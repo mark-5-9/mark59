@@ -14,6 +14,7 @@ if (reqApp != null && !reqApp.isEmpty()) {
 
 <div class="sidebar">
 <div><a class=canterbury href="overview<%= reqAppUrlParm %>">Mark59</a></div>
+<div class="canterburysmall">Trends</div> 
 
   <a <% if (path.contains("overview")){ %> class="active" <% } %> href="overview<%= reqAppUrlParm %>">Overview</a> 
   <a <% if (path.contains("dashboard")){ %> class="active" <% } %> href="dashboard?reqAppListSelector=Active">Application Dashboard</a> 

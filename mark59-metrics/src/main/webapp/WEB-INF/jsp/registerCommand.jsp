@@ -51,7 +51,7 @@
     
      <tr>
       <td>Command&nbsp;Name&nbsp;:</td>
-      <td width="99%"><form:input path="command.commandName"  value=""  size="64" maxlength="64"  height="20" /></td>
+      <td width="99%"><form:input path="command.commandName"  value=""  size="64" maxlength="64" height="20" onchange="trimkey(this)" /></td>
      </tr>
    
      <tr>

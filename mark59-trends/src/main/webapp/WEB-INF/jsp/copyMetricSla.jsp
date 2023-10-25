@@ -28,8 +28,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
-
 <body>
 
 <%-- Include navigation element --%>
@@ -44,11 +44,11 @@
   <div>
    <form:form method="post" action="insertMetricSla?reqApp=${map.reqApp}" modelAttribute="metricSla">
     <table>
-     <tr><td>Application      :</td><td> ${map.metricSla.application} </td></tr>   
+     <tr><td>Application      :</td><td>${map.metricSla.application}</td></tr>   
        
      <tr>
       <td>Metric</td>
-      <td><form:input path="metricName" value="${map.metricSla.metricName}"  size="100" />
+      <td><form:input path="metricName" value="${map.metricSla.metricName}" size="100" onchange="trimkey(this)" />
       </td>
      </tr> 
      <tr>
@@ -62,11 +62,11 @@
        
      <tr>
       <td>Sla Minimum Value:</td>
-      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.metricSla.slaMin}" /></td>
+      <td><form:input path="slaMin" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.metricSla.slaMin}" onchange="trimkey(this)" /></td>
      </tr>  
      <tr>
       <td>Sla Maximum Value:</td>
-      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.metricSla.slaMax}" /></td>
+      <td><form:input path="slaMax" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.metricSla.slaMax}" onchange="trimkey(this)" /></td>
      </tr>
      <tr>
       <td>Is Active :</td>

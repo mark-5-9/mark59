@@ -32,16 +32,14 @@ import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.CountPoliciesAc
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.CountPoliciesBreakdownActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.CountPoliciesBreakdownPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.CountPoliciesPage;
-import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.DeleteMultiplePoliciesActionPage;
-import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.DeleteMultiplePoliciesPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.DeletePolicyActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.DeletePolicyPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.NextPolicyActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.NextPolicyPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.PrintPolicyActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.PrintPolicyPage;
-import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.PrintSelectedPoliciesActionPage;
-import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.PrintSelectedPoliciesPage;
+import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.MultiplePoliciesActionPage;
+import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.MultiplePoliciesPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.UpdatePoliciesUseStateActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.UpdatePoliciesUseStatePage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages._GenericDataHunterActionPage;
@@ -163,9 +161,9 @@ public class DslPageFunctions  implements Serializable {
 	 * in a performance or functional test scenario
 	 */
 	public Map<String, Policy> printSelectedItems(PolicySelectionCriteria policySelectionCriteria, WebDriver driver, List<Policy> expectedPolicies) {
-		driver.get(dataHunterUrl + DslConstants.PRINT_SELECTED_POLICIES_URL_PATH + DslConstants.URL_PARM_APPLICATION + policySelectionCriteria.getApplication());
-		PrintSelectedPoliciesPage  printSelectedPoliciesPage = new PrintSelectedPoliciesPage(driver); 
-		PrintSelectedPoliciesActionPage  printSelectedPoliciesActionPage = new PrintSelectedPoliciesActionPage(driver);
+		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + DslConstants.URL_PARM_APPLICATION + policySelectionCriteria.getApplication());
+		MultiplePoliciesPage  printSelectedPoliciesPage = new MultiplePoliciesPage(driver); 
+		MultiplePoliciesActionPage  printSelectedPoliciesActionPage = new MultiplePoliciesActionPage(driver);
 		HashMap<String, Policy> policiesMap = new HashMap<>();
 		printSelectedPoliciesPage.lifecycle().type(policySelectionCriteria.getLifecycle());
 		printSelectedPoliciesPage.useability().selectByVisibleText("");
@@ -173,19 +171,19 @@ public class DslPageFunctions  implements Serializable {
 		waitForSqlResultsTextOnActionPageAndCheckOk(printSelectedPoliciesActionPage);
 		
 		List<HtmlTableRow> htmlTableRows = printSelectedPoliciesActionPage.printSelectedPoliciesTable().getHtmlTableRows();
-		
+
 		for (HtmlTableRow htmlTableRow : htmlTableRows ) {
-			List<WebElement> cols = htmlTableRow.getWebElementsForRow(8);
-			String policyKey =	 cols.get(0).getText() + ":" +  cols.get(1).getText() + ":" + cols.get(2).getText();	
+			List<WebElement> cols = htmlTableRow.getWebElementsForRow(10);
+			String policyKey =	 cols.get(2).getText() + ":" +  cols.get(3).getText() + ":" + cols.get(4).getText();	
 			Policy policy = new Policy();
-			policy.setApplication(cols.get(0).getText());
-			policy.setIdentifier (cols.get(1).getText());
-			policy.setLifecycle  (cols.get(2).getText());
-			policy.setUseability (cols.get(3).getText());				
-			policy.setOtherdata  (cols.get(4).getText());
-			policy.setCreated    (cols.get(5).getText());
-			policy.setUpdated    (cols.get(6).getText());
-			policy.setEpochtime  (cols.get(7).getText());
+			policy.setApplication(cols.get(2).getText());
+			policy.setIdentifier (cols.get(3).getText());
+			policy.setLifecycle  (cols.get(4).getText());
+			policy.setUseability (cols.get(5).getText());				
+			policy.setOtherdata  (cols.get(6).getText());
+			policy.setCreated    (cols.get(7).getText());
+			policy.setUpdated    (cols.get(8).getText());
+			policy.setEpochtime  (cols.get(9).getText());
 			policiesMap.put(policyKey, policy);
 		}
 		if (expectedPolicies != null) {
@@ -214,21 +212,21 @@ public class DslPageFunctions  implements Serializable {
 
 
 	public Integer deleteMultipleItems(PolicySelectionCriteria policySelection, WebDriver driver, Long expectedCount) {
-		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + policySelection.getApplication());
-		DeleteMultiplePoliciesPage deleteMultiplePoliciesPage = new DeleteMultiplePoliciesPage(driver); 
-		DeleteMultiplePoliciesActionPage deleteMultiplePoliciesActionPage = new DeleteMultiplePoliciesActionPage(driver); 
+		
+		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + policySelection.getApplication());
+		MultiplePoliciesPage multiplePoliciesPage = new MultiplePoliciesPage(driver); 
+		MultiplePoliciesActionPage multiplePoliciesActionPage = new MultiplePoliciesActionPage(driver);	
+		
 		if (StringUtils.isNotBlank(policySelection.getLifecycle())){
-			deleteMultiplePoliciesPage.lifecycle().type(policySelection.getLifecycle());
+			multiplePoliciesPage.lifecycle().type(policySelection.getLifecycle());
 		}
-		if (StringUtils.isNotBlank(policySelection.getUseability())){
-			deleteMultiplePoliciesPage.useability().selectByVisibleText(policySelection.getUseability());
+		multiplePoliciesPage.submit().submit().waitUntilClickable( multiplePoliciesActionPage.backLink() );				
+		multiplePoliciesActionPage.multipleDeleteLink().click().waitUntilAlertisPresent().acceptAlert();
+		waitForSqlResultsTextOnActionPageAndCheckOk(multiplePoliciesActionPage);
+		if (expectedCount != null) {		
+			confirmDeleteMultiplePoliciesPage(expectedCount, multiplePoliciesActionPage);
 		}
-		deleteMultiplePoliciesPage.submit().submit();
-		waitForSqlResultsTextOnActionPageAndCheckOk(deleteMultiplePoliciesActionPage);
-		if (expectedCount != null) {
-			confirmDeleteMultiplePoliciesPage(expectedCount, deleteMultiplePoliciesActionPage);		
-		}		
-		return Integer.parseInt(deleteMultiplePoliciesActionPage.rowsAffected().getText());
+		return Integer.parseInt(multiplePoliciesActionPage.rowsAffected().getText().replaceAll("[^\\d]", ""));
 	}
 	
 	
@@ -293,16 +291,16 @@ public class DslPageFunctions  implements Serializable {
 	
 	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDataHunterActionPage _genericDataHunterActionPage) {
 		String sqlResultText = _genericDataHunterActionPage.sqlResult().getText();
-		if (!"PASS".equals(sqlResultText)) {
+		if (sqlResultText==null || !sqlResultText.contains("PASS")) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ") : " +
 						_genericDataHunterActionPage.formatResultsMessage(_genericDataHunterActionPage.getClass().getName()));
 		}
 	}
 	
 	private void confirmAddPolicyActionPageOk(Policy policy, AddPolicyActionPage addPolicyActionPage){
-		assertEquals(policy.getApplication(), addPolicyActionPage.application().getText());
-		assertEquals(policy.getIdentifier(), addPolicyActionPage.identifier().getText());
-		assertEquals(policy.getLifecycle(), addPolicyActionPage.lifecycle().getText());
+		assertEquals(policy.getApplication().trim(), addPolicyActionPage.application().getText());
+		assertEquals(policy.getIdentifier().trim(), addPolicyActionPage.identifier().getText());
+		assertEquals(policy.getLifecycle().trim(), addPolicyActionPage.lifecycle().getText());
 		assertEquals(policy.getUseability(), addPolicyActionPage.useability().getText());
 		assertEquals(policy.getOtherdata(), addPolicyActionPage.otherdata().getText());
 		assertTrue(StringUtils.isNumeric(addPolicyActionPage.epochtime().getText()));
@@ -321,24 +319,25 @@ public class DslPageFunctions  implements Serializable {
 	}
 	
 	private void confirmPrintPolicyActionPageOk(Policy expectedPolicy, PrintPolicyActionPage printPolicyActionPage, Policy retrievedPolicy) {
-		assertEquals(expectedPolicy.getApplication(), printPolicyActionPage.application().getText());
-		assertEquals(expectedPolicy.getIdentifier(), printPolicyActionPage.identifier().getText());
-		assertEquals(expectedPolicy.getLifecycle(), printPolicyActionPage.lifecycle().getText());
+		assertEquals(expectedPolicy.getApplication().trim(), printPolicyActionPage.application().getText());
+		assertEquals(expectedPolicy.getIdentifier().trim(), printPolicyActionPage.identifier().getText());
+		assertEquals(expectedPolicy.getLifecycle().trim(), printPolicyActionPage.lifecycle().getText());
 		assertEquals(expectedPolicy.getUseability(), printPolicyActionPage.useability().getText());
 		assertEquals(expectedPolicy.getOtherdata(), printPolicyActionPage.otherdata().getText());
 		assertTrue(StringUtils.isNumeric(printPolicyActionPage.epochtime().getText()));
 		assertEquals(1, Long.parseLong(printPolicyActionPage.rowsAffected().getText()));
 
-		assertEquals(expectedPolicy.getApplication(), retrievedPolicy.getApplication());
-		assertEquals(expectedPolicy.getIdentifier(), retrievedPolicy.getIdentifier());
-		assertEquals(expectedPolicy.getLifecycle(), retrievedPolicy.getLifecycle());
+		assertEquals(expectedPolicy.getApplication().trim(), retrievedPolicy.getApplication());
+		assertEquals(expectedPolicy.getIdentifier().trim(), retrievedPolicy.getIdentifier());
+		assertEquals(expectedPolicy.getLifecycle().trim(), retrievedPolicy.getLifecycle());
 		assertEquals(expectedPolicy.getUseability(), retrievedPolicy.getUseability());
 		assertEquals(expectedPolicy.getOtherdata(), retrievedPolicy.getOtherdata());
 	}
 	
 	private void confirmPrintSelectedPoliciesActionPageOk(List<Policy> expectedPolicies, HashMap<String, Policy> policiesMap) {
 		for (Policy expectedPolicy : expectedPolicies) {
-			Policy actualPolicyRow =  policiesMap.get(expectedPolicy.getApplication()+":"+expectedPolicy.getIdentifier()+":"+expectedPolicy.getLifecycle());
+			Policy actualPolicyRow = policiesMap.get(expectedPolicy.getApplication().trim() + ":"
+					+ expectedPolicy.getIdentifier().trim() + ":" + expectedPolicy.getLifecycle().trim());
 			assertNotNull(expectedPolicy + " - not found", actualPolicyRow);
 			assertEquals(expectedPolicy.getUseability(), actualPolicyRow.getUseability());
 			assertEquals(expectedPolicy.getOtherdata(), actualPolicyRow.getOtherdata());
@@ -349,17 +348,17 @@ public class DslPageFunctions  implements Serializable {
 		assertEquals(expectedCount, Long.parseLong(deletePolicyActionPage.rowsAffected().getText()));
 	}
 	
-	private void confirmDeleteMultiplePoliciesPage(long expectedCount, DeleteMultiplePoliciesActionPage deleteMultiplePoliciesActionPage) {
-		assertEquals(expectedCount, Long.parseLong(deleteMultiplePoliciesActionPage.rowsAffected().getText()));
+	private void confirmDeleteMultiplePoliciesPage(long expectedCount, MultiplePoliciesActionPage multiplePoliciesActionPage) {
+		assertEquals(expectedCount, Long.parseLong(multiplePoliciesActionPage.rowsAffected().getText().replaceAll("[^\\d]", "")));
 	}
 	
 	private void confirmNextPolicyActionPageOk(Policy expectedPolicy, NextPolicyActionPage nextPolicyActionPage) {
-		assertEquals(expectedPolicy.getApplication(), nextPolicyActionPage.application().getText());
-		assertEquals(expectedPolicy.getIdentifier(), nextPolicyActionPage.identifier().getText());
-		assertEquals(expectedPolicy.getLifecycle(), nextPolicyActionPage.lifecycle().getText());
+		assertEquals(expectedPolicy.getApplication().trim(), nextPolicyActionPage.application().getText());
+		assertEquals(expectedPolicy.getIdentifier().trim(), nextPolicyActionPage.identifier().getText());
+		assertEquals(expectedPolicy.getLifecycle().trim(), nextPolicyActionPage.lifecycle().getText());
 		assertEquals(expectedPolicy.getUseability(), nextPolicyActionPage.useability().getText());
 		assertEquals(expectedPolicy.getOtherdata(), nextPolicyActionPage.otherdata().getText());
-		assertEquals(expectedPolicy.getIdentifier(), nextPolicyActionPage.prettyidentifier().getText());
+		assertEquals(expectedPolicy.getIdentifier().trim(), nextPolicyActionPage.prettyidentifier().getText());
 	}
 	
 	private void confirmUpdatePoliciesUseStateActionPage(long expectedCount, UpdatePoliciesUseStateActionPage updatePoliciesUseStateActionPage) {

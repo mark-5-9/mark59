@@ -5,6 +5,41 @@
 
 ## Releases 
 
+
+<p>Release 5.6<br>
+
+  <ul>
+  	<li>Java 11 is now minimum required version for Maven Central projects (core, selenium-implementation, dataHunter-api).
+	<li>DataHunter UI: New Download/Upload functions for Items.  Item selection for download is done from the Manage Multiple Items UI option
+	(/print_selected_policies), and a new UI option 'Upload Items File'.</li>
+	<li>DataHunter UI and Rest Api: For Multiple Item Selection and Multiple Item Deletion, Several new (optional) 'additional filters' have been added</li>	
+	<li>DataHunter UI and Rest Api: For Item Selection, a default of 100 Item are listed.  An option to set the number of	records returned 
+	in the list is included, with a maximum of 1000</li>
+	<li>DataHunter UI: Navigation Bar added</li>
+	<li>DataHunter UI: Overview Page added. A summary of the Mark59 User Guide Documentation for DataHunter (includes Rest API working samples)</li>
+	<li>DataHunter UI and Rest Api: 'Update Use State' function includes an optional filter on Lifecycle</li>
+	<li>DataHunter Rest Api: Improve Error Messaging on Exceptions</li>
+	<li>Web Applications Overview Documentation improved/added</li>	
+	<li>Dependencies: copencsv to 5.8, spring-boot to 3.1.4, selenium to 4.14.1 (to chrome v118, Java 11 required) </li> 
+  </ul>
+  
+  <figure>
+    <figcaption>Summary of Changes with Potential Incompatibilities For this Release <br><br>- note most of these are relatively small changes relating 
+    to the upgrade of DataHunter and in most situations should not any cause issues.</figcaption>
+   <ul>
+	<li>However, for ALL applications, application keys are now truncated to remove leading and trailings whitespace.<br>Please remove whitespaces
+	or substitute with other values for such keys you already have (will need to be done via a database update). 
+	<li>DataHunter UI: Url /count_policies_breakdown changed to to /policies_breakdown</li> 
+	<li>DataHunter Rest API: URL/api/countPoliciesBreakdown changed to /api/policiesBreakdown, 
+	Client Java method countPoliciesBreakdown renamed to policiesBreakdown</li>
+	<li>DataHunter UI: Url /print_selected_policies changed to /select_multiple_policies</li> 
+	<li>DataHunter UI and Rest API: 'Update Use State' functions now includes a (optional) lifecycle parameter</li>
+	<li>DataHunter UI: Delete Multiple Items is now handled as an option within Manage Multiple Options JSP</li>
+	<li>DataHunter UI: retention of key parameters across functions (potential to cause issues if the UI has been scripted).</li>	
+	<li>DataHunter UI: the 'Use Next Item' Function, now also updates REUSABLE items to USED (previously left them unchanged)</li>	
+  </ul> 
+</figure>
+
 <p>Release 5.5<br>
 
   <ul>

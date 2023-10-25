@@ -94,12 +94,12 @@
 		var formatedMetric = 
 			'<table class="nb" width="100%"><tr><th>Transaction</th><th>Value</th><th>Pass/Fail</th><th></th><th></th></tr>'
 
-		Object.entries(parsedCommandResponses).forEach(([key, parsedCommandResponse]) => {
+		Object.entries(parsedCommandResponses).forEach(([keyR, parsedCommandResponse]) => {
 //		    alert('key=' + key + ' ,commandName=' + parsedCommandResponse.commandName + ' ,parsedMetrics=' + parsedCommandResponse.parsedMetrics )
 		    
 		    const parsedMetrics = parsedCommandResponse.parsedMetrics
 			
-			Object.entries(parsedMetrics).forEach(([key, metric]) => {
+			Object.entries(parsedMetrics).forEach(([keyM, metric]) => {
 //			    alert('key=' + key + ', label=' + metric.label + ', result=' + metric.result + ', success=' + metric.success + ", dt=" + metric.dataType )
 				
 		    	var passOrFail = "<font color='red'><b>Fail</b></font>"
@@ -109,7 +109,9 @@
 		    	var dataType = ""
 		    	if (metric.dataType != null ){
 		    		dataType = metric.dataType
-		    	}				    
+		    	} else {
+					dataType = '<font color="grey">Unexpected null for a datatype? ('+keyR+':'+keyM+')</font>'
+				}				    
 		        formatedMetric = formatedMetric + 
 		        '<tr>' +
 		           '<td nowrap style="width:1%">' + metric.label + '&nbsp;&nbsp;</td>' +
@@ -245,6 +247,11 @@
 	
 	function isEmpty(str) {
 		return str === null || str === ""
+	}
+
+
+	function trimkey(key) {
+		key.value = key.value.trim();
 	}
 
 		

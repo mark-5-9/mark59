@@ -25,6 +25,7 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
@@ -123,13 +124,15 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		jm.writeLog("kilroy", "txt", "Kilroy was here".getBytes());
 		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
 		jm.bufferLog("kilroybuffer", "txt", "Kilroy was buffered here".getBytes());		
-		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);
+		driver.findElement(By.id("submit")).submit();	
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");
 		
-		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);
-		
 		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
-		driver.findElement(By.id("submit")).submit();
+		driver.findElement(By.partialLinkText("Delete Selected Items")).click();
+		Alert alert = driver.switchTo().alert();
+		alert.accept();		
 		checkSqlOk(driver.findElement(By.id("sqlResult")));
 		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	
@@ -164,7 +167,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 
 	private void checkSqlOk(WebElement sqlResultWebElement) {
 		String sqlResultText = sqlResultWebElement.getText();
-		if ( !"PASS".equals(sqlResultText) ) {
+		if (sqlResultText==null || !sqlResultText.contains("PASS")) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ")");   
 		}
 	}

@@ -22,7 +22,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,43 +48,42 @@ public class PrintPolicyController {
 
 	@RequestMapping("/print_policy")
 	public String printPolicyUrl(@RequestParam(required=false) String application,@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model  ) { 
-//		System.out.println("/print_policy");
 		return "/print_policy";				
 	}
 	
 		
 	@RequestMapping("/print_policy_action")
-	public ModelAndView printPolicyAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, HttpServletRequest httpServletRequest) {
+	public ModelAndView printPolicyAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria,  Model model, HttpServletRequest httpServletRequest) {
 		DataHunterUtils.expireSession(httpServletRequest);
 		
 		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
-		
 		List<Policies> policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
 
-		//System.out.println("printPolicyAction" + policySelectionCriteria +  "policies count=" + policiesList.size() );
+		String navUrParms = "application=" + DataHunterUtils.encode(policySelectionCriteria.getApplication())
+			+ "&identifier=" + DataHunterUtils.encode(policySelectionCriteria.getIdentifier()) 
+			+ "&lifecycle="  + DataHunterUtils.encode(policySelectionCriteria.getLifecycle());
 
-		ModelMap modelMap = new ModelMap();
-		modelMap.addAttribute("sql", sqlWithParms);
-		modelMap.addAttribute("rowsAffected", policiesList.size());
+		model.addAttribute("navUrParms", navUrParms);			
+		model.addAttribute("sql", sqlWithParms);
+		model.addAttribute("rowsAffected", policiesList.size());
 		
 		if (policiesList.size() == 1 ){
-			modelMap.addAttribute("sqlResult", "PASS");			
-			modelMap.addAttribute("sqlResultText", "sql execution OK");
-			modelMap.addAttribute("policies", policiesList.get(0));
-			return new ModelAndView("/print_policy_action", "modelMap", modelMap);
+			model.addAttribute("sqlResult", "PASS");			
+			model.addAttribute("sqlResultText", "sql execution OK");
+			model.addAttribute("policies", policiesList.get(0));
+			return new ModelAndView("/print_policy_action", "model", model);
 			
 		} else if (policiesList.size() == 0){
-			modelMap.addAttribute("sqlResult", "FAIL");			
-			modelMap.addAttribute("sqlResultText", "No rows matching the selection.");
-			return new ModelAndView("/print_policy_action_error", "modelMap", modelMap);
+			model.addAttribute("sqlResult", "FAIL");			
+			model.addAttribute("sqlResultText", "No rows matching the selection.");
+			return new ModelAndView("/print_policy_action_error", "model", model);
 			
 		} else {
-			modelMap.addAttribute("sqlResult", "FAIL");		
-			modelMap.addAttribute("sqlResultText", "sql execution : Error.  1 row should of been affected, but sql result indicates " + policiesList.size() + " rows affected?" );
-			return new ModelAndView("/print_policy_action_error", "modelMap", modelMap);			
+			model.addAttribute("sqlResult", "FAIL");		
+			model.addAttribute("sqlResultText", "sql execution : Error.  1 row should of been affected, but sql result indicates " + policiesList.size() + " rows affected?" );
+			return new ModelAndView("/print_policy_action_error", "model", model);			
 		}
-
 	}
 	
 }

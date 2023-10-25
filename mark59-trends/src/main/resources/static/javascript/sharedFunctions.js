@@ -92,6 +92,10 @@
 	function showElement(id){
 		document.getElementById(id).style.display = 'block';
 	}
+
+	function trimkey(key) {
+		key.value = key.value.trim();
+	}
 	
 	
 		

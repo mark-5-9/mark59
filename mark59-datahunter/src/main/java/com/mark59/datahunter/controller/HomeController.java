@@ -16,7 +16,6 @@
 
 package com.mark59.datahunter.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,40 +34,56 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class HomeController {
 	
-    @Autowired
-    String currentDatabaseProfile;  	
 	
-	
-	@RequestMapping(value = "/",  method = RequestMethod.GET)
-	public String welcome(Model model, HttpServletRequest request ) {
+	@RequestMapping(value = {"/", "menu"},  method = RequestMethod.GET)
+	public String menu(Model model, HttpServletRequest request ) {
 
 		String urltoContext = request.getServerName() + ":" + request.getServerPort() + request.getContextPath() ;
 //		System.out.println("urltoContext:  [" + urltoContext + "]" );     
-		
 		model.addAttribute("urltoContext", urltoContext );
-		
-//		System.out.println(">>>> Home Controller request parameters");
-//		Enumeration<String> params = request.getParameterNames(); 
-//		while(params.hasMoreElements()){
-//		 String paramName = params.nextElement();
-//		 System.out.println("Parameter Name - "+paramName+", Value - "+request.getParameter(paramName));
-//		}
-//		System.out.println("<<<< ");		
-		
-		
-		String application = request.getParameter("application");
-		
-		if ( ! DataHunterUtils.isEmpty(application)){
-			model.addAttribute("urlAppReqParm", "?application=" + application );
+	
+		String reqApp = request.getParameter("application");
+
+		if (!DataHunterUtils.isEmpty(reqApp)){
+			String reqUrlParms =  "?application=" + DataHunterUtils.encode(reqApp);
+			String applicationStartsWithOrEquals  = request.getParameter("applicationStartsWithOrEquals");
+			String identifier = request.getParameter("identifier");
+			String lifecycle  = request.getParameter("lifecycle");
+			String useability = request.getParameter("useability");
+			if (!DataHunterUtils.isEmpty(applicationStartsWithOrEquals)){
+				reqUrlParms += "&applicationStartsWithOrEquals=" + applicationStartsWithOrEquals;
+			}
+			if (!DataHunterUtils.isEmpty(identifier)){
+				reqUrlParms += "&identifier=" + DataHunterUtils.encode(identifier);
+			}
+			if (!DataHunterUtils.isEmpty(lifecycle)){
+				reqUrlParms += "&lifecycle=" + DataHunterUtils.encode(lifecycle);
+			}
+			if (!DataHunterUtils.isEmpty(useability)){
+				reqUrlParms += "&useability=" + DataHunterUtils.encode(useability);
+			}
+			model.addAttribute("reqUrlParms", reqUrlParms);
 			model.addAttribute("urlUseReqParmName", "&pUseOrLookup=");			
 		} else { 	
 			model.addAttribute("urlUseReqParmName", "?pUseOrLookup=");		
 		}	
+
+//		System.out.println(">>>> Home Controller request parameters");
+//		java.util.Enumeration<String> params = request.getParameterNames(); 
+//		while(params.hasMoreElements()){
+//		 String paramName = params.nextElement();
+//		 System.out.println("Parameter Name ["+paramName+"], Value ["+request.getParameter(paramName)+"]");
+//		}
+//		System.out.println("<<<< ");		
 		
-		model.addAttribute("currentDatabaseProfile", currentDatabaseProfile);
 		model.addAttribute("DATAHUNTER_VERSION", DataHunterConstants.MARK59_VERSION_DATAHUNTER);
-		
-		return "welcome";
-	}	
+		return "menu";
+	}
+	
+	
+	@RequestMapping(value = "/overview")
+	public String overview(Model model, HttpServletRequest request) {
+        return "overview";
+	}		
 	
 }

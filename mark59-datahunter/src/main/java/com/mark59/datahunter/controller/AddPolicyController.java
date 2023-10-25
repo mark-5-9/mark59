@@ -65,13 +65,22 @@ public class AddPolicyController {
 		}
 		
 		SqlWithParms sqlWithParms = policiesDAO.constructInsertDataSql(policies);
-		int rowsAffected = 0;
+		model.addAttribute("sql", sqlWithParms);
 		
+		String navUrParms = "application=" + DataHunterUtils.encode(policies.getApplication())
+			+ "&identifier=" + DataHunterUtils.encode(policies.getIdentifier()) 
+			+ "&lifecycle="  + DataHunterUtils.encode(policies.getLifecycle()) 
+			+ "&useability=" + DataHunterUtils.encode(policies.getUseability());
+		
+		model.addAttribute("navUrParms", navUrParms);		
+		
+		int rowsAffected = 0;
 		try {
 			rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 		} catch (Exception e) {
 			model.addAttribute("sqlResult", "FAIL");
 			model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );
+			model.addAttribute("rowsAffected", 0);
 			return new ModelAndView("/add_policy_action", "model", model);	
 		}	
 		

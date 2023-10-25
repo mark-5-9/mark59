@@ -126,7 +126,7 @@ public class ServerProfileController {
 		headerCellStyle.setFillForegroundColor(IndexedColors.DARK_RED.getIndex());
 		Font headerFont = workbook.createFont();
 		headerFont.setColor(IndexedColors.WHITE.getIndex());
-		headerFont.setBold(true); ////TODO sometimes causing display of dup cols in header??
+		headerFont.setBold(true); // sometimes causing display of dup cols in header??
 		headerCellStyle.setFont(headerFont);
 		headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		

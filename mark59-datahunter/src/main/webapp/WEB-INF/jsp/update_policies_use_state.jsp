@@ -15,78 +15,81 @@
   Author:  Philip Webb
   Date:    Australian Winter 2019
   --%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c"%>
 <html>
 <head>
 <title>Update Items Use State</title>
 <link rel="shortcut icon"  href="favicon.png" />
-<style>
-  body { font-size: 20px; color: purple; font-family: Calibri; }
-  table.metricsTable  { width: 100%; border-collapse: collapse; }
-  table.metricsTable th { font-size: 18px; color: white;   background-color: purple; border: 1px solid #9344BB; padding: 3px 7px 2px 7px; text-align: left; }
-  table.metricsTable td { font-size: 15px; color: #000000; background-color: white;  border: 1px solid #9344BB; padding: 3px 7px 2px 7px; }
-</style>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
+<script type="text/javascript">
 
+function buildHomeLink() {
+	document.getElementById('HomeLink').innerHTML="Home Page";
+	homeLinkUrl = "/mark59-datahunter" 
+		+ "?application="+ encodeURIComponent(document.getElementById("application").value)
+		+ "&identifier=" + encodeURIComponent(document.getElementById("identifier").value)
+		+ "&lifecycle="	 + encodeURIComponent(document.getElementById("lifecycle").value)
+		+ "&useability=" + encodeURIComponent(document.getElementById("toUseability").value);
+	document.getElementById('HomeLink').href = homeLinkUrl;
+}
+
+</script>
 </head>
-<body>
- <center>
-  
- <br><br><br>
- 
- <b>Update Items Use State and EpochTime Selection Criteria</b> 
+<body onload="buildHomeLink();"> 
+<%-- Include navigation element --%>
+<jsp:include page="include/navigation.jsp" />
+<div class="content"> 
 
- <br><br><br> 
- Change the Use State for an item, or for multiple items in an Application (when an identifier is not entered).
- <br>
- Epoch time can optionally be updated  
- <br> <br> <br> <br>
-  <div>
+  <h1>Update Items Use State and EpochTime - Selection Criteria</h1>   		 
    
-   <form:form method="post" action="update_policies_use_state_action" modelAttribute="updateUseStateAndEpochTime">
-    <table >
-     <tr>
-      <td>Application :</td>
-      <td><form:input path="application"  size="64" height="20"  /></td>  <%-- can be set via @RequestParam --%>
-     </tr>
-     <tr>
-      <td>Identifier   :</td>
-      <td><form:input path="identifier"  value="" size="64" height="20"  /></td>
-     </tr>
-     <tr>
-      <td>From Useability   :</td>
-      <td><form:select path="useability" items="${usabilityListFrom}"   /></td>
-     </tr>
-     
-     <tr>
-      <td>_____________________<br><br></td>
-      <td></td>
-     </tr>  
-     
-     <tr>
-      <td>To Useability   :</td>
-      <td><form:select path="toUseability" items="${usabilityListTo}"   /></td>
-     </tr>
-     <tr>
-      <td>To Epoch Time (msecs) :</td>
-      <td><form:input  path="toEpochTime" size="64" height="20"  /></td>
-     </tr>  
-            
-     <tr>
-      <td> </td>
-      <td><br><br><input type="submit" value="submit"  id="submit" /></td>
-     </tr>
-     
-    </table>
+  <form:form method="post" action="update_policies_use_state_action" modelAttribute="updateUseStateAndEpochTime">
+   <table>
+    <tr>
+     <td class="tip" colspan=3 >Change the Use State for an Item or Items (when an identifier / lifecycle is not 
+     entered) within an Application.<br>Epoch time can optionally be updated by entering a numeric value.<br></td>
+    </tr>     
+    <tr>
+     <td>Application</td><td>:</td>
+     <td><form:input path="application" size="64" height="20" onchange="trimkey(this)" /></td>
+    </tr>
+    <tr>
+     <td>Identifier</td><td>:</td>
+     <td><form:input path="identifier" value="" size="64" height="20" onchange="trimkey(this)" /></td>
+    </tr>
+    <tr>
+     <td>Lifecycle</td><td>:</td>
+     <td><form:input path="lifecycle" value="" size="64" height="20" onchange="trimkey(this)" /></td>
+    </tr>     
+    <tr>
+     <td>From Useability</td><td>:</td>
+     <td><form:select path="useability" items="${usabilityListFrom}"   /></td>
+    </tr>
+    <tr>
+     <td>_____________________<br><br></td>
+     <td></td>
+    </tr>  
+    <tr>
+     <td>To Useability</td><td>:</td>
+     <td><form:select path="toUseability" items="${usabilityListTo}"   /></td>
+    </tr>
+    <tr>
+     <td>To Epoch Time (msecs)</td><td>:</td>
+     <td><form:input path="toEpochTime" maxlength="18" size="13" height="20" type="text" pattern="-?\d*" 
+     		onchange="trimkey(this)" /></td>
+    </tr>  
+    <tr>
+     <td colspan="3"><br><input type="submit" value="submit" id="submit" /></td>
+    </tr>
+   </table>
    </form:form>
-  </div>
- </center>
  
- <br><br>
- <a href="/mark59-datahunter?application=${updateUseStateAndEpochTime.application}">Home Page</a>
- 
+ <br><a id="HomeLink" href="see_buildHomeLink_JS">Home Page</a>  
+</div> 
 </body>
 </html>

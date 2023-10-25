@@ -15,34 +15,30 @@
   Author:  Philip Webb
   Date:    Australian Winter 2019
   --%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c"%>
-
 <html>
 <head>
-<title>Async Message Analyzer Action</title>
+<title>Async Msg Analyzer</title>
 <link rel="shortcut icon"  href="favicon.png" />
-<style>
-  body { font-size: 20px; color: purple; font-family: Calibri; }
-  table.metricsTable  { width: 100%; border-collapse: collapse; }
-  table.metricsTable th { font-size: 18px; color: white;   background-color: purple; border: 1px solid #9344BB; padding: 3px 7px 2px 7px; text-align: left; }
-  table.metricsTable td { font-size: 15px; color: #000000; background-color: white;  border: 1px solid #9344BB; padding: 3px 7px 2px 7px; }
-</style>
-
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
 </head>
 <body>
-  <br><br>
-  <b>Asynchronous Message Analyzer Results Table</b>  &nbsp; &nbsp; &nbsp; 
-  
-  &nbsp; &nbsp; &nbsp; ( for Apps that ${asyncMessageaAnalyzerRequest.applicationStartsWithOrEquals} "${asyncMessageaAnalyzerRequest.application}"  
-                                   Id: ${asyncMessageaAnalyzerRequest.identifier}  &nbsp; Useability: ${asyncMessageaAnalyzerRequest.useability} )  
-  <br><br>
+<%-- Include navigation element --%>
+<jsp:include page="include/navigation.jsp" />
+<div class="content">
 
-
-  <table id=asyncMessageaAnalyzerTable class=metricsTable >
+ <h1>Asynchronous Message Analyzer - Results</h1>  
+ <span> 
+ <b>Matching Criteria :</b> ${asyncMessageaAnalyzerRequest.applicationStartsWithOrEquals} "${asyncMessageaAnalyzerRequest.application}",
+ 	&nbsp; Id = "${asyncMessageaAnalyzerRequest.identifier}",&nbsp; Useability = "${asyncMessageaAnalyzerRequest.useability}" )
+ </span>       
+ <br><br>
+ <table id=asyncMessageaAnalyzerTable class=metricsTable >
    <tr>
     <th>application</th>
     <th>identifier</th>
@@ -63,21 +59,17 @@
 	 <td style="display:none;" id=differencetm>${asyncMessageaAnalyzerResult.differencetm}</td>
     </tr>
    </c:forEach>
-  </table>
- 
- 
-<br><br>
-
- <table >
-     <tr><td>sql statement</td>	<td>:</td><td id=sql>${model.sql}</td></tr> 
-     <tr><td>result</td>		<td>:</td><td id=sqlResult>${model.sqlResult}</td></tr>
-     <tr><td>rows affected</td>	<td>:</td><td id=rowsAffected>${model.rowsAffected}</td></tr>
-     <tr><td>details</td>		<td>:</td><td id=sqlResultText>${model.sqlResultText}</td></tr>     
  </table>
 
  <br><br>
+ <table class="tip">
+     <tr><td>sql&nbsp;statement</td><td>{</td><td id=sql>${model.sql}</td></tr> 
+     <tr><td>result</td>			<td>:</td><td id=sqlResult>${model.sqlResult}</td></tr>
+     <tr><td>rows&nbsp;affected</td><td>:</td><td id=rowsAffected>${model.rowsAffected}</td></tr>
+     <tr><td>details</td>			<td>:</td><td id=sqlResultText>${model.sqlResultText}</td></tr>     
+ </table>
  
-  <a href='async_message_analyzer?application=${asyncMessageaAnalyzerRequest.application}'>Back</a>
- 
+ <br><a href='async_message_analyzer?${model.navUrParms}'>Back</a>
+</div>  
 </body>
 </html>

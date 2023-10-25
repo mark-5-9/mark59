@@ -76,7 +76,6 @@ public class TrendingController {
 	@Autowired
 	VisGraphicDataProductionInterface visGraphicDataProduction;
 
-	 //TODO: increase and rationalize input validation (messages, prevent fails etc).   
 	
 	@RequestMapping(value="/trending",  method = RequestMethod.GET )
 	public String loadTrendingPage( @RequestParam(required=false) String reqApp,

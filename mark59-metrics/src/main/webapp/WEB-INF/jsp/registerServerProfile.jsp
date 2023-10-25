@@ -59,7 +59,7 @@ function resubmitExecutorSelection() {
    <table>
      <tr>
       <td>Server&nbsp;Profile&nbsp;:</td>
-      <td><form:input path="serverProfile.serverProfileName" size="64" maxlength="64"  height="20" /></td>
+      <td><form:input path="serverProfile.serverProfileName" size="64" maxlength="64" height="20" onchange="trimkey(this)" /></td>
      </tr> 
      <tr>
       <td>Command(s)&nbsp;Executor&nbsp;:</td>

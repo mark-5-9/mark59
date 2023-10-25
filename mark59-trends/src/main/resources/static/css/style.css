@@ -74,6 +74,16 @@ div.content {
 
 }
 
+.canterburysmall {
+	font-family: "Canterbury", Verdana, Tahoma;
+	font-size: 20px; text-align: center;
+	color: maroon;
+	padding: 10px;
+	border-bottom: solid 1px maroon;
+
+}
+
+
 h1 {
   color: black;
   font-family: arial, verdana, helvetica;

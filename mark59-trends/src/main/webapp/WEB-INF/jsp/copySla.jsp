@@ -27,6 +27,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
 <body>
@@ -47,7 +48,7 @@
      
      <tr>
       <td>Transaction name :</td>
-      <td><form:input path="txnId" value="${map.sla.txnId}"  size="80" maxlength="122" /></td>
+      <td><form:input path="txnId" value="${map.sla.txnId}" size="80" maxlength="122" onchange="trimkey(this)" /></td>
      </tr>
      <tr>
       <td>CDP Txn?</td>
@@ -64,31 +65,31 @@
      </tr>       
      <tr>
       <td>90thResponse:</td>
-      <td><form:input path="sla90thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.sla90thResponse}" /></td>
+      <td><form:input path="sla90thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.sla90thResponse}" onchange="trimkey(this)" /></td>
      </tr>  
      <tr>
       <td>95thResponse:</td>
-      <td><form:input path="sla95thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.sla95thResponse}" /></td>
+      <td><form:input path="sla95thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.sla95thResponse}" onchange="trimkey(this)" /></td>
      </tr>
      <tr>
       <td>99thResponse:</td>
-      <td><form:input path="sla99thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.sla99thResponse}" /></td>
+      <td><form:input path="sla99thResponse" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.sla99thResponse}" onchange="trimkey(this)"  /></td>
      </tr> 
      <tr>
       <td>Pass Count:</td>
-      <td><form:input path="slaPassCount" type="text" pattern="-?\d*" value="${map.sla.slaPassCount}" /></td>
+      <td><form:input path="slaPassCount" type="text" pattern="-?\d*" value="${map.sla.slaPassCount}" onchange="trimkey(this)"/></td>
      </tr>
       <tr>
       <td>Pass Count Variance %:</td>
-      <td><form:input path="slaPassCountVariancePercent" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.slaPassCountVariancePercent}" /></td>
+      <td><form:input path="slaPassCountVariancePercent" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.slaPassCountVariancePercent}" onchange="trimkey(this)" /></td>
      </tr>  
      <tr>
       <td>Fail Count:</td>
-      <td><form:input path="slaFailCount" type="text" pattern="-?\d*"/></td>
+      <td><form:input path="slaFailCount" type="text" pattern="-?\d*" onchange="trimkey(this)"/></td>
      </tr>  
      <tr>
       <td>Fail Percent:</td>
-      <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.slaFailPercent}" /></td>
+      <td><form:input path="slaFailPercent" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.slaFailPercent}" onchange="trimkey(this)" /></td>
      </tr>
      <tr>
       <td>Is Active :</td>
@@ -100,15 +101,15 @@
      </tr>        
      <tr>
       <td>Txn delay:</td>
-      <td><form:input path="txnDelay" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.txnDelay}" /></td>     
+      <td><form:input path="txnDelay" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.txnDelay}" onchange="trimkey(this)" /></td>     
      </tr>       
      <tr>
       <td>Xtra num:</td>
-      <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.xtraNum}" /></td>     
+      <td><form:input path="xtraNum" type="text" pattern="^-?\d*\.{0,1}\d+$" value="${map.sla.xtraNum}" onchange="trimkey(this)" /></td>     
      </tr>
      <tr>
       <td>Xtra int:</td>
-      <td><form:input path="xtraInt" type="text" pattern="-?\d*" value="${map.sla.xtraInt}" /></td>      
+      <td><form:input path="xtraInt" type="text" pattern="-?\d*" value="${map.sla.xtraInt}" onchange="trimkey(this)" /></td>      
      </tr>      
      <tr>
       <td><br>Reference:</td>
@@ -116,7 +117,7 @@
      </tr>
      <tr>
       <td>Comment :</td>
-      <td><form:input path="comment" size="80" maxlength="126"  value="${map.sla.comment}"  /></td>     
+      <td><form:input path="comment" size="80" maxlength="126"  value="${map.sla.comment}" /></td>     
      </tr>    
             
      <tr>

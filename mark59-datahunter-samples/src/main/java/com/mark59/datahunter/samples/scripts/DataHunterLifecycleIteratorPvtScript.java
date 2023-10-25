@@ -16,8 +16,6 @@
 
 package com.mark59.datahunter.samples.scripts;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,8 +39,8 @@ import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.CountPoliciesAc
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.CountPoliciesBreakdownActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.CountPoliciesBreakdownPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.CountPoliciesPage;
-import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.DeleteMultiplePoliciesActionPage;
-import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.DeleteMultiplePoliciesPage;
+import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.MultiplePoliciesActionPage;
+import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.MultiplePoliciesPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.NextPolicyActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.NextPolicyPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages._GenericDataHunterActionPage;
@@ -93,7 +91,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		jmeterAdditionalParameters.put("USER", 	user);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, Mark59Constants.CHROME);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.HEADLESS_MODE, String.valueOf(false));
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_DIMENSIONS, "900,900");		
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_DIMENSIONS, Mark59Constants.DEFAULT_BROWSER_DIMENSIONS);		
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PAGE_LOAD_STRATEGY, PageLoadStrategy.NORMAL.toString());
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, "");
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, "");
@@ -133,18 +131,21 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		forceTxnFailPercent = Integer.parseInt(context.getParameter("FORCE_TXN_FAIL_PERCENT").trim());
 		user 				= context.getParameter("USER");
 
+		MultiplePoliciesPage multiplePoliciesPage = new MultiplePoliciesPage(driver); 
+		MultiplePoliciesActionPage multiplePoliciesActionPage = new MultiplePoliciesActionPage(driver);
+		
 // 		delete any existing policies for this application/thread combination
 		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
-		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
+		multiplePoliciesPage.lifecycle().waitUntilClickable();
+		multiplePoliciesPage.lifecycle().type(lifecycle);
+		multiplePoliciesPage.submit().waitUntilClickable().submit();
+		multiplePoliciesActionPage.multipleDeleteLink().waitUntilClickable();		
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");	
-		
-		DeleteMultiplePoliciesPage deleteMultiplePoliciesPage = new DeleteMultiplePoliciesPage(driver);
-		assertEquals("check init get url failed!", "Delete Multiple Items", deleteMultiplePoliciesPage.getPageTitle());
-		deleteMultiplePoliciesPage.lifecycle().type(lifecycle);
 
 		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");		
-		deleteMultiplePoliciesPage.submit().submit();
-		waitForSqlResultsTextOnActionPageAndCheckOk(new DeleteMultiplePoliciesActionPage(driver));
+		multiplePoliciesActionPage.multipleDeleteLink().click().waitUntilAlertisPresent().acceptAlert();
+		waitForSqlResultsTextOnActionPageAndCheckOk(multiplePoliciesActionPage);
 		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	}
 	
@@ -231,18 +232,22 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 		if (LOG.isDebugEnabled() ) {LOG.debug("useNextPolicy: " + application + "-" + lifecycle + " : " + nextPolicyActionPage.identifier() );	}
 		
 // 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
-		DeleteMultiplePoliciesPage deleteMultiplePoliciesPage = new DeleteMultiplePoliciesPage(driver); 
+
+		MultiplePoliciesPage multiplePoliciesPage = new MultiplePoliciesPage(driver); 
+		MultiplePoliciesActionPage multiplePoliciesActionPage = new MultiplePoliciesActionPage(driver);
+
 		jm.startTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");		
-		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
-		jm.endTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");
-		
-		deleteMultiplePoliciesPage.lifecycle().type(lifecycle);
-		
-		DeleteMultiplePoliciesActionPage deleteMultiplePoliciesActionPage = new DeleteMultiplePoliciesActionPage(driver);
+		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);		
+		multiplePoliciesPage.lifecycle().waitUntilClickable();
+		multiplePoliciesPage.lifecycle().type(lifecycle);
+		multiplePoliciesPage.submit().waitUntilClickable().submit();
+		multiplePoliciesActionPage.multipleDeleteLink().waitUntilClickable();			
+		jm.endTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");	
+
 		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");		
-		deleteMultiplePoliciesPage.submit().submit();
-		waitForSqlResultsTextOnActionPageAndCheckOk(deleteMultiplePoliciesActionPage);
-		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
+		multiplePoliciesActionPage.multipleDeleteLink().click().waitUntilAlertisPresent().acceptAlert();
+		waitForSqlResultsTextOnActionPageAndCheckOk(multiplePoliciesActionPage);
+		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
 		
 //		jm.writeBufferedArtifacts();
 	}
@@ -253,12 +258,17 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 	 */
 	@Override
 	protected void finalizeSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,	WebDriver driver) {
-		driver.get(dataHunterUrl + DslConstants.DELETE_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
-		DeleteMultiplePoliciesPage deleteMultiplePoliciesPage = new DeleteMultiplePoliciesPage(driver);
-		deleteMultiplePoliciesPage.lifecycle().type(lifecycle);
+		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);		
+		MultiplePoliciesPage multiplePoliciesPage = new MultiplePoliciesPage(driver); 
+		MultiplePoliciesActionPage multiplePoliciesActionPage = new MultiplePoliciesActionPage(driver);
+		multiplePoliciesPage.lifecycle().waitUntilClickable();
+		multiplePoliciesPage.lifecycle().type(lifecycle);
+		multiplePoliciesPage.submit().waitUntilClickable().submit();
+		multiplePoliciesActionPage.multipleDeleteLink().waitUntilClickable();				
+
 		jm.startTransaction("DH_lifecycle_9999_finalize_deleteMultiplePolicies");		
-		deleteMultiplePoliciesPage.submit().submit();
-		waitForSqlResultsTextOnActionPageAndCheckOk(new DeleteMultiplePoliciesActionPage(driver));
+		multiplePoliciesActionPage.multipleDeleteLink().click().waitUntilAlertisPresent().acceptAlert();
+		waitForSqlResultsTextOnActionPageAndCheckOk(multiplePoliciesActionPage);
 		jm.endTransaction("DH_lifecycle_9999_finalize_deleteMultiplePolicies");	
 	}
 
@@ -284,7 +294,7 @@ public class DataHunterLifecycleIteratorPvtScript  extends SeleniumIteratorAbstr
 	 */
 	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDataHunterActionPage _genericDatatHunterActionPage) {
 		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();
-		if (!"PASS".equals(sqlResultText)) {
+		if (sqlResultText==null || !sqlResultText.contains("PASS")) {
 			throw new RuntimeException("SQL issue (" + sqlResultText + ") : " +
 						_genericDatatHunterActionPage.formatResultsMessage(_genericDatatHunterActionPage.getClass().getName()));
 		}

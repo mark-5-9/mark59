@@ -27,6 +27,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
 <body>
@@ -44,7 +45,7 @@
    <form:form method="post" action="copyApplicationSla?reqApp=${copyApplicationForm.reqApp}"  modelAttribute="copyApplicationForm">
     <table>
      <tr>
-      <td>Copy all rows from :</td><td><b> ${copyApplicationForm.reqApp}</b> </td>
+      <td>Copy all rows from :</td><td><b>${copyApplicationForm.reqApp}</b> </td>
      </tr>
      
      <tr>
@@ -54,7 +55,7 @@
      
      <tr>
       <td>To application Id</td>
-      <td><form:input path="reqToApp" value="${copyApplicationForm.reqToApp}"  size="32" maxlength="32" />
+      <td><form:input path="reqToApp" value="${copyApplicationForm.reqToApp}" size="32" maxlength="32" onchange="trimkey(this)" />
       </td>
      </tr> 
  

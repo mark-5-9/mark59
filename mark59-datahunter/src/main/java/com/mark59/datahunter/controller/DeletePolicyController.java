@@ -57,6 +57,12 @@ public class DeletePolicyController {
 		SqlWithParms sqlWithParms = policiesDAO.constructDeletePoliciesSql(policySelectionCriteria);
 		int rowsAffected;
 		
+		
+		String navUrParms = "application=" + DataHunterUtils.encode(policySelectionCriteria.getApplication())
+		+ "&identifier=" + DataHunterUtils.encode(policySelectionCriteria.getIdentifier()) 
+		+ "&lifecycle="  + DataHunterUtils.encode(policySelectionCriteria.getLifecycle()); 
+		
+		model.addAttribute("navUrParms", navUrParms);
 		model.addAttribute("sql", sqlWithParms);
 		
 		try {

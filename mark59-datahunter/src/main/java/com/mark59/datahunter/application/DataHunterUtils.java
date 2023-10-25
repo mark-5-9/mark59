@@ -16,9 +16,11 @@
 
 package com.mark59.datahunter.application;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -86,6 +88,25 @@ public class DataHunterUtils  {
 			prettyOut+= "<br> (no sql paramters) " ;
 	    }
 	    return prettyOut;
+	}
+	
+	
+	/**
+	 * @param uri Parameter to encode
+	 * @return encoded parameter 
+	 */
+	public static String encode(String uriParm) {
+		try {
+			return URLEncoder.encode(nullToEmpty(uriParm), StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			throw new RuntimeException("UnsupportedEncodingException using url : " + uriParm );
+		}
+	}
+	
+	
+	private static String nullToEmpty(String str) {
+		return null == str ? "" : str;
 	}
 	
 }

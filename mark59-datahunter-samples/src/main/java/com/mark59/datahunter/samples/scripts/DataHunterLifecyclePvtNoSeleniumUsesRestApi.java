@@ -48,6 +48,10 @@ import com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient;
 /**
  * This sample demonstrates the DataHunter API using the Java API Client {@link com.mark59.datahunter.api.rest.DataHunterRestApiClient}
  * 
+ * <p>It is also an example of writing a generic Java class compatible with JMeter's 'Java Sampler', (ie, directly extends
+ * AbstractJavaSamplerClient rather than using Mark59's SeleniumAbstractJavaSamplerClient class}, but does allow for timing of events via the
+ * explicit creation of a (Mark59) JmeterFunctionsImpl instance.
+ * 
  * <p>The first part of the runTest method replicates the functionality of the {@link DataHunterLifecyclePvtScript} sample script, 
  * to help show the relationship between the DataHunter HTML pages, and the corresponding functionality in the DataHunter API.
  * 
@@ -111,12 +115,9 @@ public class DataHunterLifecyclePvtNoSeleniumUsesRestApi extends AbstractJavaSam
 		
 		JmeterFunctionsImpl jm = new JmeterFunctionsImpl(context);
 		String lifecycle = "thread_" + Thread.currentThread().getName();
-
 		
 		/* replicating DataHunterLifecyclePvtScript - but using DataHunterRestApiClient calls instead of
-		 * invoking the DataHunter UI via Selenium 
-		 */ 
-		
+		 * invoking the DataHunter UI via Selenium  */ 
 		
 		String dataHunterUrl         = context.getParameter("DATAHUNTER_URL");
 		String applicationClientApi  = context.getParameter("DATAHUNTER_APPLICATION_ID_CLIENT_API");
@@ -173,7 +174,7 @@ public class DataHunterLifecyclePvtNoSeleniumUsesRestApi extends AbstractJavaSam
 //	 	count breakdown - counts for unused DATAHUNTER_PV_TEST_CLIENT_API policies (by lifecycle).
 //		(Not a very realistic use, but keeps this transaction in line with the corresponding one in DataHunterLifecyclePvtScript).   		
 		jm.startTransaction("DH_lifecycle_0400_countUnusedPoliciesCurrentThread_clientApi");		
-		response = dhApiClient.countPoliciesBreakdown(DslConstants.EQUALS, applicationClientApi, null, DslConstants.UNUSED);
+		response = dhApiClient.policiesBreakdown(DslConstants.EQUALS, applicationClientApi, null, DslConstants.UNUSED);
 		jm.endTransaction("DH_lifecycle_0400_countUnusedPoliciesCurrentThread_clientApi");
 		confirmValidResponse(response, jm);
 		
@@ -221,8 +222,6 @@ public class DataHunterLifecyclePvtNoSeleniumUsesRestApi extends AbstractJavaSam
 		jm.userDataPoint("USED_count_html_demo",   used );				
 		jm.userDataPoint("UNUSED_count_html_demo", unused );	
 		LOG.info("Client API demo: USED=" + used + ", UNUSED=" + unused); 
-		
-				
 		
 		/* Now replicating the async processing example in: 
 		 * 
@@ -290,7 +289,7 @@ public class DataHunterLifecyclePvtNoSeleniumUsesRestApi extends AbstractJavaSam
 	
 	
 	/**
-	 * a main method to allow for execution of this JMeter/Mark59 (but non-selenium) script directly in the IDE 
+	 * a main method to allow for execution of this JMeter/Mark59 compatible (but non-selenium) script directly in the IDE. 
 	 * For logging details see @Log4jConfigurationHelper 
 	 */
 	public static void main(String[] args) {

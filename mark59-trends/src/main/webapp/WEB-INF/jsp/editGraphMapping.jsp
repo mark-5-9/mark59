@@ -28,6 +28,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 
 <body>
@@ -50,7 +51,7 @@
 
      <tr>
       <td>Dropdown List Order :</td>
-      <td><form:input path="listOrder" value="${map.graphMapping.listOrder}" /> </td>
+      <td><form:input path="listOrder" value="${map.graphMapping.listOrder}" onchange="trimkey(this)" /> </td>
      </tr>     
 
      <tr>

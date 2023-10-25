@@ -86,9 +86,9 @@ public class DataHunterBasicRegressionScript  extends SeleniumAbstractJavaSample
 		String someOtherdata = "some_data_";
 		DslPageFunctions dslPageFunctions = new DslPageFunctions(dataHunterUrl);
 		
-		Policy id1policy = new Policy(application, "id1",someLifecycle, UNUSED, someOtherdata+"id1");SafeSleep.sleep(100);
-		Policy id2policy = new Policy(application, "id2",someLifecycle, UNUSED, someOtherdata+"id2");SafeSleep.sleep(100);
-		Policy id3policy = new Policy(application, "id3",someLifecycle, UNUSED, someOtherdata+"id3");SafeSleep.sleep(100);
+		Policy id1policy = new Policy(application	 , " id1 "	 , " "+someLifecycle, UNUSED, someOtherdata+"id1");SafeSleep.sleep(100);
+		Policy id2policy = new Policy(application+" ", "  id2   ", someLifecycle+" ", UNUSED, someOtherdata+"id2");SafeSleep.sleep(100);
+		Policy id3policy = new Policy(" "+application, "   id3 " , someLifecycle    , UNUSED, someOtherdata+"id3");SafeSleep.sleep(100);
 		
 		PolicySelectionCriteria wholeApp = new PolicySelectionCriteria(application, "", "", null);
 		dslPageFunctions.deleteMultipleItems(wholeApp, driver, null);

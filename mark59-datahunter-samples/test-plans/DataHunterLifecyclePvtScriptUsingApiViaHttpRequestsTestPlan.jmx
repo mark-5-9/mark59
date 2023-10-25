@@ -321,7 +321,7 @@ prev.addSubResult(datapointSample, false);   // &apos;false&apos; prevents stran
           <stringProp name="HTTPSampler.domain">localhost</stringProp>
           <stringProp name="HTTPSampler.port">8081</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">${dataHunterUrl}/api/countPoliciesBreakdown?applicationStartsWithOrEquals=EQUALS&amp;application=${application}&amp;useability=UNUSED</stringProp>
+          <stringProp name="HTTPSampler.path">${dataHunterUrl}/api/policiesBreakdown?applicationStartsWithOrEquals=EQUALS&amp;application=${application}&amp;useability=UNUSED</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>

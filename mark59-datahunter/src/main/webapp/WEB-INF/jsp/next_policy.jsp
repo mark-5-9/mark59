@@ -15,64 +15,79 @@
   Author:  Philip Webb
   Date:    Australian Winter 2019
   --%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c"%>
 <html>
 <head>
 <title>${UseOrLookup} Next Item</title>
 <link rel="shortcut icon"  href="favicon.png" />
-<style>
-  body { font-size: 20px; color: purple; font-family: Calibri; }
-  table.metricsTable  { width: 100%; border-collapse: collapse; }
-  table.metricsTable th { font-size: 18px; color: white;   background-color: purple; border: 1px solid #9344BB; padding: 3px 7px 2px 7px; text-align: left; }
-  table.metricsTable td { font-size: 15px; color: #000000; background-color: white;  border: 1px solid #9344BB; padding: 3px 7px 2px 7px; }
-</style>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
+<script type="text/javascript">
 
+function buildHomeLink() {
+	document.getElementById('HomeLink').innerHTML="Home Page";
+	homeLinkUrl = "/mark59-datahunter" 
+		+ "?application="+ encodeURIComponent(document.getElementById("application").value)
+		+ "&identifier=" + encodeURIComponent(document.getElementById("identifier").value)
+		+ "&lifecycle="	 + encodeURIComponent(document.getElementById("lifecycle").value)
+		+ "&useability=" + encodeURIComponent(document.getElementById("useability").value)
+		+ "&selectOrder=" + encodeURIComponent(document.getElementById("selectOrder").value);
+	document.getElementById('HomeLink').href = homeLinkUrl;
+}
+
+</script>
 </head>
-<body>
- <center>
-  
- <br><br><br>
- 
- <b>${UseOrLookup}  Next Item</b> 
+<body onload="buildHomeLink();"> 
+<%-- Include navigation element --%>
+<jsp:include page="include/navigation.jsp" />
+<div class="content"> 
 
-  <br><br><br> 
+  <h1>${UseOrLookup}  Next Item</h1>   		 
 
-  <div>
+  <form:form method="post" action="next_policy_action?pUseOrLookup=${UseOrLookup}" modelAttribute="policySelectionCriteria">
+   <table >
+    <tr>
+     <td>Application</td><td>:</td>
+     <td><form:input path="application" size="64" height="20" onchange="trimkey(this)" /></td>  
+    </tr>
+    <tr>
+     <td></td><td></td>
+     <td class="tip">required</td>
+    </tr>       
+    <tr>
+     <td>Lifecycle</td><td>:</td>
+     <td><form:input path="lifecycle" value="" size="64" height="20" onchange="trimkey(this)" /></td> 
+    </tr>
+    <tr>
+     <td></td><td></td>
+     <td class="tip">leave field blank to select all Lifecycle values within other criteria</td>
+    </tr>     
+    <tr>
+     <td>Useability</td><td>:</td>
+     <td><form:select path="useability" items="${Useabilities}" value="${useability}" /></td>
+    </tr>
+    <tr>
+     <td class="tip" colspan=3></td>
+    </tr>              
+    <tr>
+     <td>selectOrder</td><td>:</td>
+     <td><form:select path="selectOrder" items="${getNextPolicySelector}"   /></td>
+    </tr>       
+    <tr>
+     <td colspan="3"><br><br><input type="submit" value="submit"  id="submit" /></td>
+    </tr>
+   </table>
    
-
-   <form:form method="post" action="${UseOrLookup}_next_policy_action" modelAttribute="policySelectionCriteria">
-    <table >
-     <tr>
-      <td>Application :</td>
-      <td><form:input path="application"  size="64" height="20"  /></td>  
-     </tr>
-     <tr>
-      <td>Lifecycle   :</td>
-      <td><form:input path="lifecycle"  value="" size="64" height="20" /></td> 
-     </tr>
-     <tr>
-      <td>Useability   :</td>
-      <td><form:select path="useability" items="${Useabilities}" value="${useability}" /></td>
-     </tr>        
-     <tr>
-      <td>selectOrder  :</td>
-      <td><form:select path="selectOrder" items="${getNextPolicySelector}"   /></td>
-     </tr>       
-     <tr>
-      <td> </td>
-      <td><br><br><input type="submit" value="submit"  id="submit" /></td>
-     </tr>
-    </table>
-   </form:form>
-  </div>
- </center>
+   <input type="hidden" id="identifier" value="${NextId}" />
+   
+  </form:form>
  
- <br><br>
- <a href="/mark59-datahunter?application=${policySelectionCriteria.application}">Home Page</a> 
- 
+ <br><a id="HomeLink" href="see_buildHomeLink_JS">Home Page</a> 
+</div>
 </body>
 </html>
