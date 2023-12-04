@@ -30,8 +30,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
@@ -532,6 +535,151 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		mainResult.addSubResult(subResult, false);
 		return subResult;
 	}			
+
+	
+	/**
+	 * Rename a transaction that has already completed within a running script.  If the same transaction
+	 * name is used multiple times, all occurrences of the transaction name will be renamed. 
+	 * 
+	 * @param fromTxnName existing name ('label' in JMeter terminology) of the transaction
+	 * @param toTxnName  what the transaction is to be renamed as
+	 * 
+	 * @see JmeterFunctionsImpl#renameTransactionsPrefixedBy(String, String)	
+	 * @see JmeterFunctionsImpl#renameTransactions(Predicate, Function)	
+	 */
+	public void renameTransaction(String fromTxnName, String toTxnName) {
+		renameTransactions(
+				sampleResult -> sampleResult.getSampleLabel().equals(fromTxnName)
+			 ,  sampleResult -> {return toTxnName;});
+	}
+	
+	
+	/**
+	 * Rename all transactions that are prefixed with a given string, with a new prefix, for transactions 
+	 * that have already completed within a running script.
+	 * 
+	 * <p>As CDP transactions are also re-named, this method can be useful when renaming a transaction 
+	 * that has a related set of CDP transactions associated with it (obviously depending on your naming 
+	 * conventions). 
+	 * 
+	 * @param origPrefix  prefix of the existing transactions name ('label' in JMeter terminology)
+	 * @param newPrefixRegex replacement prefix (can be a Regex expression) 
+	 * 
+	 * @see JmeterFunctionsImpl#renameTransaction(String, String)	
+	 * @see JmeterFunctionsImpl#renameTransactions(Predicate, Function)	
+	 */
+	public void renameTransactionsPrefixedBy(String origPrefix, String newPrefixRegex) {
+		renameTransactions(
+				sampleResult -> sampleResult.getSampleLabel().startsWith(origPrefix)
+			 ,  sampleResult -> {
+					return RegExUtils.replaceFirst(sampleResult.getSampleLabel(), origPrefix, newPrefixRegex);
+			});
+	};	
+	
+	
+	/**
+	 * Rename all transactions that satisfy the Predicate condition passed, for transactions 
+	 * that have already completed within a running script.  
+	 * 
+	 * <p>The new name for a transaction is defined by the Function passed to the method.
+	 * 
+	 * <p>For examples of creating Predicates and Functions passed to this method, refer to 'See Also'  below  
+	 * 
+	 * @param transactionSelection Predicate function to select SampleResult(s) transaction names 
+	 * ('labels' in JMeter terminology) to be renamed
+	 * @param transactionRename  Function returning the new transaction ('label') name for a selected SampleResults
+	 * 
+	 * @see JmeterFunctionsImpl#renameTransaction(String, String)	
+	 * @see JmeterFunctionsImpl#renameTransactionsPrefixedBy(String, String)      
+	 */
+	public void renameTransactions(Predicate<SampleResult> transactionSelection, Function<SampleResult, String> transactionRename){
+		SampleResult[] subresults =  mainResult.getSubResults();
+
+		for (int i = 0; i < subresults.length; i++) {
+			SampleResult sampleResult = subresults[i];
+			
+			if (transactionSelection.test(sampleResult) ) {
+				sampleResult.setSampleLabel(transactionRename.apply(sampleResult) );
+			}
+		} 
+	}
+	
+	
+	/**
+	 * Delete a transaction that has already completed within a running script.  If the same transaction
+	 * name is used multiple times, all occurrences of the transaction name will be deleted.
+	 * 
+	 * <p>Note: Due to the way the underlying SampleResults JMeter class works, this method actually
+	 * saves, removes and then rebuilds the 'sub-results' transactions list, excluding transactions to be deleted.
+	 * The effect is that this method isn't guaranteed thread-safe, so we suggest performing a deletion
+	 * when you are unlikely to clash with another thread (ie CDP transactions).  For example, at the
+	 * end of a script if possible.      
+	 * 
+	 * @param transactionName  name ('label' in JMeter terminology) of the transaction to be deleted
+	 * 
+	 * @see JmeterFunctionsImpl#deleteTransactionsPrefixedBy(String)
+	 * @see JmeterFunctionsImpl#deleteTransactions(Predicate) 	
+	 */
+	public void deleteTransaction(String transactionName){
+		deleteTransactions(	sampleResult -> sampleResult.getSampleLabel().equals(transactionName));
+	}
+	
+	
+	/**
+	 * Delete all transactions that are prefixed with a given string for transactions that have already completed
+	 * within a running script.
+	 * 
+	 * <p>As CDP transactions are also deleted, this method can be useful when deleting a transaction 
+	 * that has a related set of CDP transactions associated with it (that you also want deleted, and 
+	 * obviously depends on your naming conventions). 
+	 * 
+	 * <p>Note: Due to the way the underlying SampleResults JMeter class works, this method actually
+	 * saves, removes and then rebuilds the 'sub-results' transactions list, excluding transactions to be deleted.
+	 * The effect is that this method isn't guaranteed thread-safe, so we suggest performing a deletion
+	 * when you are unlikely to clash with another thread (ie CDP transactions).  For example, at the
+	 * end of a script if possible.  
+	 *  
+	 * @param transactionPrefix prefix of the existing transactions name ('label' in JMeter terminology) to be deleted
+	 * 
+	 * @see JmeterFunctionsImpl#deleteTransaction(String)
+	 * @see JmeterFunctionsImpl#deleteTransactions(Predicate) 
+	 */
+	public void deleteTransactionsPrefixedBy(String transactionPrefix) {
+		deleteTransactions(	sampleResult -> sampleResult.getSampleLabel().startsWith(transactionPrefix));
+	};	
+	
+
+	/**
+	 * Delete all transactions that satisfy the Predicate condition passed, for transactions 
+	 * that have already completed within a running script.  
+	 * 
+	 * <p>For examples of creating Predicates passed to this method, refer to 'See Also'  below   
+	 * 
+	 * <p>Note: Due to the way the underlying SampleResults JMeter class works, this method actually
+	 * saves, removes and then rebuilds the 'sub-results' transactions list, excluding transactions to be deleted.
+	 * The effect is that this method isn't guaranteed thread-safe, so we suggest performing a deletion
+	 * when you are unlikely to clash with another thread (ie CDP transactions).  For example, at the
+	 * end of a script if possible. 
+	 * 
+	 * @param transactionSelection  Predicate function to select SampleResult(s) transaction names 
+	 * ('labels' in JMeter terminology) to be deleted
+	 * 
+	 * @see JmeterFunctionsImpl#deleteTransaction(String)
+	 * @see JmeterFunctionsImpl#deleteTransactionsPrefixedBy(String)
+	 */
+	public synchronized void deleteTransactions(Predicate<SampleResult> transactionSelection){
+		SampleResult[] subresults =  mainResult.getSubResults();
+
+		// clear immediately so at least you only have a small chance of loosing (CDP) transactions
+		mainResult.removeSubResults();  
+
+		for (int i = 0; i < subresults.length; i++) {
+			SampleResult sampleResult = subresults[i];
+			if (!transactionSelection.test(sampleResult) ) {
+				mainResult.addSubResult(sampleResult, false);				
+			} 
+		}
+	}
 	
 	
 	/**
@@ -896,7 +1044,5 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		}
 		System.out.println("");
 	}
-	
-	
 	
 }

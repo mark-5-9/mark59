@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.core.utils.Mark59Constants;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.MetricSla;
 import com.mark59.trends.data.metricSla.dao.MetricSlaDAO;
 import com.mark59.trends.form.CopyApplicationForm;
@@ -224,7 +224,7 @@ public class MetricSlaController {
 	
 
 	private List<String> populateDerivationsDropdown() {
-		List<String> derivationsList = AppConstantsMetrics.DIRECT_VALUE_DERIVATONS;
+		List<String> derivationsList = AppConstantsTrends.DIRECT_VALUE_DERIVATONS;
 		return derivationsList;
 	}	
 	

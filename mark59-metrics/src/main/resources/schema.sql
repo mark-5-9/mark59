@@ -563,6 +563,11 @@ if (NumberUtils.isParsable(StringUtils.substringBetween(commandResponse, "Proces
 return extractedMetric; ','..Processes[367].. ','some text
  CPUQlen[1234] Processes[367]');
 
+
+INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('UNPARSED_CPU_UTIL','CPU_UTIL','',' return commandResponse','simply return the commandResponse','56.8');
+INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Memory_convert_Gb','MEMORY','GB',' return Long.valueOf(commandResponse) / 1000000000;','imply return the commandResponse divided a by 10^9','517179869184');
+
+
 INSERT IGNORE INTO SERVERCOMMANDLINKS VALUES ('DemoLINUX-DataHunterSeleniumDeployAndExecute','DataHunterSeleniumDeployAndExecute_LINUX');
 INSERT IGNORE INTO SERVERCOMMANDLINKS VALUES ('DemoLINUX-DataHunterSeleniumGenJmeterReport','DataHunterSeleniumGenJmeterReport_LINUX');
 INSERT IGNORE INTO SERVERCOMMANDLINKS VALUES ('DemoLINUX-DataHunterSeleniumTrendsLoad','DataHunterSeleniumTrendsLoad_LINUX');
@@ -630,6 +635,9 @@ INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('WIN_Core','Memory_FreeVirtualG_PS
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('WIN_DiskSpace_C','FreePhysicalDiskSpaceGB_C');
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('WIN_PerfRawData','Cpu_Qlen_PS');
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('WIN_PerfRawData','Processes_PS');
+
+INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('MAC_CPU','UNPARSED_CPU_UTIL');
+INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('MAC_MEMSIZE','Memory_convert_Gb');
 
 
 -- all mac entries (these only exist on H2) 

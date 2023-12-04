@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-common</artifactId>
-	<version>5.6</version>
+	<version>5.7</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-common</name>
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>5.6</version>
+			<version>5.7</version>
 		</dependency>
 
 		<dependency>
@@ -72,7 +72,7 @@
 		<dependency>
 		    <groupId>org.json</groupId>
 		    <artifactId>json</artifactId>
-		    <version>20230227</version>
+		    <version>20231013</version>
 		</dependency>
 	
 		<!-- added to simplify (Groovy) api scripting (eg  New Relic )-->

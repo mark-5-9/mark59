@@ -1,12 +1,18 @@
 package com.mark59.metrics.test;
 
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.ScriptResponse;
 import com.mark59.metrics.utils.MetricsUtils;
@@ -86,7 +92,38 @@ public class MetricsUtilsTest  {
 		Assert.assertEquals( "[label=some_datapoint, result=66.6, dataType=DATAPOINT, success=true, parseFailMsg=null]",groovyScriptResult.getParsedMetrics().get(2).toString());
 		Assert.assertEquals( "running script SimpleScriptSampleRunnerUnitTest<br>Runs some stuff<br>passed parms : parm1=11, parm2=55.7, parm3=333", groovyScriptResult.getCommandLog());
 	}	
-   
+
+	
+	@Test
+    public void testSerialization()
+    {
+		Map<String, String> map = new HashMap<>();
+		map.put("key1", "value1");
+		map.put("key2", "value2");
+		map.put("key3", "value3");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String serializedJson = null;
+		try {
+			serializedJson = mapper.writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		assertEquals("{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"}", serializedJson);
+		
+		TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>(){};
+		Map<String, String> dmap = null;
+		try {
+			dmap = new ObjectMapper().readValue(serializedJson, typeRef);
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		assertEquals("{key1=value1, key2=value2, key3=value3}", dmap.toString());
+	}	
+
+	
 	@Test   
     public void testCreateBasicAuthToken()
     {

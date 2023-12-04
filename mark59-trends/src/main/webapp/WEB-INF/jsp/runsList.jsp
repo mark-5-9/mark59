@@ -31,14 +31,11 @@
 <script>
 
 	function resendRunsListURL(){
-
 		var selectedApplication = document.getElementById("application").value;
-		//alert("selectedApplication=<" + selectedApplication + ">"); 
-		window.location.href = 	"./runsList?reqApp=" + selectedApplication;
+		window.location.href = 	"./runsList?reqApp=" + encodeURIComponent(selectedApplication);
 	}	
 	
-	function setSelectedAppInDropdown(requestApp)
-	{    
+	function setSelectedAppInDropdown(requestApp){    
 	    var element = document.getElementById('application');
 	    element.value = requestApp;
 	}	

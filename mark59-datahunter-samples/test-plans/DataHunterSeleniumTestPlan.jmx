@@ -264,7 +264,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="PAGE_LOAD_STRATEGY" elementType="Argument">
                 <stringProp name="Argument.name">PAGE_LOAD_STRATEGY</stringProp>
-                <stringProp name="Argument.value">normal</stringProp>
+                <stringProp name="Argument.value">none</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="BROWSER_DIMENSIONS" elementType="Argument">
@@ -375,7 +375,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.6</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.7</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -484,12 +484,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="PAGE_LOAD_STRATEGY" elementType="Argument">
                 <stringProp name="Argument.name">PAGE_LOAD_STRATEGY</stringProp>
-                <stringProp name="Argument.value">normal</stringProp>
+                <stringProp name="Argument.value">none</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="BROWSER_DIMENSIONS" elementType="Argument">
                 <stringProp name="Argument.name">BROWSER_DIMENSIONS</stringProp>
-                <stringProp name="Argument.value">1800,900</stringProp>
+                <stringProp name="Argument.value">900,900</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PROXY" elementType="Argument">
@@ -595,7 +595,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.6</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.7</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -717,7 +717,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api Version: 5.6</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api Version: 5.7</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -816,7 +816,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 5.6</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 5.7</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -1436,7 +1436,7 @@ SampleResult.setEndTime(0);
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-datahunter-api Version: 5.6</stringProp>
+                <stringProp name="Argument.value">using mark59-datahunter-api Version: 5.7</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>

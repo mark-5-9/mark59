@@ -33,7 +33,8 @@ public interface ApplicationDAO
 
 	Application findApplication(String application);
 
-	List<Application> findApplications();
 	List<Application> findApplications(String appListSelector);
 	
+	void duplicateEntireApplication(String fromApp, String toApp);
+
 }

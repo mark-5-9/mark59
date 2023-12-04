@@ -29,14 +29,12 @@
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
 <script>
 	
-	function resendCommandListExecutor()
-	{
+	function resendCommandListExecutor(){
 		var selectedReqExecutor = document.getElementById("executor").value;		
-		window.location.href = 	"./serverProfileList?reqExecutor=" + selectedReqExecutor;
+		window.location.href = 	"./serverProfileList?reqExecutor=" + encodeURIComponent(selectedReqExecutor);
 	}	
 
-	function setSelectedExecutorInDropdown(reqExecutor)
-	{    
+	function setSelectedExecutorInDropdown(reqExecutor){    
 	    var element = document.getElementById('executor');
 	    element.value = reqExecutor;
 	}	

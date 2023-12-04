@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.springframework.context.ApplicationContext;
 
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.DateRangeBean;
 import com.mark59.trends.data.beans.Run;
 import com.mark59.trends.data.beans.Transaction;
@@ -39,7 +39,7 @@ public class LrRun extends PerformanceTest  {
 		LrRunAccessDatabase lrRundb = new LrRunAccessDatabase(inputAccessDbFileNmae);
 		System.out.println("Processing Loadrunner access DB file " + inputAccessDbFileNmae);
 		
-		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
+		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);
 		
 		DateRangeBean dateRangeBean = lrRundb.getRunDateRangeUsingLoadrunnerAccessDB(timeZone);
 		lrRundb.loadTestTransactionForTransactionsOnlyFromLoadrunnAccessDB(run.getApplication(), testTransactionsDAO, dateRangeBean.getRunStartTime());  

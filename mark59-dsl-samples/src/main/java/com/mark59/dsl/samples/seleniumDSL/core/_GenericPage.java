@@ -81,7 +81,7 @@ public class _GenericPage {
 	 * @return _GenericPage
 	 */
 	public _GenericPage waitUntilExpectedNumberOfWindowsToBe(int expectedNumberOfWindows){
-		FluentWaitFactory.getFluentWaitVariablePolling(driver).until(ExpectedConditions.numberOfWindowsToBe(expectedNumberOfWindows));
+		FluentWaitFactory.getFluentWait(driver).until(ExpectedConditions.numberOfWindowsToBe(expectedNumberOfWindows));
 		return this;
 	}
 	

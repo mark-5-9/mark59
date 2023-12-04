@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mark59.core.utils.Mark59Constants;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.application.UtilsTrends;
 import com.mark59.trends.data.application.dao.ApplicationDAO;
 import com.mark59.trends.data.beans.BarRange;
@@ -105,9 +105,9 @@ public class TrendingController {
 		
 		if (reqApp == null ){
 			// on initial entry, when no application request parameter has been sent, take the first "active" application 
-			reqAppListSelector = AppConstantsMetrics.ACTIVE;
+			reqAppListSelector = AppConstantsTrends.ACTIVE;
 			if (runDAO.findApplications(reqAppListSelector).isEmpty()) { // if no active apps, just use any existing app
-				reqAppListSelector = AppConstantsMetrics.ALL;
+				reqAppListSelector = AppConstantsTrends.ALL;
 			}
 			reqApp = runDAO.findApplications(reqAppListSelector).get(0);
 			if (StringUtils.isBlank(reqApp)){ 
@@ -116,18 +116,18 @@ public class TrendingController {
 		}
 		trendingForm.setApplication(reqApp);
 		
-		trendingForm.setAppListSelector(AppConstantsMetrics.ACTIVE );
-		if ( UtilsTrends.defaultIfNull(reqAppListSelector,AppConstantsMetrics.ACTIVE).equals(AppConstantsMetrics.ALL)){
-			trendingForm.setAppListSelector(AppConstantsMetrics.ALL);
+		trendingForm.setAppListSelector(AppConstantsTrends.ACTIVE );
+		if ( UtilsTrends.defaultIfNull(reqAppListSelector,AppConstantsTrends.ACTIVE).equals(AppConstantsTrends.ALL)){
+			trendingForm.setAppListSelector(AppConstantsTrends.ALL);
 		}
 		if ( ! "Y".equals( applicationDAO.findApplication(reqApp).getActive() )){
-			trendingForm.setAppListSelector(AppConstantsMetrics.ALL);
+			trendingForm.setAppListSelector(AppConstantsTrends.ALL);
 		}
 
-		trendingForm.setGraph(UtilsTrends.defaultIfNull(reqGraph, AppConstantsMetrics.TXN_90TH_GRAPH)); 	// when no metric, assume txn90th 
+		trendingForm.setGraph(UtilsTrends.defaultIfNull(reqGraph, AppConstantsTrends.TXN_90TH_GRAPH)); 	// when no metric, assume txn90th 
 		GraphMapping graphMapping = graphMappingDAO.findGraphMapping(trendingForm.getGraph());
 		
-		trendingForm.setShowCdpOption(UtilsTrends.defaultIfNull(reqShowCdpOption, AppConstantsMetrics.SHOW_HIDE_CDP)); 		 
+		trendingForm.setShowCdpOption(UtilsTrends.defaultIfNull(reqShowCdpOption, AppConstantsTrends.SHOW_HIDE_CDP)); 		 
 		
 		trendingForm.setSqlSelectLike(UtilsTrends.defaultIfNull(reqSqlSelectLike, "%"));
 		trendingForm.setSqlSelectNotLike(UtilsTrends.defaultIfNull(reqSqlSelectNotLike, ""));
@@ -179,10 +179,10 @@ public class TrendingController {
 			trendingForm.setTransactionIdsSQL(UtilsTrends.decodeBase64urlParam(reqTransactionIdsSQL));		
 		}		
 		
-		trendingForm.setMaxRun(UtilsTrends.defaultIfBlank(reqMaxRun, AppConstantsMetrics.DEFAULT_10));
-		trendingForm.setMaxBaselineRun(UtilsTrends.defaultIfBlank(reqMaxBaselineRun, AppConstantsMetrics.DEFAULT_01));
+		trendingForm.setMaxRun(UtilsTrends.defaultIfBlank(reqMaxRun, AppConstantsTrends.DEFAULT_10));
+		trendingForm.setMaxBaselineRun(UtilsTrends.defaultIfBlank(reqMaxBaselineRun, AppConstantsTrends.DEFAULT_01));
 	
-		trendingForm.setNthRankedTxn(UtilsTrends.defaultIfBlank(reqNthRankedTxn, AppConstantsMetrics.ALL));
+		trendingForm.setNthRankedTxn(UtilsTrends.defaultIfBlank(reqNthRankedTxn, AppConstantsTrends.ALL));
 		
 		// System.out.println("TrendingController trendingForm : " + trendingForm  );
 		
@@ -538,9 +538,9 @@ public class TrendingController {
 	
 	private List<String> populateShowCdpOptionsDropdown(){
 		List<String> showCdpOptionsList = new ArrayList<>();
-		showCdpOptionsList.add(AppConstantsMetrics.SHOW_HIDE_CDP);
-		showCdpOptionsList.add(AppConstantsMetrics.SHOW_SHOW_CDP);
-		showCdpOptionsList.add(AppConstantsMetrics.SHOW_ONLY_CDP);
+		showCdpOptionsList.add(AppConstantsTrends.SHOW_HIDE_CDP);
+		showCdpOptionsList.add(AppConstantsTrends.SHOW_SHOW_CDP);
+		showCdpOptionsList.add(AppConstantsTrends.SHOW_ONLY_CDP);
 		return showCdpOptionsList;
 	}		
 	

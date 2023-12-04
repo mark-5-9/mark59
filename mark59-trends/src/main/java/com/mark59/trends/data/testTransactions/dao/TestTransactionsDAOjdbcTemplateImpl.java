@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.mark59.core.utils.Mark59Constants;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.application.UtilsTrends;
 import com.mark59.trends.data.beans.DateRangeBean;
 import com.mark59.trends.data.beans.EventMapping;
@@ -65,7 +65,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	public void insert(TestTransaction testTransaction) {
 		String sql;
 		
-		if (testTransaction.getTxnId().startsWith( AppConstantsMetrics.JMETER_IGNORED_TXNS )){
+		if (testTransaction.getTxnId().startsWith( AppConstantsTrends.JMETER_IGNORED_TXNS )){
 //			System.out.println("TestTransactionsDAOjdbcTemplateImpl  : " +  testTransaction.getTxnId() + " has been ignored!" );
 		} else {
 		
@@ -111,7 +111,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		
 		for (TestTransaction testTransaction : testTransactionList) {
 		
-			if (testTransaction.getTxnId().startsWith( AppConstantsMetrics.JMETER_IGNORED_TXNS )){
+			if (testTransaction.getTxnId().startsWith( AppConstantsTrends.JMETER_IGNORED_TXNS )){
 	//			System.out.println("TestTransactionsDAOjdbcTemplateImpl  : " +  testTransaction.getTxnId() + " has been ignored!" );
 			} else {
 				sqlBindParms.add(testTransaction.getApplication());
@@ -189,7 +189,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 		String sql = "select distinct TXN_ID, TXN_TYPE  from TESTTRANSACTIONS "
 					+ "where APPLICATION = '"  + application + "' "
 					+ "  and TXN_TYPE <> '" + Mark59Constants.DatabaseTxnTypes.TRANSACTION.name() + "' "
-					+ "  and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";					
+					+ "  and RUN_TIME = '" + AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED + "' ";					
 
 //		System.out.println("TestTransactionsDAO...getUniqueListOfSystemMetricTxnIdsByType : " + sql );				
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -210,7 +210,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	public Long getEarliestTimestamp(String applicationn) {
 		String sql = "select min(TXN_EPOCH_TIME) from TESTTRANSACTIONS "
 				+ " where APPLICATION = '" + applicationn + "' "
-				+ "  and     RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";
+				+ "  and     RUN_TIME = '" + AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED + "' ";
 
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 	    String earliestTimestamp = jdbcTemplate.queryForObject(sql, String.class);
@@ -226,7 +226,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	public Long getLatestTimestamp(String applicationn) {
 		String sql = "select max(TXN_EPOCH_TIME) from TESTTRANSACTIONS "
 				+ " where APPLICATION = '" + applicationn + "' "
-				+ "  and     RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' ";
+				+ "  and     RUN_TIME = '" + AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED + "' ";
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 	    String latestTimestamp = jdbcTemplate.queryForObject(sql, String.class);
@@ -306,7 +306,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 					 " 0 txnStop " +				
 					 " from TESTTRANSACTIONS " +					 
 					 " where APPLICATION = '" + application + "' " +
-					 "   and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' " +
+					 "   and RUN_TIME = '" + AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED + "' " +
 			   		 "   and TXN_TYPE = '" + txnType + "' " +
 			   		 "   and TXN_PASSED = 'Y' " + 		   		
 			   		 " group by APPLICATION, RUN_TIME, TXN_ID, IS_CDP_TXN " +
@@ -324,10 +324,10 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 			   		 " 0 txn99th, " + 
 			   		 " 0 txnPass, " + 
 					 " sum(case when TXN_PASSED = 'N'  then 1 else 0 end) txnFail, " +
-					 " sum(case when TXN_PASSED = '" + AppConstantsMetrics.TXN_STOPPPED_STATUS +  "' then 1 else 0 end) txnStop " +	
+					 " sum(case when TXN_PASSED = '" + AppConstantsTrends.TXN_STOPPPED_STATUS +  "' then 1 else 0 end) txnStop " +	
 			   		 " from TESTTRANSACTIONS " + 
 					 " where APPLICATION = '" + application + "' " +
-					 "   and RUN_TIME = '" + AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED + "' " +			   		 
+					 "   and RUN_TIME = '" + AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED + "' " +			   		 
 			   		 "   and TXN_TYPE = '" + txnType + "' " +
 			   		 "   and TXN_PASSED != 'Y' " + 		   		
 			   		 " group by APPLICATION, RUN_TIME,TXN_ID, IS_CDP_TXN " +
@@ -409,7 +409,7 @@ public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 	public Transaction extractEventSummaryStats(String application, String metricTxnType, String txnId, EventMapping eventMapping) {
 		Run run = new Run();
 		run.setApplication(application);
-		run.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED );
+		run.setRunTime(AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED );
 		return extractEventSummaryStats(run, metricTxnType, txnId, eventMapping);
 	}	
 	

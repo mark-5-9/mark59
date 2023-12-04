@@ -27,7 +27,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.Application;
 
 /**
@@ -69,23 +69,23 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 		jdbcTemplate.update(sql, application.getActive(), application.getComment(), application.getApplication());
 	}	
 	
-
-	@Override
-	public List<Application> findApplications() {
-		return findApplications("");
-	}
 	
-	
+	/**
+	 * Only Applications which have at least one Run are considered valid 
+	 */
 	@Override
 	@SuppressWarnings("rawtypes")
 	public List<Application> findApplications(String appListSelector) {
 
 		String sqlWhereClause = "";
-		if (AppConstantsMetrics.ACTIVE.equals(appListSelector)) {
-			sqlWhereClause = " where ACTIVE = 'Y' ";
+		if (AppConstantsTrends.ACTIVE.equals(appListSelector)) {
+			sqlWhereClause = " AND A.ACTIVE = 'Y' ";
 		}
 		
-		String sql = "SELECT APPLICATION, ACTIVE, COMMENT FROM APPLICATIONS " + sqlWhereClause + "order by APPLICATION ";
+		String sql = "SELECT A.APPLICATION, A.ACTIVE, A.COMMENT FROM APPLICATIONS A, RUNS R "
+				+ " WHERE A.APPLICATION = R.APPLICATION " + sqlWhereClause 
+				+ " GROUP BY A.APPLICATION"
+				+ " ORDER BY A.APPLICATION";
 		
 		List<Application> applications  = new ArrayList<>();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -102,10 +102,16 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 	}
 
 
+	/**
+	 * Only Applications which have at least one Run are considered valid 
+	 */
 	@Override
 	public Application findApplication(String applicationId) {
 
-		String sql = "select APPLICATION, ACTIVE, COMMENT from APPLICATIONS where APPLICATION = :applicationId " ;
+		String sql = "SELECT A.APPLICATION, A.ACTIVE, A.COMMENT FROM APPLICATIONS A, RUNS R"
+				+ " WHERE A.APPLICATION = R.APPLICATION " 
+				+ " AND A.APPLICATION = :applicationId " 
+				+ " GROUP BY A.APPLICATION";
 		
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("applicationId", applicationId);	
@@ -116,7 +122,7 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		if (rows.isEmpty()){
-			System.out.println("application " + applicationId + " does not exist on application table " );
+			// System.out.println("application " + applicationId + " does not exist on application and runs tables " );
 			application.setApplication("");
 		} else {		
 			Map<String, Object> row = rows.get(0);
@@ -125,6 +131,55 @@ public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 			application.setComment((String)row.get("COMMENT"));
 		}
 		return  application;
+	}
+
+
+	@Override
+	public void duplicateEntireApplication(String fromApp, String toApp){
+		System.out.println("duplicateEntireApplication: fromApp " + fromApp + ", toApp " + toApp);
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+		String sql = "DELETE FROM APPLICATIONS WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp);	
+		
+		sql = "INSERT INTO APPLICATIONS SELECT ?, ACTIVE, COMMENT FROM APPLICATIONS WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp, fromApp);
+		
+		sql = "DELETE FROM RUNS WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp);
+
+		sql = "INSERT INTO RUNS SELECT ?, RUN_TIME, IS_RUN_IGNORED, RUN_REFERENCE, PERIOD, DURATION, BASELINE_RUN, COMMENT "
+				+ "FROM RUNS WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp, fromApp);		
+	
+		sql = "DELETE FROM TRANSACTION WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp);
+
+		sql = "INSERT INTO TRANSACTION SELECT ?, RUN_TIME, TXN_ID, TXN_TYPE, IS_CDP_TXN, "
+				+ "TXN_MINIMUM, TXN_AVERAGE, TXN_MEDIAN, TXN_MAXIMUM, TXN_STD_DEVIATION, TXN_90TH, TXN_95TH, TXN_99TH, "
+				+ "TXN_PASS, TXN_FAIL, TXN_STOP, TXN_FIRST, TXN_LAST, TXN_SUM, TXN_DELAY "
+				+ "FROM TRANSACTION WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp, fromApp);		
+		
+		sql = "DELETE FROM SLA WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp);		
+		
+		sql = "INSERT INTO SLA "
+				+ "SELECT TXN_ID, IS_CDP_TXN, ?, IS_TXN_IGNORED, SLA_90TH_RESPONSE, SLA_95TH_RESPONSE, SLA_99TH_RESPONSE, "
+				+ "SLA_PASS_COUNT, SLA_PASS_COUNT_VARIANCE_PERCENT, SLA_FAIL_COUNT, SLA_FAIL_PERCENT, "
+				+ "TXN_DELAY, XTRA_NUM, XTRA_INT, SLA_REF_URL, COMMENT, IS_ACTIVE "
+				+ "FROM SLA WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp, fromApp);		
+		
+		sql = "DELETE FROM METRICSLA WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp);		
+		
+		sql = "INSERT INTO METRICSLA "
+				+ "SELECT ?, METRIC_NAME, METRIC_TXN_TYPE, VALUE_DERIVATION, SLA_MIN, SLA_MAX, IS_ACTIVE, COMMENT "
+				+ "FROM METRICSLA WHERE APPLICATION = ?";
+		jdbcTemplate.update(sql, toApp, fromApp);
+		
+		System.out.println("duplicateEntireApplication: fromApp " + fromApp + ", toApp " + toApp + " completed") ;
 	}
 	
 }

@@ -37,7 +37,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.Datapoint;
 import com.mark59.trends.data.beans.GraphMapping;
 import com.mark59.trends.data.beans.Run;
@@ -385,10 +385,10 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 										+ "  AND TXN_TYPE = :graphMappingGetTxnType "				
 										+ "  AND RUN_TIME in ( :chosenRuns ) ) ";
 
-			if (AppConstantsMetrics.SHOW_HIDE_CDP.equals(showCdpOption) ){
+			if (AppConstantsTrends.SHOW_HIDE_CDP.equals(showCdpOption) ){
 				sql = sql + "  AND IS_CDP_TXN = 'N' "; 
 				
-			} else if (AppConstantsMetrics.SHOW_ONLY_CDP.equals(showCdpOption) ){
+			} else if (AppConstantsTrends.SHOW_ONLY_CDP.equals(showCdpOption) ){
 				sql = sql + "  AND IS_CDP_TXN = 'Y' "; 
 			} 
 			
@@ -449,7 +449,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 
 	private Integer convertRankingStrToInt(String nthRankedTxn) {
 		if (nthRankedTxn == null) return Integer.MAX_VALUE;
-		if (AppConstantsMetrics.ALL.equalsIgnoreCase(nthRankedTxn)) return Integer.MAX_VALUE;
+		if (AppConstantsTrends.ALL.equalsIgnoreCase(nthRankedTxn)) return Integer.MAX_VALUE;
 		try {
 			int nthRankedTxnInt = Integer.parseInt(nthRankedTxn);
 			if (nthRankedTxnInt <= 0)  return Integer.MAX_VALUE; 
@@ -523,7 +523,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 			datapoint.setTxnId((String)row.get("TXN_ID"));
 			
 			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
-				datapoint.setTxnId(row.get("TXN_ID") + AppConstantsMetrics.CDP_TAG);
+				datapoint.setTxnId(row.get("TXN_ID") + AppConstantsTrends.CDP_TAG);
 			} else {
 				datapoint.setTxnId((String)row.get("TXN_ID"));
 			}
@@ -551,7 +551,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 
 	private String transactionDBColNameOrDerivationForRequestedValues(GraphMapping graphMapping) {
 		String transactionDBColNameOrDerivationForRequestedValues = 
-				AppConstantsMetrics.getValueDerivatonToSourceFieldMap().get(graphMapping.getValueDerivation());
+				AppConstantsTrends.getValueDerivatonToSourceFieldMap().get(graphMapping.getValueDerivation());
 	
 		if ( transactionDBColNameOrDerivationForRequestedValues == null){
 			// no mapping - we therefore assume a direct name translation from the derivation entry 

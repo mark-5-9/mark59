@@ -31,14 +31,12 @@
 <script>
 
 	function resendSlaListURL(){
-
 		var selectedApplication = document.getElementById("application").value;
-		window.location.href = 	"./slaList?reqApp=" + selectedApplication;
+		window.location.href = 	"./slaList?reqApp=" + encodeURIComponent(selectedApplication);
 	}	
 	
 	
-	function setSelectedAppInDropdown(requestApp)
-	{    
+	function setSelectedAppInDropdown(requestApp){    
 	    var element = document.getElementById('application');
 	    element.value = requestApp;
 	}	

@@ -97,16 +97,6 @@ public class PerformanceTestTest extends TestCase {
 		assertTrue("testRunReferenceArg".equals(run.getRunReference()));
 		assertTrue("N".equals(run.getBaselineRun()));
 		assertTrue("166666".equals(run.getDuration()));
-		
-		//TODO:  to confirm works in all time zones .... 
-//		String dateString = run.getRunTime();
-//		DateFormat df = new SimpleDateFormat("yyyyMMddHHmm");
-//		Date runStartDate = null;
-//		try {runStartDate = df.parse(dateString);} catch (ParseException e) {} 
-//		long datebackasepoch = runStartDate.getTime();
-//		// note: only set to be accurate to within a minute
-//		assertEquals(1599999960000L, datebackasepoch);		
 	}
-	
 	
 }

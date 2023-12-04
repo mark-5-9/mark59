@@ -24,7 +24,7 @@ import com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage
 
 /**
  *  A DataHunter REST Service Client.
- *  <p>Invokes the DataHunter REST Service.  Please refer to the <code>DataHunterRestController</code> class in the mark59 DataHunter project.
+ *  <p>Invokes the DataHunter REST Service.  Please refer to the <code>DataHunterRestController</code> class in the mark59-datahunter project.
  *  <p>In order to execute this program, the target jar file for the mark59-datahunter-api project needs to be 
  *  on the class path.  Eg: for a script running in a JMeter instance mark59-datahunter-api.jar should be placed in JMeter's lib/ext directory.        
  *  <p>A few general observations about the DataHunter REST Service:
@@ -32,13 +32,14 @@ import com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage
  *  <li>The operations performed by the REST service align as closely as possible to the actions that are available using the DataHunter web 
  *  application. In fact apart from the odd extra validation required on the REST service, the behavior of the REST service should be the same as 
  *  the corresponding DataHunter web application pages. 
- *  <li>Where the REST operation does not require the 'policies' list in the response (see {@link DataHunterRestApiResponsePojo} ) to be populated
- *   with a result, it is populated with a single policy entry which aligns as much as possible with any selection criteria passed from the request. 
- *  (just informational to assist with debugging)
+ *  <li>Where the REST operation does not require the <code>policies</code> list in the response to be populated with a result, it is populated with a single
+ *  policy entry in the first position of the policies list.
+ *  
  *  <li>For detailed examples of the usage of this client, see {@link com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage}  
  *  </ul>  
  * 
  * @see com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage
+ * @see DataHunterRestApiResponsePojo
  *   
  * @author Philip Webb
  * Written: Australian Autumn 2022

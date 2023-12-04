@@ -17,9 +17,7 @@
 package com.mark59.datahunter.samples.scripts;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,11 +29,9 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WindowType;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import com.mark59.core.JmeterFunctionsImpl;
@@ -173,7 +169,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		
 		String lifecycle = "thread_" + Thread.currentThread().getName().replace(" ", "_").replace(".", "_");
 //		System.out.println("Thread " + thread + " is running with LOG level " + LOG.getLevel());
-
+		
 		// Start browser to cater for initial launch time (for Firefox try "about:preferences") 
 		driver.get("chrome://version/");
 		SafeSleep.sleep(1000);
@@ -198,8 +194,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		multiplePoliciesPage.lifecycle().waitUntilClickable();
 		multiplePoliciesPage.lifecycle().type(lifecycle);
-		multiplePoliciesPage.submit().waitUntilClickable().submit();
-		multiplePoliciesActionPage.multipleDeleteLink().waitUntilClickable();	
+		multiplePoliciesPage.submit().submit().waitUntilClickable( multiplePoliciesActionPage.backLink() );		
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");	
 
 		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");		
@@ -315,23 +310,12 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		LOG.debug("HTML demo: USED=" + used + ", UNUSED=" + unused); 
 		
 // 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
-// 		- using a new tab just as a demo 
-//		  Note that the tab does NOT necessarily open with the same dimensions of the main window, 
-//        so here it is forced to a larger size (prevents the nav tab interfering - was required for some versions of headless Chrome)  		  
 		
-		jm.startTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");		
-
-		driver.switchTo().newWindow(WindowType.TAB).manage().window()
-				.setSize(new Dimension(Mark59Constants.DEFAULT_BROWSER_WIDTH, Mark59Constants.DEFAULT_BROWSER_HEIGHT));
-		multiplePoliciesPage.waitUntilExpectedNumberOfWindowsToBe(2);
-		List<String> browserTabs = new ArrayList<String>(driver.getWindowHandles());
-		driver.switchTo().window(browserTabs.get(1)); 
-		
+		jm.startTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");	
 		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);		
 		multiplePoliciesPage.lifecycle().waitUntilClickable();
 		multiplePoliciesPage.lifecycle().type(lifecycle);
-		multiplePoliciesPage.submit().waitUntilClickable().submit();
-		multiplePoliciesActionPage.multipleDeleteLink().waitUntilClickable();
+		multiplePoliciesPage.submit().submit().waitUntilClickable( multiplePoliciesActionPage.backLink() );				
 		jm.endTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");	
 		
 		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");		
@@ -387,7 +371,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 
 	/*
 	 * At first glance this may seem not to have any 'wait for element' conditions.  However the 'getText()'
-	 * method (indirectly) invokes a Fluent Wait (actually, a custom FlentWait is used - see note 4 above). 
+	 * method (indirectly) invokes a Fluent Wait (actually, a custom 'variable' FlentWait is used - see note 4 above). 
 	 */
 	private void waitForSqlResultsTextOnActionPageAndCheckOk(_GenericDataHunterActionPage _genericDatatHunterActionPage) {
 		String sqlResultText = _genericDatatHunterActionPage.sqlResult().getText();											// ** note 4	

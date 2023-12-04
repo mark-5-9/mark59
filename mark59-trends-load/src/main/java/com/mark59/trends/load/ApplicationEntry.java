@@ -22,7 +22,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 
 /**
  * Entry point into TrendsLoad.  Loads test run the data into a database used by the Mark59 Trends web application,
@@ -44,7 +44,7 @@ public class ApplicationEntry  implements CommandLineRunner  {
 
 	public static void main(String[] args) {
   
-		System.out.println("Starting Trends Load..   Version: "  + AppConstantsMetrics.MARK59_VERSION_TRENDING );
+		System.out.println("Starting Trends Load..   Version: "  + AppConstantsTrends.MARK59_VERSION_TRENDS );
 
 //		args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","mysql", "-h","localhost", "-p", "3306", "-q", "?allowPublicKeyRetrieval=true&useSSL=false", "-t", "JMETER", "-r", "sample_run_01" };
 //		args = new String[] { "-a", "DataHunter", "-i", "C:/Mark59_Runs/Jmeter_Results/DataHunter", "-d","pg",    "-h","localhost", "-t", "JMETER", "-q", "?sslmode=disable", "-r", "sample_run_pg01"  };

@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.core.utils.Mark59Constants;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.Sla;
 import com.mark59.trends.form.BulkApplicationPassCountsForm;
 
@@ -135,7 +135,7 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 				
 				existingSla.setSlaPassCount((Long)row.get("TXN_PASS"));
 				
-				if (AppConstantsMetrics.APPLY_TO_ALL_SLAS.equalsIgnoreCase(bulkApplication.getApplyRefUrlOption())
+				if (AppConstantsTrends.APPLY_TO_ALL_SLAS.equalsIgnoreCase(bulkApplication.getApplyRefUrlOption())
 						&& StringUtils.isNotEmpty(passedSlaRefUrl)) {
 					existingSla.setSlaRefUrl(passedSlaRefUrl);
 				}
@@ -314,7 +314,7 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 		for (Map row : rows) {
 			String txnId =  (String)row.get("TXN_ID");
 			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
-				cdpTaggedMissingTransactions.add(txnId + AppConstantsMetrics.CDP_TAG);				
+				cdpTaggedMissingTransactions.add(txnId + AppConstantsTrends.CDP_TAG);				
 			} else {
 				cdpTaggedMissingTransactions.add(txnId);
 			}
@@ -342,7 +342,7 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 		for (Map<String, Object> row : rows) {
 			String txnId =  (String)row.get("TXN_ID");
 			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
-				cdpTaggedIgnoredTransactions.add(txnId + AppConstantsMetrics.CDP_TAG);				
+				cdpTaggedIgnoredTransactions.add(txnId + AppConstantsTrends.CDP_TAG);				
 			} else {
 				cdpTaggedIgnoredTransactions.add(txnId);
 			}			
@@ -368,7 +368,7 @@ public class SlaDAOjdbcImpl implements SlaDAO {
 		for (Map<String, Object> row : rows) {
 			String txnId =  (String)row.get("TXN_ID");
 			if ("Y".equalsIgnoreCase((String)row.get("IS_CDP_TXN"))){
-				cdpTaggedDisabledSlas.add(txnId + AppConstantsMetrics.CDP_TAG);				
+				cdpTaggedDisabledSlas.add(txnId + AppConstantsTrends.CDP_TAG);				
 			} else {
 				cdpTaggedDisabledSlas.add(txnId);
 			}			

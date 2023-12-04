@@ -1,5 +1,6 @@
 package com.mark59.trends.load.run;
 
+
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ public class TrendsLoadJmeterTest extends TestCase {
 	public void setUp() {
 		db = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).setName("trendsmem;MODE=MySQL;").addScript("copyofschema.sql").build();
 	}
+
 	
 	@Test
 	public void testTrendsLoadJMeterGeneralTest() {

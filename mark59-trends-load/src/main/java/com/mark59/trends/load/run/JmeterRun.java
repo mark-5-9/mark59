@@ -34,7 +34,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.DateRangeBean;
 import com.mark59.trends.data.beans.Run;
 import com.mark59.trends.data.beans.TestTransaction;
@@ -63,7 +63,7 @@ public class JmeterRun extends PerformanceTest  {
 			String keeprawresults, String ignoredErrors) {
 		
 		super(context,application, runReference);
-		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
+		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);
 		
 		loadTestTransactionAllDataFromJmeterFiles(run.getApplication(), inputdirectory, ignoredErrors );
 		
@@ -259,7 +259,7 @@ public class JmeterRun extends PerformanceTest  {
 		
 		if (!testTransaction.getTxnId().startsWith(IGNORE)){
 			testTransaction.setApplication(application);
-			testTransaction.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);	
+			testTransaction.setRunTime(AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);	
 			testTransactionList.add(testTransaction);
 			samplesCreatedForLine = 1;
 		}
@@ -273,23 +273,23 @@ public class JmeterRun extends PerformanceTest  {
 
 		String jmeterFileDatatype = StringUtils.substringBetween(jmeterFileLine, " dt=\"", "\"");
 		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype(jmeterFileDatatype);
-		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.JMETER, sampleLineRawDbTxnType));
+		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsTrends.JMETER, sampleLineRawDbTxnType));
 		
 		testTransaction.setIsCdpTxn("N"); 
 		if (JMeterFileDatatypes.CDP.name().equals(jmeterFileDatatype)){
 			testTransaction.setIsCdpTxn("Y"); 
 		}
 			
-		//		The response time ("t=") holds the value to be reported for all sample types. Note: 
-		//		- the taken to be milliseconds for all timed TRANSACTION samples in the Jmeter results file. The Trends Analysis database 
-		//	      holds transaction values in seconds, so we divide by 1000 (response times back to seconds)  		
-		//		- TODO: is assumed to be multiplied by 1000 for raw Perfmon captured metrics will not be marked by the DATAPOINT indicator in the
-		//	      return code, but to be handed by Event Mapping lookup?		
+		//	The response time ("t=") holds the value to be reported for all sample types. Note: 
+		//	- the taken to be milliseconds for all timed TRANSACTION samples in the Jmeter results file. The Trends Analysis 
+		//      database holds transaction values in seconds, so we divide by 1000 (response times back to seconds)  		
+		//	- (Win) PERFMON metrics have not been catered for (values to be multiplied by 1000?), and will not be marked by  
+		// 	   the DATAPOINTindicator in the return code (potentially could be handled by Event Mapping lookup)		
 		
 		String txnResultMsStr = StringUtils.substringBetween(jmeterFileLine, " t=\"", "\"");
 		BigDecimal txnResultMsBigD = new BigDecimal(txnResultMsStr);
 		if ( Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals(testTransaction.getTxnType())) {
-			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP)  );			
+			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsTrends.THOUSAND, 3, RoundingMode.HALF_UP)  );			
 		} else {
 			try {
 				testTransaction.setTxnResult( validateAndDetermineMetricValue(txnResultMsBigD, testTransaction.getTxnType()));		
@@ -437,7 +437,7 @@ public class JmeterRun extends PerformanceTest  {
 	private void addCsvSampleToTestTransactionList(List<TestTransaction> testTransactionList, String[] csvDataLineFields, String application, List<String> ignoredErrorsList) {
 		TestTransaction testTransaction = extractTransactionFromJmeterCSVsample(csvDataLineFields, ignoredErrorsList);
 		testTransaction.setApplication(application);
-		testTransaction.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
+		testTransaction.setRunTime(AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);
 		testTransactionList.add(testTransaction);		
 	}
 
@@ -448,23 +448,23 @@ public class JmeterRun extends PerformanceTest  {
 		
 		String jmeterFileDatatype = csvDataLineFields[fieldPosdataType];
 		String sampleLineRawDbTxnType = Mark59Utils.convertJMeterFileDatatypeToDbTxntype(jmeterFileDatatype);
-		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.JMETER, sampleLineRawDbTxnType));
+		testTransaction.setTxnType( eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsTrends.JMETER, sampleLineRawDbTxnType));
 		
 		testTransaction.setIsCdpTxn("N"); 
 		if (JMeterFileDatatypes.CDP.name().equals(jmeterFileDatatype)){
 			testTransaction.setIsCdpTxn("Y"); 
 		}
 				
-//		The response time ("elapsed" column) holds the value to be reported for all sample types. Note: 
-//			- the taken to be milliseconds for all timed TRANSACTION samples in the Jmeter results file. The Trends Analysis database 
-//		      holds transaction values in seconds, so we divide by 1000 (response times back to seconds)  		
-//			- TODO: is assumed to be multiplied by 1000 for raw Perfmon captured metrics will not be marked by the DATAPOINT indicator in the
-//		      return code, but to be handed by Event Mapping lookup?
+		//	The response time ("t=") holds the value to be reported for all sample types. Note: 
+		//	- the taken to be milliseconds for all timed TRANSACTION samples in the Jmeter results file. The Trends Analysis 
+		//      database holds transaction values in seconds, so we divide by 1000 (response times back to seconds)  		
+		//	- (Win) PERFMON metrics have not been catered for (values to be multiplied by 1000?), and will not be marked by  
+		// 	   the DATAPOINTindicator in the return code (potentially could be handled by Event Mapping lookup)		
 		
 		BigDecimal txnResultMsBigD = new BigDecimal(csvDataLineFields[fieldPoselapsed]);
 	
 		if ( Mark59Constants.DatabaseTxnTypes.TRANSACTION.name().equals(testTransaction.getTxnType())) {
-			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP)  );	
+			testTransaction.setTxnResult( txnResultMsBigD.divide(AppConstantsTrends.THOUSAND, 3, RoundingMode.HALF_UP)  );	
 		} else {	
 			try {
 				testTransaction.setTxnResult( validateAndDetermineMetricValue(txnResultMsBigD, testTransaction.getTxnType()));

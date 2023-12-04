@@ -183,7 +183,7 @@ public class UtilsTrends  {
 		for (Transaction transaction : listOfTransactionsToGraph) {
 			Transaction graphedTransaction = new Transaction(transaction);
 			if ("Y".equalsIgnoreCase(transaction.getIsCdpTxn())){
-				graphedTransaction.setTxnId(transaction.getTxnId() + AppConstantsMetrics.CDP_TAG);  
+				graphedTransaction.setTxnId(transaction.getTxnId() + AppConstantsTrends.CDP_TAG);  
 				// txnIdURLencoded may be needed to be set in future 
 			}
 			listOfTransactionsToGraphTagged.add(graphedTransaction);
@@ -233,7 +233,7 @@ public class UtilsTrends  {
 
 	public static String removeCdpTags(String cdpTaggedTransactionString) {
 		if (StringUtils.isNotBlank(cdpTaggedTransactionString)) {
-			cdpTaggedTransactionString = cdpTaggedTransactionString.replace(AppConstantsMetrics.CDP_TAG, ""); 
+			cdpTaggedTransactionString = cdpTaggedTransactionString.replace(AppConstantsTrends.CDP_TAG, ""); 
 		}
 		return cdpTaggedTransactionString;
 	}

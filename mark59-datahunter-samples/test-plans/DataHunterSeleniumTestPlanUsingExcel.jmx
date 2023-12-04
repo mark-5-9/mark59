@@ -14,6 +14,7 @@ Finally, the &apos;Quick Start&apos; instructions should of been completed.   Th
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group " enabled="true">
@@ -343,7 +344,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.6</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.7</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -457,7 +458,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="BROWSER_DIMENSIONS" elementType="Argument">
                 <stringProp name="Argument.name">BROWSER_DIMENSIONS</stringProp>
-                <stringProp name="Argument.value">1800,900</stringProp>
+                <stringProp name="Argument.value">1920,1080</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PROXY" elementType="Argument">
@@ -562,7 +563,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.6</stringProp>
+                <stringProp name="Argument.value">using mark59-selenium-implementation Version: 5.7</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -660,7 +661,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 5.6</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 5.7</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>

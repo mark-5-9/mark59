@@ -45,9 +45,9 @@ import junit.framework.TestCase;
  * @author Philip Webb
  * Written: Australian Winter 2019  
  * 
- * The asserts are pretty basic here .. todo: file content compares. 
+ * The asserts are pretty basic here (could be improved with file content comparisons?). 
  */
-public class ResultsSplitterTest     extends TestCase
+public class ResultsSplitterTest extends TestCase
 {
 	int actualSamplesCount=0;
 	String outdest = "./TESTDATA/MERGED_SPLIT_BY_DATAYPE/jmterResultsFileConvertedToCSV";

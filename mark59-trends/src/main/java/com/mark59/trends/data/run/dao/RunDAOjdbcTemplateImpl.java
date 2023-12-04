@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.application.UtilsTrends;
 import com.mark59.trends.data.application.dao.ApplicationDAO;
 import com.mark59.trends.data.beans.Application;
@@ -145,7 +145,7 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 	@Override
 	public List<String> findApplications(String appListSelector){
 
-		if (AppConstantsMetrics.ACTIVE.equals(appListSelector)){ 
+		if (AppConstantsTrends.ACTIVE.equals(appListSelector)){ 
 			
 			String sql = "SELECT distinct APPLICATION FROM RUNS where APPLICATION in (select APPLICATION from APPLICATIONS where ACTIVE = 'Y')"
 					+ " order by APPLICATION " ;
@@ -355,9 +355,9 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 	private int integerValueOfMaxRun(String maxRunDropdownValue){
 		if (maxRunDropdownValue == null)
 			return 10;
-			if (maxRunDropdownValue.equals(AppConstantsMetrics.DEFAULT_10 ) )
+			if (maxRunDropdownValue.equals(AppConstantsTrends.DEFAULT_10 ) )
 			return 10;
-		if (maxRunDropdownValue.equals(AppConstantsMetrics.ALL ) )
+		if (maxRunDropdownValue.equals(AppConstantsTrends.ALL ) )
 			return 99;
 		return Integer.parseInt(maxRunDropdownValue);
 	}
@@ -366,9 +366,9 @@ public class RunDAOjdbcTemplateImpl implements RunDAO
 	private int integerValueOfMaxBaselineRun(String maxBaselineRunDropdownValue){
 		if (maxBaselineRunDropdownValue == null )
 			return 1;
-		if (maxBaselineRunDropdownValue.equals(AppConstantsMetrics.DEFAULT_01 ) )
+		if (maxBaselineRunDropdownValue.equals(AppConstantsTrends.DEFAULT_01 ) )
 			return 1;		
-		if (maxBaselineRunDropdownValue.equals(AppConstantsMetrics.ALL ) )
+		if (maxBaselineRunDropdownValue.equals(AppConstantsTrends.ALL ) )
 			return 99;
 		return Integer.parseInt(maxBaselineRunDropdownValue);
 	}

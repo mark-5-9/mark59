@@ -30,14 +30,12 @@
 
 <script>
 	
-	function resendCommandListExecutor()
-	{
+	function resendCommandListExecutor(){
 		var selectedReqExecutor = document.getElementById("executor").value;		
-		window.location.href = 	"./commandList?reqExecutor=" + selectedReqExecutor;
+		window.location.href = 	"./commandList?reqExecutor=" + encodeURIComponent(selectedReqExecutor);
 	}	
 
-	function setSelectedExecutorInDropdown(reqExecutor)
-	{    
+	function setSelectedExecutorInDropdown(reqExecutor){    
 	    var element = document.getElementById('executor');
 	    element.value = reqExecutor;
 	}	

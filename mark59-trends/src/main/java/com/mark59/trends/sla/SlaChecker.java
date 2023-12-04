@@ -21,7 +21,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.Sla;
 import com.mark59.trends.data.beans.Transaction;
 import com.mark59.trends.data.sla.dao.SlaDAO;
@@ -42,7 +42,7 @@ public class SlaChecker {
 
 			if (!slaTransactionResult.isPassedAllSlas()) {
 				if ("Y".equalsIgnoreCase(transaction.getIsCdpTxn())) {
-					slaTransactionResult.setTxnId(transaction.getTxnId() + AppConstantsMetrics.CDP_TAG);
+					slaTransactionResult.setTxnId(transaction.getTxnId() + AppConstantsTrends.CDP_TAG);
 				}
 				cdpTaggedTransactionsWithFailedSlas.add(slaTransactionResult);
 			}

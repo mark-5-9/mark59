@@ -78,8 +78,6 @@ public class JmeterFunctionsTest {
 				assert "PASS".equals(subrs.getResponseMessage());
 			} else if ("simpleTransaction02".equals(subrs.getSampleLabel())) {
 				assert "PASS".equals(subrs.getResponseMessage());
-			} else if ("simpleTransaction02".equals(subrs.getSampleLabel())) {
-				assert "PASS".equals(subrs.getResponseMessage());
 			} else if ("simpleTransaction03".equals(subrs.getSampleLabel())) {
 				assert "PASS".equals(subrs.getResponseMessage());
 			} else if ("simpleTransaction04Fail".equals(subrs.getSampleLabel())) {
@@ -134,6 +132,101 @@ public class JmeterFunctionsTest {
 		assert subrsArray.length == 5;
 		assert (!t.getMainResult().isSuccessful());
 	}
+	
+	@Test
+	public final void CheckReturnedSampleResultFromRenamedTransactions() {
+		JmeterFunctionsImpl t = getJmeterFunctions();
+		t.startTransaction("simpleTransactionX01");
+		t.startTransaction("simpleTransaction03");	
+		t.endTransaction("simpleTransactionX01");
+		t.startTransaction("simpleTransaction02");
+		t.endTransaction("simpleTransaction02");		
+		t.endTransaction("simpleTransaction03");
+		t.setTransaction("simpleTransactionX04Fail", 111, false); 
+		t.setTransaction("simpleTransaction05Pass", 222, true);
+		t.startTransaction("simpleTransaction06Fail");
+		t.endTransaction("simpleTransaction06Fail", Outcome.FAIL, "oops"); 
+		
+		t.renameTransaction("simpleTransaction02", "renamedTransaction02");
+		t.renameTransactionsPrefixedBy("simpleTransactionX", "simpleTransactionY");
+		t.renameTransactionsPrefixedBy("notxnslikethis", "noeffect");
+		t.renameTransactions(
+				sampleResult -> sampleResult.getSampleLabel().contains("Transaction06")
+			 ,  sampleResult -> {return "Transaction06Renamed";});
+		
+		t.tearDown();
+		SampleResult mainResult =  t.getMainResult();
+
+		SampleResult[] subrsArray = mainResult.getSubResults();
+		for (SampleResult subrs : subrsArray) {
+			if ("simpleTransactionY01".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("renamedTransaction02".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransaction03".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransactionY04Fail".equals(subrs.getSampleLabel())) {
+				assert "FAIL".equals(subrs.getResponseMessage());
+				assert 111 == subrs.getTime();
+			} else if ("simpleTransaction05Pass".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+				assert 222 == subrs.getTime();				
+			} else if ("Transaction06Renamed".equals(subrs.getSampleLabel())) {
+				assert "FAIL".equals(subrs.getResponseMessage());
+				assert "oops".equals(subrs.getResponseCode());
+			} else {
+				fail("Unexpected transaction " + subrs.getSampleLabel());
+			}
+		}
+		assert subrsArray.length == 6;
+		assert (!t.getMainResult().isSuccessful());
+	}
+	
+	@Test
+	public final void CheckReturnedSampleResultFromDetleteTransactions() {
+		JmeterFunctionsImpl t = getJmeterFunctions();
+		t.startTransaction("simpleTransaction01");
+		t.startTransaction("simpleTransaction03");	
+		t.endTransaction("simpleTransaction01");
+		t.startTransaction("simpleTransactionXX02");
+		t.endTransaction("simpleTransactionXX02");		
+		t.endTransaction("simpleTransaction03");
+		t.setTransaction("simpleTransaction04Fail", 111, false); 
+		t.setTransaction("simpleTransactionXX05Pass", 222, true);
+		t.startTransaction("simpleTransaction06FancyFail");
+		t.endTransaction("simpleTransaction06FancyFail", Outcome.FAIL, "oops"); 
+		t.setTransaction("simpleTransaction07ok", 33, true);
+		
+		t.deleteTransaction("simpleTransaction01");
+		t.deleteTransactionsPrefixedBy("simpleTransactionXX");
+		t.deleteTransactionsPrefixedBy("simpleTransactionNoEffect");
+		t.deleteTransactions(
+				sampleResult -> sampleResult.getSampleLabel().contains("Fancy"));
+		
+		t.tearDown();
+		SampleResult mainResult =  t.getMainResult();
+
+		SampleResult[] subrsArray = mainResult.getSubResults();
+		for (SampleResult subrs : subrsArray) {
+			if ("simpleTransaction03".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+			} else if ("simpleTransaction04Fail".equals(subrs.getSampleLabel())) {
+				assert "FAIL".equals(subrs.getResponseMessage());
+				assert 111 == subrs.getTime();
+			} else if ("simpleTransaction07ok".equals(subrs.getSampleLabel())) {
+				assert "PASS".equals(subrs.getResponseMessage());
+				assert 33 == subrs.getTime();	
+			} else {
+				fail("Unexpected transaction " + subrs.getSampleLabel());
+			}
+		}
+		assert subrsArray.length == 3;
+		assert (!t.getMainResult().isSuccessful());
+	}
+	
+	
+	
+	
 	
 		
 	@Test

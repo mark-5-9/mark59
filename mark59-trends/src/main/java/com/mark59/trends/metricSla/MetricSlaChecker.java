@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.MetricSla;
 import com.mark59.trends.data.metricSla.dao.MetricSlaDAO;
 import com.mark59.trends.data.transaction.dao.TransactionDAO;
@@ -45,7 +45,7 @@ public class MetricSlaChecker {
 			metricSlas = metricSlaDAO.getMetricSlaList(application, metricTxnType);
 		}
 		
-		Map<String,String> valueDerivatonToSourceField = AppConstantsMetrics.getValueDerivatonToSourceFieldMap();
+		Map<String,String> valueDerivatonToSourceField = AppConstantsTrends.getValueDerivatonToSourceFieldMap();
 		
 		for (MetricSla metricSla : metricSlas) {
 			

@@ -17,7 +17,6 @@
 package com.mark59.metrics.data.serverprofiles.dao;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,11 +27,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mark59.metrics.data.beans.ServerProfile;
-import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
@@ -43,7 +38,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 	
 	@Autowired  
 	private DataSource dataSource;
-
 		
 
 	@Override
@@ -188,45 +182,5 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);
 	}	
-	
-	
-	public static void main(String[] args) throws JsonProcessingException {		
-		
-		//TODO: to move to test cases..
-		
-		Map<String, String> map = new HashMap<>();
-		map.put("key1", "value1");
-		map.put("key2", "value2");
-		map.put("key3", "value3");
-		
-		ObjectMapper mapper = new ObjectMapper();
-		String serializedJson = mapper.writeValueAsString(map);
-		
-		System.out.println(">> Serialized string" );
-		System.out.println(serializedJson);
-		System.out.println("<< Serialized string");
-		
-
-		TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>(){};
-		Map<String, String> dmap = new ObjectMapper().readValue(serializedJson, typeRef);
-		
-		System.out.println(">> DeSerialized map" );
-		System.out.println(dmap);
-		System.out.println("<< Deerialized map");
-		
-		System.out.println(">> iterate map" );
-		dmap.forEach((k, v) -> System.out.println((k + ":" + v)));
-		System.out.println("<< iterate map" );
-
-		String stringy = MetricsUtils.listToTextboxFormat(null);
-		System.out.println("stringy="+ stringy);
-		
-		List<String> strlist = new ArrayList<>();
-		strlist.add("parm1");
-		strlist.add("parm2");
-		strlist.add("parm3");
-		strlist.add("parm4");
-		System.out.println("strlist=" + strlist);
-	}
 
 }

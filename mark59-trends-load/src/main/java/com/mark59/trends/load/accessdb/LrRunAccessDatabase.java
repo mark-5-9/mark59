@@ -39,7 +39,7 @@ import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Row;
 import com.healthmarketscience.jackcess.Table;
 import com.mark59.core.utils.Mark59Constants;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.application.UtilsTrends;
 import com.mark59.trends.data.beans.DateRangeBean;
 import com.mark59.trends.data.beans.EventMapping;
@@ -219,7 +219,7 @@ public class LrRunAccessDatabase {
 					} else if (STATUS1_PASS.equals(lrEventMeterBean.getStatus1())){	
 						testTransaction.setTxnPassed("Y");	
 					} else if (STATUS1_STOP.equals(lrEventMeterBean.getStatus1())){	
-						testTransaction.setTxnPassed(AppConstantsMetrics.TXN_STOPPPED_STATUS);	
+						testTransaction.setTxnPassed(AppConstantsTrends.TXN_STOPPPED_STATUS);	
 					} else {
 						testTransaction.setTxnPassed("N");
 						testTransaction.setTxnId(lrEventMapTable.get(currentEventMeterEventId).eventName + "_UNKNOWN_STATUS" );
@@ -228,7 +228,7 @@ public class LrRunAccessDatabase {
 					testTransaction.setTxnEpochTime(lrEventMeterBean.getEndTime());
 			
 		    		testTransaction.setApplication(application);
-		    		testTransaction.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);	
+		    		testTransaction.setRunTime(AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);	
 		    		testTransaction.setIsCdpTxn("N");	
 		    		testTransactionList.add(testTransaction);
 				}
@@ -321,7 +321,7 @@ public class LrRunAccessDatabase {
 //		System.out.println("            findMetricsToBeReportedForThisMdbEventId : " + lrEventMapBean.getEventId() +":"+lrEventMapBean.getEventType()+":"+lrEventMapBean.getEventName() );
 		
 		List<EventAttributes> reportedEventAttributes = new ArrayList<>();
-		List<EventMapping> mark59MetricsEventMappings = eventMappingDAO.findEventMappingsForPerformanceTool(AppConstantsMetrics.LOADRUNNER); 				
+		List<EventMapping> mark59MetricsEventMappings = eventMappingDAO.findEventMappingsForPerformanceTool(AppConstantsTrends.LOADRUNNER); 				
 		
 		boolean lrEventNameMatched = false;
 		int i = 0;
@@ -374,14 +374,14 @@ public class LrRunAccessDatabase {
 		
 		BigDecimal ninteyPercent = new BigDecimal("90.0");
 		
-		if  ( !AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_MONITOR_METER.equals(eventAttributes.getEventMapping().getMetricSource())  &&
-			  !AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER.equals(eventAttributes.getEventMapping().getMetricSource()) ) {	
+		if  ( !AppConstantsTrends.METRIC_SOURCE_LOADRUNNER_MONITOR_METER.equals(eventAttributes.getEventMapping().getMetricSource())  &&
+			  !AppConstantsTrends.METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER.equals(eventAttributes.getEventMapping().getMetricSource()) ) {	
 			throw new RuntimeException("Unexpected soure for a Loadrunner metric event. "
-					+ "Expected " + AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_MONITOR_METER + " or " +  AppConstantsMetrics.METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER  
+					+ "Expected " + AppConstantsTrends.METRIC_SOURCE_LOADRUNNER_MONITOR_METER + " or " +  AppConstantsTrends.METRIC_SOURCE_LOADRUNNER_DATAPOINT_METER  
 					+ " but got " + eventAttributes.getEventMapping().getMetricSource());
 		}
 		
-		String lrTableForThisEvent = AppConstantsMetrics.getToolDataTypeToSourceValueMap().get( eventAttributes.getEventMapping().getMetricSource());
+		String lrTableForThisEvent = AppConstantsTrends.getToolDataTypeToSourceValueMap().get( eventAttributes.getEventMapping().getMetricSource());
 		Table table = db.getTable(lrTableForThisEvent);               //  Monitor_meter or DataPoint_meter for a Loadrunner run
 		Cursor cursor = CursorBuilder.createCursor(table);
 		

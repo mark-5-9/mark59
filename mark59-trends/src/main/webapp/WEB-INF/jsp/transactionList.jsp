@@ -35,7 +35,7 @@
 
 	function resendTransactionListURL(){
 		var selectedApplication = document.getElementById("application").value;
-		window.location.href = 	"./transactionList?reqApp=" + selectedApplication;
+		window.location.href = 	"./transactionList?reqApp=" + encodeURIComponent(selectedApplication);
 	}	
 	
 	function setSelectedAppInDropdown(requestApp){    

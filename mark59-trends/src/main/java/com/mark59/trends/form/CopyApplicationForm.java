@@ -44,8 +44,5 @@ public class CopyApplicationForm {
 	public void setValidForm(String validForm) {
 		this.validForm = validForm;
 	} 
-	
-	
-
 
 }

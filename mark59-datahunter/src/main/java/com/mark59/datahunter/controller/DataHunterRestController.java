@@ -54,12 +54,15 @@ import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
  *  application. In fact apart from the odd extra validation required on the REST service, the behavior of the REST service should be the same as 
  *  the corresponding DataHunter web application pages. 
  *  <li>Where the REST operation does not require the <code>policies</code> list in the response to be populated with a result, it is populated with a single
- *  policy entry which aligns as much as possible with any selection criteria passed from the request (just informational to assist with debugging)
+ *  policy entry in the first position of the policies list.
  *  <li>For detailed examples of the usage of this service, see class <code>DataHunterRestApiClientSampleUsage</code> in the mark59-datahunter-api project    
  *  </ul>  
  *   
+ *  @see DataHunterRestApiResponsePojo
+ *   
  * @author Philip Webb
- * Written: Australian Summer 2021/22  
+ * Written: Australian Summer 2021/22 
+ *   
  */
 @RestController
 @RequestMapping("/api")

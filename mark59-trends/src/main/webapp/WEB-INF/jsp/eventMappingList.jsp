@@ -33,13 +33,13 @@
 	function resendEventMappingListPerformanceTools()
 	{
 		var selectedreqPerformanceTool = document.getElementById("performanceTool").value;
-		window.location.href = 	"./eventMappingList?reqPerformanceTool=" + selectedreqPerformanceTool + "&reqMetricSource=";
+		window.location.href = 	"./eventMappingList?reqPerformanceTool=" + encodeURIComponent(selectedreqPerformanceTool) + "&reqMetricSource=";
 	}	
 	
 	function resendEventMappingListMetricSources()
 	{
 		var selectedreqMetricSource = document.getElementById("metricSource").value;		
-		window.location.href = 	"./eventMappingList?reqPerformanceTool=&reqMetricSource=" + selectedreqMetricSource;
+		window.location.href = 	"./eventMappingList?reqPerformanceTool=&reqMetricSource=" + encodeURIComponent(selectedreqMetricSource);
 	}	
 
 	function setSelectedperformanceToolDropdown(reqPerformanceTool)

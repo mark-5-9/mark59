@@ -29,18 +29,17 @@
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
 
 <script>
-	function resendDashboardURL(){
 
+function resendDashboardURL(){
 		var reqAppListSelector = document.getElementById("appListSelector").value;
-		//alert("reqAppListSelector=<" + reqAppListSelector + ">"); 
-		window.location.href = 	"./dashboard?reqAppListSelector=" + reqAppListSelector;
+		window.location.href = 	"./dashboard?reqAppListSelector=" + encodeURIComponent(reqAppListSelector);
 	}	
 	
-	function setAppListSelectorInDropdown(reqAppListSelector)
-	{    
+	function setAppListSelectorInDropdown(reqAppListSelector){    
 	    var element = document.getElementById('appListSelector');
 	    element.value = reqAppListSelector;
-	}	
+	}
+	
 </script>
 </head>
 
@@ -55,6 +54,9 @@
 
   <table class="metricsTable">
    <tr>
+    <th></th>
+    <th></th>
+    <th><b>x</b>*</th>   
     <th>Application</th>
     <th>SLA<br>summary</th>    
     <th>Active?<br> 
@@ -64,11 +66,16 @@
     <th>Transactional<br>SLAs</th>
     <th>Metric<br>SLAs</th>
     <th>Comment</th>
-    <th></th>
-    <th>delete <br>(if not<br>active)</th>   
    </tr>
    <c:forEach var="app" items="${map.dashboardList}">
     <tr>
+     <td><a href="copyApplication?&reqApp=${app.application}&reqAppListSelector=${map.reqAppListSelector}" title="Copy"><img src="images/copy.png"/></a></td>  
+     <td><a href="editApplication?reqApp=${app.application}&reqAppListSelector=${map.reqAppListSelector}" title="Edit"><img src="images/edit.png"/></a></td>
+     <td>
+       	<c:if test = "${app.active == 'N'}">
+     		<a href="deleteApplication?reqApp=${app.application}" onclick="return confirm('Are you sure (application=${app.application})?');" title="Delete"><img src="images/delete.png"/></a>
+     	</c:if>				
+     </td>  
      <td><a href="trending?reqApp=${app.application}" target="_blank">${app.application}</a></td>
      <td><img src="images/${app.slaSummaryIcon}.png" style="width:25px;height:25px;"/></td>    
      <td>${app.active} </td>
@@ -76,16 +83,12 @@
      <td><img src="images/${app.slaTransactionResultIcon}.png" style="width:15px;height:15px;"/></td>    
      <td><img src="images/${app.slaMetricsResultIcon}.png" style="width:15px;height:15px;"/></td>    
      <td>${app.comment}</td>
-     <td><a href="editApplication?applicationId=${app.application}&reqAppListSelector=${map.reqAppListSelector}" title="Edit"><img src="images/edit.png"/></a></td>
-     <td>
-       	<c:if test = "${app.active == 'N'}">
-     		<a href="deleteApplication?applicationId=${app.application}" onclick="return confirm('Are you sure (application=${app.application})?');" title="Delete"><img src="images/delete.png"/></a>
-     	</c:if>				
-     </td>  
     </tr>
    </c:forEach>
-   
   </table>
+  
+  <p style="font-size: 12px"><b>*</b> You must 'deactivate' an application before you are permitted to delete it.</p> 
+  
 
   <input type="hidden" id="passedReqAppListSelector" value="${parmsMap.reqAppListSelector}" />
 

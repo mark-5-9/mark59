@@ -32,7 +32,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.DateRangeBean;
 import com.mark59.trends.data.beans.Run;
 import com.mark59.trends.data.beans.TestTransaction;
@@ -66,7 +66,7 @@ public class GatlingRun extends PerformanceTest  {
 			String keeprawresults, String ignoredErrors, String simulationLog, String simlogCustom) {
 		
 		super(context,application, runReference);
-		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
+		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);
 		
 		loadTestTransactionDataFromGatlingSimulationLog(run.getApplication(), inputdirectory, ignoredErrors, simulationLog, simlogCustom);
 		
@@ -242,7 +242,7 @@ public class GatlingRun extends PerformanceTest  {
 	private void addSampleToTestTransactionList(List<TestTransaction> testTransactionList, String[] csvDataLineFields, String application, List<String> ignoredErrorsList){
 		TestTransaction testTransaction = extractTransactionFromGatlingLine(csvDataLineFields, ignoredErrorsList);
 		testTransaction.setApplication(application);
-		testTransaction.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
+		testTransaction.setRunTime(AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);
 		testTransactionList.add(testTransaction);		
 	}
 
@@ -253,12 +253,12 @@ public class GatlingRun extends PerformanceTest  {
 		testTransaction.setTxnId(csvDataLineFields[fieldPosTxnId]);
 		
 		// not sure if there is much point doing this transform for Gatling as most tests just capture http response times and are always TRANSACTIONS, but just for completeness.. 
-		testTransaction.setTxnType(eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsMetrics.GATLING, Mark59Constants.DatabaseTxnTypes.TRANSACTION.name()));
+		testTransaction.setTxnType(eventMappingTxnTypeTransform(testTransaction.getTxnId(), AppConstantsTrends.GATLING, Mark59Constants.DatabaseTxnTypes.TRANSACTION.name()));
 
 		testTransaction.setIsCdpTxn("N");
 		
 		BigDecimal elapsedTime = new BigDecimal(Long.parseLong(csvDataLineFields[fieldPosTimeStampEnd]) - Long.parseLong(csvDataLineFields[fieldPosTimeStampStart])); 	
-		testTransaction.setTxnResult(elapsedTime.divide(AppConstantsMetrics.THOUSAND, 3, RoundingMode.HALF_UP));
+		testTransaction.setTxnResult(elapsedTime.divide(AppConstantsTrends.THOUSAND, 3, RoundingMode.HALF_UP));
 	
 		testTransaction.setTxnPassed("Y");
 		if (KO.equalsIgnoreCase(csvDataLineFields[fieldPosSuccess]) && !errorToBeIgnored(csvDataLineFields[fieldPosRequestErrorMsg], ignoredErrorsList)){

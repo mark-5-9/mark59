@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-api</artifactId>
-	<version>5.6</version>
+	<version>5.7</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-api</name>
@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>5.6</version>
+			<version>5.7</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>*</groupId>
@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-metrics-common</artifactId>
-			<version>5.6</version>
+			<version>5.7</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>*</groupId>

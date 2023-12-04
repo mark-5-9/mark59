@@ -1,4 +1,3 @@
-
 ## Mark59 Documention, Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
@@ -6,21 +5,51 @@
 ## Releases 
 
 
+<p>Release 5.7<br>
+
+  <ul>
+   	<li>Scripting - JMeterFuntions: new set of Transaction Rename and Transaction Delete methods
+  	<li>Trends - new Application copy (copy/delete for rename) function on Application Dashboard.
+  	<li>Trends - new Application Ids are restricted to containing alphanumerics, dots, dashes and underscores. 
+  	<li>Trends - tidy up selectors on Trends Graphic UI.   	
+	<li>Bug: Title link in Datahunter corrected to point to Overview page  
+	<li>Bug: Correct sample test plan DataHunterLifecyclePvtScriptUsingApiViaHttpRequestsTestPlan to use /api/policiesBreakdown
+	<li>Bug: Metrics (MAC only) H2 sample database was missing entries to capture CPU Memory and CPU (used in the Quick Start Demo) 
+	<li>Minor tidy up of JavaDocs and Selenium sample scripts.		
+	<li>Dependencies: spring-boot to 3.2.0, selenium to 4.15.0 (to chrome v119), org.json to 20231013 
+  </ul>
+  
+  <figure>
+    <figcaption>Summary of Changes with Potential Incompatibilities For this Release.</figcaption>
+   <ul>
+	<li>H2 Database format has changed
+	<p>This is due to an update in the underlying SpringBoot framework changing the version of H2 from 2.1 to 2.2.
+	If you have existing H2 databases from running the Mark59 Quick Start Demo previously (which uses H2), you will see an error on start-up of affected 
+	Mark 59 Web Applications when using H2 similar to:</p>
+	<p>org.h2.jdbc.JdbcSQLNonTransientConnectionException: Unsupported database file version or invalid file header in file "C:/Users/<i>{userid}</i>/hunter.mv.db"</p>
+	</li>
+	<p>The solution is simply to delete all existing H2 database file stores. They are re-created when you run the demo next time.
+	<p>If for some reason you wish to restore the data in your H2 database(s), please refer to<br> 
+	https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.2.0-Release-Notes#h2-version-22	
+  </ul> 
+</figure>
+  
+
+
 <p>Release 5.6<br>
 
   <ul>
   	<li>Java 11 is now minimum required version for Maven Central projects (core, selenium-implementation, dataHunter-api).
 	<li>DataHunter UI: New Download/Upload functions for Items.  Item selection for download is done from the Manage Multiple Items UI option
-	(/print_selected_policies), and a new UI option 'Upload Items File'.</li>
+	(/print_selected_policies), and a new UI option 'Upload Items File'.</li>           
 	<li>DataHunter UI and Rest Api: For Multiple Item Selection and Multiple Item Deletion, Several new (optional) 'additional filters' have been added</li>	
 	<li>DataHunter UI and Rest Api: For Item Selection, a default of 100 Item are listed.  An option to set the number of	records returned 
-	in the list is included, with a maximum of 1000</li>
+	in the list is included, with a maximum of 1000</li>			
 	<li>DataHunter UI: Navigation Bar added</li>
-	<li>DataHunter UI: Overview Page added. A summary of the Mark59 User Guide Documentation for DataHunter (includes Rest API working samples)</li>
+	<li>DataHunter UI: Overview Page added. A summary of the Mark59 User Guide Documentation for DataHunter (includes Rest API working samples)</li>			
 	<li>DataHunter UI and Rest Api: 'Update Use State' function includes an optional filter on Lifecycle</li>
-	<li>DataHunter Rest Api: Improve Error Messaging on Exceptions</li>
-	<li>Web Applications Overview Documentation improved/added</li>	
-	<li>Dependencies: copencsv to 5.8, spring-boot to 3.1.4, selenium to 4.14.1 (to chrome v118, Java 11 required) </li> 
+	<li>Web Applications Overview Documentation improved/added</li>					
+	<li>Dependencies: opencsv to 5.8, spring-boot to 3.1.4, selenium to 4.14.1 (to chrome v118, Java 11+ required) </li> 
   </ul>
   
   <figure>
@@ -29,14 +58,14 @@
    <ul>
 	<li>However, for ALL applications, application keys are now truncated to remove leading and trailings whitespace.<br>Please remove whitespaces
 	or substitute with other values for such keys you already have (will need to be done via a database update). 
-	<li>DataHunter UI: Url /count_policies_breakdown changed to to /policies_breakdown</li> 
+	<li>DataHunter UI: Url /count_policies_breakdown changed to to /policies_breakdown</li>	  
 	<li>DataHunter Rest API: URL/api/countPoliciesBreakdown changed to /api/policiesBreakdown, 
 	Client Java method countPoliciesBreakdown renamed to policiesBreakdown</li>
-	<li>DataHunter UI: Url /print_selected_policies changed to /select_multiple_policies</li> 
+	<li>DataHunter UI: Url /print_selected_policies changed to /select_multiple_policies</li>	  
 	<li>DataHunter UI and Rest API: 'Update Use State' functions now includes a (optional) lifecycle parameter</li>
 	<li>DataHunter UI: Delete Multiple Items is now handled as an option within Manage Multiple Options JSP</li>
-	<li>DataHunter UI: retention of key parameters across functions (potential to cause issues if the UI has been scripted).</li>	
-	<li>DataHunter UI: the 'Use Next Item' Function, now also updates REUSABLE items to USED (previously left them unchanged)</li>	
+	<li>DataHunter UI: retention of key parameters across functions (potential to cause issues if the UI has been scripted).</li>			
+	<li>DataHunter UI: the 'Use Next Item' Function, now also updates REUSABLE items to USED (previously left them unchanged)</li>			
   </ul> 
 </figure>
 

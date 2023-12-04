@@ -34,13 +34,11 @@
 <script>
 
 	function resendMetricSlaListURL(){
-
 		var selectedApplication = document.getElementById("application").value;
-		window.location.href = 	"./metricSlaList?reqApp=" + selectedApplication;
+		window.location.href = 	"./metricSlaList?reqApp=" + encodeURIComponent(selectedApplication);
 	}	
 	
-	function setSelectedAppInDropdown(requestApp)
-	{    
+	function setSelectedAppInDropdown(requestApp){    
 	    var element = document.getElementById('application');
 	    element.value = requestApp;
 	}	

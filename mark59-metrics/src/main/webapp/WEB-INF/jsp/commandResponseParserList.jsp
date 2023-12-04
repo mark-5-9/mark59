@@ -30,18 +30,15 @@
 
 <script>
 	
-	function resendCommandResponseParserListMetricTxnType()
-	{
+	function resendCommandResponseParserListMetricTxnType(){
 		var selectedreqMetricTxnType = document.getElementById('metricTxnType').value;		
-		window.location.href = 	"./commandResponseParserList?&reqMetricTxnType=" + selectedreqMetricTxnType;
+		window.location.href = 	"./commandResponseParserList?&reqMetricTxnType=" + encodeURIComponent(selectedreqMetricTxnType);
 	}	
 
-	function setSelectedMetricTxnTypeInDropdown(reqMetricTxnType)
-	{    
+	function setSelectedMetricTxnTypeInDropdown(reqMetricTxnType){    
 	    var element = document.getElementById('metricTxnType');
 	    element.value = reqMetricTxnType;
 	}	
-
 	
 </script>
 </head>

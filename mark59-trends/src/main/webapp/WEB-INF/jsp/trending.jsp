@@ -33,6 +33,17 @@
 <script type="text/javascript" src="visgraph3d/visGraphLoad.js"></script>
 <script type="text/javascript" src="visgraph3d/csv2array.js"></script>
 <link type="text/css" rel="stylesheet" href="visgraph3d/visGraph.css" >
+
+
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+</style>
+
+
 </head>	
 
 <body onload="
@@ -55,9 +66,8 @@
 
 <table  id="graphSelectorTable">
 	<tr>
-	  <td style="white-space:nowrap"><a class=maroontitle id="titleHomePageLink" href="see_titleHomePageLink_JS">Trend Analysis</a></td>
+	  <td style="white-space:nowrap"><a class=maroontitle id="titleHomePageLink" href="see_titleHomePageLink_JS">Trends</a></td>
   	  <td style="white-space:nowrap"><form:select path="appListSelector" items="${appListSelectors}"  class="smallborder" dir="rtl"  onChange="asyncPopulationOfApplicationList()" /></td>
-	  <td style="white-space:nowrap; padding-top: 5px">applications:</td>
  	  <td style="white-space:nowrap"><form:select path="application" items="${applications}"  onChange="resetSelectionFields()" /></td>
  	  <td style="white-space:nowrap">graph:  <form:select path="graph" items="${graphs}" />	</td>
  	  <td style="white-space:nowrap; text-align:right">latest<br>runs</td>		 		
@@ -78,10 +88,7 @@
 	          </tr>
 	        </table>   
   	  </td>
- 	  <td style="white-space:nowrap; text-align:right">display txn<br>names at point</td>
- 	  <td style="white-space:nowrap"><form:checkbox path="displayPointText"  onclick="graph3d.redraw();" /></td>
-  	  <td style="white-space:nowrap; text-align:right">range<br>bars</td>	  
- 	  <td style="white-space:nowrap"><form:checkbox path="displayBarRanges"  onclick="graph3d.redraw();" /></td>
+  	  
 	  <td width="80%"></td>  
       <td> <input type="button" value="Draw"  onclick="trendingBuildPageLink();trendingLinkGetNewPage();" id="submitDrawLink" class="customButton" > </td>  
 	  <td> <input type="button" value="Table" onclick="showHideElement('comparetab');draw();" id="showCompareBtb" class="customButton" ></td> 
@@ -92,24 +99,42 @@
 
 
 <table style="width:100%;">
-  <tr>
-    <td>
+  <tr style="width:100%;">
+    <td style="width:100%;">
     	<table style="width:100%;">
-    		<tr>
-    			<td width="100%">
-				    <div id=graphdiv></div>
+    		<tr style="width:100%;">
+    			<td style="width:100%;">
+    			  <div class="parenttograph">
+				    <div id=graphleft> 
+				    	<div id=graphdiv></div>
+				    </div>	
+				    <div class="graphtopright">
+	    				<table style="width:100%;" id=d>
+	    				  <tr style="width:100%;" id=e>
+						  	  <td style="white-space:nowrap; text-align:right">show txn names on points</td>
+						 	  <td style="white-space:nowrap"><form:checkbox path="displayPointText"  onclick="graph3d.redraw();" /></td>
+						  	  <td style="white-space:nowrap; text-align:right">show range bars</td>	  
+						 	  <td style="white-space:nowrap"><form:checkbox path="displayBarRanges"  onclick="graph3d.redraw();" /></td> 
+						  </tr>
+	    				</table>			    
+				    </div> 
+				  </div>   
     			</td>
     			<td>
-    				<div id=comparetab style="display:none; overflow-y: auto; height:882px;" ></div>    				
+					<div id=comparetab></div>
     			</td>
     		</tr>		      
     	</table>
     </td>
   </tr>
+</table>
 
+
+<table style="width:100%;">
  <tr>
 	<td><h3>Quick Links &nbsp; &nbsp; &nbsp; (links open in a new tab)</h3></td> 
- </tr>	
+ </tr>
+ 	
  <tr>
     <td>	
     <a id="homePageLink" 			href="see_buildHomePageLink_JS"       target="_blank">Home</a> &nbsp; &nbsp; &nbsp;    
@@ -123,7 +148,6 @@
     <input type="button" value="+ Debug"            onclick="showHideElement('debugData');"  id="showDebugData"  class="customButton" style="float: right;" > 
    </td>	
  </tr>
-
 
  <tr> 
 	<td style="width:100%;">
@@ -235,7 +259,7 @@
      
       <table>
          <tr> 
-           <td width="15%"><b>Version: 5.6</b> </td> <td width="85%"></td> 	
+           <td width="15%"><b>Version: 5.7</b> </td> <td width="85%"></td> 	
          </tr> 
 
          <tr> 

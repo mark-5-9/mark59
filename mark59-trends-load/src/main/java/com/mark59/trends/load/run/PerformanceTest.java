@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 
 import com.mark59.core.utils.Mark59Constants;
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.DateRangeBean;
 import com.mark59.trends.data.beans.EventMapping;
 import com.mark59.trends.data.beans.Run;
@@ -72,7 +72,7 @@ public class PerformanceTest {
 		slaAO = (SlaDAO)context.getBean("slaDAO");	
 
 		run.setApplication(application);
-		run.setRunTime(AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED );
+		run.setRunTime(AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED );
 		run.setIsRunIgnored("N");
 		run.setBaselineRun("N");
 		run.setRunReference(runReferenceArg);
@@ -114,7 +114,7 @@ public class PerformanceTest {
 			
 			// generate the run reference from the run start time, if a reference argument was not passed
 			
-			if (run.getRunReference().startsWith(AppConstantsMetrics.NO_ARGUMENT_PASSED)) {
+			if (run.getRunReference().startsWith(AppConstantsTrends.NO_ARGUMENT_PASSED)) {
 				run.setRunReference(formatterSecPrecision.format(runStartDate).substring(0,8) + "_" + formatterSecPrecision.format(runStartDate).substring(8,14));
 				System.out.println("Run reference has been set as  " + run.getRunReference());	
 			}
@@ -166,7 +166,7 @@ public class PerformanceTest {
 			excludestartMsecs = TimeUnit.MINUTES.toMillis(Long.parseLong(excludestart));
 		}
 
-		if ( excludestartMsecs != 0  || !captureperiod.equalsIgnoreCase(AppConstantsMetrics.ALL) ){
+		if ( excludestartMsecs != 0  || !captureperiod.equalsIgnoreCase(AppConstantsTrends.ALL) ){
 			System.out.println();
 			System.out.println( " Transaction results will be filtered by time for this run"  );
 			System.out.print( " - only transactions " + excludestart + " mins from the start of the test ");
@@ -216,7 +216,7 @@ public class PerformanceTest {
 	 * If an event mapping is found for the given transaction / tool / Database Data type (relating to a a sample line), 
 	 * then the Database Data type for that mapping is returned (CDP flag is not taken into consideration)<br>
 	 * If a event mapping for the sample line is not found, then it is taken to be a TRANSACTION<br>
-	 * TODO: PERFMON - allow for transforms to a TRANSACTION in event mapping (catering for CDP would be needed)<br>
+	 * <p>Note: (Win) PERFMON metrics capture not specifically catered for (potentially may need a TRANSACTION transform in Event Mapping?)<br>
 	 * 
 	 * @param txnId txnId
 	 * @param performanceTool performanceTool
@@ -282,9 +282,9 @@ public class PerformanceTest {
 	protected void endOfRunCleanupTestTransactions(String keeprawresults) {
 		if (String.valueOf(true).equalsIgnoreCase(keeprawresults)) {
 			testTransactionsDAO.deleteAllForRun(run.getApplication(), run.getRunTime()); // clean up in case of re-run (the data already exists)
-			testTransactionsDAO.updateRunTime(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED, run.getRunTime());
+			testTransactionsDAO.updateRunTime(run.getApplication(), AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED, run.getRunTime());
 		} else {
-			testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsMetrics.RUN_TIME_YET_TO_BE_CALCULATED);
+			testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);
 		}
 	}
 		

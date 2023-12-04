@@ -7,10 +7,9 @@ String path = request.getServletPath().toLowerCase();
 %>
 
 <div class="sidebar">
-<div><a class=canterbury href="/mark59-metrics">Mark59</a></div>
+<div><a class=canterbury href="welcome">Mark59</a></div>
 <div class="canterburysmall">Metrics</div> 
 
-<%--   <a <% if (path.contains("welcome")){ %> class="active" <% } %> href="/mark59-metrics">Overview</a>  --%>
   <a <% if (path.contains("welcome")){ %> class="active" <% } %> href="welcome">Overview</a> 
   <a <% if (path.contains("server")){ %> class="active" <% } %> href="serverProfileList">Server Profiles</a>
   <a <% if (path.contains("commandlist")){ %> class="active" <% } %> href="commandList">Commands</a>

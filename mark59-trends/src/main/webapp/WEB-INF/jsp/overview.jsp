@@ -45,10 +45,12 @@ The following is a brief summary of each of the options shown in the left hand s
  
 <h3>Application Dashboard</h3>
 
-The current status of applications under test at a glance. The SLA states refer to the last test for the application.
+<p>The current status of applications under test at a glance. The SLA states refer to the last test for the application.
 Note that the status is computed dynamically when you enter the dashboard (it may start to take several seconds to do this as your 
 application list grows), so will reflect changes you have made to the SLA tables since last run. 'Active' or 'All' applications can
 be displayed.
+<p>You can copy (or copy/delete to rename) an application name from here.  Note to delete an application you need to first deactivate it
+(edit > set Active flag to 'N').
 
 <h3>Trend Analysis</h3>
 
@@ -120,7 +122,7 @@ Trend Analysis. Please refer to the User Guide for more detail, including a work
 	
 <br>
 <br>
-<p>Version: 5.6  Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+<p>Version: 5.7  Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 	
 </div>
 </body>

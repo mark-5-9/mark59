@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.mark59.trends.application.AppConstantsMetrics;
+import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.Run;
 import com.mark59.trends.data.beans.Sla;
 import com.mark59.trends.data.run.dao.RunDAO;
@@ -127,7 +127,7 @@ public class SlaController {
 			Map<String, Object> map = createMapOfDropdowns();
 			map.put("sla",sla);		
 			map.put("reqApp", reqApp);	
-			map.put("reqErr", "&reqErr=Oh, metric for " + Objects.requireNonNull(sla).getTxnId() + " CDP : " +sla.getIsCdpTxn() + " AlreadyExists");
+			map.put("reqErr", "Oh, a sla for " + Objects.requireNonNull(sla).getTxnId() + " (CDP : "+sla.getIsCdpTxn()+") AlreadyExists");
 			return new ModelAndView("registerSla", "map", map);			
 		}
 	}
@@ -277,8 +277,8 @@ public class SlaController {
 	
 	private List<String> populateApplyRefUrlDropdown( ) {
 		List<String> applyRefUrlOptions = new ArrayList<>();
-		applyRefUrlOptions.add(AppConstantsMetrics.APPLY_TO_NEW_SLAS_ONLY);
-		applyRefUrlOptions.add(AppConstantsMetrics.APPLY_TO_ALL_SLAS);
+		applyRefUrlOptions.add(AppConstantsTrends.APPLY_TO_NEW_SLAS_ONLY);
+		applyRefUrlOptions.add(AppConstantsTrends.APPLY_TO_ALL_SLAS);
 		return applyRefUrlOptions;
 	}		
 	

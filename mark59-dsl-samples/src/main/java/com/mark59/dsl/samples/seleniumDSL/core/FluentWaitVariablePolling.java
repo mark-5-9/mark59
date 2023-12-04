@@ -180,10 +180,7 @@ public class FluentWaitVariablePolling<T> implements Wait<T> {
 	 */
 	@Override
 	public <V> V until(Function<? super T, V> isTrue) {
-//		System.out.println("at FluentWaitVariablePolling until" );
-//		System.out.println("Input   : " + input.getClass());
-//		System.out.println("Function: " + isTrue.getClass());
-		
+		// System.out.println("at FluentWaitVariablePolling until: Input=" + input.getClass());
 		Instant end = clock.instant().plus(timeout);
 		Throwable lastException;
 		int nextFreqIx = 0;
@@ -208,7 +205,7 @@ public class FluentWaitVariablePolling<T> implements Wait<T> {
 							message, timeout.getSeconds(),pollingFreqsMs.get(nextFreqIx));
 				throw timeoutException(timeoutMessage, lastException);
 			}
-			System.out.println(">> nextFreqIx="+nextFreqIx+", Ms="+pollingFreqsMs.get(nextFreqIx));
+			// System.out.println(">> nextFreqIx="+nextFreqIx+", Ms="+pollingFreqsMs.get(nextFreqIx));
 
 			SafeSleep.sleep(pollingFreqsMs.get(nextFreqIx));
 			

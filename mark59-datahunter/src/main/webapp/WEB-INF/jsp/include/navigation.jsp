@@ -44,7 +44,7 @@
 %>
 
 <div class="sidebar">
-<div><a class=canterbury href="/mark59-metrics">Mark59</a></div>
+<div><a class=canterbury href="overview<%= reqUrlParms %>">Mark59</a></div>
 <div class="canterburysmall">DataHunter</div> 
 
   <a <% if (path.contains("overview")){ %> class="active" <% } %> href="overview<%= reqUrlParms %>">Overview</a> 
