@@ -42,7 +42,7 @@ import com.mark59.datahunter.api.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.api.model.DataHunterRestApiResponsePojo;
 import com.mark59.datahunter.api.rest.DataHunterRestApiClient;
 import com.mark59.datahunter.samples.dsl.helpers.DslConstants;
-import com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient;
+import com.mark59.scripting.selenium.SeleniumAbstractJavaSamplerClient;
 
 
 /**

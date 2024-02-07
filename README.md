@@ -4,6 +4,14 @@
 
 ## Releases 
 
+<p>Release 6.0-beta-1<br>
+
+  <ul>
+   	<li>Introduction of Playwright Scripting (Beta)
+  	<li>mark59-scripting to replace mark59-selenium-implementation 
+  	<li>Mark59 Web Applications and Apis are unaffected (except for version numbering). 
+  </ul>
+
 
 <p>Release 5.7<br>
 

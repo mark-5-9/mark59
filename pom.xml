@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59</artifactId>
-	<version>5</version>
+	<version>6</version>
 	<packaging>pom</packaging>
 
 	<name>mark59_build_all_projects</name>
@@ -16,8 +16,7 @@
 	     
 	     Note if using package and later plan to build projects individually you may need to run multiple 
 	     install goals as some projects are dependent on others (eg mark59-datahunter-samples is dependent on 
-	     mark59-dsl-samples, which is dependent on mark59-selenium-implementation, which is dependent
-	     on mark59-core) -->	
+	     mark59-dsl-samples, which is dependent on mark59-scripting, which is dependent on mark59-core) -->	
 	     
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,7 +26,8 @@
 	<modules>
 		
 		<module>mark59-core</module>
-		<module>mark59-selenium-implementation</module>
+		<module>mark59-scripting</module>		
+<!--	<module>mark59-selenium-implementation</module> -->
 
 		<module>mark59-datahunter-api</module>		
 		<module>mark59-datahunter</module>

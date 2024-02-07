@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-results-splitter</artifactId>
-	<version>5.7</version>
+	<version>6.0-beta-1</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-results-splitter</name>

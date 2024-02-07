@@ -52,16 +52,17 @@ import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.MultiplePolicie
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.NextPolicyActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.NextPolicyPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages._GenericDataHunterActionPage;
+import com.mark59.datahunter.samples.dsl.datahunterSpecificPages._Navigation;
 import com.mark59.datahunter.samples.dsl.helpers.DslConstants;
 import com.mark59.dsl.samples.devtoolsDSL.DevToolsDSL;
 import com.mark59.dsl.samples.seleniumDSL.core.ElementalUsingVariablePolling;
 import com.mark59.dsl.samples.seleniumDSL.core.FluentWaitVariablePolling;
 import com.mark59.dsl.samples.seleniumDSL.pageElements.HtmlTable;
 import com.mark59.dsl.samples.seleniumDSL.pageElements.HtmlTableRow;
-import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
-import com.mark59.selenium.corejmeterimpl.KeepBrowserOpen;
-import com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient;
-import com.mark59.selenium.driversimpl.SeleniumDriverFactory;
+import com.mark59.scripting.KeepBrowserOpen;
+import com.mark59.scripting.selenium.JmeterFunctionsForSeleniumScripts;
+import com.mark59.scripting.selenium.SeleniumAbstractJavaSamplerClient;
+import com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory;
 
 /**
  * <p>This sample is meant to demonstrate how to structure a Mark59 selenium script (not how to use use DataHunter in a performance test -
@@ -115,7 +116,8 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jmeterAdditionalParameters.put("DATAHUNTER_URL", "http://localhost:8081/mark59-datahunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST");
 		jmeterAdditionalParameters.put("FORCE_TXN_FAIL_PERCENT", "20");
-		jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(false));
+//		jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(false));
+		jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(true));
 		jmeterAdditionalParameters.put("USER", "default_user");				
 
 		// optional selenium driver related settings (defaults apply)
@@ -185,7 +187,8 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		if (startCdpListeners) {
 			startCdpListeners(jm, driver);
 		}
-
+		
+		_Navigation _navigation = new _Navigation(driver); 
 		MultiplePoliciesPage multiplePoliciesPage = new MultiplePoliciesPage(driver); 
 		MultiplePoliciesActionPage multiplePoliciesActionPage = new MultiplePoliciesActionPage(driver);
 
@@ -203,7 +206,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jm.endTransaction("DH_lifecycle_0100_deleteMultiplePolicies");	
 	
 //		add a set of policies 		
-		driver.get(dataHunterUrl + DslConstants.ADD_POLICY_URL_PATH + "?application=" + application);
+		_navigation.addItemLink().click();
 		
 		for (int i = 1; i <= 5; i++) {
 			AddPolicyPage addPolicyPage = new AddPolicyPage(driver);
@@ -234,14 +237,15 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 			jm.endTransaction("DH_lifecycle_0299_sometimes_I_fail", Outcome.FAIL);
 		}
 		
-		driver.get(dataHunterUrl + DslConstants.COUNT_POLICIES_URL_PATH + "?application=" + application);
+		_navigation.countItemsLink().click();
 		CountPoliciesPage countPoliciesPage = new CountPoliciesPage(driver); 
+		countPoliciesPage.lifecycle().clear();
 		countPoliciesPage.useability().selectByVisibleText(DslConstants.UNUSED).thenSleep();   // ** note 3
 		
 		CountPoliciesActionPage countPoliciesActionPage = new CountPoliciesActionPage(driver);	
 
 		jm.startTransaction("DH_lifecycle_0300_countUnusedPolicies");
-		countPoliciesPage.submit().submit().waitUntilClickable( countPoliciesActionPage.backLink() );
+		countPoliciesPage.submit().submit().waitUntilClickable(countPoliciesActionPage.backLink());
 		waitForSqlResultsTextOnActionPageAndCheckOk(countPoliciesActionPage);
 		jm.endTransaction("DH_lifecycle_0300_countUnusedPolicies");
 		
@@ -250,7 +254,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jm.userDataPoint(application + "_Total_Unused_Policy_Count", countPolicies);
 
 //	 	count breakdown - count for unused DATAHUNTER_PV_TEST policies  (by lifecycle) 	
-		driver.get(dataHunterUrl + DslConstants.COUNT_POLICIES_BREAKDOWN_URL_PATH + "?application=" + application);		
+		_navigation.itemsBreakdownLink().click();		
 		CountPoliciesBreakdownPage countPoliciesBreakdownPage = new CountPoliciesBreakdownPage(driver);
 		countPoliciesBreakdownPage.applicationStartsWithOrEquals().selectByVisibleText(DslConstants.EQUALS);
 		countPoliciesBreakdownPage.useability().selectByVisibleText(DslConstants.UNUSED);
@@ -262,13 +266,13 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		waitForSqlResultsTextOnActionPageAndCheckOk(countPoliciesBreakdownActionPage);		
 		jm.endTransaction("DH_lifecycle_0400_countUnusedPoliciesCurrentThread");				
 		
-		// direct access to required row-column table element by computing the id - to get the current thread (lifecycle) row :
+		// direct access to required row-column table element by computing the id:
 		int countUsedPoliciesCurrentThread = countPoliciesBreakdownActionPage.getCountForBreakdown(application, lifecycle, DslConstants.UNUSED); 
 		LOG.debug( "countUsedPoliciesCurrentThread : " + countUsedPoliciesCurrentThread); 
 		jm.userDataPoint(application + "_This_Thread_Unused_Policy_Count", countUsedPoliciesCurrentThread);	
 
 //		use next policy
-		driver.get(dataHunterUrl + DslConstants.NEXT_POLICY_URL_PATH + "?application=" + application + "&pUseOrLookup=use");		
+		_navigation.useNextItemLink().click();	
 		NextPolicyPage nextPolicyPage = new NextPolicyPage(driver); 
 		nextPolicyPage.lifecycle().type(lifecycle);
 		nextPolicyPage.useability().selectByVisibleText(DslConstants.UNUSED);
@@ -283,7 +287,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		
 		if (LOG.isDebugEnabled() ) {LOG.debug("useNextPolicy: " + application + "-" + lifecycle + " : " + nextPolicyActionPage.identifier() );	}
 		
-		//HTML table demo.
+		//HTML table demo (force application as only parameter).
 		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH  + "?application=" + application);
 		MultiplePoliciesPage printSelectedPoliciesPage = new MultiplePoliciesPage(driver);
 		printSelectedPoliciesPage.submit().waitUntilClickable();
@@ -325,7 +329,19 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	
 //		jm.writeBufferedArtifacts();
 	}
-
+	
+	
+	/**
+	 *  Just as a demo, create some transaction and go the home page (in a real test you may want go to a logout page/option).
+	 *  Will be triggered when an exception is thrown during script . 	
+	 */
+	@Override
+	protected void userActionsOnScriptFailure(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,	WebDriver driver) {
+		jm.startTransaction("DH_lifecycle_9998_userActionsOnScriptFailure");
+		System.out.println("  -- page title at userActionsOnScriptFailure is " + driver.getTitle() + " --");
+		jm.endTransaction("DH_lifecycle_9998_userActionsOnScriptFailure");
+	}
+	
 	
 	/**
 	 *	Alternative code for the addListenerResponseReceived method below, showing how to split out a long lambda into a separate 
@@ -413,28 +429,28 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		DataHunterLifecyclePvtScript thisTest = new DataHunterLifecyclePvtScript();
 
 		//1: single
-		thisTest.runSeleniumTest(KeepBrowserOpen.ONFAILURE);
+		thisTest.runUiTest(KeepBrowserOpen.ONFAILURE);
 		
 		
 		//2: multi-thread  (a. with and b. without KeepBrowserOpen option) 
-//		thisTest.runMultiThreadedSeleniumTest(2, 500);
-//		thisTest.runMultiThreadedSeleniumTest(2, 2000, KeepBrowserOpen.ONFAILURE);   
+//		thisTest.runMultiThreadedUiTest(2, 500);
+//		thisTest.runMultiThreadedUiTest(2, 2000, KeepBrowserOpen.ONFAILURE);   
   
 
 		//3: multi-thread with parms
 //		Map<String, java.util.List<String>>threadParameters = new java.util.LinkedHashMap<String,java.util.List<String>>();
 //		threadParameters.put("USER",                              java.util.Arrays.asList( "USER-MATTHEW", "USER-MARK", "USER-LUKE", "USER-JOHN"));
 //		threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "false"));	
-//		//  (a. with and b. without KeepBrowserOpen option)
-//		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters);
-//		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE);	
+		//  (a. with and b. without KeepBrowserOpen option)
+//		thisTest.runMultiThreadedUiTest(4, 2000, threadParameters);
+//		thisTest.runMultiThreadedUiTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE);	
 		
 		
 		//4: multi-thread with parms, each thread iterating, optional summary printout and/or CSV file in JMeter format. See JavaDocs for details. 
 //		Map<String, java.util.List<String>>threadParameters = new java.util.LinkedHashMap<String,java.util.List<String>>();
 //		threadParameters.put("USER",                              java.util.Arrays.asList( "USER-MATTHEW", "USER-MARK", "USER-LUKE", "USER-JOHN"));
 //		threadParameters.put(SeleniumDriverFactory.HEADLESS_MODE, java.util.Arrays.asList( "true"        , "false"    , "true"     , "false"));	
-//		thisTest.runMultiThreadedSeleniumTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE, 3, 1500, true, new File("C:/Mark59_Runs/csvSample.csv"));
+//		thisTest.runMultiThreadedUiTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE, 3, 1500, true, new File("C:/Mark59_Runs/csvSample.csv"));
 	}
 	
 }

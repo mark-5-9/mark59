@@ -28,10 +28,10 @@ import com.mark59.dsl.samples.seleniumDSL.pageElements.InputTextElement;
 import com.mark59.dsl.samples.seleniumDSL.pageElements.Link;
 import com.mark59.dsl.samples.seleniumDSL.pageElements.PageTextElement;
 import com.mark59.dsl.samples.seleniumDSL.pageElements.SubmitBtn;
-import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
-import com.mark59.selenium.corejmeterimpl.KeepBrowserOpen;
-import com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient;
-import com.mark59.selenium.driversimpl.SeleniumDriverFactory;
+import com.mark59.scripting.KeepBrowserOpen;
+import com.mark59.scripting.selenium.JmeterFunctionsForSeleniumScripts;
+import com.mark59.scripting.selenium.SeleniumAbstractJavaSamplerClient;
+import com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory;
 
 
 // >> --------- COMMENT OUT THE NEXT TWO LINES ---------  
@@ -341,7 +341,7 @@ SampleResult.sampleStart();
 Log4jConfigurationHelper.init(Level.INFO) ;
 // << 
 
-org.apache.jmeter.samplers.SampleResult testResults = new ThisScript().runSeleniumTest(KeepBrowserOpen.NEVER, true);
+org.apache.jmeter.samplers.SampleResult testResults = new ThisScript().runUiTest(KeepBrowserOpen.NEVER, true);
 if (testResults != null) {
 	for (org.apache.jmeter.samplers.SampleResult subResult : testResults.getSubResults()) {
 		SampleResult.addSubResult(subResult, false);

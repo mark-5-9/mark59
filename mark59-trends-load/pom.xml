@@ -11,7 +11,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-trends-load</artifactId>
-	<version>5.7</version>
+	<version>6.0-beta-1</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-trends-load</name>
@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-trends</artifactId>
-			<version>5.7</version>
+			<version>6.0-beta-1</version>
 		</dependency>
 		
 		<!-- standard Maven dependencies -->

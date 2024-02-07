@@ -41,7 +41,6 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mark59.core.interfaces.DriverFunctions;
 import com.mark59.core.interfaces.JmeterFunctions;
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
@@ -843,33 +842,6 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		}
 	}
 	
-	
-	/**
-	 * Capture and immediately output a 'screenshot' log. Use with caution in a 
-	 * Performance and Volume test as misuse of this method may produce many more screenshots
-	 * than intended. 
-	 * <p>Instead, you could use {@link #bufferScreenshot(String)} and {@link #writeBufferedArtifacts()}.
-	 * <p>Can be implemented by extending this class and combining with a 
-	 * {@link DriverFunctions} implementation that is capable of taking logs/screenshots    
-	 * 
-	 * @param imageName filename to use for the screenshot
-	 */
-	@Override	
-	public void writeScreenshot(String imageName){
-		System.out.println("writeScreenshot not implemented!" );
-	} 
-
-	
-	/**
-	 * Stores a 'screenshot' log in memory, ready to be written to file later.
-	 * <p>Can be implemented by extending this class and combining with a 
-	 * {@link DriverFunctions} implementation that is capable of taking logs/screenshots     
-	 */
-	@Override	
-	public void bufferScreenshot(String imageName){
-		System.out.println("bufferScreenshot not implemented!" );
-	} 
-
 
 	/**
 	 * Save the byte[] to the specified file name, and will create the parent directory if missing 

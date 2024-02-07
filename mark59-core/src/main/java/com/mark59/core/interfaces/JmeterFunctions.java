@@ -199,28 +199,6 @@ public interface JmeterFunctions {
 	 */
 	void writeStackTrace(String stackTraceName, Throwable e);
 	
-	/**
-	 * Capture and immediately output a screenshot/log. Use with caution in a 
-	 * Performance and Volume test as misuse of this method may produce many more screenshots
-	 * than intended. 
-	 * <p>Instead, you could use {@link #bufferScreenshot(String)} and {@link #writeBufferedArtifacts()}.
-	 * <p>Can be implemented by extending this class and combining with a 
-	 * {@link DriverFunctions} implementation can is capable of taking logs/screenshots    
-	 * 
-	 * @param imageName filename to use for the screenshot (without suffix)
-	 */
-	void writeScreenshot(String imageName);
-	
-	
-	/**
-	 * Stores a screenshot/log in memory, ready to be written to file later.
-	 * <p>Can be implemented by extending this class and combining with a 
-	 * {@link DriverFunctions} implementation can is capable of taking logs/screenshots
-	 *      
-	 * @param imageName filename to use for the screenshot (without suffix)
-	 */
-	void bufferScreenshot(String imageName);
-
 
 	/**
 	 * Save the byte[] to the specified file name file.

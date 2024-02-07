@@ -27,7 +27,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -38,14 +37,16 @@ import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.SafeSleep;
 import com.mark59.datahunter.samples.dsl.helpers.DslConstants;
-import com.mark59.selenium.corejmeterimpl.JmeterFunctionsForSeleniumScripts;
-import com.mark59.selenium.corejmeterimpl.KeepBrowserOpen;
-import com.mark59.selenium.corejmeterimpl.SeleniumAbstractJavaSamplerClient;
-import com.mark59.selenium.driversimpl.SeleniumDriverFactory;
+import com.mark59.scripting.KeepBrowserOpen;
+import com.mark59.scripting.ScriptingConstants;
+import com.mark59.scripting.selenium.JmeterFunctionsForSeleniumScripts;
+import com.mark59.scripting.selenium.SeleniumAbstractJavaSamplerClient;
+import com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory;
 
 /**
- * This selenium test provides a basic example of the Mark59 framework usage. It contains no 'DSL' classes etc, so that you can see the basics 
- * within the script.
+ * This script provides a basic example of Mark59 framework usage for Selenium. It contains no 'DSL' classes etc,
+ *  so that you can see the basics within the script.
+ *  
  * <p>This type of scripting would be appropriate when our are knocking out a 'quick and dirty' script for a simple application. It will quickly
  *  become too limited, cumbersome and difficult to maintain for more complex application tests, where DSL style scripts should be used.   
  * 
@@ -76,20 +77,15 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		jmeterAdditionalParameters.put("DATAHUNTER_URL",			"http://localhost:8081/mark59-datahunter");
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST_BASIC");
 		jmeterAdditionalParameters.put("USER", 	 "default_user");	
-		// mark59 defined parameters 
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, Mark59Constants.CHROME);   // FIREFOX
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.HEADLESS_MODE, String.valueOf(false));
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.PAGE_LOAD_STRATEGY, PageLoadStrategy.NORMAL.toString());
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, "");
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, "");
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, 	String.valueOf(false));
+		// mark59 predefined parameters 
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, Mark59Constants.CHROME);
+		jmeterAdditionalParameters.put(ScriptingConstants.HEADLESS_MODE, String.valueOf(false));  // default is true
+		jmeterAdditionalParameters.put(ScriptingConstants.ADDITIONAL_OPTIONS, "");
 		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, "");	
 		
 		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,	String.valueOf(false));
 		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 		String.valueOf(false));
 		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 		String.valueOf(false));
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PERF_LOG,			String.valueOf(false));
 		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,		String.valueOf(false));	
 		
 		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));		
@@ -105,7 +101,6 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 //		jm.logScreenshotsAtEndOfTransactions(Mark59LogLevels.WRITE);
 //		jm.logPageSourceAtStartOfTransactions(Mark59LogLevels.WRITE);		
 //		jm.logPageSourceAtEndOfTransactions(Mark59LogLevels.WRITE );
-//		jm.logPerformanceLogAtEndOfTransactions(Mark59LogLevels.WRITE);
 //		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.BUFFER);
 
 		String thread = Thread.currentThread().getName();
@@ -120,10 +115,11 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		String application 		= context.getParameter("DATAHUNTER_APPLICATION_ID");
 		String user 			= context.getParameter("USER");
 
-// 		delete any existing policies for this application/thread combination
 		jm.writeLog("kilroy", "txt", "Kilroy was here".getBytes());
-		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
 		jm.bufferLog("kilroybuffer", "txt", "Kilroy was buffered here".getBytes());		
+		
+// 		delete any existing policies for this application/thread combination
+		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
 		driver.get(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
 		driver.findElement(By.id("lifecycle")).sendKeys(lifecycle);
 		driver.findElement(By.id("submit")).submit();	
@@ -189,7 +185,7 @@ public class DataHunterBasicSampleScript  extends SeleniumAbstractJavaSamplerCli
 		DataHunterBasicSampleScript thisTest = new DataHunterBasicSampleScript();
 
 		//1: single
-		thisTest.runSeleniumTest(KeepBrowserOpen.ONFAILURE);
+		thisTest.runUiTest(KeepBrowserOpen.ONFAILURE);
 		
 		
 		//2: multi-thread  (a. with and b. without KeepBrowserOpen option) 

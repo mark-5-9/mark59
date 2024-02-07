@@ -80,6 +80,8 @@ import com.opencsv.exceptions.CsvValidationException;
  * Written: Australian Winter 2019  
  */
 public class ResultsSplitter { 
+	
+	public static final String MARK59_VERSION  = "6.0-beta-1";	
 
 	public static final String ERROR_TXNS_NO						= "No";
 	public static final String ERROR_TXNS_RENAME					= "Rename";
@@ -874,7 +876,7 @@ public class ResultsSplitter {
 	
     public static void main( String[] args ) throws IOException, SAXException, ParserConfigurationException
     {
-        System.out.println( "Results Splitter starting..   Version: 5.7" );
+        System.out.println( "Results Splitter starting..   Version: " + MARK59_VERSION);
 
 //        for a quick and dirty test ...
 //        args = new String[]{"-i", "C:/Jmeter_Results/myapp", "-f", "myapp_TestResults_converted.csv", "-m", "SplitByDataType", "-e", "No", "-x", "True" };
