@@ -232,11 +232,12 @@ public interface DriverFunctionsSeleniumBuilder<O extends MutableCapabilities>	{
 	 * version of Chrome. 
 	 * 
 	 * <p>For example, if you have downloaded Chromium directly onto your C: drive on a Win machine, you would set 
-	 * the "BROWSER_EXECUTABLE" as : 
+	 * the "OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE" as : 
 	 * <br><br><b>C:/Chromium/Application/chrome.exe</b> </p>
 	 * 
 	 * <p>This over-rides the mark59 property <code>mark59.browser.executable</code> (if set).
-	 * <p>If neither the  "BROWSER_EXECUTABLE" JMeter parameter or <code>mark59.browser.executable</code> property are
+	 * <p>If neither the  "OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE" JMeter parameter or 
+	 * <code>mark59.browser.executable</code> property are
 	 * set, the default installation of the expected browser is assumed.      
 	 * 
 	 * @param browserExecutablePath executable path to the browser executable to be used (java.nio.file.Path)

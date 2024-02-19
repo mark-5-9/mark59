@@ -16,6 +16,7 @@
 
 package com.mark59.scripting;
 
+import com.mark59.core.utils.PropertiesKeys;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.Proxy;
@@ -33,14 +34,29 @@ public class ScriptingConstants {
 	
 	
 	/**
-	 * "BROWSER_EXECUTABLE" - Sets the browser executable path (eg to a Chrome Beta or Chromium instance).
-	 * <p>Will over-ride the mark59 property <code>mark59.browser.executable</code> (if set). 
-	 * <p>If neither the "BROWSER_EXECUTABLE" JMeter parameter or <code>mark59.browser.executable</code> property 
-	 * are set, the default installation of the expected browser is assumed 
-	 * (note: a default installation may not be available for Playwright). 
+	 * "OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE"
+	 * - sets the browser executable path (eg to a Chrome Beta or Chromium instance).
+	 * <p>Will over-ride the mark59 property <code>mark59.browser.executable</code> in mark59.properties (if set). 
+	 * <p>If neither this JMeter argument or <code>mark59.browser.executable</code> property 
+	 * are set, the default installation of the expected browser is assumed.  In most cases Selenium will find
+	 * the default installation, however, for Playwright a default Chrome install location for the O/S is simply 
+	 * set by Mark59 - so for Playwright we advise the executable path be explicitly set, either by setting 
+	 * the mark59 property or supplying this argument in the script.  Argument value must be non-blank to be 
+	 * considered set.
+	 * 
+	 * @see PropertiesKeys#MARK59_PROP_BROWSER_EXECUTABLE  
+	 * @see #DEFAULT_CHROME_PATH_LINUX
+	 * @see #DEFAULT_CHROME_PATH_MAC
+	 * @see #DEFAULT_CHROME_PATH_WIN
 	 */
+	public static final String OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE = "OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE";
+
+	/**
+	 * NO LONGER IN USE - PLEASE CHANGE TO {@link #OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE}
+	 */
+	@Deprecated
 	public static final String BROWSER_EXECUTABLE = "BROWSER_EXECUTABLE";
-		
+	
 	
 	/**
 	 * <p>"ADDITIONAL_OPTIONS" - Caters for the direct setting of any additional driver options from the JMeter
@@ -174,5 +190,20 @@ public class ScriptingConstants {
 	 *  @see Page#setViewportSize(int, int)
 	 */
 	public static final String PLAYWRIGHT_VIEWPORT_SIZE = "PLAYWRIGHT_VIEWPORT_SIZE";	
+
+	
+	/** Assumed path for a default location of Chrome on WINDOWS (for Playwright scripts)
+	 * <br><code>"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";</code> */
+	public static final String DEFAULT_CHROME_PATH_WIN = 
+			"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+
+	/** Assumed path for a default location of Chrome on MAC (for Playwright scripts)
+	 * <br><code>"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";</code> */
+	public static final String DEFAULT_CHROME_PATH_MAC = 
+			"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+	
+	/** Assumed path for a default location of Chrome on NIX (for Playwright scripts)
+	 * <br><code>"/opt/google/chrome/google-chrome";</code> */	
+	public static final String DEFAULT_CHROME_PATH_LINUX = "/opt/google/chrome/google-chrome";	
 	
 }

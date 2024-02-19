@@ -82,7 +82,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * 
 	 * <p>When running from the IDE you may want the default to be to print the Results Summary. This is done for Mark59
 	 * selenium scripts, and can be done for custom implementations using this field. For an example, see the 
-	 * mark59-datahunter-samples project, class DataHunterLifecyclePvtScriptUsingRestApiClient.    
+	 * mark59-scripting-samples project, class DataHunterLifecyclePvtScriptUsingRestApiClient.    
 	 * <p>Also see {@link #isPrintResultsSummary}     
 	 */
 	public static final String LOG_RESULTS_SUMMARY = "LOG_RESULTS_SUMMARY";

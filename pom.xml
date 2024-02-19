@@ -27,12 +27,12 @@
 		
 		<module>mark59-core</module>
 		<module>mark59-scripting</module>		
-<!--	<module>mark59-selenium-implementation</module> -->
 
 		<module>mark59-datahunter-api</module>		
 		<module>mark59-datahunter</module>
-		<module>mark59-datahunter-samples</module>
-		<module>mark59-dsl-samples</module>		
+
+		<module>mark59-scripting-sample-dsl</module>
+		<module>mark59-scripting-samples</module>		
 
 		<module>mark59-metrics-common</module>						
 		<module>mark59-metrics</module>		

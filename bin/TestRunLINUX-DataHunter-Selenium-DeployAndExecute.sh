@@ -1,7 +1,7 @@
 #     -------------------------------------------------------------------------------------------------------------------------------------------------
 #     | Deploy Artifacts and Run JMeter DataHunter Selenium Test.
 #     |
-#     | NOTE - you may need to ensure the chromedriver file at root of mark59-datahunter-samples project is compatible with your Chrome version
+#     | NOTE - you may need to ensure the chromedriver file at root of mark59-scripting-samples project is compatible with your Chrome version
 #     |        (see Mark59 user guide for details). 
 #     |  
 #     |      - FYI, mark59serverprofiles.xlsx is not copied. Before you run the '..usingExcel' testplan, copy it manually to the JMeter bin directory
@@ -31,16 +31,16 @@ echo StartCdpListeners is $StartCdpListeners
 
 {   # try  
 
-    cd ../mark59-datahunter-samples && 
+    cd ../mark59-scripting-samples && 
     DH_TEST_SAMPLES_DIR=$(pwd) && 
-    echo mark59-datahunter-samples base dir is $DH_TEST_SAMPLES_DIR &&
+    echo mark59-scripting-samples base dir is $DH_TEST_SAMPLES_DIR &&
 
     cp ./mark59.properties ~/apache-jmeter/bin/mark59.properties &&
     cp ./chromedriver ~/apache-jmeter/bin/chromedriver && 
     cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar && 
-    cp ./target/mark59-datahunter-samples.jar  ~/apache-jmeter/lib/ext/mark59-datahunter-samples.jar &&
-    rm -rf ~/apache-jmeter/lib/ext/mark59-datahunter-samples-dependencies &&
-    cp -r ./target/mark59-datahunter-samples-dependencies ~/apache-jmeter/lib/ext/mark59-datahunter-samples-dependencies &&
+    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar &&
+    rm -rf ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
+    cp -r ./target/mark59-scripting-samples-dependencies ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
     mkdir -p ~/Mark59_Runs/Jmeter_Results/DataHunter && 
     cd ~/apache-jmeter/bin && 
     echo Starting JMeter execution from $PWD && 

@@ -30,7 +30,7 @@ public class Mark59Constants {
 	/**
 	 * current Mark59 version
 	 */
-	public static final String MARK59_VERSION  = "6.0-beta-1";	
+	public static final String MARK59_VERSION  = "6.0-beta-2";	
 		
 	/**
 	 * TRUE
@@ -272,6 +272,25 @@ public class Mark59Constants {
 	}
 
   
+	/**
+	 * Defines enumerated values for the operating system.
+	 * <p>Enum values are WINDOWS, LINUX, MAC 
+	 */
+	public enum OS {
+		/** WINDOWS */
+		WINDOWS("WINDOWS"),
+		/** LINUX */
+		LINUX("LINUX"),
+		/** MAC */
+		MAC("MAC");
+		private final String osName;
+		/** @param osName operating system name */
+		OS(String osName) {	this.osName = osName;}
+		/** @return a string holding the operating system name */
+		public String getOsName() {return osName;}
+	}
+
+
 	private Mark59Constants() {
 	}    
 }

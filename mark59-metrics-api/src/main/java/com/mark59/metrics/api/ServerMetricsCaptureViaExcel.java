@@ -58,7 +58,6 @@ import com.mark59.metrics.drivers.ServerProfileRunner;
 import com.mark59.metrics.pojos.ParsedCommandResponse;
 import com.mark59.metrics.pojos.WebServerMetricsResponsePojo;
 import com.mark59.metrics.utils.MetricsConstants;
-import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * 
@@ -210,6 +209,10 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 	}
 
 	
+	/**
+	 * just to do some quick and dirty testing
+	 * @param args
+	 */
 	public static void main(String[] args) { 
 		Log4jConfigurationHelper.init(Level.INFO);
 		org.apache.logging.log4j.core.config.Configurator.setLevel("org.apache.poi.util.XMLHelper", Level.ERROR);
@@ -217,9 +220,8 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 		//from test cases..		 
 		ServerMetricsCaptureViaExcel ostest = new ServerMetricsCaptureViaExcel();
 		additionalTestParametersMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH,
-				"./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
-		//		"./src/test/resources/duffSimpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
-		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + MetricsUtils.obtainOperatingSystemForLocalhost());	
+				"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");	
+		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + Mark59Utils.obtainOperatingSystemForLocalhost());	
 		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'
 		// to force Results summary to log:	
 		Arguments jmeterParameters = ostest.getDefaultParameters();
@@ -232,8 +234,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 
 		ServerMetricsCaptureViaExcel groovyscripttest = new ServerMetricsCaptureViaExcel();
 		additionalTestParametersMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH,
-				"./src/test/resources/simpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
-		//		"./src/test/resources/duffSimpleSheetWithLocalhostProfileForEachOs/mark59serverprofiles.xlsx");	
+				"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");	
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "SimpleScriptSampleRunner");	
 		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'
 		Arguments groovyscriptjmeterParameters = groovyscripttest.getDefaultParameters();

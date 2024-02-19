@@ -4,7 +4,7 @@ REM   |                   - when using a mySQL database, the mark59trendsdb data
 REM   |
 REM   |  Alternative to running this .bat (H2 database ONLY)
 REM   |		 - login  to the server-metrics-web application  "http://localhost:8085/mark59-trends" 
-REM   |		 - run the DemoWIN-DataHunterSeleniumTrendsLoad profile. 
+REM   |		 - run the DemoWIN-DataHunterTestTrendsLoad profile. 
 REM   |
 REM   |  Note the use of double quotes n a few places, required to cater for the & (ampersand) char, or to enter a space (equates to a blank blank here). 
 REM   -------------------------------------------------------------------------------------------------------------------------------------------------

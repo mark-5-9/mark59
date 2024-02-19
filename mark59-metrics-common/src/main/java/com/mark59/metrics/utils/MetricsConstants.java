@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class MetricsConstants {
 	
-	public static final String MARK59_VERSION_METRICS = "6.0-beta-1";	
+	public static final String MARK59_VERSION_METRICS = "6.0-beta-2";	
 	public static final String MARK59_SERVER_PROFILES_EXCEL_FILE = "mark59serverprofiles.xlsx";  
 	public static final String SERVER_PROFILE_NOT_FOUND  = "SERVER_PROFILE_NOT_FOUND";	
 	
@@ -46,16 +46,6 @@ public class MetricsConstants {
 	public static final String SSH_KNOWN_HOSTS = "SSH_KNOWN_HOSTS";
 	public static final String SSH_IDENTITY = "SSH_IDENTITY";
 	public static final String SSH_PASSPHRASE = "SSH_PASSPHRASE";	
-	
-	public enum OS {
-		WINDOWS("WINDOWS"), LINUX("LINUX"), UNIX("UNIX"), UNKNOWN("UNKNOWN");
-
-		private final String osName;
-		
-		OS(String osName) {	this.osName = osName;}
-		public String getOsName() {return osName;}
-	}
-	
 	
 	public enum CommandExecutorDatatypes {
 		WMIC_WINDOWS("WMIC_WINDOWS"), POWERSHELL_WINDOWS("POWERSHELL_WINDOWS"), SSH_LINUX_UNIX("SSH_LINUX_UNIX"), GROOVY_SCRIPT("GROOVY_SCRIPT");

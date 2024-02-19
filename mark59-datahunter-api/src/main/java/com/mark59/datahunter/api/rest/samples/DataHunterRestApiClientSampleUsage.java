@@ -30,7 +30,7 @@ public class DataHunterRestApiClientSampleUsage {
 	 * 
 	 * For an example of how to create JMeter transactions for the matched rows (in a script that does not
 	 * require the use of selenium), refer to the sample script DataHunterLifecyclePvtNoSeleniumUsesRestApi
-	 * in the mark59-datahunter-samples project.
+	 * in the mark59-scripting-samples project.
 	 * 
 	 * @param dhApiClient DataHunterRestApiClient
 	 */

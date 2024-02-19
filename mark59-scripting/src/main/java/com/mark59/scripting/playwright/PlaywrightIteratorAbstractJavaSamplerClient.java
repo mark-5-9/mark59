@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
@@ -34,6 +32,7 @@ import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.scripting.KeepBrowserOpen;
 import com.mark59.scripting.UiAbstractJavaSamplerClient;
+import com.mark59.scripting.interfaces.UIiterator;
 import com.microsoft.playwright.Page;
 
 
@@ -49,7 +48,8 @@ import com.microsoft.playwright.Page;
  * <li> <b>ITERATE_FOR_PERIOD_IN_SECS.</b> at the end of each iteration, a check is made to see if the time in seconds the script has been iterating has reached this.
  *   If so, the finalize is executed and the script completed.  Must be a non-zero numeric to be active.
  * <li> <b>ITERATE_FOR_NUMBER_OF_TIMES.</b> at the end of each iteration, a check is made to see if the number of iterations the script has performed has reached this value.
- *  If so, the finalize is executed and the script completed.  Must be a non-zero numeric to be active.
+ *  If so, the finalize is executed and the script completed.  Must be a non-zero numeric to be active. The default value is 1, so it needs to be over-ridden with 0
+ *   (or a non-numeric like a space) to deactivate.  
  * <li> <b>STOP_THREAD_AFTER_TEST_START_IN_SECS.</b> at the start of each iteration, a check is made to see if the time in seconds since the JMeter test started exceeds this value.
  *  If so, the finalize is executed and the and the script completed. The check is also made at script start-up, so when the script (re)starts and this condition has been met the thread will
  *  be stopped immediately.  Must be a non-zero numeric to be active.   
@@ -93,71 +93,36 @@ import com.microsoft.playwright.Page;
  *<p>Note that keeping a single browser / thread open and iterating for an entire test means no intermediate results can be reported (all the data needs to be held in memory), 
  *so it is suggested this class should only be used when necessary.    
  *
+ * @see UIiterator
  * @see PlaywrightAbstractJavaSamplerClient
  * @see UiAbstractJavaSamplerClient
- * 
- * TODO: rationalize common code between this and the Selenium Iterator?
  * 
  * @author Philip Webb
  * Written: Australian Summer 2023/24  
  */
-public abstract class PlaywrightIteratorAbstractJavaSamplerClient  extends  PlaywrightAbstractJavaSamplerClient {
+public abstract class PlaywrightIteratorAbstractJavaSamplerClient extends PlaywrightAbstractJavaSamplerClient implements UIiterator {
 
 	/** log4J class logger */
 	public static final Logger LOG = LogManager.getLogger(PlaywrightIteratorAbstractJavaSamplerClient.class);
 
-	/**
-	 * At the end of each iteration, a check is made to see if the time in seconds the script has been iterating has reached this.
-	 * If so, the finalize is executed and the script completed. Must be a non-zero numeric to be active.
-	 * @see PlaywrightIteratorAbstractJavaSamplerClient
-	 */
-	public static final String ITERATE_FOR_PERIOD_IN_SECS 			= "ITERATE_FOR_PERIOD_IN_SECS";
 	
-	/**
-	 * At the end of each iteration, a check is made to see if the number of iterations the script has performed has reached this value.
-	 * If so, the finalize is executed and the script completed. Must be a non-zero numeric to be active.
-	 * @see PlaywrightIteratorAbstractJavaSamplerClient
-	 */
-	public static final String ITERATE_FOR_NUMBER_OF_TIMES			= "ITERATE_FOR_NUMBER_OF_TIMES";
-
-	/**
-	 * The target length of time of each iteration. A thread delay calculated at the end of the iteration forces the iteration to the iteration pacing time.  
-	 * Must be a non-zero numeric to be active.
-	 * @see PlaywrightIteratorAbstractJavaSamplerClient
-	 */	
-	public static final String ITERATION_PACING_IN_SECS 			= "ITERATION_PACING_IN_SECS";	
-	
-	/**
-	 * At the start of each iteration, a check is made to see if the time in seconds since the JMeter test started exceeds this value.
-	 * If so, the finalize is executed and the and the script completed. The check is also made at script start-up, so when the script (re)starts and this 
-	 * condition has been met the thread will be stopped immediately.  Must be a non-zero numeric to be active.
-	 * @see PlaywrightIteratorAbstractJavaSamplerClient
-	 */	
-	public static final String STOP_THREAD_AFTER_TEST_START_IN_SECS	= "STOP_THREAD_AFTER_TEST_START_IN_SECS";	
-	
-	/**
-	 * By default the script thread will re-start on failure (timers permitting).  This flag can be set to <b>true</b> to force the thread to stop
-	 * for the rest of the test.
-	 * @see PlaywrightIteratorAbstractJavaSamplerClient
-	 */	
-	public static final String STOP_THREAD_ON_FAILURE 				= "STOP_THREAD_ON_FAILURE";
-
-	
-	private static final Map<String,String> defaultIterArgumentsMap;	
+	/** Hold default arguments for implementations of this class */
+	private static final Map<String, String> playwrightDefaultIteratorArgumentsMap; 
 	static {
-		Map<String,String> staticIterMap = new LinkedHashMap<>();
+		Map<String,String> staticMap = new LinkedHashMap<>();
 
-		staticIterMap.put("______________________ interation settings: _____________________", "" );
-		staticIterMap.put(ITERATE_FOR_PERIOD_IN_SECS, 						"0");
-		staticIterMap.put(ITERATE_FOR_NUMBER_OF_TIMES,  					"1");
-		staticIterMap.put(ITERATION_PACING_IN_SECS,  						"0");
-		staticIterMap.put(STOP_THREAD_AFTER_TEST_START_IN_SECS,				"0");
-		staticIterMap.put(STOP_THREAD_ON_FAILURE,		  String.valueOf(false));
-		staticIterMap.putAll(defaultArgumentsMap);
+		staticMap.put("______________________ interation settings: _____________________", "" );
+		staticMap.put(ITERATE_FOR_PERIOD_IN_SECS, 						"0");
+		staticMap.put(ITERATE_FOR_NUMBER_OF_TIMES,  					"1");
+		staticMap.put(ITERATION_PACING_IN_SECS,  						"0");
+		staticMap.put(STOP_THREAD_AFTER_TEST_START_IN_SECS,				"0");
+		staticMap.put(STOP_THREAD_ON_FAILURE,		  String.valueOf(false));		
 		
-		defaultIterArgumentsMap = Collections.unmodifiableMap(staticIterMap);		
+		staticMap.putAll(buildBasePlaywrightStaticArgsMap());
+		
+		playwrightDefaultIteratorArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}
-	
+
 	
 	/** 
 	 * Creates the list of parameters with default values, as they would appear on the JMeter GUI for the JavaSampler being implemented.
@@ -169,7 +134,7 @@ public abstract class PlaywrightIteratorAbstractJavaSamplerClient  extends  Play
 	 */
 	@Override
 	public Arguments getDefaultParameters() {
-		return Mark59Utils.mergeMapWithAnOverrideMap(defaultIterArgumentsMap, additionalTestParameters());
+		return Mark59Utils.mergeMapWithAnOverrideMap(playwrightDefaultIteratorArgumentsMap, additionalTestParameters());
 	}
 		
 
@@ -201,11 +166,11 @@ public abstract class PlaywrightIteratorAbstractJavaSamplerClient  extends  Play
 		
 		Long jMeterTestStartMs = 0L;
 		if (JMeterContextService.getContext().getVariables() != null) {
-			jMeterTestStartMs = convertToLong("TESTSTART.MS", JMeterContextService.getContext().getVariables().get("TESTSTART.MS"));
+			jMeterTestStartMs = convertToLong("TESTSTART.MS", JMeterContextService.getContext().getVariables().get("TESTSTART.MS"), LOG);
 		} else {
 			LOG.debug("JMeterVariables do not exist (probably executing outside JMeter - so any STOP_THREAD_AFTER_TEST_START_IN_SECS condition is not checked");
 		}
-		Long stopThreadAfterTestStartMs = convertToLong(STOP_THREAD_AFTER_TEST_START_IN_SECS, context.getParameter(STOP_THREAD_AFTER_TEST_START_IN_SECS)) * 1000;
+		Long stopThreadAfterTestStartMs = convertToLong(STOP_THREAD_AFTER_TEST_START_IN_SECS, context.getParameter(STOP_THREAD_AFTER_TEST_START_IN_SECS), LOG) * 1000;
 		
 		if (isStopThreadAfterTestStartMsConditionMet(jMeterTestStartMs, stopThreadAfterTestStartMs)){
 			LOG.info("Thread Group " + tgName + " is stopping ('STOP_THREAD_AFTER_TEST_START_IN_SECS' has been reached)" );
@@ -234,9 +199,9 @@ public abstract class PlaywrightIteratorAbstractJavaSamplerClient  extends  Play
 			LOG.debug("<< finished initiatePlaywrightTest" );
 
 			Long scriptStartTimeMs 		 	= System.currentTimeMillis(); 			
-			Long iterateForPeriodMs 	 	= convertToLong(ITERATE_FOR_PERIOD_IN_SECS, context.getParameter(ITERATE_FOR_PERIOD_IN_SECS)) * 1000;
+			Long iterateForPeriodMs 	 	= convertToLong(ITERATE_FOR_PERIOD_IN_SECS, context.getParameter(ITERATE_FOR_PERIOD_IN_SECS), LOG) * 1000;
 			Integer iterateNumberOfTimes 	= convertToInteger(context.getParameter(ITERATE_FOR_NUMBER_OF_TIMES));
-			long iterationPacingMs       	= convertToLong(ITERATION_PACING_IN_SECS, context.getParameter(ITERATION_PACING_IN_SECS)) * 1000;
+			long iterationPacingMs       	= convertToLong(ITERATION_PACING_IN_SECS, context.getParameter(ITERATION_PACING_IN_SECS), LOG) * 1000;
 			long scriptIterationStartTimeMs;
 			long delay = 0;
 			
@@ -251,7 +216,7 @@ public abstract class PlaywrightIteratorAbstractJavaSamplerClient  extends  Play
 			}
 			int i=0;
 			
-			while ( ! isAnyIterateEndConditionMet(tgName, scriptStartTimeMs, iterateForPeriodMs, iterateNumberOfTimes, i, jMeterTestStartMs,  stopThreadAfterTestStartMs)) {
+			while (!isAnyIterateEndConditionMet(tgName, scriptStartTimeMs, iterateForPeriodMs, iterateNumberOfTimes, i, jMeterTestStartMs,  stopThreadAfterTestStartMs, LOG)){
 				i++;
 				LOG.debug(">> initiatePlaywrightTest (" + i + ")");
 				scriptIterationStartTimeMs =  System.currentTimeMillis();
@@ -290,54 +255,6 @@ public abstract class PlaywrightIteratorAbstractJavaSamplerClient  extends  Play
 			}
 		}
 		return jm.getMainResult();
-	}
-
-
-	private Long convertToLong(String parameterName, String parameter ) {
-		long convertedLong = 0L;
-		if (parameter!= null) parameter = parameter.trim();
-		if (NumberUtils.isCreatable(parameter)){
-			convertedLong = Long.parseLong(parameter.trim());
-		} else {
-			LOG.debug("0l is being assumed for the parameter '" + parameterName + "'" );
-		}
-		return convertedLong;
-	}
-
-	private Integer convertToInteger(String parameter) {
-		int convertedInt = 0;
-		if (parameter!= null){
-			if (StringUtils.isNumeric(parameter.trim())){
-				convertedInt = Integer.parseInt(parameter.trim());
-			}
-		}
-		return convertedInt;
-	}
-
-	private boolean isAnyIterateEndConditionMet(String tgName, Long scriptStartTimeMs, Long iterateForPeriodMs, 
-			Integer iterateNumberOfTimes, Integer alreadyIterated, Long jMeterTestStartMs, Long stopThreadAfterTestStartMs) {
-		
-		if ( iterateNumberOfTimes > 0 && alreadyIterated >= iterateNumberOfTimes ){
-			return true;
-		}
-		if ( iterateForPeriodMs > 0 &&  System.currentTimeMillis() > scriptStartTimeMs + iterateForPeriodMs ){
-			return true;
-		}
-		if (isStopThreadAfterTestStartMsConditionMet(jMeterTestStartMs, stopThreadAfterTestStartMs)) {
-			LOG.info("Thread Group " + tgName + " will be stopped on any further Thread Loops ('STOP_THREAD_AFTER_TEST_START_IN_SECS' has been reached)" );
-			return true;
-		}
-		return false;
-	}
-
-
-	/**
-	 * @param jMeterTestStartMs  obtained from JMeter variable "TESTSTART.MS"
-	 * @param stopThreadAfterTestStartMs how long to run the thread 
-	 * @return a boolean (is the condition met?)
-	 */
-	private boolean isStopThreadAfterTestStartMsConditionMet(Long jMeterTestStartMs, Long stopThreadAfterTestStartMs) {
-		return jMeterTestStartMs > 0 && stopThreadAfterTestStartMs > 0 && System.currentTimeMillis() > jMeterTestStartMs + stopThreadAfterTestStartMs;
 	}
 
 

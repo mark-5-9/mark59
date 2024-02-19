@@ -127,7 +127,7 @@ The supplied examples should get you started.
 There is much more detail available including a fully worked example of adding a Profile, a Command and its Parser,
  in the User Guide available at <a href="https://mark59.com">The Mark59 Website</a>. 
 
-<p>Mark59 Version: 5.7</p>  
+<p>Mark59 Version: 6.0-beta-2</p>  
 			
 </div>
 </body>

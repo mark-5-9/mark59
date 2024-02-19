@@ -13,29 +13,11 @@ import org.apache.poi.ss.usermodel.Cell;
 
 import com.mark59.core.utils.SimpleAES;
 import com.mark59.metrics.data.beans.ServerProfile;
-import com.mark59.metrics.utils.MetricsConstants.OS;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
 public class MetricsUtils {
-
-	
-	public static String obtainOperatingSystemForLocalhost() {	
-	
-		String operatingSystem = System.getProperty("os.name",OS.UNKNOWN.getOsName());
-		
-		if ( operatingSystem.toUpperCase().contains("WIN")) {
-			operatingSystem = OS.WINDOWS.getOsName();
-		} else if ( operatingSystem.toUpperCase().contains("LINUX")) {
-			operatingSystem = OS.LINUX.getOsName();
-		} else if ( operatingSystem.toUpperCase().contains("UNIX")) {
-			operatingSystem = OS.UNIX.getOsName();
-		} else {
-			operatingSystem = OS.UNKNOWN.getOsName();
-		}
-		return operatingSystem;
-	}
 
 	
 	public static Object runGroovyScript(String commandResponseParserScript, String commandResponse) {

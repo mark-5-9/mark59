@@ -1,8 +1,20 @@
+
+This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT always be in a completely consistent state.<br><br>
+
 ## Mark59 Documention, Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+<p>Release 6.0-beta-2<br>
+
+  <ul>
+   	<li>Refine Playwright Options for Scripting
+  	<li>Scripting samples moved to mark59-scripting-samples, mark59-scripting-sample-dsl 
+  	<li>Creation of Playwright jmx and work or samples
+  	<li>Multiple improvements to Beta-1 code and javadocs  	
+  </ul>
 
 <p>Release 6.0-beta-1<br>
 

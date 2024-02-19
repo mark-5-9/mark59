@@ -27,8 +27,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mark59.core.utils.Mark59Constants.DatabaseTxnTypes;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
@@ -225,5 +225,22 @@ public class Mark59Utils {
 		return listOfStrings;
 	}
 
+
+	/**
+	 * @return LINUX is returned as the default, other options are WINDOWS and MAC 
+	 */
+	public static String obtainOperatingSystemForLocalhost() {	
+		String operatingSystem = Mark59Constants.OS.LINUX.getOsName();
+		
+		String osNameProp = System.getProperty("os.name", Mark59Constants.OS.LINUX.getOsName())
+				.toUpperCase(java.util.Locale.ENGLISH);
+		
+		if ( osNameProp.indexOf("WIN") >= 0 ){
+			operatingSystem = Mark59Constants.OS.WINDOWS.getOsName();
+		} else if ( osNameProp.indexOf("MAC") >= 0 ) {
+			operatingSystem = Mark59Constants.OS.MAC.getOsName();
+		} 
+		return operatingSystem;
+	}
 	
 }

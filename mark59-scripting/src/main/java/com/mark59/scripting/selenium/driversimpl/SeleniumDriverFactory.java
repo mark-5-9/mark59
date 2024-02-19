@@ -18,6 +18,7 @@ package com.mark59.scripting.selenium.driversimpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
@@ -90,12 +91,9 @@ public class SeleniumDriverFactory {
 	public static final String HEADLESS_MODE = ScriptingConstants.HEADLESS_MODE;
 	
 	/**
-	 * "BROWSER_EXECUTABLE" - Set an alternate browser executable (eg to a Chrome Beta or Chromium instance).
-	 * Will over-ride the mark59 property <code>mark59.browser.executable</code> (if set). 
-	 * If neither the "BROWSER_EXECUTABLE" JMeter parameter or <code>mark59.browser.executable</code> property 
-	 * are set, the default installation of the expected browser is assumed. 
-	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAlternateBrowser
+	 * NO LONGER IN USE - PLEASE CHANGE TO {@link ScriptingConstants#OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE}
 	 */
+	@Deprecated
 	public static final String BROWSER_EXECUTABLE = ScriptingConstants.BROWSER_EXECUTABLE;
 	
 	/**
@@ -218,11 +216,37 @@ public class SeleniumDriverFactory {
 		// Set an alternate browser executable. If mark59.property contains mark59.browser.executable, that will be used
 		// but can overridden by the BROWSER_EXECUTABLE augment. If neither is present the default installation is used.
 		
-		if (StringUtils.isNotBlank(pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE)))
-			builder.setAlternateBrowser(new File(pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE)).toPath());
+		Path browserPath = null;
+		String pathMsg = "";
 		
-		if (StringUtils.isNotBlank(arguments.get(BROWSER_EXECUTABLE)))
-			builder.setAlternateBrowser(new File(arguments.get(BROWSER_EXECUTABLE)).toPath());
+		if (StringUtils.isNotBlank(pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE))) {
+			browserPath = new File(pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE)).toPath();
+			builder.setAlternateBrowser(browserPath);
+			pathMsg = "Selenium script uses prop to set browser: " + pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE);
+		}
+		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE))) {
+			try {
+				browserPath = new File(arguments.get(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE)).toPath();
+				builder.setAlternateBrowser(browserPath);
+				pathMsg = "Selenium script uses override arg to set browser: : "
+						+ arguments.get(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE);
+			} catch (Exception e) {
+				throw new RuntimeException(" An invalid value for "
+						+ "OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE JMeter argument was passed !"
+						+ " ["+arguments.get(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE)+"]");
+			}
+		} 
+		if (browserPath == null) {
+			pathMsg ="Selenium driver will use defaults to find browser.";
+		}
+		if (LOG.isDebugEnabled())
+			LOG.debug(pathMsg);
+
+		
+		// Create a warning for the now deprecated, unused BROWSER_EXECUTABLE argument		
+		if (StringUtils.isNotBlank(arguments.get(BROWSER_EXECUTABLE))) {
+			LOG.warn("'BROWSER_EXECUTABLE' JMeter argument is no longer in use! Please use 'OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE'");			
+		}
 		
 		
 		// Turn driver headless mode on or off. Default: ON

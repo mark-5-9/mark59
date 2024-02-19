@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.logging.log4j.Level;
@@ -40,7 +41,9 @@ import com.mark59.core.JmeterFunctionsImpl;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59LogLevels;
+import com.mark59.core.utils.Mark59Utils;
 import com.mark59.scripting.KeepBrowserOpen;
+import com.mark59.scripting.ScriptingConstants;
 import com.mark59.scripting.UiAbstractJavaSamplerClient;
 import com.mark59.scripting.interfaces.JmeterFunctionsUi;
 import com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory;
@@ -79,6 +82,8 @@ import com.mark59.scripting.selenium.interfaces.DriverFunctionsSelenium;
  * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAlternateBrowser(java.nio.file.Path) 
  * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
  * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
+ * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
+ * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY 
  * @see JmeterFunctionsForSeleniumScripts
  * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
  *
@@ -113,11 +118,18 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 	/**  the Selenium Web Driver for the test  */
 	protected WebDriver driver;
 
-	/**
-	 *  Default arguments for Selenium scripts
-	 */
-	protected static final Map<String,String> defaultArgumentsMap; 	
+	
+	/** Hold default arguments for implementations of this class */
+	private static final Map<String, String> seleniumDefaultArgumentsMap; 
 	static {
+		Map<String, String> staticMap = buildBaseSeleniumStaticArgsMap();	
+		seleniumDefaultArgumentsMap = Collections.unmodifiableMap(staticMap);
+	}
+	
+	/**
+	 * @return default arguments for implementations of this class
+	 */
+	protected static Map<String, String> buildBaseSeleniumStaticArgsMap() {
 		Map<String,String> staticMap = new LinkedHashMap<>();
 		
 		staticMap.put("______________________ driver settings: ________________________", "Refer Mark59 User Guide : http://mark59.com");	
@@ -128,7 +140,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 		staticMap.put(SeleniumDriverFactory.PROXY, 						"");
 		staticMap.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, 		"");				
 		staticMap.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, String.valueOf(false));		
-		staticMap.put(SeleniumDriverFactory.UNHANDLED_PROMPT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE.toString());		
+		staticMap.put(SeleniumDriverFactory.UNHANDLED_PROMPT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE.toString());
+		staticMap.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");
+		
 		
 		staticMap.put("______________________ logging settings: _______________________", "Expected values: 'default', 'buffer', 'write' or 'off' ");		
 		staticMap.put(JmeterFunctionsForSeleniumScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName() );
@@ -151,29 +165,40 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 		staticMap.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, "");		
 		
 		staticMap.put("___________________"       , "");			
-		staticMap.put("script build information: ", "using mark59-scripting Version: " + Mark59Constants.MARK59_VERSION);	
-		
-		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
+		staticMap.put("script build information: ", "using mark59-scripting Version: " + Mark59Constants.MARK59_VERSION);
+		return staticMap;
+	}
+	
+	
+	/** 
+	 * Creates the list of parameters with default values, as they would appear on the JMeter GUI for the JavaSampler being implemented.
+	 * <p>An implementing class (the script extending this class) can add additional parameters (or override the standard defaults) 
+	 * via the additionalTestParameters() method.    
+	 * @see #additionalTestParameters()
+	 * @see org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient
+	 */
+	@Override
+	public Arguments getDefaultParameters() {
+		return Mark59Utils.mergeMapWithAnOverrideMap(seleniumDefaultArgumentsMap, additionalTestParameters());
 	}
 	
 
-	
 	/**
-	 * Used to define required parameters for the test, or override their default values.
+	 * Used to define user defined arguments for the test, or override arguments default values.
 	 * <p>Internally the values are used to build a Map of parameters that will be available throughout
 	 * 'Mark59' for whatever customization is required for your test, or for the Webdriver implementation.</p>
 	 * <p>Please see link(s) below for more detail.  
 	 * 
 	 * @see SeleniumDriverFactory#makeMark59SeleniumDriver(Map)
 	 * @see SeleniumDriverFactory#SeleniumDriverFactory()
-	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#HEADLESS_MODE
+	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#HEADLESS_MODE 
 	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setHeadless(boolean)  
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#PAGE_LOAD_STRATEGY 
 	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setPageLoadStrategy(PageLoadStrategy) 
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#BROWSER_DIMENSIONS 
 	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setSize(int width, int height) 
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#PROXY 
-	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setProxy(org.openqa.selenium.Proxy)
+	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setProxy(org.openqa.selenium.Proxy) 
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#UNHANDLED_PROMPT_BEHAVIOUR 
 	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setUnhandledPromptBehaviour(UnexpectedAlertBehaviour) 
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#ADDITIONAL_OPTIONS 
@@ -183,9 +208,11 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#BROWSER_EXECUTABLE  
 	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAlternateBrowser(java.nio.file.Path) 
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
-	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
-	 * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)   
+	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
+	 * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
+	 * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY 
 	 * @see JmeterFunctionsForSeleniumScripts
+	 * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
 	 * 
 	 * @return the updated map of JMeter arguments with any required changes
 	 */
@@ -197,6 +224,8 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 	 * 
 	 *  <p>Note the use of the catch on AssertionError, as this is NOT an Exception but an Error, and therefore needs
 	 *  to be explicitly caught. 
+	 *  
+	 *  @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
 	 */
 	@Override
 	public JmeterFunctionsUi UiScriptExecutionAndExceptionsHandling(JavaSamplerContext context, Map<String,String> jmeterRuntimeArgumentsMap, String tgName ) {
@@ -235,7 +264,6 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 		}
 		return jm;
 	}
-
 	
 
 	/**

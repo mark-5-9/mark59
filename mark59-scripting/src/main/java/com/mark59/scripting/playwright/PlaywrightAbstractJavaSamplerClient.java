@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,13 +83,12 @@ import com.microsoft.playwright.options.Proxy;
  * @see ScriptingConstants#PLAYWRIGHT_TRACES_DIR
  * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
  * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE
- * @see #makePlaywrightPage(Map)
  * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
- * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  
  * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
  * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY
  * @see JmeterFunctionsForPlaywrightScripts
- * @see #defaultArgumentsMap
+ * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  
+ * @see #makePlaywrightPage(Map)  
  *
  * @author Philip Webb
  * Written: Australian Winter 2019  
@@ -100,10 +100,7 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 
 	/**  the mark59 JmeterFunctionsForSeleniumScripts for the test */		
 	protected JmeterFunctionsForPlaywrightScripts jm;
-
-	/** usage to indicate how the the browser executable was set by Mark59 */
-	protected String BrowserDerivationTxt = "A default Chromium browser location for has been assumed !";
-
+	
 	//  Playwright Objects (used within Mark59) 
 	
 	/** The Playwright object used within Mark59 */
@@ -115,47 +112,45 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	/** The Playwright Page object used within Mark59 */	
 	protected Page playwrightPage;
 	
-
-	/**
-	 * Set default arguments for Playwright scripts.  See references below for full list of 
-	 * available arguments that can be specified in {@link #additionalTestParameters()}  
-	 * @see #additionalTestParameters() 
-	 * @see ScriptingConstants#HEADLESS_MODE 
-	 * @see ScriptingConstants#BROWSER_EXECUTABLE 
-	 * @see ScriptingConstants#ADDITIONAL_OPTIONS 
-	 * @see ScriptingConstants#EMULATE_NETWORK_CONDITIONS 
-	 * @see ScriptingConstants#PLAYWRIGHT_OPEN_DEVTOOLS 
-	 * @see ScriptingConstants#PLAYWRIGHT_DOWNLOADS_PATH
-	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_SERVER
-	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_BYPASS
-	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_USERNAME
-	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_PASSWORD
-	 * @see ScriptingConstants#PLAYWRIGHT_SLOW_MO
-	 * @see ScriptingConstants#PLAYWRIGHT_TIMEOUT_BROWSER_INIT
-	 * @see ScriptingConstants#PLAYWRIGHT_TRACES_DIR
-	 * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
-	 * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE 
-	 * @see #makePlaywrightPage(Map)
-	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
-	 * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  
-	 * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
-	 * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY
-	 * @see JmeterFunctionsForPlaywrightScripts
-	 */
-	protected static final Map<String,String> defaultArgumentsMap; 	
+	
+	/** Hold default arguments for implementations of this class */
+	private static final Map<String, String> playwrightDefaultArgumentsMap; 
 	static {
+		Map<String, String> staticMap = buildBasePlaywrightStaticArgsMap();	
+		playwrightDefaultArgumentsMap = Collections.unmodifiableMap(staticMap);
+	}
+	
+	/**
+	 * @return default arguments for implementations of this class
+	 */
+	protected static Map<String, String> buildBasePlaywrightStaticArgsMap() {
 		Map<String,String> staticMap = new LinkedHashMap<>();
 		
-		staticMap.put("______________________ driver settings: ________________________", "Refer Mark59 User Guide : http://mark59.com");	
+		staticMap.put("______________________ playwright settings: ________________________", "Refer Mark59 User Guide : http://mark59.com");	
 		staticMap.put(ScriptingConstants.HEADLESS_MODE, 		 String.valueOf(true));
 		staticMap.put(ScriptingConstants.ADDITIONAL_OPTIONS,	 "");
+		staticMap.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");
+		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_DEFAULT_TIMEOUT, "");	
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_VIEWPORT_SIZE, "");	
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_OPEN_DEVTOOLS, String.valueOf(false));		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_DOWNLOADS_PATH, "");		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_SLOW_MO, "");	
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_TIMEOUT_BROWSER_INIT, "");	
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_TRACES_DIR, "");
+		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_PROXY_SERVER, "");		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_PROXY_BYPASS, "");		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_PROXY_USERNAME, "");		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_PROXY_PASSWORD, "");	
+		
+		
 		
 		staticMap.put("______________________ logging settings: _______________________", "Expected values: 'default', 'buffer', 'write' or 'off' ");		
-		staticMap.put(JmeterFunctionsForPlaywrightScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName() );
+		staticMap.put(JmeterFunctionsForPlaywrightScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
 		staticMap.put(JmeterFunctionsForPlaywrightScripts.LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
 		staticMap.put(JmeterFunctionsForPlaywrightScripts.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
 		staticMap.put(JmeterFunctionsForPlaywrightScripts.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
-
 
 		staticMap.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS, String.valueOf(true));
 		staticMap.put(ON_EXCEPTION_WRITE_SCREENSHOT, 	String.valueOf(true));
@@ -170,16 +165,28 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		staticMap.put(ScriptingConstants.EMULATE_NETWORK_CONDITIONS, "");	
 		
 		staticMap.put("___________________"       , "");			
-		staticMap.put("script build information: ", "using mark59-scripting Version: " + Mark59Constants.MARK59_VERSION);	
-		
-		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
-	}
+		staticMap.put("script build information: ", "using mark59-scripting Version: " + Mark59Constants.MARK59_VERSION);
+		return staticMap;
+	}	
 
 	
+	/** 
+	 * Creates the list of parameters with default values, as they would appear on the JMeter GUI for the JavaSampler being implemented.
+	 * <p>An implementing class (the script extending this class) can add additional parameters (or override the standard defaults) 
+	 * via the additionalTestParameters() method.    
+	 * @see #additionalTestParameters()
+	 * @see org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient
+	 */
+	@Override
+	public Arguments getDefaultParameters() {
+		return Mark59Utils.mergeMapWithAnOverrideMap(playwrightDefaultArgumentsMap, additionalTestParameters());
+	}
+	
+	
 	/**
-	 * Used to define required parameters for the test, or override their default values.
+	 * Used to define user defined arguments for the test, or override arguments default values.
 	 * <p>Internally the values are used to build a Map of parameters that will be available throughout
-	 * 'Mark59' for whatever customization is required for your test, or for Playwright implementation.</p>
+	 * 'Mark59' for whatever customization is required for your test, or for Playwright configuration.</p>
 	 * <p>Please see link(s) below for more detail.  
 	 * 
 	 * @see ScriptingConstants#HEADLESS_MODE 
@@ -196,14 +203,13 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * @see ScriptingConstants#PLAYWRIGHT_TIMEOUT_BROWSER_INIT
 	 * @see ScriptingConstants#PLAYWRIGHT_TRACES_DIR
 	 * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
-	 * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE 
-	 * @see #makePlaywrightPage(Map)
+	 * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE
 	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
-	 * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  
 	 * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
 	 * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY
 	 * @see JmeterFunctionsForPlaywrightScripts
-	 * @see #defaultArgumentsMap
+	 * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)  
+	 * @see #makePlaywrightPage(Map)  
 	 * 
 	 * @return the updated map of JMeter arguments with any required changes
 	 */
@@ -215,6 +221,8 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * 
 	 *  <p>Note the use of the catch on AssertionError, as this is NOT an Exception but an Error, and therefore needs
 	 *  to be explicitly caught. 
+	 *  
+	 *  @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
 	 */
 	@Override
 	public JmeterFunctionsUi UiScriptExecutionAndExceptionsHandling(JavaSamplerContext context, Map<String,String> jmeterRuntimeArgumentsMap, 
@@ -260,6 +268,7 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * @param arguments JMeter arguments
 	 * @return page - playwright page used by the framework when invoked by this class during script initiation 
 	 */
+	@SuppressWarnings("deprecation")
 	protected Page makePlaywrightPage(Map<String, String> arguments) {
 
 		Map<String,String> playwrightEnv = new HashMap<>();
@@ -279,22 +288,49 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		LaunchOptions browserLaunchOptions = new BrowserType.LaunchOptions();
 		
 		// Set an alternate browser executable. If mark59.property contains mark59.browser.executable, that will be used
-		// but can overridden by the BROWSER_EXECUTABLE augment. If neither is present the a default location is guessed at.
+		// but can overridden by the OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE augment. 
+		// If neither is present the a default location based on the o/s is guessed.
 		
-		Path browserPath = new File("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe").toPath();
-		
-		//TODO: Allow for mac and Unix defaults
+		Path browserPath = null;
+		String pathMsg = "";
 		
 		if (StringUtils.isNotBlank(pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE))) {
 			browserPath = new File(pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE)).toPath();
-			BrowserDerivationTxt = "Chromium browser location determined from Mark59 properties";
+			pathMsg = "Playwright script uses prop to set browser: " + pr.getProperty(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE);
 		}
-		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.BROWSER_EXECUTABLE))) {
-			browserPath = new File(arguments.get(ScriptingConstants.BROWSER_EXECUTABLE)).toPath();
-			BrowserDerivationTxt = "Chromium browser location determined from BROWSER_EXECUTABLE JMeter argument";			
-		}	
+		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE))) {
+			try {
+				browserPath = new File(arguments.get(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE)).toPath();
+				pathMsg = "Playwright script uses override arg to set browser: "
+						+ arguments.get(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE);			
+			} catch (Exception e) {
+				throw new RuntimeException(" An invalid value for "
+						+ "OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE JMeter argument was passed !" 
+						+ " ["+arguments.get(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE)+"]");
+			}
+		}
+		if (browserPath == null) {
+			String localhostOs = Mark59Utils.obtainOperatingSystemForLocalhost();  
+			if (Mark59Constants.OS.WINDOWS.getOsName().equals(localhostOs)){
+				browserPath = new File(ScriptingConstants.DEFAULT_CHROME_PATH_WIN).toPath();
+			} else if (Mark59Constants.OS.MAC.getOsName().equals(localhostOs)){  // LINUX  
+				browserPath = new File(ScriptingConstants.DEFAULT_CHROME_PATH_MAC).toPath();	
+			} else {  // LINUX by default  
+				browserPath = new File(ScriptingConstants.DEFAULT_CHROME_PATH_LINUX).toPath();			
+			} 
+			pathMsg ="Playwright will use the o/s default as the browser executable:"
+					+ " OS: " + localhostOs + ", Path: " + browserPath.toFile().getAbsolutePath();
+		}
 		browserLaunchOptions.setExecutablePath(browserPath);
+		if (LOG.isDebugEnabled())
+			LOG.debug(pathMsg); 
 	
+		
+		// Create a warning for the now deprecated, unused BROWSER_EXECUTABLE argument		
+		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.BROWSER_EXECUTABLE))) {
+			LOG.warn("'BROWSER_EXECUTABLE' JMeter argument is no longer in use! Please use 'OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE'");			
+		}
+		
 		// Turn driver headless mode on or off. Default: ON
 		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.HEADLESS_MODE))){
 			browserLaunchOptions.setHeadless(Boolean.parseBoolean(arguments.get(ScriptingConstants.HEADLESS_MODE)));
@@ -398,7 +434,6 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * <li>{@link #ON_EXCEPTION_WRITE_BUFFERED_LOGS} -  log buffered (during the script)</li>
 	 * <li>{@link #ON_EXCEPTION_WRITE_SCREENSHOT} - screenshot when exception occurred</li>
 	 * <li>{@link #ON_EXCEPTION_WRITE_PAGE_SOURCE} - page source when exception occurred</li>
-	 * <li>{@link #ON_EXCEPTION_WRITE_PERF_LOG} - Chromium Performance Log, unwritten or unbuffered records when exception occurred</li>
 	 * <li>{@link #ON_EXCEPTION_WRITE_STACK_TRACE} - Exception stack trace</li>
 	 * </ul>
 	 *    
@@ -469,8 +504,8 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		try {
 			playwrightPage.close();
 			browserContext.close();
-			browser.close();
-			playwright.close();
+			browser.close();   // sometimes a 30s wait on running headed (Chrome WIN only)?
+			playwright.close();   
 		} catch (Exception e) {
 			LOG.warn("Failure on attempt to close playwright objects : "+e.getClass()+" : "+e.getMessage());
 			if (LOG.isDebugEnabled()) {

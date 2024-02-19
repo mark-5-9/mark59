@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -49,7 +48,9 @@ import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.SafeSleep;
 import com.mark59.scripting.interfaces.JmeterFunctionsUi;
+import com.mark59.scripting.playwright.JmeterFunctionsForPlaywrightScripts;
 import com.mark59.scripting.playwright.PlaywrightAbstractJavaSamplerClient;
+import com.mark59.scripting.selenium.JmeterFunctionsForSeleniumScripts;
 import com.mark59.scripting.selenium.SeleniumAbstractJavaSamplerClient;
 //import com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory;
 
@@ -59,7 +60,7 @@ import jodd.util.CsvUtil;
 /**
  * A Mark59 extension of the JMeter Java Sampler class {@link org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient}.  
  * This class contains core methods for the Mark59 implementation of UI scripting, to be extended to handle particular UI
- * implementations (Selenium,m Playwright).
+ * implementations (Selenium, Playwright).
  * 
  * <p>Those extended implementations of are expected to contain method(s) to be used with actual test scripts  
  * See the 'DataHunter' samples provided for implementation details. 
@@ -80,40 +81,29 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	/** log4J class logger */
 	public static final Logger LOG = LogManager.getLogger(UiAbstractJavaSamplerClient.class);	
 
-	/**	@see UiAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
+
+	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
+	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_BUFFERED_LOGS	 		= "On_Exception_Write_Buffered_Logs";
-	/**	@see UiAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
+	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
+	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_SCREENSHOT	 		= "On_Exception_Write_Screenshot";
-	/**	@see UiAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
+	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
+	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_PAGE_SOURCE	 		= "On_Exception_Write_Page_Source";
-	/**	@see UiAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
+	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
+	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_PERF_LOG		 		= "On_Exception_Write_Perf_Log";
-	/**	@see UiAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
+	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
+	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_STACK_TRACE	 		= "On_Exception_Write_Stack_Trace";
 	
-	/**  generic meterFunctions (can be overridden by extending classes) */		
+	/**  generic JMeterFunctions (can be overridden by extending classes) */		
 	protected JmeterFunctionsUi jm;
-
-	/**
-	 *  Generic arguments (expected to be overridden on implementing classes)
-	 */
-	protected static final Map<String,String> defaultArgumentsMap; 	
-	static {
-		Map<String,String> staticMap = new LinkedHashMap<>();
-
-		staticMap.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS, String.valueOf(true));
-		staticMap.put(ON_EXCEPTION_WRITE_STACK_TRACE, 	String.valueOf(true));
-		
-		staticMap.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(false));	   
-		staticMap.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));	   
-		
-		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
-	}
-
+	
 	
 	/** indicates to always close a browser on script completion */
 	protected KeepBrowserOpen keepBrowserOpen = KeepBrowserOpen.NEVER;
-	
 	
 	/**  used to output results table when running from a script Main() */
 	protected static Map<String, List<Long>> resultsSummaryTable = new TreeMap<>();
@@ -123,19 +113,6 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	private static final int POS_3_RESPONSE_TIME_MIN 	= 3;	
 	private static final int POS_4_RESPONSE_TIME_MAX	= 4;	
 	
-	
-	/** 
-	 * Creates the list of parameters with default values, as they would appear on the JMeter GUI for the JavaSampler being implemented.
-	 * <p>A standard set of parameters are defined (defaultArgumentsMap). Additionally,an implementing class (the script extending this class) 
-	 * can add additional parameters (or override the standard defaults) via the additionalTestParameters() method.    
-	 * @see #additionalTestParameters()
-	 * @see org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient
-	 */
-	@Override
-	public Arguments getDefaultParameters() {
-		return Mark59Utils.mergeMapWithAnOverrideMap(defaultArgumentsMap, additionalTestParameters());
-	}
-
 
 	@Override
 	public void setupTest(JavaSamplerContext context) {
@@ -146,12 +123,14 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	/**
 	 * Used to define required parameters for the test, or override their default values.
 	 * <p>Internally the values are used to build a Map of parameters that will be available throughout
-	 * 'Mark59' for whatever customization is required for your test (eg, for Selenium or Playwright implementation.</p>
+	 * 'Mark59' for whatever customization is required for your test 
+	 * (eg, for Selenium or Playwright implementation.</p>
 	 * <p>Please see link(s) below for more detail.  
 	 * 
-	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
-	 * @see JmeterFunctionsUi
-	 * @see #UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
+	 * @see PlaywrightAbstractJavaSamplerClient#additionalTestParameters()
+	 * @see SeleniumAbstractJavaSamplerClient#additionalTestParameters()
+	 * @see JmeterFunctionsForPlaywrightScripts
+	 * @see JmeterFunctionsForSeleniumScripts
 	 * 
 	 * @return the updated map of JMeter arguments with any required changes
 	 */
@@ -239,7 +218,7 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	 * 
 	 * <p>These RunUI.. methods can also be used in a JRS223 sampler in order to execute a script written directly in JMeter. 
 	 * See the DataHunterLifecyclePvtScriptAsSingleJSR223 thread group in the the DataHunterSeleniumTestPlan.jmx test plan and
-	 * com.mark59.datahunter.samples.scripts.jsr223format package in the mark59-datahunter-samples project for Selenium 
+	 * com.mark59.datahunter.samples.scripts.jsr223format package in the mark59-scripting-samples project for Selenium 
 	 * examples.  
 	 *  
 	 * @see #runUiTest(KeepBrowserOpen)

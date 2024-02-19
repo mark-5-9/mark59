@@ -47,7 +47,6 @@ import com.mark59.metrics.common.MetricsApiConstants;
 import com.mark59.metrics.pojos.ParsedCommandResponse;
 import com.mark59.metrics.pojos.WebServerMetricsResponsePojo;
 import com.mark59.metrics.utils.MetricsConstants;
-import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
@@ -211,7 +210,7 @@ public class ServerMetricsCaptureViaWeb  extends AbstractJavaSamplerClient {
 	
 		ServerMetricsCaptureViaWeb ostest = new ServerMetricsCaptureViaWeb();
 		additionalTestParametersMap.put(MARK59_METRICS_URL, "http://localhost:8085/mark59-metrics");	
-		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + MetricsUtils.obtainOperatingSystemForLocalhost());			
+		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + Mark59Utils.obtainOperatingSystemForLocalhost());			
 		// additionalTestParametersMap.put(SERVER_PROFILE_NAME, "remoteWinServer");   // 3 commands should fail			
 		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'			
 		// include this line when using API basic auth for user [myuser], password [mypass] :

@@ -78,7 +78,8 @@ public class PropertiesKeys {
 	public static final String MARK59_PROP_SERVER_PROFILES_EXCEL_FILE_PATH	= "mark59.server.profiles.excel.file.path";
 
 	/**
-	 * mark59.browser.executable  (this property can be over-ridden at script level by setting the "BROWSER_EXECUTABLE" argument) 
+	 * mark59.browser.executable -  Location (Path) of the browser executable.    
+	 * This property can be over-ridden at script level by setting the "OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE" argument 
 	 */
 	public static final String MARK59_PROP_BROWSER_EXECUTABLE	= "mark59.browser.executable";
 	

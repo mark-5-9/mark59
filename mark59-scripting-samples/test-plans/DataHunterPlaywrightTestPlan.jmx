@@ -1,0 +1,1007 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.2">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DataHunter Playwright Test Plan" enabled="true">
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+    </TestPlan>
+    <hashTree>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="dataHunterUrl" elementType="Argument">
+            <stringProp name="Argument.name">dataHunterUrl</stringProp>
+            <stringProp name="Argument.value">${__P(DataHunterUrl,http://localhost:8081/mark59-datahunter)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="dataHunterApplicationId" elementType="Argument">
+            <stringProp name="Argument.name">dataHunterApplicationId</stringProp>
+            <stringProp name="Argument.value">${__P(DataHunterApplicationId,DATAHUNTER_PV_TEST)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="pacing" elementType="Argument">
+            <stringProp name="Argument.name">pacing</stringProp>
+            <stringProp name="Argument.value">25 5</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="mark59MetricsUrl" elementType="Argument">
+            <stringProp name="Argument.name">mark59MetricsUrl</stringProp>
+            <stringProp name="Argument.value">${__P(Mark59MetricsUrl,http://localhost:8085/mark59-metrics)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">see ServerMetrics_localhost thread group</stringProp>
+          </elementProp>
+          <elementProp name="runningInDocker" elementType="Argument">
+            <stringProp name="Argument.name">runningInDocker</stringProp>
+            <stringProp name="Argument.value">${__P(RunningInDocker,false)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="additionalOptions" elementType="Argument">
+            <stringProp name="Argument.name">additionalOptions</stringProp>
+            <stringProp name="Argument.value">${__P(AdditionalOptions, )}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="headlessModeIteratorTG" elementType="Argument">
+            <stringProp name="Argument.name">headlessModeIteratorTG</stringProp>
+            <stringProp name="Argument.value">${__P(HeadlessModeIteratorTG,false)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">see DataHunterLifecycleIteratorPvtScript</stringProp>
+          </elementProp>
+          <elementProp name="startCdpListeners" elementType="Argument">
+            <stringProp name="Argument.name">startCdpListeners</stringProp>
+            <stringProp name="Argument.value">${__P(StartCdpListeners,false)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">see DataHunterLifecyclePvtScript</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
+      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group " enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </SetupThreadGroup>
+      <hashTree>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="mark59propsAlternativeOrOverrideValues" enabled="false">
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="script">Properties systemProperties = System.getProperties();
+systemProperties.setProperty(&quot;mark59.log.directory&quot;, &quot;C:/temp/jmeter_test_logs_testplan_override/&quot;);
+systemProperties.setProperty(&quot;mark59.server.profiles.excel.file.path&quot;, &quot;./mark59serverprofiles.xlsx&quot;);
+ 
+OUT.println (&quot;DataHunter Playwright Test Plan:  Mark59 properties directly set here : &quot;);
+OUT.println (&quot;mark59.log.directory                   : &quot; + systemProperties.getProperty(&quot;mark59.screenshot.directory&quot;));
+OUT.println (&quot;mark59.server.profiles.excel.file.path : &quot; + systemProperties.getProperty(&quot;mark59.server.profiles.excel.file.path&quot;));
+
+SampleResult.setIgnore();
+
+OUT.println (&quot;------------------------------------------------------------&quot;);</stringProp>
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="TestPlan.comments">Windows example of using system properties to override mark59.properties setting  (by default this script should be disabled)</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="setOperatingSystemProperty" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">import org.apache.jmeter.util.JMeterUtils;
+
+String OS_NAME_LC = System.getProperty(&quot;os.name&quot;).toLowerCase(java.util.Locale.ENGLISH);;
+
+log.info   (&quot;**** Operating system is  : &quot; + OS_NAME_LC );
+
+
+os = &quot;LINUX&quot;;
+if ( OS_NAME_LC.indexOf(&quot;win&quot;) &gt;= 0 ) {
+	os = &quot;WINDOWS&quot;; 
+} else if ( OS_NAME_LC.indexOf(&quot;mac&quot;) &gt;= 0 ) {
+	os = &quot;MAC&quot;; 
+}   
+
+// System Properties vs JMeterUtils - please review the mark59 User Guide if using JSR223 for Mark59 scripts
+System.getProperties().setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_&quot; + os);
+
+SampleResult.setIgnore();
+ 
+OUT.println(&quot;OS property has been set to : &quot; + os );
+log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycle" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <intProp name="LoopController.loops">-1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,25)}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <BeanShellTimer guiclass="TestBeanGUI" testclass="BeanShellTimer" testname="Iteration Pacing Timer" enabled="true">
+          <stringProp name="filename"></stringProp>
+          <stringProp name="parameters">${pacing}</stringProp>
+          <boolProp name="resetInterpreter">false</boolProp>
+          <stringProp name="script">// &quot;Iteration Pacing Timer&quot; - a recommended timing option for mark59 
+// Please put your target iteration time (delay + script run time) in seconds in the &quot;Parameters&quot; field above, optionally followed by variance in secs eg:  20 5  
+long currentTimeMillis = System.currentTimeMillis(); 
+
+long interation_pacing_ms  = Long.valueOf(bsh.args[0]) * 1000; 
+
+long interation_variance_ms = 0;
+if (bsh.args.length &gt; 1){
+    interation_variance_ms = Long.valueOf(bsh.args[1]) * 1000;
+}
+
+long interation_pacing_this_iter_ms = interation_pacing_ms - interation_variance_ms +  (int)( Math.random() * (interation_variance_ms*2 + 1));
+long delay = 0;  
+
+//System.out.println(&quot; &quot;);
+//System.out.println(&quot;&gt;&gt;  pacer parm - interation_pacing_ms         : &quot; + interation_pacing_ms );
+//System.out.println(&quot;          parm - interation_variance_ms       : &quot; + interation_variance_ms );
+//System.out.println(&quot;          calc - interation_pacing_this_iter  : &quot; + interation_pacing_this_iter_ms );
+
+String last_delay_ms_str = vars.get(&quot;last_delay_ms&quot;);
+long last_delay_ms = 0;
+if (last_delay_ms_str != null){
+    last_delay_ms = Long.valueOf(last_delay_ms_str);
+}
+//System.out.println(&quot;               - last_delay_ms                : &quot; + last_delay_ms) ;
+	
+String interation_start_time_ms_str = vars.get(&quot;interation_start_time_ms&quot;);
+
+if ( interation_start_time_ms_str != null ){
+//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str + &quot;  -  &quot; + (new Date(Long.valueOf(interation_start_time_ms_str)).toString()) );     
+                                                                                                                               
+	delay = interation_pacing_this_iter_ms + Long.valueOf(interation_start_time_ms_str) + last_delay_ms - System.currentTimeMillis();
+	if (delay &lt; 0){
+         log.info(&quot;  script execution time exceeded pacing by  : &quot; + (0-delay) + &quot; ms.&quot;  );
+         delay = 0;
+	}
+} else {
+//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str );    
+} 
+
+vars.put(&quot;interation_start_time_ms&quot;, &quot;&quot; + currentTimeMillis );
+vars.put(&quot;last_delay_ms&quot;, &quot;&quot; + delay );
+
+//System.out.println(&quot;          calc - (This) interation_start_time : &quot; + vars.get(&quot;interation_start_time_ms&quot;) + &quot;  -  &quot; + (new Date(Long.valueOf(vars.get(&quot;interation_start_time_ms&quot;))).toString()));
+//System.out.println(&quot;    pausing for calculated delay of &quot; + delay + &quot; ms&quot;  );
+
+Thread.sleep(delay);
+return 0;</stringProp>
+        </BeanShellTimer>
+        <hashTree/>
+        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
+          <collectionProp name="UserParameters.names">
+            <stringProp name="3599307">user</stringProp>
+            <stringProp name="-713045828">headlessMode</stringProp>
+          </collectionProp>
+          <collectionProp name="UserParameters.thread_values">
+            <collectionProp name="1788170512">
+              <stringProp name="-1997382182">Mathew</stringProp>
+              <stringProp name="3569038">true</stringProp>
+            </collectionProp>
+            <collectionProp name="-2004359268">
+              <stringProp name="2390765">Mark</stringProp>
+              <stringProp name="3569038">true</stringProp>
+            </collectionProp>
+            <collectionProp name="481484236">
+              <stringProp name="2379971">Luke</stringProp>
+              <stringProp name="3569038">true</stringProp>
+            </collectionProp>
+            <collectionProp name="-1756641887">
+              <stringProp name="2314539">John</stringProp>
+              <stringProp name="3569038">true</stringProp>
+            </collectionProp>
+          </collectionProp>
+          <boolProp name="UserParameters.per_iteration">false</boolProp>
+        </UserParameters>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
+                <stringProp name="Argument.value">${dataHunterApplicationId}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
+                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,25)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="START_CDP_LISTENERS" elementType="Argument">
+                <stringProp name="Argument.name">START_CDP_LISTENERS</stringProp>
+                <stringProp name="Argument.value">${startCdpListeners}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="USER" elementType="Argument">
+                <stringProp name="Argument.name">USER</stringProp>
+                <stringProp name="Argument.value">${user}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="______________________ playwright settings: ________________________" elementType="Argument">
+                <stringProp name="Argument.name">______________________ playwright settings: ________________________</stringProp>
+                <stringProp name="Argument.value">Refer Mark59 User Guide : http://mark59.com</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="HEADLESS_MODE" elementType="Argument">
+                <stringProp name="Argument.name">HEADLESS_MODE</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
+                <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
+                <stringProp name="Argument.value">${additionalOptions}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE" elementType="Argument">
+                <stringProp name="Argument.name">OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE</stringProp>
+                <stringProp name="Argument.value"> </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_DEFAULT_TIMEOUT" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_DEFAULT_TIMEOUT</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_VIEWPORT_SIZE" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_VIEWPORT_SIZE</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_OPEN_DEVTOOLS" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_OPEN_DEVTOOLS</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_DOWNLOADS_PATH" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_DOWNLOADS_PATH</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_SLOW_MO" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_SLOW_MO</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_TIMEOUT_BROWSER_INIT" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_TIMEOUT_BROWSER_INIT</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_TRACES_DIR" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_TRACES_DIR</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_PROXY_SERVER" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_PROXY_SERVER</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_PROXY_BYPASS" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_PROXY_BYPASS</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_PROXY_USERNAME" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_PROXY_USERNAME</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_PROXY_PASSWORD" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_PROXY_PASSWORD</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="______________________ logging settings: _______________________" elementType="Argument">
+                <stringProp name="Argument.name">______________________ logging settings: _______________________</stringProp>
+                <stringProp name="Argument.value">Expected values: &apos;default&apos;, &apos;buffer&apos;, &apos;write&apos; or &apos;off&apos; </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Log_Screenshots_At_Start_Of_Transactions" elementType="Argument">
+                <stringProp name="Argument.name">Log_Screenshots_At_Start_Of_Transactions</stringProp>
+                <stringProp name="Argument.value">default</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Log_Screenshots_At_End_Of_Transactions" elementType="Argument">
+                <stringProp name="Argument.name">Log_Screenshots_At_End_Of_Transactions</stringProp>
+                <stringProp name="Argument.value">default</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Log_Page_Source_At_Start_Of_Transactions" elementType="Argument">
+                <stringProp name="Argument.name">Log_Page_Source_At_Start_Of_Transactions</stringProp>
+                <stringProp name="Argument.value">default</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Log_Page_Source_At_End_Of_Transactions" elementType="Argument">
+                <stringProp name="Argument.name">Log_Page_Source_At_End_Of_Transactions</stringProp>
+                <stringProp name="Argument.value">default</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Buffered_Logs" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Buffered_Logs</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Screenshot" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Screenshot</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Page_Source" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Page_Source</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRINT_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">PRINT_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="______________________ miscellaneous: __________________________" elementType="Argument">
+                <stringProp name="Argument.name">______________________ miscellaneous: __________________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
+                <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="EMULATE_NETWORK_CONDITIONS" elementType="Argument">
+                <stringProp name="Argument.name">EMULATE_NETWORK_CONDITIONS</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="___________________" elementType="Argument">
+                <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="script build information:" elementType="Argument">
+                <stringProp name="Argument.name">script build information:</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.0-beta-2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/mark59-datahunter</stringProp>
+          <stringProp name="classname">com.mark59.datahunter.samples.playwright.scripts.DataHunterLifecyclePvtScriptPlay</stringProp>
+        </JavaSampler>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <intProp name="LoopController.loops">-1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,20)}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
+          <collectionProp name="UserParameters.names">
+            <stringProp name="3599307">user</stringProp>
+          </collectionProp>
+          <collectionProp name="UserParameters.thread_values">
+            <collectionProp name="2078998545">
+              <stringProp name="1556202915">JohnLennon</stringProp>
+            </collectionProp>
+            <collectionProp name="1172557325">
+              <stringProp name="1684097533">PaulMcartney</stringProp>
+            </collectionProp>
+          </collectionProp>
+          <boolProp name="UserParameters.per_iteration">false</boolProp>
+        </UserParameters>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
+                <stringProp name="Argument.value">${dataHunterApplicationId}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
+                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,0)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="USER" elementType="Argument">
+                <stringProp name="Argument.name">USER</stringProp>
+                <stringProp name="Argument.value">${user}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="______________________ interation settings: _____________________" elementType="Argument">
+                <stringProp name="Argument.name">______________________ interation settings: _____________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ITERATE_FOR_PERIOD_IN_SECS" elementType="Argument">
+                <stringProp name="Argument.name">ITERATE_FOR_PERIOD_IN_SECS</stringProp>
+                <stringProp name="Argument.value">25</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ITERATE_FOR_NUMBER_OF_TIMES" elementType="Argument">
+                <stringProp name="Argument.name">ITERATE_FOR_NUMBER_OF_TIMES</stringProp>
+                <stringProp name="Argument.value"> </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ITERATION_PACING_IN_SECS" elementType="Argument">
+                <stringProp name="Argument.name">ITERATION_PACING_IN_SECS</stringProp>
+                <stringProp name="Argument.value">10</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="STOP_THREAD_AFTER_TEST_START_IN_SECS" elementType="Argument">
+                <stringProp name="Argument.name">STOP_THREAD_AFTER_TEST_START_IN_SECS</stringProp>
+                <stringProp name="Argument.value">0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="STOP_THREAD_ON_FAILURE" elementType="Argument">
+                <stringProp name="Argument.name">STOP_THREAD_ON_FAILURE</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="______________________ playwright settings: ________________________" elementType="Argument">
+                <stringProp name="Argument.name">______________________ playwright settings: ________________________</stringProp>
+                <stringProp name="Argument.value">Refer Mark59 User Guide : http://mark59.com</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="HEADLESS_MODE" elementType="Argument">
+                <stringProp name="Argument.name">HEADLESS_MODE</stringProp>
+                <stringProp name="Argument.value">${headlessModeIteratorTG}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
+                <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
+                <stringProp name="Argument.value">${additionalOptions}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE" elementType="Argument">
+                <stringProp name="Argument.name">OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE</stringProp>
+                <stringProp name="Argument.value"> </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_DEFAULT_TIMEOUT" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_DEFAULT_TIMEOUT</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_VIEWPORT_SIZE" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_VIEWPORT_SIZE</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_OPEN_DEVTOOLS" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_OPEN_DEVTOOLS</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_DOWNLOADS_PATH" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_DOWNLOADS_PATH</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_SLOW_MO" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_SLOW_MO</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_TIMEOUT_BROWSER_INIT" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_TIMEOUT_BROWSER_INIT</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_TRACES_DIR" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_TRACES_DIR</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_PROXY_SERVER" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_PROXY_SERVER</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_PROXY_BYPASS" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_PROXY_BYPASS</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_PROXY_USERNAME" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_PROXY_USERNAME</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PLAYWRIGHT_PROXY_PASSWORD" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_PROXY_PASSWORD</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="______________________ logging settings: _______________________" elementType="Argument">
+                <stringProp name="Argument.name">______________________ logging settings: _______________________</stringProp>
+                <stringProp name="Argument.value">Expected values: &apos;default&apos;, &apos;buffer&apos;, &apos;write&apos; or &apos;off&apos; </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Log_Screenshots_At_Start_Of_Transactions" elementType="Argument">
+                <stringProp name="Argument.name">Log_Screenshots_At_Start_Of_Transactions</stringProp>
+                <stringProp name="Argument.value">default</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Log_Screenshots_At_End_Of_Transactions" elementType="Argument">
+                <stringProp name="Argument.name">Log_Screenshots_At_End_Of_Transactions</stringProp>
+                <stringProp name="Argument.value">default</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Log_Page_Source_At_Start_Of_Transactions" elementType="Argument">
+                <stringProp name="Argument.name">Log_Page_Source_At_Start_Of_Transactions</stringProp>
+                <stringProp name="Argument.value">default</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Log_Page_Source_At_End_Of_Transactions" elementType="Argument">
+                <stringProp name="Argument.name">Log_Page_Source_At_End_Of_Transactions</stringProp>
+                <stringProp name="Argument.value">default</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Buffered_Logs" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Buffered_Logs</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Screenshot" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Screenshot</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Page_Source" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Page_Source</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRINT_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">PRINT_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="______________________ miscellaneous: __________________________" elementType="Argument">
+                <stringProp name="Argument.name">______________________ miscellaneous: __________________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
+                <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="EMULATE_NETWORK_CONDITIONS" elementType="Argument">
+                <stringProp name="Argument.name">EMULATE_NETWORK_CONDITIONS</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="___________________" elementType="Argument">
+                <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="script build information:" elementType="Argument">
+                <stringProp name="Argument.name">script build information:</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.0-beta-2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/mark59-datahunter</stringProp>
+          <stringProp name="classname">com.mark59.datahunter.samples.playwright.scripts.DataHunterIteratorLifecyclePvtScriptPlay</stringProp>
+        </JavaSampler>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <intProp name="LoopController.loops">-1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(MonitoringUsers,1)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+          <doubleProp>
+            <name>throughput</name>
+            <value>3.0</value>
+            <savedValue>0.0</savedValue>
+          </doubleProp>
+          <intProp name="calcMode">0</intProp>
+        </ConstantThroughputTimer>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_web" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="MARK59_METRICS_URL" elementType="Argument">
+                <stringProp name="Argument.name">MARK59_METRICS_URL</stringProp>
+                <stringProp name="Argument.value">${mark59MetricsUrl}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
+                <stringProp name="Argument.name">SERVER_PROFILE_NAME</stringProp>
+                <stringProp name="Argument.value">${__property(LOCALHOST_OS)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="API_AUTH" elementType="Argument">
+                <stringProp name="Argument.name">API_AUTH</stringProp>
+                <stringProp name="Argument.value"> </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="." elementType="Argument">
+                <stringProp name="Argument.name">.</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="_________________________ logging settings: _______________" elementType="Argument">
+                <stringProp name="Argument.name">_________________________ logging settings: _______________</stringProp>
+                <stringProp name="Argument.value">Expected values: &apos;short&apos; (default), &apos;full&apos;, &apos;no&apos;</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="LOG_ERROR_MESSAGES" elementType="Argument">
+                <stringProp name="Argument.name">LOG_ERROR_MESSAGES</stringProp>
+                <stringProp name="Argument.value">short</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRINT_ERROR_MESSAGES" elementType="Argument">
+                <stringProp name="Argument.name">PRINT_ERROR_MESSAGES</stringProp>
+                <stringProp name="Argument.value">short</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRINT_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">PRINT_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name=".." elementType="Argument">
+                <stringProp name="Argument.name">..</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="_________________________ miscellaneous: __________________" elementType="Argument">
+                <stringProp name="Argument.name">_________________________ miscellaneous: __________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
+                <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="..." elementType="Argument">
+                <stringProp name="Argument.name">...</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="_________________________ notes: __________________________" elementType="Argument">
+                <stringProp name="Argument.name">_________________________ notes: __________________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="__" elementType="Argument">
+                <stringProp name="Argument.name">__</stringProp>
+                <stringProp name="Argument.value">- please replace the default url with your actual.</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="_" elementType="Argument">
+                <stringProp name="Argument.name">_</stringProp>
+                <stringProp name="Argument.value">- server profile of &apos;localhost&apos; only reports metrics of the mark59-metrics machine!</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="-" elementType="Argument">
+                <stringProp name="Argument.name">-</stringProp>
+                <stringProp name="Argument.value">   use actual machine name or (better) &apos;..viaExcel&apos; &apos;localhost..&apos; entry instead (see Mark59 User Guide)</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="___________________" elementType="Argument">
+                <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="build information:" elementType="Argument">
+                <stringProp name="Argument.name">build information:</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api Version: 6.0-beta-2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="classname">com.mark59.metrics.api.ServerMetricsCaptureViaWeb</stringProp>
+        </JavaSampler>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_distributed" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <intProp name="LoopController.loops">-1</intProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(DistributedUsers,0)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="TestPlan.comments">Using the HOSTID profile ( &quot;localhost_WINDOWS_HOSTID&quot; ) to pick up the load generator name for distrubted tests - set DistributedUsers to 1 to activate</stringProp>
+        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+          <doubleProp>
+            <name>throughput</name>
+            <value>3.0</value>
+            <savedValue>0.0</savedValue>
+          </doubleProp>
+          <intProp name="calcMode">0</intProp>
+        </ConstantThroughputTimer>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_distributed_via_web" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
+                <stringProp name="Argument.name">SERVER_PROFILE_NAME</stringProp>
+                <stringProp name="Argument.value">${__property(LOCALHOST_OS)}_HOSTID</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="." elementType="Argument">
+                <stringProp name="Argument.name">.</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="_________________________ logging settings: _______________" elementType="Argument">
+                <stringProp name="Argument.name">_________________________ logging settings: _______________</stringProp>
+                <stringProp name="Argument.value">PRINT_ERROR_MESSAGES values: &apos;short&apos; (default), &apos;full&apos;, &apos;no&apos;</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="LOG_ERROR_MESSAGES" elementType="Argument">
+                <stringProp name="Argument.name">LOG_ERROR_MESSAGES</stringProp>
+                <stringProp name="Argument.value">short</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRINT_ERROR_MESSAGES" elementType="Argument">
+                <stringProp name="Argument.name">PRINT_ERROR_MESSAGES</stringProp>
+                <stringProp name="Argument.value">short</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRINT_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">PRINT_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="-" elementType="Argument">
+                <stringProp name="Argument.name">-</stringProp>
+                <stringProp name="Argument.value">   use actual machine name or (better) &apos;..viaExcel&apos; &apos;localhost..&apos; entry instead (see Mark59 User Guide)</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="______________________ miscellaneous: ____________________" elementType="Argument">
+                <stringProp name="Argument.name">______________________ miscellaneous: ____________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH" elementType="Argument">
+                <stringProp name="Argument.name">OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
+                <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="_" elementType="Argument">
+                <stringProp name="Argument.name">_</stringProp>
+                <stringProp name="Argument.value">- server profile of &apos;localhost&apos; only reports metrics of the mark59-metrics machine!</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="___________________" elementType="Argument">
+                <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="build information:" elementType="Argument">
+                <stringProp name="Argument.name">build information:</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.0-beta-2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="TestPlan.comments">requires a excel spreadsheet with profiels for each of the laod generalors in the distributed test</stringProp>
+          <stringProp name="classname">com.mark59.metrics.api.ServerMetricsCaptureViaExcel</stringProp>
+        </JavaSampler>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DemoDataHunterLifecyclePvtNoUIusesRestApi" enabled="false">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">20</stringProp>
+        <stringProp name="ThreadGroup.delay">4</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
+          <collectionProp name="UserParameters.names">
+            <stringProp name="3599307">user</stringProp>
+          </collectionProp>
+          <collectionProp name="UserParameters.thread_values">
+            <collectionProp name="1510253588">
+              <stringProp name="2137029243">FirstUser</stringProp>
+            </collectionProp>
+            <collectionProp name="-1903122179">
+              <stringProp name="-622625858">AddaSecondThread</stringProp>
+            </collectionProp>
+          </collectionProp>
+          <boolProp name="UserParameters.per_iteration">false</boolProp>
+        </UserParameters>
+        <hashTree/>
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecyclePvtScriptUsingRestApiClient" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">http://localhost:8081/mark59-datahunter</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_APPLICATION_ID_CLIENT_API" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID_CLIENT_API</stringProp>
+                <stringProp name="Argument.value">DATAHUNTER_PV_TEST_CLIENT_API</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
+                <stringProp name="Argument.value">20</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="USER" elementType="Argument">
+                <stringProp name="Argument.name">USER</stringProp>
+                <stringProp name="Argument.value">${user}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="CLEAN_DATA_AT_SCRIPT_END" elementType="Argument">
+                <stringProp name="Argument.name">CLEAN_DATA_AT_SCRIPT_END</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="PRINT_RESULTS_SUMMARY" elementType="Argument">
+                <stringProp name="Argument.name">PRINT_RESULTS_SUMMARY</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="___________________" elementType="Argument">
+                <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="script build information:" elementType="Argument">
+                <stringProp name="Argument.name">script build information:</stringProp>
+                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.0-beta-2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/mark59-datahunter</stringProp>
+          <stringProp name="classname">com.mark59.datahunter.samples.nonUI.scripts.DataHunterLifecycleUsingRestApi</stringProp>
+        </JavaSampler>
+        <hashTree/>
+      </hashTree>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+        <stringProp name="TestPlan.comments">-- You would normally disable &apos;View Results Tree&apos; for a real test --</stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report csv" enabled="false">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <hostname>true</hostname>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="TestPlan.comments">Recommended Standard Config (default+hostname)  ** For LINUX Gui run, remove &quot;C:/&quot; in the Filename (you get a strange C: named directory otherwise!)  </stringProp>
+        <stringProp name="filename">C:/Mark59_Runs/Jmeter_Results/DataHunter/DataHunterTestResults.csv</stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

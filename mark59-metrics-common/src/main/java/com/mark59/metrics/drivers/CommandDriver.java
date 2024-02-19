@@ -31,13 +31,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.metrics.data.beans.Command;
 import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.CommandDriverResponse;
 import com.mark59.metrics.utils.MetricsConstants.CommandExecutorDatatypes;
-import com.mark59.metrics.utils.MetricsConstants.OS;
-import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * Controls the execution of Groovy based scripts or operating system specific commands (that may run locally
@@ -62,7 +61,7 @@ public interface CommandDriver {
 		String reportedServerId = server;
 		if ( "localhost".equalsIgnoreCase(server) && HOSTID.equals(alternateServerId) ) {
 
-			if (OS.WINDOWS.getOsName().equals(MetricsUtils.obtainOperatingSystemForLocalhost())){				
+			if (Mark59Constants.OS.WINDOWS.getOsName().equals(Mark59Utils.obtainOperatingSystemForLocalhost())){				
 				reportedServerId = System.getenv("COMPUTERNAME");
 			} else { 
 				reportedServerId = System.getenv("HOSTNAME");
