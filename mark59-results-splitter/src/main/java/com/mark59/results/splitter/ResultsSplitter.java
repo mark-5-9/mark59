@@ -81,7 +81,7 @@ import com.opencsv.exceptions.CsvValidationException;
  */
 public class ResultsSplitter { 
 	
-	public static final String MARK59_VERSION  = "6.0-beta-2";	
+	public static final String MARK59_VERSION  = "6.0";	
 
 	public static final String ERROR_TXNS_NO						= "No";
 	public static final String ERROR_TXNS_RENAME					= "Rename";

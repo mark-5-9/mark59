@@ -31,6 +31,15 @@ public class ScriptingConstants {
 	 * "HEADLESS_MODE" (default is 'true')
 	 */
 	public static final String HEADLESS_MODE = "HEADLESS_MODE";	
+
+	
+	/**
+	 * "PLAYWRIGHT_ENV_VAR_PWDEBUG" - A value of "1" enables Playwright tests to run in debug mode from the 
+	 * start of execution (The <b>PWDEBUG</b> playwright environment variable is set).  
+	 * <p>Intended for use when running from and IDE. Use <code>page.pause();</code> to break at a 
+	 * given point. See the Playwright documentation for more information. 
+	 */
+	public static final String PLAYWRIGHT_ENV_VAR_PWDEBUG = "PLAYWRIGHT_ENV_VAR_PWDEBUG";		
 	
 	
 	/**
@@ -204,6 +213,5 @@ public class ScriptingConstants {
 	
 	/** Assumed path for a default location of Chrome on NIX (for Playwright scripts)
 	 * <br><code>"/opt/google/chrome/google-chrome";</code> */	
-	public static final String DEFAULT_CHROME_PATH_LINUX = "/opt/google/chrome/google-chrome";	
-	
+	public static final String DEFAULT_CHROME_PATH_LINUX = "/opt/google/chrome/google-chrome";
 }

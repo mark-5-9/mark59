@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.0</version>
+		<version>3.2.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics</artifactId>
 	<packaging>war</packaging>
-	<version>6.0-beta-2</version>
+	<version>6.0</version>
 	<name>mark59-metrics</name>
 
 	<properties>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-metrics-common</artifactId>
-			<version>6.0-beta-2</version>
+			<version>6.0</version>
 		</dependency>
  
  		<!-- exclusions and log4j-slf4j entries to get the correct log4j 'SFLF bindings' 

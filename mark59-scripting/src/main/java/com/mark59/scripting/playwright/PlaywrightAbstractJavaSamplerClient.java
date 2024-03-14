@@ -69,11 +69,12 @@ import com.microsoft.playwright.options.Proxy;
  *
  * @see #additionalTestParameters() 
  * @see ScriptingConstants#HEADLESS_MODE 
+ * @see ScriptingConstants#PLAYWRIGHT_ENV_VAR_PWDEBUG
  * @see ScriptingConstants#BROWSER_EXECUTABLE 
  * @see ScriptingConstants#ADDITIONAL_OPTIONS 
  * @see ScriptingConstants#EMULATE_NETWORK_CONDITIONS 
- * @see ScriptingConstants#PLAYWRIGHT_OPEN_DEVTOOLS 
  * @see ScriptingConstants#PLAYWRIGHT_DOWNLOADS_PATH
+ * @see ScriptingConstants#PLAYWRIGHT_OPEN_DEVTOOLS 
  * @see ScriptingConstants#PLAYWRIGHT_PROXY_SERVER
  * @see ScriptingConstants#PLAYWRIGHT_PROXY_BYPASS
  * @see ScriptingConstants#PLAYWRIGHT_PROXY_USERNAME
@@ -84,6 +85,7 @@ import com.microsoft.playwright.options.Proxy;
  * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
  * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE
  * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
+ * @see IpUtilities#RESTRICT_TO_ONLY_RUN_ON_IPS_LIST 
  * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
  * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY
  * @see JmeterFunctionsForPlaywrightScripts
@@ -133,7 +135,8 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_DEFAULT_TIMEOUT, "");	
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_VIEWPORT_SIZE, "");	
-		staticMap.put(ScriptingConstants.PLAYWRIGHT_OPEN_DEVTOOLS, String.valueOf(false));		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_OPEN_DEVTOOLS, String.valueOf(false));
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_ENV_VAR_PWDEBUG, "");		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_DOWNLOADS_PATH, "");		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_SLOW_MO, "");	
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_TIMEOUT_BROWSER_INIT, "");	
@@ -189,12 +192,14 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * 'Mark59' for whatever customization is required for your test, or for Playwright configuration.</p>
 	 * <p>Please see link(s) below for more detail.  
 	 * 
+	 * @see #additionalTestParameters() 
 	 * @see ScriptingConstants#HEADLESS_MODE 
+	 * @see ScriptingConstants#PLAYWRIGHT_ENV_VAR_PWDEBUG
 	 * @see ScriptingConstants#BROWSER_EXECUTABLE 
 	 * @see ScriptingConstants#ADDITIONAL_OPTIONS 
 	 * @see ScriptingConstants#EMULATE_NETWORK_CONDITIONS 
-	 * @see ScriptingConstants#PLAYWRIGHT_OPEN_DEVTOOLS 
 	 * @see ScriptingConstants#PLAYWRIGHT_DOWNLOADS_PATH
+	 * @see ScriptingConstants#PLAYWRIGHT_OPEN_DEVTOOLS 
 	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_SERVER
 	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_BYPASS
 	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_USERNAME
@@ -205,6 +210,7 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
 	 * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE
 	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
+	 * @see IpUtilities#RESTRICT_TO_ONLY_RUN_ON_IPS_LIST 
 	 * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
 	 * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY
 	 * @see JmeterFunctionsForPlaywrightScripts
@@ -220,7 +226,9 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 *  Execute a Playwright script using the arguments passed from JMeter or defaults, and handle exceptions.
 	 * 
 	 *  <p>Note the use of the catch on AssertionError, as this is NOT an Exception but an Error, and therefore needs
-	 *  to be explicitly caught. 
+	 *  to be explicitly caught.
+	 *  
+	 *  <p>Refer to the scriptExceptionHandling (the 'see' link below) for more information
 	 *  
 	 *  @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
 	 */
@@ -272,7 +280,11 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	protected Page makePlaywrightPage(Map<String, String> arguments) {
 
 		Map<String,String> playwrightEnv = new HashMap<>();
-		playwrightEnv.put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD","1");		
+		playwrightEnv.put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD","1");	
+		
+		if ("1".equals(arguments.get(ScriptingConstants.PLAYWRIGHT_ENV_VAR_PWDEBUG))){
+			playwrightEnv.put("PWDEBUG","1");	
+		}
 
 		playwright = Playwright.create(new Playwright.CreateOptions().setEnv(playwrightEnv)); 
 
@@ -380,7 +392,7 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		
 		// Set Maximum time in milliseconds to wait for the browser instance to start
 		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.PLAYWRIGHT_TIMEOUT_BROWSER_INIT))){
-			browserLaunchOptions.setSlowMo(Double.parseDouble(arguments.get(ScriptingConstants.PLAYWRIGHT_TIMEOUT_BROWSER_INIT)));
+			browserLaunchOptions.setTimeout(Double.parseDouble(arguments.get(ScriptingConstants.PLAYWRIGHT_TIMEOUT_BROWSER_INIT)));
 		}	
 
 		// If specified, traces are saved into this directory path
@@ -431,11 +443,14 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * <p>Logs can be suppressed by setting a parameter in additionalTestParameters controlling it's output 
 	 * to <code>false</code>: 
 	 * <ul>
-	 * <li>{@link #ON_EXCEPTION_WRITE_BUFFERED_LOGS} -  log buffered (during the script)</li>
-	 * <li>{@link #ON_EXCEPTION_WRITE_SCREENSHOT} - screenshot when exception occurred</li>
-	 * <li>{@link #ON_EXCEPTION_WRITE_PAGE_SOURCE} - page source when exception occurred</li>
-	 * <li>{@link #ON_EXCEPTION_WRITE_STACK_TRACE} - Exception stack trace</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_BUFFERED_LOGS} -  log buffered (during the script)</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_SCREENSHOT} - screenshot(s) when exception occurred **</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_PAGE_SOURCE} - page source(s) when exception occurred **</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_STACK_TRACE} - Exception stack trace</li>
 	 * </ul>
+	 *    
+	 * <p>For Playwright each open page on the {@link #browser} object will have its page source and screenshot captured, so there may be 
+	 * multiple of each output on an exception. 
 	 *    
 	 * <p>For example, to suppress buffered logs being output when a script fails, in additionalTestParameters:<br><br>
 	 * <code>jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS, String.valueOf(false));</code>      

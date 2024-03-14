@@ -16,8 +16,13 @@
 
 package com.mark59.scripting.playwright;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +31,9 @@ import org.apache.logging.log4j.Logger;
 import com.mark59.core.JmeterFunctionsImpl;
 import com.mark59.core.utils.Mark59LogLevels;
 import com.mark59.scripting.AbstractJmeterFunctionsUiCommon;
+import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Tracing;
 import com.microsoft.playwright.Page.ScreenshotOptions;
 
 /**
@@ -83,7 +90,7 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 	public static final Logger LOG = LogManager.getLogger(JmeterFunctionsForPlaywrightScripts.class);
 
 	private final Page page;
-	
+
 
 	/**
 	 * @param context the JMeter JavaSamplerContext 
@@ -96,68 +103,105 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 		this.page = page;
 	}
 	
-	
+		
 	/**
-	 * Capture and immediately output a screenshot (.jpg) log. Use with caution in a Performance and Volume 
-	 * test as misuse of this method may produce many more screenshots than intended. 
-	 * <p>Instead, you could use {@link #bufferScreenshot(String)} and {@link #writeBufferedArtifacts()}.
-	 * @param imageName last part of the log filename (but excluding extension - which is set as '.jpg')  
-	 */
-	public void writeScreenshot(String imageName) {
-		writeLog(imageName,"jpg", page.screenshot());
-	}	
-
-	
-	/**
-	 * As per {@link #writeScreenshot(String)}, but allows user to pass desired Playwright ScreenshotOptions
+	 * (Playwright Only) As per {@link #writeScreenshot(String)}, but allows user to pass any desired 
+	 * Playwright Page and optionally ScreenshotOptions.
+	 * 
+	 * @param page a Playwright Page object 
 	 * @param imageName last part of the log filename (but excluding extension - which is set as '.jpg')
 	 * @param options Playwright ScreenshotOptions   
 	 */
-	public void writeScreenshot(String imageName, ScreenshotOptions options) {
+	public void writePageScreenshot(Page page, String imageName, ScreenshotOptions options) {
 		writeLog(imageName,"jpg", page.screenshot(options));
 	}	
 	
 	
 	/**
-	 * Stores a screenshot (.jpg) log in memory, ready to be written to file later.  
-	 * If you want to immediately write a screenshot to file, use {@link #writeScreenshot(String)}  instead.
-	 * @param imageName last part of the log filename (but excluding extension - which is set as '.jpg')   
-	 */
-	public void bufferScreenshot(String imageName) {
-		bufferLog(imageName,"jpg", page.screenshot());	
-	}
-
-	
-	/**
-	 * As per {@link #bufferScreenshot(String)}, but allows user to pass desired Playwright ScreenshotOptions
-	 * If you want to immediately write a screenshot to file, use {@link #writeScreenshot(String)}  instead.
+	 * (Playwright Only) As perAs per {@link #bufferScreenshot(String)}, but allows user to pass any desired 
+	 * Playwright Page and optionally set ScreenshotOptions.
+	 * <p>If you want to immediately write a screenshot to file, use {@link #writeScreenshot(String)}  instead.
+	 * 
+	 * @param page a Playwright Page object 
 	 * @param imageName last part of the log filename (but excluding extension - which is set as '.jpg') 
-	 * @param options Playwright ScreenshotOptions   
+	 * @param options Playwright ScreenshotOptions  
+	 * 
+	 * @see JmeterFunctionsImpl#writeBufferedArtifacts()
+	 * @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 */
-	public void bufferScreenshot(String imageName, ScreenshotOptions options) {
+	public void bufferScreenshot(Page page, String imageName, ScreenshotOptions options) {
 		bufferLog(imageName,"jpg", page.screenshot(options));	
 	}
 	
+	
+	/**
+	 * Capture and immediately output one or more screenshot (.jpg) logs. Use with caution in a Performance 
+	 * and Volume test as misuse of this method may produce many more screenshots than intended.
+	 * <p>Instead, you could use {@link #bufferScreenshot(String)} and {@link #writeBufferedArtifacts()}.
+	 * <p>All pages associated with the {@link PlaywrightAbstractJavaSamplerClient#browser}, are screenshot, so 
+	 * more than one file can potentially be written when invoking this method.
+	 *   
+	 * @param imageName last part of the log filename (but excluding extension - which is set as '.jpg')  
+	 */
+	@Override	
+	public void writeScreenshot(String imageName) {
+		List<Page> ctxPages = listBrowerCtxPages();
+		for (int i = 0; i < ctxPages.size(); i++) {
+			writeLog(unique(imageName,ctxPages,i), "jpg", ctxPages.get(i).screenshot());
+		} 
+	}	
+
+
+	/**
+	 * Stores one or more screenshot (.jpg) logs in memory, ready to be written to file later.  
+	 * If you want to immediately write a screenshot to file, use {@link #writeScreenshot(String)} instead.
+	 * <p>All pages associated with the {@link PlaywrightAbstractJavaSamplerClient#browser} are screenshot, so 
+	 * more than one file can potentially be buffered when invoking this method.
+	 *    
+	 * @param imageName last part of the log filename (but excluding extension - which is set as '.jpg')
+	 *  
+	 * @see JmeterFunctionsImpl#writeBufferedArtifacts()
+	 * @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
+	 */
+	@Override
+	public void bufferScreenshot(String imageName) {
+		List<Page> ctxPages = listBrowerCtxPages();
+		for (int i = 0; i < ctxPages.size(); i++) {
+			bufferLog(unique(imageName,ctxPages,i), "jpg", ctxPages.get(i).screenshot());
+		}	
+	}
 	
 	
 	/**
 	 * Capture and immediately output a page source (.html) log. Use with caution in a Performance and Volume 
 	 * test as misuse of this method may produce many more screenshots than intended. 
 	 * <p>Instead, you could use {@link #bufferPageSource(String)} and {@link #writeBufferedArtifacts()}.
+	 * <p>All pages associated with the {@link PlaywrightAbstractJavaSamplerClient#browser}, are have their
+	 * page source taken, so more than one file can potentially be written when invoking this method.
+	 * 
 	 * @param imageName last part of the log filename (but excluding extension - which is set as '.html')
 	 */
 	public void writePageSource(String imageName) {
-		writeLog(imageName, "html", captureCurrentUrlAndtHtmlPageSource().getBytes());
+		List<Page> ctxPages = listBrowerCtxPages();
+		for (int i = 0; i < ctxPages.size(); i++) {
+			writeLog(unique(imageName,ctxPages,i), "html", captureCurrentUrlAndtHtmlPageSource(ctxPages.get(i)).getBytes());
+		}
 	}	
 
 	
 	/**
 	 * Stores a page source (.html) log in memory, ready to be written to file later.  
 	 * If you want to immediately write a screenshot to file, use {@link #writePageSource(String)} instead.
+	 * <p>All pages associated with the {@link PlaywrightAbstractJavaSamplerClient#browser}, are have their
+	 * page source taken, so more than one file can potentially be buffered when invoking this method.
+	 * 
 	 * @param imageName last part of the log filename (but excluding extension - which is set as '.html')   
 	 */
 	public void bufferPageSource(String imageName) {
-		bufferLog(imageName, "html", captureCurrentUrlAndtHtmlPageSource().getBytes());
+		List<Page> ctxPages = listBrowerCtxPages();
+		for (int i = 0; i < ctxPages.size(); i++) {
+			bufferLog(imageName, "html", captureCurrentUrlAndtHtmlPageSource(ctxPages.get(i)).getBytes());
+		}
 	}
 
 	
@@ -177,15 +221,77 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 	public void bufferDriverPerfLogs(String textFileName) {
 		// no-op
 	}
+
+
+	/**
+	 * Convenience method to start a Playwright trace, with StartOptions set to true. 
+	 * <p><code>
+	 * page.context().tracing().start(new Tracing.StartOptions().setScreenshots(true).setSnapshots(true).setSources(true));
+	 * </code>
+	 * @see #stopPlayWrightTrace(String)
+	 */
+	public void startPlayWrightTrace() {
+		page.context().tracing()
+				.start(new Tracing.StartOptions().setScreenshots(true).setSnapshots(true).setSources(true));
+	}
+
+	
+	/**
+	 * Convenience method to stop a Playwright trace, and set location of the trace zip file. 
+	 * <p><b>Sample Usage:</b><br>
+	 * <code>jm.stopPlayWrightTrace("C:/Test/trace.zip");</code>
+	 * <p>This would put the trace.zip file in you project root when running from Eclipse:<br>
+	 * <code>jm.stopPlayWrightTrace("trace.zip");</code>
+	 * @param tracePath  location of the trace zip file
+	 * @see #startPlayWrightTrace()
+	 */
+	public void stopPlayWrightTrace(String tracePath) {
+		page.context().tracing().stop(new Tracing.StopOptions().setPath(Paths.get(tracePath)));	
+	}
 	
 	
 	/**
 	 * @return returns a string describing the url and full contents of the current page
 	 */
-	private String captureCurrentUrlAndtHtmlPageSource() {
-		String currentURL = page.url();
-		String pageSource = page.content();
+	private String captureCurrentUrlAndtHtmlPageSource(Page ctxPage) {
+		String currentURL = ctxPage.url();
+		String pageSource = ctxPage.content();
 		return "<!--  Page CurrentUrl : " + currentURL + " --> \n" +  pageSource;
+	}
+	
+
+	private List<Page> listBrowerCtxPages() {
+		List<Page> ctxPages = new ArrayList<Page>(); 
+		List<BrowserContext> browserContexts =  new ArrayList<BrowserContext>(); 
+		try {
+			browserContexts = page.context().browser().contexts();
+		} catch (Exception e) { // just return the original page object
+			ctxPages.add(page);
+			return ctxPages; 
+		}
+		
+		for (BrowserContext browserContext : browserContexts){
+			for (Page cxtPage: browserContext.pages()) {
+				ctxPages.add(cxtPage);
+			}
+		}
+		return ctxPages;
+	}
+
+	
+	/**
+	 * @param imageName imageName
+	 * @param ctxPages list of pages
+	 * @param ctxPageIx current index on ctxPages 
+	 * @return a unique image name, using a counter and the page title (first 20 chars)
+	 */
+	private String unique(String imageName, List<Page> ctxPages, int ctxPageIx) {
+		String uniqueImageName = imageName;
+		if (ctxPages.size()>1) {
+			uniqueImageName += "_" + (ctxPageIx+1) + "_" + 
+					StringUtils.left(Objects.toString(ctxPages.get(ctxPageIx).title(),"noTitle").replaceAll("[^a-zA-Z0-9]",""), 20);
+		}
+		return uniqueImageName;
 	}
 
 }

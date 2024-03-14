@@ -85,15 +85,19 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_BUFFERED_LOGS	 		= "On_Exception_Write_Buffered_Logs";
+	
 	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_SCREENSHOT	 		= "On_Exception_Write_Screenshot";
+	
 	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_PAGE_SOURCE	 		= "On_Exception_Write_Page_Source";
+	
 	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_PERF_LOG		 		= "On_Exception_Write_Perf_Log";
+	
 	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
 	public static final String ON_EXCEPTION_WRITE_STACK_TRACE	 		= "On_Exception_Write_Stack_Trace";
@@ -185,10 +189,16 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	
 	/**
 	 * Actions (closing browsers, logging, etc) to be taken when a script throws an exception
+	 * 
+	 * <p>Review JavaDocs for the implementation for more information  
+	 * 
 	 * @param context JMeter context
 	 * @param jmeterRuntimeArgumentsMap JMeter arguments
 	 * @param tgName current thread group name
 	 * @return  a JmeterFunctionsUi implementation (used to populate script transaction results)
+	 * 
+	 * @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
+	 * @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 */
 	protected abstract JmeterFunctionsUi UiScriptExecutionAndExceptionsHandling(JavaSamplerContext context,
 			Map<String, String> jmeterRuntimeArgumentsMap, String tgName);

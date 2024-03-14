@@ -18,6 +18,7 @@ package com.mark59.datahunter.samples.playwright.scripts;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
@@ -89,7 +90,6 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 
 		// some optional playwright settings (defaults apply)
 		jmeterAdditionalParameters.put(ScriptingConstants.HEADLESS_MODE, String.valueOf(false));
-		jmeterAdditionalParameters.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");
 		jmeterAdditionalParameters.put(ScriptingConstants.ADDITIONAL_OPTIONS, "");
 		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_DEFAULT_TIMEOUT, "");
 		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_VIEWPORT_SIZE, "");		
@@ -147,7 +147,8 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 		}
 
 		DataHunterLocatorsPlay dhpage = new DataHunterLocatorsPlay(page); 
-
+		// jm.startPlayWrightTrace();
+		
 // 		select policies for this application/thread combination
 		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
 		page.navigate(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application, dhpage.domContentLoaded);
@@ -171,7 +172,7 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 			dhpage.useabilityList().selectOption(DslConstants.UNUSED);
 			dhpage.otherdata().fill(user);		
 			dhpage.epochtime().fill(Long.toString(System.currentTimeMillis()));
-//			jm.writeScreenshot("add_policy_TESTID" + i);
+			// jm.writeScreenshot("add_policy_TESTID" + i);
 			
 			jm.startTransaction("DH_lifecycle_0200_addPolicy");
 			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
@@ -182,7 +183,8 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 			
 			dhpage.backLink().click(dhpage.andsleep);
 		} 
-	
+		// jm.stopPlayWrightTrace("trace.zip");
+		
 //		dummy transaction just to test transaction failure behavior
 		jm.startTransaction("DH_lifecycle_0299_sometimes_I_fail");
 		int randomNum_1_to_100 = ThreadLocalRandom.current().nextInt(1, 101);
@@ -234,39 +236,29 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 		
 		if (LOG.isDebugEnabled() ) {LOG.debug("useNextPolicy: " + application + "-" + lifecycle + " : " + dhpage.identifier() );	}
 		
-		//HTML table demo (force application as only parameter).
+//		HTML table demo (force application as only parameter).
 		page.navigate(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH  + "?application=" + application, dhpage.domContentLoaded);
 		
 		jm.startTransaction("DH_lifecycle_0600_displaySelectedPolicies");	
 		dhpage.submitBtn().click();
 		waitForSqlResultsTextOnActionPageAndCheckOk(dhpage);
-		// demo how to extract a transaction time from with a running script 
+//		demo how to extract a transaction time from with a running script 
 		SampleResult sr_0600 = jm.endTransaction("DH_lifecycle_0600_displaySelectedPolicies");
 		
 		LOG.debug("Transaction " + sr_0600.getSampleLabel() + " ran at " + sr_0600.getTimeStamp() + " and took " + sr_0600.getTime() + " ms.");
+	
+		long used=0;
+		long unused=0;
+		DataHunterLocatorsPlay.HtmlTable policiesTable = dhpage.printSelectedPoliciesTable();
+		for (List<String> tableRow : policiesTable.getHtmlTableRows()) {
+			if (policiesTable.getColumnNumberOfExpectedColumns(tableRow, 5, 10).equals("USED"))   used++;
+			if (policiesTable.getColumnNumberOfExpectedColumns(tableRow, 5, 10).equals("UNUSED")) unused++;
+		}	
+		jm.userDataPoint("USED_count_html_demo",   used );				
+		jm.userDataPoint("UNUSED_count_html_demo", unused );	
+		// LOG.debug("HTML demo: USED=" + used + ", UNUSED=" + unused); 
 		
-		
-		//TODO: simple html table use
-/////////////////////////////////////////////////////////
-		
-//		long used=0;
-//		long unused=0;
-//		MultiplePoliciesActionPage printSelectedPoliciesActionPage = new MultiplePoliciesActionPage(driver);
-//		HtmlTable printSelectedPoliciesTable = printSelectedPoliciesActionPage.printSelectedPoliciesTable();
-//		for (HtmlTableRow tableRow : printSelectedPoliciesTable.getHtmlTableRows()) {
-//			if (tableRow.getColumnNumberOfExpectedColumns(6, 10).getText().equals("USED"))   used++;
-//			if (tableRow.getColumnNumberOfExpectedColumns(6, 10).getText().equals("UNUSED")) unused++;
-//		}	
-//		jm.userDataPoint("USED_count_html_demo",   used );				
-//		jm.userDataPoint("UNUSED_count_html_demo", unused );	
-		jm.userDataPoint("USED_count_html_demo",   5 );				
-		jm.userDataPoint("UNUSED_count_html_demo", 9 );			
-		
-//		LOG.debug("HTML demo: USED=" + used + ", UNUSED=" + unused); 
-		
-		/////////////////////////////////////
-		
-// 		dele te multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
+// 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
 		jm.startTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");	
 		page.navigate(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application, dhpage.domContentLoaded);
 		dhpage.lifecycle().fill(lifecycle);

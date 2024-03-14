@@ -159,7 +159,7 @@ echo starting from $PWD;
 } || { # catch 
     echo attempt to execute mark59-trends-load has failed! 
 }
-','Y','refer bin/TestRunLINUX-DataHunter-Selenium-metricsTrendsLoad.sh',NULL);
+','Y','refer bin/TestRunWIN-DataHunter-Test-TrendsLoad.sh',NULL);
 INSERT IGNORE INTO COMMANDS VALUES ('FreePhysicalMemory','WMIC_WINDOWS','OS get FreePhysicalMemory','N','','[]');
 INSERT IGNORE INTO COMMANDS VALUES ('FreeVirtualMemory','WMIC_WINDOWS','OS get FreeVirtualMemory','N','','[]');
 INSERT IGNORE INTO COMMANDS VALUES ('LINUX_free_m_1_1','SSH_LINUX_UNIX','free -m 1 1','N','linux memory',NULL);
@@ -637,6 +637,8 @@ INSERT IGNORE INTO SERVERCOMMANDLINKS VALUES ('localhost_WINDOWS_HOSTID','WIN_Pe
 
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('DataHunterSeleniumDeployAndExecute','Return1');
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('DataHunterSeleniumDeployAndExecute_LINUX','Return1');
+INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('DataHunterPlaywrightDeployAndExecute','Return1');
+INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('DataHunterPlaywrightDeployAndExecute_LINUX','Return1');
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('DataHunterTestGenJmeterReport','Return1');
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('DataHunterTestGenJmeterReport_LINUX','Return1');
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('DataHunterTestTrendsLoad','Return1');

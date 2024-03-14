@@ -425,7 +425,7 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 </table>
 
 <br>
-<p>For User Guides and More: <a href=https://mark59.com>mark59.com</a> </p>  
+<p>Version: 6.0  Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 </div>
 </body>
 </html>

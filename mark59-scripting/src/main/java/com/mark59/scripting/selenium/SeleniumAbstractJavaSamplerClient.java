@@ -82,6 +82,7 @@ import com.mark59.scripting.selenium.interfaces.DriverFunctionsSelenium;
  * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAlternateBrowser(java.nio.file.Path) 
  * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
  * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
+ * @see IpUtilities#RESTRICT_TO_ONLY_RUN_ON_IPS_LIST
  * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
  * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY 
  * @see JmeterFunctionsForSeleniumScripts
@@ -208,7 +209,8 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#BROWSER_EXECUTABLE  
 	 * @see com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder#setAlternateBrowser(java.nio.file.Path) 
 	 * @see com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory#EMULATE_NETWORK_CONDITIONS 
-	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)   
+	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)  
+	 * @see IpUtilities#RESTRICT_TO_ONLY_RUN_ON_IPS_LIST 
 	 * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
 	 * @see JmeterFunctionsImpl#PRINT_RESULTS_SUMMARY 
 	 * @see JmeterFunctionsForSeleniumScripts
@@ -225,7 +227,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 	 *  <p>Note the use of the catch on AssertionError, as this is NOT an Exception but an Error, and therefore needs
 	 *  to be explicitly caught. 
 	 *  
-	 *  @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
+	 *  <p>Refer to the scriptExceptionHandling JavaDoc (the 'see' link below) for more information
+	 *  
+	 * @see #scriptExceptionHandling(JavaSamplerContext, Map, Throwable)
 	 */
 	@Override
 	public JmeterFunctionsUi UiScriptExecutionAndExceptionsHandling(JavaSamplerContext context, Map<String,String> jmeterRuntimeArgumentsMap, String tgName ) {
@@ -275,11 +279,11 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 	 * <p>Logs can be suppressed by setting a parameter in additionalTestParameters controlling it's output 
 	 * to <code>false</code>: 
 	 * <ul>
-	 * <li>{@link #ON_EXCEPTION_WRITE_BUFFERED_LOGS} -  log buffered (during the script)</li>
-	 * <li>{@link #ON_EXCEPTION_WRITE_SCREENSHOT} - screenshot when exception occurred</li>
-	 * <li>{@link #ON_EXCEPTION_WRITE_PAGE_SOURCE} - page source when exception occurred</li>
-	 * <li>{@link #ON_EXCEPTION_WRITE_PERF_LOG} - Chromium Performance Log, unwritten or unbuffered records when exception occurred</li>
-	 * <li>{@link #ON_EXCEPTION_WRITE_STACK_TRACE} - Exception stack trace</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_BUFFERED_LOGS} -  log buffered (during the script)</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_SCREENSHOT} - screenshot(s) when exception occurred</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_PAGE_SOURCE} - page source(s) when exception occurred</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_STACK_TRACE} - Exception stack trace</li>
+	 * <li>{@link UiAbstractJavaSamplerClient#ON_EXCEPTION_WRITE_PERF_LOG} - Chromium Performance Log, unwritten or unbuffered records when exception occurred</li>
 	 * </ul>
 	 *    
 	 * <p>For example, to suppress buffered logs being output when a script fails, in additionalTestParameters:<br><br>

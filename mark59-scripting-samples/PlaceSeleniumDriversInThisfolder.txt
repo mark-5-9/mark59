@@ -1,0 +1,8 @@
+For example, if you are using browser Chome/Chromium Version122,
+you need to be using the chromedriver for that version.
+
+For Firefox use the latest gekodriver available.
+
+Chromium (ungoogled) is the preferred browser.
+
+See the documentation available at Mark59.com for more information.

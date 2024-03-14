@@ -1,11 +1,56 @@
 
-This is the <b>WORK-IN-PROGRESS</b> repository for Mark59 - be aware it may NOT always be in a completely consistent state.<br><br>
-
 ## Mark59 Documention, Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+<p>Release 6.0<br>
+  <ul>
+   	<li>Changes since Release 5.7:<br><br>
+  
+   	<li>Scripting - Playwright has been introduced as an UI scripting alternative to Selenium<br>
+   	- Most changes for this release are consequences of this.<br><br>
+   	
+  	<li>Sample Project Changes (used in the 'Quick Start' guides):
+	  <ul>
+	    <li>sample project renames
+	       	<ul>
+				<li>mark59-datahunter-samples to mark59-scripting-samples</li> 
+				<li>mark59-dsl-samples to mark59-scripting-sample-dsl</li>
+				<li>playwright samples scripts added to /bin folder</li>
+				<li>'star- playwright samples scripts added to /bin folder</li>
+	    	</ul> 
+		</li>
+	    <li>Playwright samples scripts added to /bin folder </li>
+	    <li>Database commands updated to reflect new sample scripts 
+	    <br>PG and MYSQL conversion scripts included in /databaseScripts folder 
+	    (optional - are only required to be executed in order to run 'Quick Start' steps when using those DBs</li>	    
+	    <li>Refer to the Mark59 documentation (especially the 'Quick Start' guides) for full details</li>
+	  </ul>
+	</li>  
+   	<li>Selenium drivers have been removed from the mark59 download zip file (will now always need to be added to run Selenium)
+	<li>Dependencies Updated: JMeter to 5.6.3, spring-boot to 3.2.3, selenium to 4.18.1 (to chrome v122)  
+	<li>Dependency Added: playwright 1.41.2 (documented as being tested on chome 120/121
+	 - in our testing it appears to run well on chrome 122)   	  	  			
+   </ul> 
+   
+   <figure>
+    <figcaption>Summary of Changes with Potential Incompatibilities For this Release 
+    <br><br>Note these are relatively small and are mostly a consequence of implementing Playwright scripting.</figcaption>
+	   <ul>
+		<li>Not really an 'incompatibility', but when you update pom entries for your mark59 projects, the com.mark59 dependency
+		    the artifactId changes from mark59-selenium-implementation to mark59-scripting, as well as updating 
+		    the version to 6.0</li>
+		<li>Also, org.apache.jmeter dependencies should go to 5.6.3</li>
+		<li>Multiple classes in mark59 have be have their package names changed 
+		<br>in particular for selenium scripts, com.mark59.selenium.* to com.mark59.scripting.selenium.*
+		<br>- In an IDE 'Organize Imports' (ctl-shift-O in Eclipse) should automatically resolve for most classes.</li>
+		<li>org.openqa.selenium.devtools to v122.* for Selenium CDP usage.</li>	 			  
+	   </ul> 
+   </figure>
+
+   
 
 <p>Release 6.0-beta-2<br>
 

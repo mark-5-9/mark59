@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mark59.core.JmeterFunctionsImpl;
+import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.SafeSleep;
 import com.mark59.datahunter.api.application.DataHunterConstants;
@@ -82,12 +83,13 @@ public class DataHunterBasicSampleScriptPlay  extends PlaywrightAbstractJavaSamp
 		jmeterAdditionalParameters.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");
 		
 		// some mark59 predefined parameters for logging  
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,	String.valueOf(false)); // on exception defaults are true.
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 		String.valueOf(false));
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 		String.valueOf(false));
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,		String.valueOf(false));	
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,	String.valueOf(true)); // 'true' is the ON_EXCEPTION defaults.
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 		String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 		String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,		String.valueOf(true));			
 		
-		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));		
+		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));
+		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");
 		return jmeterAdditionalParameters;			
 	}
 	
@@ -113,7 +115,7 @@ public class DataHunterBasicSampleScriptPlay  extends PlaywrightAbstractJavaSamp
 		String user 			= context.getParameter("USER");
 		
 		jm.writeLog("kilroy", "txt", "Kilroy was here".getBytes());
-		jm.bufferLog("kilroybuffer", "txt", "Kilroy was buffered here".getBytes());			
+		jm.bufferLog("kilroybuffer", "txt", "Kilroy was buffered here".getBytes());		
 		
 // 		delete any existing policies for this application/thread combination
 		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
@@ -121,6 +123,18 @@ public class DataHunterBasicSampleScriptPlay  extends PlaywrightAbstractJavaSamp
 		page.locator("id=lifecycle").fill(lifecycle);		
 		page.locator("id=submit").click();
 		jm.endTransaction("DH_lifecycle_0001_loadInitialPage");
+		
+		//page.pause();
+//		page.navigate(dataHunterUrl + "/overview?application=" + application);
+//		Page pageMark59=page.waitForPopup(()->{page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("mark59.com")).click();});
+//		BrowserContext scriptCreatedCxt = browser.newContext(new Browser.NewContextOptions());
+//		Page pageOnCreatedCxt = scriptCreatedCxt.newPage();
+//		pageOnCreatedCxt.navigate(dataHunterUrl + "/upload_policies?application=" + application);
+//	    pageMark59.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Contact")).click();
+//		page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Count Items")).click();
+//		page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("submit")).click();	
+//		// force exception		
+//		if (user==null) {throw new RuntimeException("rando error");	}
 		
 		jm.startTransaction("DH_lifecycle_0100_deleteMultiplePolicies");
 		Locator deleteSelectedItemsLink = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Delete Selected Items")); 
@@ -150,8 +164,19 @@ public class DataHunterBasicSampleScriptPlay  extends PlaywrightAbstractJavaSamp
 		jm.userDataPoint(application + "_PolicyRowsAffected", rowsAffected);    // (expected to be always 1 for this action)		
 
 		page.locator("//a[text()='Back']").click();	
+		// jm.writeBufferedArtifacts();
 		
-//		jm.writeBufferedArtifacts();
+//		// demo multi-page handling
+//		page.navigate(dataHunterUrl + "/overview?application=" + application);
+//		Page pageMark59=page.waitForPopup(()->{page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("mark59.com")).click();});
+//		BrowserContext scriptCreatedCxt = browser.newContext(new Browser.NewContextOptions());
+//		Page pageOnCreatedCxt = scriptCreatedCxt.newPage();
+//		pageOnCreatedCxt.navigate(dataHunterUrl + "/upload_policies?application=" + application);
+//	    pageMark59.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Contact")).click();
+//		page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Count Items")).click();
+//		page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("submit")).click();	
+//		// force exception (demonstrates output on an exception when multiple pages open)		
+//		if (user!=null) {throw new RuntimeException("rando error");	}		
 	}
 
 	

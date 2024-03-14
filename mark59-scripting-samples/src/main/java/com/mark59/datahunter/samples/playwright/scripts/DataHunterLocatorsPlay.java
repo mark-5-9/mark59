@@ -20,9 +20,6 @@ package com.mark59.datahunter.samples.playwright.scripts;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openqa.selenium.WebElement;
-
-import com.mark59.dsl.samples.seleniumDSL.pageElements.HtmlTableRow;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
@@ -92,11 +89,10 @@ public class DataHunterLocatorsPlay  {
 	}	
 	
 	public HtmlTable printSelectedPoliciesTable() {
-		return new HtmlTable(page, page.locator("id=printSelectedPoliciesTable"));
+		return new HtmlTable(page.locator("id=printSelectedPoliciesTable"));
 	}
 	
-	
-	
+		
 	// 	Count Items Breakdown
 
 	public int countItemsBreakdown_count(String application, String lifecycle, String useability){
@@ -104,7 +100,6 @@ public class DataHunterLocatorsPlay  {
 		page.locator("id="+elementCountId);
 		return Integer.parseInt(page.locator("id="+elementCountId).innerText());
 	}
-
 	
 	
 	// _Action Results Elements
@@ -130,7 +125,6 @@ public class DataHunterLocatorsPlay  {
 				+ ", rows affected [" +  rowsAffected().innerText() + "]"				
 				+ ", details [" + sqlResultText().innerText() + "]";		
 	}
-	
 	
 	
 	// Navigation Panel
@@ -173,44 +167,55 @@ public class DataHunterLocatorsPlay  {
 		return page.locator("//a[text()='Async Msg Analyzer']");
 	}
 	
-	
-	
-	// TODO 
+
 	class HtmlTable {
 
-		Page page;
 		Locator htmlTable;
 		
-		public HtmlTable(Page page, Locator htmlTable) {
-			this.page = page;
+		public HtmlTable(Locator htmlTable) {
+			this.htmlTable = htmlTable;
 		}
-		
+
 		/**
-		 * returns a list of web elements, each representing a row of a html table.  
-		 * Doesn't return the heading row (assumed to be the first row of the table):<br> 
+		 * returns the values by row and column of a HTML table - remove header row.  
 		 */
-		public List<HtmlTableRow> getHtmlTableRows(){
+		public List<List<String>> getHtmlTableRows(){
 			return getHtmlTableRows(false);
 		}	
 		
-		public List<HtmlTableRow> getHtmlTableRows(boolean includeHeadingRow){
-			List<WebElement> tableRows = new ArrayList<>();
+		public List<List<String>> getHtmlTableRows(boolean includeHeadingRow){
+			List<List<String>> tableRows = new ArrayList<List<String>>();
 			if (htmlTable != null ){
-				//tableRows = htmlTable.findElements(By.tagName("tr"));
-				//////////////////////////page.l 
+				int rowCount = htmlTable.locator("tr").count();
+			    for (int i = 0; i < rowCount; i++) {
+			    	Locator tablerow = htmlTable.locator("tr").nth(i);
+			    	List<String> tableRowVals = new ArrayList<String>();
+			    	
+				    for (int j = 0; j < tablerow.locator("td").count(); j++) {
+				    	tableRowVals.add(tablerow.locator("td").nth(j).innerText());
+				    }
+				    tableRows.add(tableRowVals);
+			    } 
 			}
 			if (tableRows.size() > 0  && !includeHeadingRow ){
 				tableRows.remove(0); 		
 			}	
+			return tableRows;
+		}	
 		
-			List<HtmlTableRow> htmlTableRows = new ArrayList<>();
-			for (WebElement tableRowElement : tableRows) {
-				htmlTableRows.add(new HtmlTableRow(tableRowElement));
-			}
-			return htmlTableRows; 
-		}		
-	}	
-	
-	
+		
+		public String getColumnNumberOfExpectedColumns(List<String> tableRowVals,  int columnNumber, int ofExpectedNumberOfColumns ){
+			if (tableRowVals.size() < columnNumber ){
+				throw new RuntimeException("HtmlTableRow : not enough columns in row!  [" + tableRowVals + "], requested col number " + columnNumber );
+			}	
+
+			if (tableRowVals.size() != ofExpectedNumberOfColumns ){
+				throw new RuntimeException("HtmlTableRow : invalid columns number for row [" + tableRowVals + "], "
+						+  tableRowVals.size() + " cols exist in row, but expected was " + ofExpectedNumberOfColumns );
+			}	
+			return tableRowVals.get(columnNumber);
+		}
+		
+	} // HtmlTable	
 	
 }

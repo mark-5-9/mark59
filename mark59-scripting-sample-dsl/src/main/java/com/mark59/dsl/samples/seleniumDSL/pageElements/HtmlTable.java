@@ -44,8 +44,8 @@ public class HtmlTable extends Elemental {
 	
 	
 	/**
-	 * returns a list of web elements, each representing a row of a html table.  Does NOT return the heading row (assumed to be the first row of the table):<br> 
-	 * see  getHtmlTableRows(boolean includeHeadingRow)
+	 * returns a list of web elements, each representing a row of a html table.<br> 
+	 * @return a list of HtmlTableRow of for the table
 	 */
 	public List<HtmlTableRow> getHtmlTableRows(){
 		return getHtmlTableRows(false);
