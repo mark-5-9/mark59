@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.2">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DataHunter Playwright Test Plan" enabled="true">
       <boolProp name="TestPlan.functional_mode">false</boolProp>
@@ -10,7 +10,7 @@
       </elementProp>
     </TestPlan>
     <hashTree>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments">
           <elementProp name="dataHunterUrl" elementType="Argument">
             <stringProp name="Argument.name">dataHunterUrl</stringProp>
@@ -59,17 +59,14 @@
       </Arguments>
       <hashTree/>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group " enabled="true">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">0</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
           <stringProp name="LoopController.loops">1</stringProp>
           <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </SetupThreadGroup>
       <hashTree>
         <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="mark59propsAlternativeOrOverrideValues" enabled="false">
@@ -121,18 +118,16 @@ log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
         <hashTree/>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycle" enabled="true">
+        <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,25)}</stringProp>
+        <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
           <intProp name="LoopController.loops">-1</intProp>
           <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,25)}</stringProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
       </ThreadGroup>
       <hashTree>
         <BeanShellTimer guiclass="TestBeanGUI" testclass="BeanShellTimer" testname="Iteration Pacing Timer" enabled="true">
@@ -216,7 +211,7 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle" enabled="true">
-          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
                 <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
@@ -265,10 +260,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_DEFAULT_TIMEOUT" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_DEFAULT_TIMEOUT</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_VIEWPORT_SIZE" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_VIEWPORT_SIZE</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_OPEN_DEVTOOLS" elementType="Argument">
@@ -276,36 +273,49 @@ return 0;</stringProp>
                 <stringProp name="Argument.value">false</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="PLAYWRIGHT_ENV_VAR_PWDEBUG" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_ENV_VAR_PWDEBUG</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="PLAYWRIGHT_DOWNLOADS_PATH" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_DOWNLOADS_PATH</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_SLOW_MO" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_SLOW_MO</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_TIMEOUT_BROWSER_INIT" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_TIMEOUT_BROWSER_INIT</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_TRACES_DIR" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_TRACES_DIR</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_PROXY_SERVER" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_PROXY_SERVER</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_PROXY_BYPASS" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_PROXY_BYPASS</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_PROXY_USERNAME" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_PROXY_USERNAME</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_PROXY_PASSWORD" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_PROXY_PASSWORD</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="______________________ logging settings: _______________________" elementType="Argument">
@@ -365,23 +375,27 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: __________________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ miscellaneous: __________________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
                 <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="EMULATE_NETWORK_CONDITIONS" elementType="Argument">
                 <stringProp name="Argument.name">EMULATE_NETWORK_CONDITIONS</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.0</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -392,18 +406,16 @@ return 0;</stringProp>
         <hashTree/>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator" enabled="true">
+        <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,20)}</stringProp>
+        <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
           <intProp name="LoopController.loops">-1</intProp>
           <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,20)}</stringProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
       </ThreadGroup>
       <hashTree>
         <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
@@ -422,7 +434,7 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator" enabled="true">
-          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
                 <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
@@ -446,6 +458,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="______________________ interation settings: _____________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ interation settings: _____________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="ITERATE_FOR_PERIOD_IN_SECS" elementType="Argument">
@@ -495,10 +508,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_DEFAULT_TIMEOUT" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_DEFAULT_TIMEOUT</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_VIEWPORT_SIZE" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_VIEWPORT_SIZE</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_OPEN_DEVTOOLS" elementType="Argument">
@@ -506,36 +521,49 @@ return 0;</stringProp>
                 <stringProp name="Argument.value">false</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="PLAYWRIGHT_ENV_VAR_PWDEBUG" elementType="Argument">
+                <stringProp name="Argument.name">PLAYWRIGHT_ENV_VAR_PWDEBUG</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="PLAYWRIGHT_DOWNLOADS_PATH" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_DOWNLOADS_PATH</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_SLOW_MO" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_SLOW_MO</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_TIMEOUT_BROWSER_INIT" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_TIMEOUT_BROWSER_INIT</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_TRACES_DIR" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_TRACES_DIR</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_PROXY_SERVER" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_PROXY_SERVER</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_PROXY_BYPASS" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_PROXY_BYPASS</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_PROXY_USERNAME" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_PROXY_USERNAME</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PLAYWRIGHT_PROXY_PASSWORD" elementType="Argument">
                 <stringProp name="Argument.name">PLAYWRIGHT_PROXY_PASSWORD</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="______________________ logging settings: _______________________" elementType="Argument">
@@ -595,23 +623,27 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: __________________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ miscellaneous: __________________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
                 <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="EMULATE_NETWORK_CONDITIONS" elementType="Argument">
                 <stringProp name="Argument.name">EMULATE_NETWORK_CONDITIONS</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.0</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -622,18 +654,16 @@ return 0;</stringProp>
         <hashTree/>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost" enabled="true">
+        <stringProp name="ThreadGroup.num_threads">${__P(MonitoringUsers,1)}</stringProp>
+        <intProp name="ThreadGroup.ramp_time">0</intProp>
+        <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
           <intProp name="LoopController.loops">-1</intProp>
           <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">${__P(MonitoringUsers,1)}</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
       </ThreadGroup>
       <hashTree>
         <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
@@ -646,7 +676,7 @@ return 0;</stringProp>
         </ConstantThroughputTimer>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_web" enabled="true">
-          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="MARK59_METRICS_URL" elementType="Argument">
                 <stringProp name="Argument.name">MARK59_METRICS_URL</stringProp>
@@ -665,6 +695,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="." elementType="Argument">
                 <stringProp name="Argument.name">.</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="_________________________ logging settings: _______________" elementType="Argument">
@@ -694,22 +725,27 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name=".." elementType="Argument">
                 <stringProp name="Argument.name">..</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="_________________________ miscellaneous: __________________" elementType="Argument">
                 <stringProp name="Argument.name">_________________________ miscellaneous: __________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
                 <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="..." elementType="Argument">
                 <stringProp name="Argument.name">...</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="_________________________ notes: __________________________" elementType="Argument">
                 <stringProp name="Argument.name">_________________________ notes: __________________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="__" elementType="Argument">
@@ -729,11 +765,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api Version: 6.0</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api Version: 6.1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -743,19 +780,17 @@ return 0;</stringProp>
         <hashTree/>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_distributed" enabled="true">
+        <stringProp name="TestPlan.comments">Using the HOSTID profile ( &quot;localhost_WINDOWS_HOSTID&quot; ) to pick up the load generator name for distrubted tests - set DistributedUsers to 1 to activate</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(DistributedUsers,0)}</stringProp>
+        <intProp name="ThreadGroup.ramp_time">0</intProp>
+        <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
           <intProp name="LoopController.loops">-1</intProp>
           <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">${__P(DistributedUsers,0)}</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <stringProp name="TestPlan.comments">Using the HOSTID profile ( &quot;localhost_WINDOWS_HOSTID&quot; ) to pick up the load generator name for distrubted tests - set DistributedUsers to 1 to activate</stringProp>
-        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
       </ThreadGroup>
       <hashTree>
         <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
@@ -768,7 +803,7 @@ return 0;</stringProp>
         </ConstantThroughputTimer>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_distributed_via_web" enabled="true">
-          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
                 <stringProp name="Argument.name">SERVER_PROFILE_NAME</stringProp>
@@ -777,6 +812,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="." elementType="Argument">
                 <stringProp name="Argument.name">.</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="_________________________ logging settings: _______________" elementType="Argument">
@@ -811,14 +847,17 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: ____________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ miscellaneous: ____________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH" elementType="Argument">
                 <stringProp name="Argument.name">OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="Restrict_To_Only_Run_On_IPs_List" elementType="Argument">
                 <stringProp name="Argument.name">Restrict_To_Only_Run_On_IPs_List</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="_" elementType="Argument">
@@ -828,11 +867,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.0</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -843,18 +883,17 @@ return 0;</stringProp>
         <hashTree/>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DemoDataHunterLifecyclePvtNoUIusesRestApi" enabled="false">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <longProp name="ThreadGroup.duration">20</longProp>
+        <longProp name="ThreadGroup.delay">4</longProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
           <stringProp name="LoopController.loops">1</stringProp>
           <boolProp name="LoopController.continue_forever">false</boolProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">20</stringProp>
-        <stringProp name="ThreadGroup.delay">4</stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-        <boolProp name="ThreadGroup.delayedStart">false</boolProp>
       </ThreadGroup>
       <hashTree>
         <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
@@ -873,7 +912,7 @@ return 0;</stringProp>
         </UserParameters>
         <hashTree/>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecyclePvtScriptUsingRestApiClient" enabled="true">
-          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
                 <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
@@ -912,11 +951,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
                 <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.0</stringProp>
+                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -926,7 +966,7 @@ return 0;</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>

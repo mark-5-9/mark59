@@ -19,6 +19,7 @@ package com.mark59.test.core;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.jmeter.samplers.SampleResult;
@@ -494,6 +495,27 @@ public class JmeterFunctionsTest {
 		assert (t.getSampleResultFromMainResultWithLabel(transactionLabel).size() == 1
 				&& t.getSampleResultFromMainResultWithLabel(transactionLabel).get(0).isSuccessful());
 	}
+	
+	@Test
+	public final void InFlightTransactionsChecks() {
+		JmeterFunctionsImpl t = getJmeterFunctions();
+		t.startTransaction("txnA");
+		List<String> inFlightTns =  t.returnInFlightTransactionNames();
+		assert (inFlightTns.size() == 1);
+		assert ("txnA".equals(inFlightTns.get(0)));
+		t.endTransaction("txnA");
+		
+		inFlightTns =  t.returnInFlightTransactionNames();
+		assert (inFlightTns.size() == 0);
+
+		t.startTransaction("first");
+		t.startTransaction("second");		
+		inFlightTns =  t.returnInFlightTransactionNames();
+		assert (inFlightTns.size() == 2);
+		assert (inFlightTns.contains("first") );	
+		assert (inFlightTns.contains("second") );			
+	}
+
 
 	private JmeterFunctionsImpl getJmeterFunctions() {
 		return new JmeterFunctionsImpl(null);

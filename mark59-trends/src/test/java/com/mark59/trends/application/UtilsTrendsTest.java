@@ -93,4 +93,22 @@ public class UtilsTrendsTest  {
     	Assert.assertArrayEquals( new String[]{"3","1","02" }, UtilsTrends.commaDelimStringToSortedStringArray("1,02,3", reverse));
     }
      
+	
+	@Test
+    public void teststringContainsHtmlTags(){
+        Assert.assertFalse("iDontHaveAnyHtml", UtilsTrends.stringContainsHtmlTags("iDontHaveAnyHtml"));
+        Assert.assertFalse(" >x<y ", UtilsTrends.stringContainsHtmlTags(" >x<y "));        
+        Assert.assertFalse("<<x<y", UtilsTrends.stringContainsHtmlTags("<<x<y"));        
+        Assert.assertFalse("><\\<x<y", UtilsTrends.stringContainsHtmlTags("><\\<x<y"));        
+        Assert.assertFalse("></", UtilsTrends.stringContainsHtmlTags("></"));        
+        Assert.assertTrue("<iDoHaveHtml>", UtilsTrends.stringContainsHtmlTags("<iDoHaveHtml>"));
+        Assert.assertTrue("jj<x>", UtilsTrends.stringContainsHtmlTags("jj<x>"));
+		Assert.assertTrue("<a href='http://l:83/t/D_R%20_370.html'>R370</a>",
+				UtilsTrends.stringContainsHtmlTags("<a href='http://l:83/t/D_R%20_370.html'>R370</a>"));
+		Assert.assertTrue("stackoverflow extract",	UtilsTrends.stringContainsHtmlTags(
+				"<a href=\"https://stackoverflow.com\" class=\"s-topbar--logo js-gps-track data-gps-track=\"top_nav.click"
+				+ "({is_current:false, location:2, destination:8})\"><span class=\"-img _glyph\">Stack Overflow</span></a>"));
+        Assert.assertTrue("theage", UtilsTrends.stringContainsHtmlTags("this: <a href='http://theage.com.au'>TheAge</a>)"));		
+    }
+	
 }

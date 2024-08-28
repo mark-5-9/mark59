@@ -102,7 +102,7 @@ public class Log4jConfigurationHelper {
 		ctx.updateLoggers(customConfiguration);
 		ctx.start(customConfiguration);
 		
-		System.out.println("Log4j 2 configuration has been set vai the Mark59 Log4jConfigurationHelper class.");
+		System.out.println("Log4j 2 configuration has been set via the Mark59 Log4jConfigurationHelper class.");
 		
 		String log4jConfigurationFile = System.getProperty("log4j.configurationFile");
 		if (log4jConfigurationFile != null ) {

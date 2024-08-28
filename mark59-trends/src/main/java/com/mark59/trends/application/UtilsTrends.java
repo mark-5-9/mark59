@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -39,6 +40,9 @@ import com.mark59.trends.data.beans.Transaction;
  */
 public class UtilsTrends  {
 
+	private static final String HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>";
+	private static Pattern pattern = Pattern.compile(HTML_PATTERN);
+	
 
 	public static String stringListToCommaDelimString(List<String> listOfStrings) {
 		StringBuilder commaDelimitedsb = new StringBuilder();
@@ -245,5 +249,17 @@ public class UtilsTrends  {
 	public static String prettyPrintParms(MapSqlParameterSource sqlparameters) {
 	    return Mark59Utils.prettyPrintMap(sqlparameters.getValues());	
 	}
+	
+
+	/**
+	 * https://stackoverflow.com/questions/32065069/is-there-any-method-to-identify-whether-a-string-contains-html-tags-in-java
+	 * @param pStr  String being tested for embedded html tag(s) 
+	 * @return true if string contains html tag, else false 
+	 */
+	public static boolean stringContainsHtmlTags(String pStr) {
+	    Matcher matcher = pattern.matcher(pStr);
+	    return matcher.find();
+	}		
+
 	
 }

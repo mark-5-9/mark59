@@ -252,8 +252,6 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 			LOG.debug(">> running test ");			
 			
 			runSeleniumTest(context, jm, driver);
-			
-			jm.tearDown();
 		
 			LOG.debug("<< finished test" );
 
@@ -262,6 +260,8 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 			scriptExceptionHandling(context, jmeterRuntimeArgumentsMap, e);
 		
 		} finally {
+			
+			jm.tearDown();
 			if (! keepBrowserOpen.equals(KeepBrowserOpen.ALWAYS) ){ 
 				mark59SeleniumDriver.driverDispose();
 			}
@@ -295,6 +295,9 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 	 * @param e can be an exception or Assertion error
 	 */
 	protected void scriptExceptionHandling(JavaSamplerContext context, Map<String, String> jmeterRuntimeArgumentsMap, Throwable e) {
+		
+		jm.failInFlightTransactions();		
+		
 		String thread = Thread.currentThread().getName();
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
@@ -340,7 +343,6 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 		}
 		
 		jm.failTest();
-		jm.tearDown();
 		
 		if (keepBrowserOpen.equals(KeepBrowserOpen.ONFAILURE)){
 			// force browser to stay open

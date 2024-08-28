@@ -141,7 +141,7 @@ public interface DriverFunctionsSeleniumBuilder<O extends MutableCapabilities>	{
 	 * <p>For example, defining a proxy pac url: 
 	 * <br><b>&nbsp;&nbsp;&nbsp;&nbsp; proxyType=PAC,proxyAutoconfigUrl=http://myawesomecompany.corp/proxy.pac</b></p>
 	 * 
-	 * <p>Another example.  Defining a http / https(ssl) proxy vai the proxy host name  
+	 * <p>Another example.  Defining a http / https(ssl) proxy via the proxy host name  
 	 * <br><b>&nbsp;&nbsp;&nbsp;&nbsp; httpProxy=http://myawesomecompany.corp:8080,sslProxy=http://myawesomecompany.corp:8080</b><br><br>
 	 * &nbsp;&nbsp;&nbsp;&nbsp; Note: for Chrome at time of writing server user/password entry is not catered for with http and ssl proxy server setup.</p>
 	 * 

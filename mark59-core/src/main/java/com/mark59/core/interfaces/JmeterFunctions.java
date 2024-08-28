@@ -18,6 +18,7 @@ package com.mark59.core.interfaces;
 
 import java.util.Map;
 
+import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 
 import com.mark59.core.JmeterFunctionsImpl;
@@ -168,12 +169,20 @@ public interface JmeterFunctions {
 	 */
 	void tearDown();
 	
+
+	/**
+	 * This will immediately stop the JMeter ThreadGroup the script is running on (for the rest of the test).
+	 * Context/TG may not be set if running outside JMeter (ie in an IDE), so check is made for null objects before call.
+	 *  
+	 * @param context JMeter context
+	 */
+	void stopThreadGroup(JavaSamplerContext context);	
+
 	
 	/**
 	 * Marks the test as failed.
 	 */
 	void failTest();
-	
 	
 	
 	/**

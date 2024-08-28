@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.3</version>		
+		<version>3.3.2</version>		
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-datahunter</artifactId>
 	<packaging>war</packaging>
-	<version>6.0</version>
+	<version>6.1</version>
 	<name>mark59-datahunter</name>
 
 	<properties>
@@ -60,6 +60,13 @@
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		
+		<!-- required from Spring Boot 3.2.8+ (for com.sun.el.ExpressionFactoryImpl) -->		
+		<dependency>
+		    <groupId>org.glassfish.expressly</groupId>
+		    <artifactId>expressly</artifactId>
+		    <version>6.0.0-M1</version>
 		</dependency>
 
 		<!-- Other project dependencies -->		

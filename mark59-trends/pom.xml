@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.3</version>			
+		<version>3.3.2</version>			
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
 	
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-trends</artifactId>
-	<version>6.0</version>
+	<version>6.1</version>
 	<packaging>war</packaging>
 
 	<name>mark59-trends</name>
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.0</version>
+			<version>6.1</version>
 		</dependency>
 
 		<!-- Spring Boot related dependencies -->
@@ -70,7 +70,14 @@
 			<artifactId>tomcat-embed-jasper</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
+		
+		<!-- required from Spring Boot 3.2.8+ (for com.sun.el.ExpressionFactoryImpl) -->		
+		<dependency>
+		    <groupId>org.glassfish.expressly</groupId>
+		    <artifactId>expressly</artifactId>
+		    <version>6.0.0-M1</version>
+		</dependency>
+		
 		<!-- Other project dependencies -->
 
 		<dependency>

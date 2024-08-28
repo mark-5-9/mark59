@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.threads.AbstractThreadGroup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -725,12 +727,8 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	@Override
 	public void tearDown() {	
 		
-		for (Entry<String, SampleResult> subResultEntry : transactionMap.entrySet()) {
-			if (StringUtils.isBlank(subResultEntry.getValue().getResponseMessage())){
-				endTransaction(subResultEntry.getValue().getSampleLabel(), Outcome.FAIL);
-			}
-		}
-
+		failInFlightTransactions();
+		
 		if (allSamplesPassed() && !isForcedFail){
 			tearDownMainResult(Outcome.PASS);
 		} else {
@@ -745,6 +743,40 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 			printThreadTransactionResults();
 		}		
 	}
+
+	
+	/**
+	 * <p>Traverses the internal created transactions Map, looking for any transactions that had been
+	 * started but not completed.</p>
+	 * 
+	 * @return List of In-Flight transaction names 
+	 */
+	public List<String> returnInFlightTransactionNames() {	
+		
+		List<String> inFlightTransactionsNames = new ArrayList<String>();  
+		for (Entry<String, SampleResult> subResultEntry : transactionMap.entrySet()) {
+			if (StringUtils.isBlank(subResultEntry.getValue().getResponseMessage())){
+				inFlightTransactionsNames.add(subResultEntry.getValue().getSampleLabel());
+			}
+		}
+		return inFlightTransactionsNames; 
+	}	
+	
+	
+	
+	/**
+	 * <p>Traverses the internal created transactions Map, looking for any transactions that had been
+	 * started but not completed. If incomplete transactions are encountered then they are ended and flagged as
+	 * "failed".</p>
+	 */
+	public void failInFlightTransactions() {	
+		
+		for (Entry<String, SampleResult> subResultEntry : transactionMap.entrySet()) {
+			if (StringUtils.isBlank(subResultEntry.getValue().getResponseMessage())){
+				endTransaction(subResultEntry.getValue().getSampleLabel(), Outcome.FAIL);
+			}
+		}
+	}	
 	
 	
 	private boolean allSamplesPassed() {
@@ -758,9 +790,9 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * sub-result ends, so a call to the sampleEnd() method only needs to be made if no subResult 
 	 * has already set the main transaction end time 
 	 * 
-	 * A data type of 'PARENT' is used to indicate this is a main result (normally expected to have sub-results)
-	 * produced using the mark59 framework is set.  This is useful to to separate results from sub-results, particularly
-	 * for JMeter result files in CSV format, as a CSV has a flat structure.  
+	 * A data type of 'PARENT' is used to indicate this is a main result (normally expected to have
+	 * sub-results)produced using the mark59 framework is set.  This is useful to to separate results
+	 * from sub-results, particularly for JMeter result files in CSV format, as a CSV has a flat structure.  
 	 * 
 	 */
 	private void tearDownMainResult(Outcome outcome) {
@@ -776,7 +808,23 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	
 
 	/**
-	 * Called to set the main result of a test to a failed state, regardless of the state of the sub results attached to the main result.
+	 * This will immediately stop the JMeter ThreadGroup the script is running on (for the rest of the test).
+	 * Context/TG may not be set if running outside JMeter (ie in an IDE), so check is made for null objects
+	 * before call. 
+	 */
+	@Override
+	public void stopThreadGroup(JavaSamplerContext context) {
+		if (context != null && context.getJMeterContext() != null
+				&& context.getJMeterContext().getThreadGroup() != null) {
+			AbstractThreadGroup tg = context.getJMeterContext().getThreadGroup();
+			LOG.debug("Actioning request to stop TG " + tg.getThreadName());
+			tg.stop();
+		}
+	}	
+	
+	/**
+	 * Called to set the main result of a test to a failed state, regardless of the state of the
+	 * sub results attached to the main result.
 	 * <p>Normally, a main result would only fail if at least one of it's sub results was a fail.</p>
 	 */
 	@Override

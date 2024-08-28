@@ -81,6 +81,7 @@ public class DataHunterIteratorLifecyclePvtScriptPlay  extends PlaywrightIterato
 		jmeterAdditionalParameters.put(ITERATE_FOR_NUMBER_OF_TIMES,  					 "0");
 		jmeterAdditionalParameters.put(ITERATION_PACING_IN_SECS,  						"10");
 		jmeterAdditionalParameters.put(STOP_THREAD_AFTER_TEST_START_IN_SECS,  			 "0");
+		jmeterAdditionalParameters.put(STOP_THREAD_ON_FAILURE,		    String.valueOf(false));			
 		
 		// user defined parameters
 		jmeterAdditionalParameters.put("DATAHUNTER_URL", "http://localhost:8081/mark59-datahunter");
@@ -160,10 +161,8 @@ public class DataHunterIteratorLifecyclePvtScriptPlay  extends PlaywrightIterato
 	@Override
 	protected void iteratePlaywrightTest(JavaSamplerContext context, JmeterFunctionsForPlaywrightScripts jm, Page playwrightPage) {
 		
-		
 //		add one policy 
 		dhpage.navAddItemLink().click(dhpage.andsleep); 
-		
 		dhpage.identifier().fill("TESTID_ITER");   
 		dhpage.lifecycle().fill(lifecycle);
 		dhpage.useabilityList().selectOption(DslConstants.UNUSED);
@@ -231,7 +230,6 @@ public class DataHunterIteratorLifecyclePvtScriptPlay  extends PlaywrightIterato
 // 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
 		
 		jm.startTransaction("DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl");	
-		
 		dhpage.page.navigate(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application, dhpage.domContentLoaded);
 		dhpage.lifecycle().fill(lifecycle);
 		dhpage.submitBtn().click();
@@ -266,8 +264,10 @@ public class DataHunterIteratorLifecyclePvtScriptPlay  extends PlaywrightIterato
 	
 	
 	/**
-	 *  Just as a demo, create some transaction and go the home page (in a real test you may want go to a logout page/option).
-	 *  Will be triggered in this script, for example, if the 'assertTrue' returns 'false' (or any exception is thrown) . 	
+	 *  Just as a demo, create some transaction and remove any already created items to avoid duplicates (in a real test 
+	 *  you may want go to a logout page/option).
+	 *  <p>As you can see, even in this simple script attempting re-start logic can get quite complex, and is likely to have
+	 *  some fragility.  
 	 */
 	@Override
 	protected void userActionsOnScriptFailure(JavaSamplerContext context, JmeterFunctionsForPlaywrightScripts jm, Page playwrightPage) {
@@ -275,8 +275,18 @@ public class DataHunterIteratorLifecyclePvtScriptPlay  extends PlaywrightIterato
 		jm.startTransaction("DH_lifecycle_9998_userActionsOnScriptFailure");
 		System.out.println("  -- page title at userActionsOnScriptFailure is " + dhpage.page.title() + " --");
 		jm.endTransaction("DH_lifecycle_9998_userActionsOnScriptFailure");
-		SafeSleep.sleep(30000); 
-		dhpage.page.navigate(dataHunterUrl, dhpage.domContentLoaded);
+		
+		System.out.println("  -- attempt to recover (for when attempting more iters - clear up database)");
+		SafeSleep.sleep(3000); 
+		
+		jm.startTransaction("DH_lifecycle_9998_onFail_clearUpPolicies");
+		dhpage.page.navigate(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application, dhpage.domContentLoaded);
+		dhpage.lifecycle().fill(lifecycle);  // this thread
+		dhpage.submitBtn().click();
+		dhpage.backLink().click(dhpage.waitUntilClickable);
+		dhpage.manangeMultipleItems_deleteSelectedItemsLink().click();
+		waitForSqlResultsTextOnActionPageAndCheckOk(dhpage);
+		jm.endTransaction("DH_lifecycle_9998_onFail_clearUpPolicies");	
 	}	
 	
 	
@@ -301,17 +311,15 @@ public class DataHunterIteratorLifecyclePvtScriptPlay  extends PlaywrightIterato
 	 * For logging details see @Log4jConfigurationHelper 
 	 */
 	public static void main(String[] args) {
-		Log4jConfigurationHelper.init(Level.INFO ) ;
+		Log4jConfigurationHelper.init(Level.INFO) ;
 		DataHunterIteratorLifecyclePvtScriptPlay thisTest = new DataHunterIteratorLifecyclePvtScriptPlay();
 
 		//1: single
 		thisTest.runUiTest(KeepBrowserOpen.ONFAILURE);
 		
-		
 		//2: multi-thread  (a. with and b. without KeepBrowserOpen option) 
 //		thisTest.runMultiThreadedUiTest(2, 500);
 //		thisTest.runMultiThreadedUiTest(2, 2000, KeepBrowserOpen.ONFAILURE);   
-  
 
 		//3: multi-thread with parms
 //		Map<String, java.util.List<String>>threadParameters = new java.util.LinkedHashMap<String,java.util.List<String>>();
@@ -320,7 +328,6 @@ public class DataHunterIteratorLifecyclePvtScriptPlay  extends PlaywrightIterato
 //		//  (a. with and b. without KeepBrowserOpen option)
 //		thisTest.runMultiThreadedUiTest(4, 2000, threadParameters);
 //		thisTest.runMultiThreadedUiTest(4, 2000, threadParameters, KeepBrowserOpen.ONFAILURE);	
-		
 		
 		//4: multi-thread with parms, each thread iterating, optional summary printout and/or CSV file in JMeter format. See JavaDocs for details. 
 //		Map<String, java.util.List<String>>threadParameters = new java.util.LinkedHashMap<String,java.util.List<String>>();

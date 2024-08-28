@@ -1,9 +1,18 @@
 
-## Mark59 Documention, Guides, Downloads and More ..
+## Mark59 Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+<p>Release 6.1<br>
+
+  <ul>
+	<li>Bug/Enhance: Cater for html links within Run Comments on Trends Graphic</li> 
+	<li>Bug/Enhance: Improved handling of exceptions in the Selenium and Playwright Interator classes</li> 	
+	<li>Dependencies Updated: spring-boot to 3.3.2, selenium to 4.23.0 (to chrome v127), playwright to 1.45.1</li>  
+  </ul>
+
 
 <p>Release 6.0<br>
 

@@ -253,8 +253,6 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 			LOG.debug(">> running test ");			
 			
 			runPlaywrightTest(context, jm, playwrightPage);
-			
-			jm.tearDown();
 		
 			LOG.debug("<< finished test" );
 
@@ -263,7 +261,9 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 			scriptExceptionHandling(context, jmeterRuntimeArgumentsMap, e);
 		
 		} finally {
-			if (! keepBrowserOpen.equals(KeepBrowserOpen.ALWAYS) ){ 
+			
+			jm.tearDown();
+			if (! keepBrowserOpen.equals(KeepBrowserOpen.ALWAYS)){ 
 				driverDispose();
 			}
 		}
@@ -461,6 +461,9 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * @param e can be an exception or Assertion error
 	 */
 	protected void scriptExceptionHandling(JavaSamplerContext context, Map<String, String> jmeterRuntimeArgumentsMap, Throwable e) {
+
+		jm.failInFlightTransactions();
+		
 		String thread = Thread.currentThread().getName();
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));
@@ -503,7 +506,6 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		}
 		
 		jm.failTest();
-		jm.tearDown();
 		
 		if (keepBrowserOpen.equals(KeepBrowserOpen.ONFAILURE)){
 			// force browser to stay open

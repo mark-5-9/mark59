@@ -308,7 +308,8 @@ public class TrendingController {
 
 	
 	/**
-	 * labelRunShortDescriptionsId id used by the graphic to populate the run labels 
+	 * labelRunShortDescriptionsId id used by the graphic to populate the run labels
+	 * If there is a link in the description, it will just grab the link text. 
 	 * 
 	 * @param application  application id (as displayed in the graphic)
 	 * @param runDatesToGraphId  list of runs graphed
@@ -319,6 +320,7 @@ public class TrendingController {
 		List<String> runDatesToGraph = UtilsTrends.commaDelimStringToStringList(runDatesToGraphId);
 		List<String> runShortDescriptionsList = new ArrayList<>();
 		String runReferenceLinkText;
+		String runComment; 
 
 		for (String runDate : runDatesToGraph) {
 			Run run = runDAO.findRun(application, runDate);
@@ -340,11 +342,15 @@ public class TrendingController {
 			}
 			runDescriptionsb.append(runReferenceLinkText.replace(',', ' '));
 
-			if (StringUtils.isNotBlank(run.getComment())) {
-				if (run.getComment().length() > 20) {
-					runDescriptionsb.append(" ").append(run.getComment().replace(',', ' '), 0, 20);
+			runComment = StringUtils.substringBetween(run.getComment(), "'>", "</a");
+			if (runComment == null) {
+				runComment = run.getComment();
+			}
+			if (StringUtils.isNotBlank(runComment)) {
+				if (runComment.length() > 20) {
+					runDescriptionsb.append(" ").append(runComment.replace(',', ' '), 0, 20);
 				} else {
-					runDescriptionsb.append(" ").append(run.getComment().replace(',', ' '));
+					runDescriptionsb.append(" ").append(runComment.replace(',', ' '));
 				}
 			}
 			runShortDescriptionsList.add(runDescriptionsb.toString());
@@ -375,7 +381,7 @@ public class TrendingController {
 			runDescriptionsb.append(run.getRunReference().replace(',', ' '));
 
 			if (StringUtils.isNotBlank(run.getComment())) {
-				if (run.getComment().length() > 20) {
+				if (run.getComment().length() > 20 && !UtilsTrends.stringContainsHtmlTags(run.getComment())  ) {
 					runDescriptionsb.append("<br><br><div style='color:grey;'>").append(run.getComment().replace(',', ' '), 0, 20).append("..</div>");
 				} else {
 					runDescriptionsb.append("<br><br><div style='color:grey;'>").append(run.getComment().replace(',', ' ')).append("</div>");
@@ -390,6 +396,7 @@ public class TrendingController {
 //		System.out.println("trendingController:populateLabelRunDescriptionsId: " + labelRunDescriptionsId );
 		return labelRunDescriptionsId;
 	}
+	
 	
 	private String populateRangeBarData(String application, String latestRunTime, String graph) {
 		String trxnIdsRangeBarId = "";
