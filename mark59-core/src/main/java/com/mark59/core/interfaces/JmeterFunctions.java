@@ -210,12 +210,14 @@ public interface JmeterFunctions {
 	
 
 	/**
-	 * Save the byte[] to the specified file name file.
+	 * Save the byte[] to a specified file name file, built using the passed Logname and Logname suffix 
+	 * (implementations would also be generally be expected to use properties that can be set in the 
+	 * mark59.properties file). 
 	 * 
-	 * <p>Implementations may also create the parent log directory if missing (ie initial directory creation)
+	 * <p>Implementations should also create the parent log directory if missing (ie initial directory creation)
 	 * 
 	 * <p>Generally meant to be used within mark59 to write pre-defined log types 
-	 * (eg Selenium screenshots, Chromium performance Logs, Exception stack traces), but can be invoked from 
+	 * (eg UI screenshots, Chromium performance Logs, Exception stack traces), but can be invoked from 
 	 * a user-written script to immediately write data to a mark59 log. 
 	 * 
 	 * @param mark59LogName filename to use for the log (without suffix) 
@@ -226,6 +228,23 @@ public interface JmeterFunctions {
 	 */
 	void writeLog(String mark59LogName, String mark59LogNameSuffix, byte[] mark59LogBytes);
 	
+	
+	/**
+	 * Save the byte[] to the fully specified file name
+	 * 
+	 * <p><b>Not expected to use used for logging except in special circumstances</b> when 
+	 * full control of the filename to be used is required. 
+	 * {@link #writeLog(String, String, byte[])} is the standard for creation of log files.
+	 * 
+	 * <p>The most likely use case is when a log file name needs to be reserved, for use later or during a 
+	 * script.  In this case the usual location and formatting for a mark59 log file can be obtained 
+	 * using {@link #reserveFullyQualifiedLogName(String, String)}.      
+	 * 
+	 * @param fullyQualifiedMark59LogName log filename to be written (including extension)  
+	 * @param mark59LogBytes  data to be written to log
+	 */
+	void writeLog(String fullyQualifiedMark59LogName, byte[] mark59LogBytes);
+
 	
 	/**
 	 * Save a byte[] with a specified log name and suffix, ready to be written to file later. 
@@ -242,4 +261,17 @@ public interface JmeterFunctions {
 	 */
 	void bufferLog(String mark59LogName, String mark59LogNameSuffix, byte[] mark59LogBytes);
 
+	
+	/**
+	 * Put everything together to form a full mark59 log name.  For implementations of this, the 
+	 * intentions it to 'reserve' a log filename, so the file can be created later during script execution.
+	 * <p>An implementation example of this is .HAR files creation (filename needs to be set during Playwright page
+	 * creation, but is not created until the BrowserContext.close() is invoked at the end of the script).
+	 *     
+	 * @param imageName  last part of logname
+	 * @param suffix logname suffix (eg .txt)
+	 * @return a string representing the full path of the log 
+	 */
+	String reserveFullyQualifiedLogName(String imageName, String suffix);	
 }
+

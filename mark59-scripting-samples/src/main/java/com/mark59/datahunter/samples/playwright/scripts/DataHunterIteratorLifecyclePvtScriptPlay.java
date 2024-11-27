@@ -173,6 +173,7 @@ public class DataHunterIteratorLifecyclePvtScriptPlay  extends PlaywrightIterato
 		jm.startTransaction("DH_lifecycle_0200_addPolicy");
 		SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
 		dhpage.submitBtn().click();
+		dhpage.backLink().click(dhpage.waitUntilClickable);
 		waitForSqlResultsTextOnActionPageAndCheckOk(dhpage);						 
 		jm.endTransaction("DH_lifecycle_0200_addPolicy");
 

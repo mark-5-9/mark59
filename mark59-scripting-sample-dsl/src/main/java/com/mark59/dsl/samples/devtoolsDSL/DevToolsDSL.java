@@ -29,10 +29,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chromium.ChromiumDriver;
 import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v127.network.Network;
-import org.openqa.selenium.devtools.v127.network.model.RequestWillBeSent;
-import org.openqa.selenium.devtools.v127.network.model.ResponseReceived;
-import org.openqa.selenium.devtools.v127.network.model.LoadingFinished;
+import org.openqa.selenium.devtools.v130.network.Network;
+import org.openqa.selenium.devtools.v130.network.model.RequestWillBeSent;
+import org.openqa.selenium.devtools.v130.network.model.ResponseReceived;
+import org.openqa.selenium.devtools.v130.network.model.LoadingFinished;
 
 import com.mark59.scripting.selenium.JmeterFunctionsForSeleniumScripts;
 

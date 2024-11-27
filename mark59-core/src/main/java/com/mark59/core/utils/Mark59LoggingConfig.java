@@ -31,7 +31,18 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Defines the Mark59 Logging Directory and log names formatter.
- * A Singleton pattern is used so initialization and the log names formatter are only executed oncee
+ * 
+ * These properties (can be set in the mark59.properties file) are relevant to log file names:
+ * <br>mark59.log.directory - sets the base directory to be used for mark59 logging functions
+ * <br>mark59.log.directory.suffix - add a date or date/time suffix to the log directory
+ * <br>mark59.logname.format - set of options to set set the format of a log filename 
+ * 
+ * <p>A Singleton pattern is used so initialization and the log names formatter are only executed once
+ * 
+ * @see PropertiesKeys
+ * @see PropertiesKeys#MARK59_PROP_LOG_DIRECTORY
+ * @see PropertiesKeys#MARK59_PROP_LOG_DIRECTORY_SUFFIX
+ * @see PropertiesKeys#MARK59_PROP_LOGNAME_FORMAT
  * 
  * @author Michael Cohen
  * @author Philip Webb Written: Australian Winter 2019

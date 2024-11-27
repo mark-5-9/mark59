@@ -33,8 +33,11 @@ import org.apache.logging.log4j.Logger;
  * Static properties file reader, loading the mark59 properties file into memory
  * just once per run to reduce disk I/O.
  * 
+ * @see PropertiesKeys
+ * 
  * @author Michael Cohen
- * @author Philip Webb Written: Australian Winter 2019
+ * @author Philip Webb 
+ * Written: Australian Winter 2019
  */
 public class PropertiesReader {
 	private static final Logger LOG = LogManager.getLogger(PropertiesReader.class);

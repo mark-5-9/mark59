@@ -17,6 +17,7 @@
 package com.mark59.scripting;
 
 import com.mark59.core.utils.PropertiesKeys;
+import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.Proxy;
@@ -175,6 +176,26 @@ public class ScriptingConstants {
 	 *  @see BrowserType.LaunchOptions#setTimeout(double)
 	 */
 	public static final String PLAYWRIGHT_TIMEOUT_BROWSER_INIT = "PLAYWRIGHT_TIMEOUT_BROWSER_INIT";	
+	
+	
+	/**
+	 * "PLAYWRIGHT_HAR_FILE_CREATION" - If 'true', a .har file will be created during script execution.
+	 * Meant for debugging purposes, obviously use with caution within a performance test.
+	 * The .har file will be written by mark59 to the mark59 log directory (as per mark59.properties) 
+	 * @see #PLAYWRIGHT_HAR_URL_FILTER 
+	 * @see Browser.NewContextOptions#recordHarPath
+	 */
+	public static final String PLAYWRIGHT_HAR_FILE_CREATION = "PLAYWRIGHT_HAR_FILE_CREATION";	
+	
+	
+	/**
+	 * "PLAYWRIGHT_HAR_URL_FILTER" - Invokes Playwright's browserContext.setRecordHarUrlFilter()
+	 * method, when a .har file is to be created (optional).  For example <code>"**&#47;add_policy**"</code>
+	 * will only caputure urls containing <code>&#47;add_policy</code>
+	 * @see #PLAYWRIGHT_HAR_FILE_CREATION 
+	 * @see Browser.NewContextOptions#setRecordHarUrlFilter(java.util.regex.Pattern)
+	 */
+	public static final String PLAYWRIGHT_HAR_URL_FILTER = "PLAYWRIGHT_HAR_URL_FILTER";	
 	
 	
 	/**

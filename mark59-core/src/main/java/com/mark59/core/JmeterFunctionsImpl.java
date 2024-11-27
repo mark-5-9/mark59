@@ -48,6 +48,7 @@ import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 import com.mark59.core.utils.Mark59LogLevels;
 import com.mark59.core.utils.Mark59LoggingConfig;
+import com.mark59.core.utils.PropertiesKeys;
 import com.mark59.core.utils.StaticCounter;
 
 
@@ -78,13 +79,13 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	/**
 	 * Intention is that this string is used as a JMeter Parameter to flag if Transaction Results Summary should be logged 
 	 * (jmeter.log). The default expected would be to not log the summary when executing from JMeter.  Eg, in the
-	 * 'additionalTestParameters' method of a Mark59 selenium script:
+	 * 'additionalTestParameters' method of a Mark59 UI script:
 	 * 
 	 * <p><code>jmeterAdditionalParameters.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));</code>	
 	 * 
-	 * <p>When running from the IDE you may want the default to be to print the Results Summary. This is done for Mark59
-	 * selenium scripts, and can be done for custom implementations using this field. For an example, see the 
-	 * mark59-scripting-samples project, class DataHunterLifecyclePvtScriptUsingRestApiClient.    
+	 * <p>When running from the IDE you may want change from the default to print the Results Summary. This is done 
+	 * for Mark59 sample UI scripts (and could be done for custom implementations using this field).
+	 * 
 	 * <p>Also see {@link #isPrintResultsSummary}     
 	 */
 	public static final String LOG_RESULTS_SUMMARY = "LOG_RESULTS_SUMMARY";
@@ -892,16 +893,20 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	
 
 	/**
-	 * Save the byte[] to the specified file name, and will create the parent directory if missing 
-	 * (ie initial directory creation)
+	 * Save the byte[] to the specified file name.  The precise formatting of the file name and the directory
+	 * are obtained from properties that can be set in the mark59.properties file. 
+	 * 
+	 * <p>Note the parent directory is created if missing (ie initial log file in the directory).
 	 * 
 	 * <p>Generally meant to be used within Mark59 to write pre-defined log types 
-	 * (eg Selenium screenshots, Chromium performance Logs, Exception stack traces), but can be invoked from 
+	 * (eg UI screenshots, Chromium performance Logs, Exception stack traces), but can be invoked from 
 	 * a user-written script to immediately write data to a Mark59 log. 
 	 * 
 	 * <p>Sample usage from a script:
 	 * <p><code>jm.writeLog("kilroy", "txt", "Kilroy was here".getBytes());</code>
 	 * 
+	 * @see PropertiesKeys
+
 	 * @param mark59LogName last part of the log filename (excluding extension)  
 	 * @param mark59LogNameSuffix suffix of the log filename (eg 'txt', 'jpg')  
 	 * @param mark59LogBytes  data to be written to log
@@ -910,18 +915,42 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	public void writeLog(String mark59LogName, String mark59LogNameSuffix, byte[] mark59LogBytes) {
 		writeBytesToDisk((buildFullyQualifiedLogName(mark59LogName, mark59LogNameSuffix)), mark59LogBytes);
 	}
+	
+
+	/**
+	 * Save the byte[] to the fully specified file name
+	 * 
+	 * <p>This method is <b>not expected to use used for logging except in special circumstances</b> when 
+	 * full control of the filename to be used is required.
+	 * {@link #writeLog(String, String, byte[])} is the standard for creation of log files. 
+	 * 
+	 * <p>The most likely use case is when a log file name needs to be reserved, for use later or during a 
+	 * script.  In this case the usual location and formatting for a mark59 log file can be obtained 
+	 * using {@link #reserveFullyQualifiedLogName(String, String)}.      
+	 * 
+	 * @param fullyQualifiedMark59LogName log filename to be written (including extension)  
+	 * @param mark59LogBytes  data to be written to log
+	 */
+	@Override	
+	public void writeLog(String fullyQualifiedMark59LogName, byte[] mark59LogBytes) {
+		writeBytesToDisk(fullyQualifiedMark59LogName, mark59LogBytes);
+	}
+	
 
 	/**
 	 * Save a byte[] with a specified log name and suffix, ready to be written to file later. 
+	 * The precise formatting of the file name and directory are obtained from properties
+	 * that can be set in the mark59.properties file. 
 	 * 
 	 * <p>Generally meant to be used within Mark59 to buffer pre-defined log types 
 	 * (eg Selenium screenshots, Chromium performance Logs), but can be invoked from 
 	 * a user-written script.
 	 * 
 	 * <p>Sample usage from a script:
-	 * <p><code>jm.bufferLog("kilroybuffer", "txt", "Kilroy was buffered here".getBytes());</code>
+	 * <p><code>jm.bufferLog("kilroybuffer", "text", "Kilroy was buffered here".getBytes());</code>
 	 * 
 	 * @see #writeBufferedArtifacts()
+	 * @see PropertiesKeys
 	 * 
 	 * @param mark59LogName last part of the log filename (excluding extension)  
 	 * @param mark59LogNameSuffix suffix of the log filename (eg 'txt', 'jpg')  
@@ -934,9 +963,29 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		}		
 	}
 
-
+	
 	/**
-	 * Puts everything together to form a full mark59 log name
+	 * Puts everything together to form a full mark59 log name.  Calling this method directly will result 
+	 * in a log filename being 'reserved', so the file can be created later during script execution.
+	 * <p>An example of this is .HAR files creation (filename needs to be set during Playwright page creation, but is not 
+	 * created until the BrowserContext.close() is invoked at the end of the script).
+	 * <p>Note: programmatically it's just calling the private method {@link #buildFullyQualifiedLogName(String, String)}.
+	 * this public method has been created more to help show the intent of the call (to get and reserve a 
+	 * log filename for later use).  
+	 *     
+	 * @param imageName  last part of logname
+	 * @param suffix logname suffix (eg .txt)
+	 * @return a string representing the full path of the log 
+	 */
+	@Override
+	public String reserveFullyQualifiedLogName(String imageName, String suffix) {
+		return buildFullyQualifiedLogName(imageName, suffix);
+	}
+
+	
+	/**
+	 * Puts everything together to form a full mark59 log name. 
+	 *     
 	 * @param imageName  last part of logname
 	 * @param suffix logname suffix (eg .txt)
 	 * @return a string representing the full path of the log 
@@ -945,7 +994,6 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		if (loggingConfig.getLogDirectory() == null) {
 			return null;
 		}
-
 		String fullLogname = leadingPartOfLogNames;
 		
 		if (loggingConfig.getLogNamesFormat().contains(Mark59Constants.LABEL)) {
@@ -955,11 +1003,9 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 				fullLogname += "_noTxn";
 			}
 		}
-		
 		// include Log Counter in log file name, and increment counter ready for next image
 		fullLogname +=  "_" + String.format("%04d", StaticCounter.readCount(Mark59Constants.LOG_COUNTER));
 		StaticCounter.incrementCount(Mark59Constants.LOG_COUNTER);			
-
 		return fullLogname + "_" + imageName +"." + suffix;
 	}
 
@@ -968,9 +1014,8 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		if (loggingConfig.getLogDirectory() == null) {
 			return;
 		}		
-		
 		LOG.info(MessageFormat.format("Writing image to disk: {0}", fullyQualifiedMark59LogName));
-		System.out.println("[" + Thread.currentThread().getName() + "]  Writing image to disk:" + fullyQualifiedMark59LogName);
+		System.out.println("[" + Thread.currentThread().getName() + "]  Writing image to disk: " + fullyQualifiedMark59LogName);
 		
 		File fullyQualifiedMark59LogFile = new File(fullyQualifiedMark59LogName);
 		
@@ -983,7 +1028,6 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 		
 		try (OutputStream stream = new FileOutputStream(fullyQualifiedMark59LogFile)){
 			stream.write(mark59LogBytes);
-			
 		} catch (IOException e) {
 			LOG.error("Caught " + e.getClass().getName() + " with message: " + e.getMessage());
 		}

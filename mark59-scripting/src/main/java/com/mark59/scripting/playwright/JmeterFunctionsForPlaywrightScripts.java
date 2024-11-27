@@ -46,7 +46,7 @@ import com.microsoft.playwright.Page.ScreenshotOptions;
  * and/or directly calling the methods in this class from the script.  
  * Please refer to {@link #overrideTxnLoggingBehaviourUsingJmeterParameters(Map)}</p>
  * 
- * <p>From JMeter, Selenium scripts (that extend {@link PlaywrightAbstractJavaSamplerClient}) have been provisioned to have transaction-level 
+ * <p>From JMeter, Playwright scripts (that extend {@link PlaywrightAbstractJavaSamplerClient}) have been provisioned to have transaction-level 
  * 'logging settings' available.<br>
  * 
  * <p>Current default outputs setting are :
@@ -89,21 +89,35 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 	/** log4J class logger */
 	public static final Logger LOG = LogManager.getLogger(JmeterFunctionsForPlaywrightScripts.class);
 
-	private final Page page;
+	private Page page;
 
 
 	/**
 	 * @param context the JMeter JavaSamplerContext 
-	 * @param page  the Playwright page (intended to be the Page object used by within a script)  
 	 * @param jmeterRuntimeArgumentsMap used to override default state of Mark59 log output
 	 */
-	public JmeterFunctionsForPlaywrightScripts(JavaSamplerContext context, Page page, 
-			Map<String, String> jmeterRuntimeArgumentsMap) {		
+	public JmeterFunctionsForPlaywrightScripts(JavaSamplerContext context,
+			Map<String, String> jmeterRuntimeArgumentsMap) {
 		super(context, jmeterRuntimeArgumentsMap);
-		this.page = page;
 	}
 	
 		
+	/**
+	 * @return page a playwright page 
+	 */
+	public Page getPage() {
+		return page;
+	}
+
+
+	/**
+	 * @param page a playwright page
+	 */
+	public void setPage(Page page) {
+		this.page = page;
+	}
+
+
 	/**
 	 * (Playwright Only) As per {@link #writeScreenshot(String)}, but allows user to pass any desired 
 	 * Playwright Page and optionally ScreenshotOptions.
@@ -224,7 +238,8 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 
 
 	/**
-	 * Convenience method to start a Playwright trace, with StartOptions set to true. 
+	 * Convenience method to start a Playwright trace, with StartOptions set to true.
+	 * <br>Only intended to be used when debugging a script.  Use with extreme care in a performance test!  
 	 * <p><code>
 	 * page.context().tracing().start(new Tracing.StartOptions().setScreenshots(true).setSnapshots(true).setSources(true));
 	 * </code>

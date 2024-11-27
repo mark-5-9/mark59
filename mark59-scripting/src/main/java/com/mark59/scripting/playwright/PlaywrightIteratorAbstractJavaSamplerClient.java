@@ -180,6 +180,8 @@ public abstract class PlaywrightIteratorAbstractJavaSamplerClient extends Playwr
 		
 		Map<String,String> jmeterRuntimeArgumentsMap = convertJmeterArgumentsToMap(context);
 
+		jm = new JmeterFunctionsForPlaywrightScripts(context, jmeterRuntimeArgumentsMap);
+		
 		try {
 			playwrightPage = makePlaywrightPage(jmeterRuntimeArgumentsMap);   
 		} catch (Exception e) {
@@ -190,8 +192,8 @@ public abstract class PlaywrightIteratorAbstractJavaSamplerClient extends Playwr
 			if (tg!=null) tg.stop();
 			return null;
 		}
+		jm.setPage(playwrightPage);
 		
-		jm = new JmeterFunctionsForPlaywrightScripts(context, playwrightPage, jmeterRuntimeArgumentsMap);   	
 		boolean forceStop = false;
  				
 		try {

@@ -5,6 +5,16 @@
 
 ## Releases 
 
+
+<p>Release 6.2<br>
+
+  <ul>
+	<li>Playwright Scripting: Cater for creation of .HAR file recordings</li> 
+	<li>JavaDocs improvements for several Core classes</li> 	
+	<li>Dependencies Updated: spring-boot to 3.3.5, selenium to 4.26.0 (to chrome v130), playwright to 1.48.0, commons-io to 2.14.0</li>  
+  </ul>
+
+
 <p>Release 6.1<br>
 
   <ul>

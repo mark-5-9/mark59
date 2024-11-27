@@ -35,6 +35,7 @@ import com.mark59.core.Outcome;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
+import com.mark59.core.utils.Mark59LogLevels;
 import com.mark59.core.utils.SafeSleep;
 import com.mark59.datahunter.samples.dsl.helpers.DslConstants;
 import com.mark59.scripting.KeepBrowserOpen;
@@ -46,7 +47,7 @@ import com.microsoft.playwright.Page;
 /**
  * <p>This sample is meant to demonstrate how to structure a Mark59 playwright script (not how to use use DataHunter in a performance test -
  * see below). It uses a basic type of DSL (domain-specific language) which we suggest would be sufficient for most performance tests 
- * written using Playwright.
+ * written using Playwright.  In fact you may find any DSL classes will often be overkill for Playwright scripting.
  *        
  * <p>The reason for a simple DSL structure in Playwright, compared to that provided in the Selenium examples, basically comes down to 
  * the fact Playwright implicitly provides <code>waitUntilClickable(..)</code> on retrieval of html elements, so there's not the need 
@@ -88,29 +89,50 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 		jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(true));			
 		jmeterAdditionalParameters.put("USER", "default_user");				
 
-		// some optional playwright settings (defaults apply)
-		jmeterAdditionalParameters.put(ScriptingConstants.HEADLESS_MODE, String.valueOf(false));
+		// Optional playwright settings. Defaults apply - you DON'T need to include default valued parameters in a script,
+		// in a script,they have been included in the script to demonstrate the options available. 
+		// Set to default or 'not set' values unless stated otherwise.
+		
+		jmeterAdditionalParameters.put(ScriptingConstants.HEADLESS_MODE, String.valueOf(false));  // default is true
+		
 		jmeterAdditionalParameters.put(ScriptingConstants.ADDITIONAL_OPTIONS, "");
 		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_DEFAULT_TIMEOUT, "");
-		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_VIEWPORT_SIZE, "");		
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_VIEWPORT_SIZE, "");
+		jmeterAdditionalParameters.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");
 		
-		// optional logging settings (defaults apply) 
-//		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,Mark59LogLevels.DEFAULT.getName());
-//		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
-//		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,Mark59LogLevels.DEFAULT.getName());
-//		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
-//
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,	String.valueOf(true));
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 		String.valueOf(true));
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 		String.valueOf(true));
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,		String.valueOf(true));
-		
-		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));		
-		jmeterAdditionalParameters.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));		
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_DOWNLOADS_PATH, "");
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_TIMEOUT_BROWSER_INIT, "");
 
-		// optional miscellaneous settings (defaults apply) 
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_ENV_VAR_PWDEBUG, "");		 
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_SLOW_MO, "");
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_TRACES_DIR, "");
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_OPEN_DEVTOOLS, String.valueOf(false));
+		
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_HAR_FILE_CREATION, String.valueOf(false));
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_HAR_URL_FILTER, "");
+
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_PROXY_SERVER, "");
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_PROXY_BYPASS, "");
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_PROXY_USERNAME, "");
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_PROXY_PASSWORD, "");
+
 		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");			
 		jmeterAdditionalParameters.put(ScriptingConstants.EMULATE_NETWORK_CONDITIONS, "");			
+			
+
+		// optional log settings, defaults shown 
+		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,Mark59LogLevels.DEFAULT.getName());
+		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
+		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,Mark59LogLevels.DEFAULT.getName());
+		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
+
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,	String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 		String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 		String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,		String.valueOf(true));
+		
+		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));		// default is 'false'		
+		jmeterAdditionalParameters.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));		
 	
 		return jmeterAdditionalParameters;			
 	}
@@ -177,11 +199,12 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 			jm.startTransaction("DH_lifecycle_0200_addPolicy");
 			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
 			dhpage.submitBtn().click();
-			dhpage.backLink();
+			dhpage.backLink().click(dhpage.waitUntilClickable);
 			waitForSqlResultsTextOnActionPageAndCheckOk(dhpage);						 
 			jm.endTransaction("DH_lifecycle_0200_addPolicy");
 			
 			dhpage.backLink().click(dhpage.andsleep);
+			dhpage.submitBtn().click(dhpage.waitUntilClickable);
 		} 
 		// jm.stopPlayWrightTrace("trace.zip");
 		

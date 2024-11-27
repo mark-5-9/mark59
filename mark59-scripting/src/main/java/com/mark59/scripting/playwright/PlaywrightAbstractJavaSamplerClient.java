@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,21 +70,23 @@ import com.microsoft.playwright.options.Proxy;
  *
  * @see #additionalTestParameters() 
  * @see ScriptingConstants#HEADLESS_MODE 
- * @see ScriptingConstants#PLAYWRIGHT_ENV_VAR_PWDEBUG
- * @see ScriptingConstants#BROWSER_EXECUTABLE 
  * @see ScriptingConstants#ADDITIONAL_OPTIONS 
- * @see ScriptingConstants#EMULATE_NETWORK_CONDITIONS 
+ * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
+ * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE
+ * @see ScriptingConstants#OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE
  * @see ScriptingConstants#PLAYWRIGHT_DOWNLOADS_PATH
+ * @see ScriptingConstants#PLAYWRIGHT_TIMEOUT_BROWSER_INIT
+ * @see ScriptingConstants#PLAYWRIGHT_ENV_VAR_PWDEBUG
+ * @see ScriptingConstants#PLAYWRIGHT_SLOW_MO
+ * @see ScriptingConstants#PLAYWRIGHT_TRACES_DIR
  * @see ScriptingConstants#PLAYWRIGHT_OPEN_DEVTOOLS 
+ * @see ScriptingConstants#PLAYWRIGHT_HAR_FILE_CREATION
+ * @see ScriptingConstants#PLAYWRIGHT_HAR_URL_FILTER
  * @see ScriptingConstants#PLAYWRIGHT_PROXY_SERVER
  * @see ScriptingConstants#PLAYWRIGHT_PROXY_BYPASS
  * @see ScriptingConstants#PLAYWRIGHT_PROXY_USERNAME
  * @see ScriptingConstants#PLAYWRIGHT_PROXY_PASSWORD
- * @see ScriptingConstants#PLAYWRIGHT_SLOW_MO
- * @see ScriptingConstants#PLAYWRIGHT_TIMEOUT_BROWSER_INIT
- * @see ScriptingConstants#PLAYWRIGHT_TRACES_DIR
- * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
- * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE
+ * @see ScriptingConstants#EMULATE_NETWORK_CONDITIONS 
  * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
  * @see IpUtilities#RESTRICT_TO_ONLY_RUN_ON_IPS_LIST 
  * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
@@ -131,23 +134,24 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		staticMap.put("______________________ playwright settings: ________________________", "Refer Mark59 User Guide : http://mark59.com");	
 		staticMap.put(ScriptingConstants.HEADLESS_MODE, 		 String.valueOf(true));
 		staticMap.put(ScriptingConstants.ADDITIONAL_OPTIONS,	 "");
-		staticMap.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");
-		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_DEFAULT_TIMEOUT, "");	
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_VIEWPORT_SIZE, "");	
-		staticMap.put(ScriptingConstants.PLAYWRIGHT_OPEN_DEVTOOLS, String.valueOf(false));
-		staticMap.put(ScriptingConstants.PLAYWRIGHT_ENV_VAR_PWDEBUG, "");		
+		staticMap.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");
+		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_DOWNLOADS_PATH, "");		
-		staticMap.put(ScriptingConstants.PLAYWRIGHT_SLOW_MO, "");	
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_TIMEOUT_BROWSER_INIT, "");	
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_ENV_VAR_PWDEBUG, "");		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_SLOW_MO, "");	
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_TRACES_DIR, "");
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_OPEN_DEVTOOLS, String.valueOf(false));
+		
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_HAR_FILE_CREATION, String.valueOf(false));
+		staticMap.put(ScriptingConstants.PLAYWRIGHT_HAR_URL_FILTER, "");		
 		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_PROXY_SERVER, "");		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_PROXY_BYPASS, "");		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_PROXY_USERNAME, "");		
 		staticMap.put(ScriptingConstants.PLAYWRIGHT_PROXY_PASSWORD, "");	
-		
-		
 		
 		staticMap.put("______________________ logging settings: _______________________", "Expected values: 'default', 'buffer', 'write' or 'off' ");		
 		staticMap.put(JmeterFunctionsForPlaywrightScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
@@ -194,21 +198,23 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	 * 
 	 * @see #additionalTestParameters() 
 	 * @see ScriptingConstants#HEADLESS_MODE 
-	 * @see ScriptingConstants#PLAYWRIGHT_ENV_VAR_PWDEBUG
-	 * @see ScriptingConstants#BROWSER_EXECUTABLE 
 	 * @see ScriptingConstants#ADDITIONAL_OPTIONS 
-	 * @see ScriptingConstants#EMULATE_NETWORK_CONDITIONS 
+	 * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
+	 * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE
+	 * @see ScriptingConstants#OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE
 	 * @see ScriptingConstants#PLAYWRIGHT_DOWNLOADS_PATH
+	 * @see ScriptingConstants#PLAYWRIGHT_TIMEOUT_BROWSER_INIT
+	 * @see ScriptingConstants#PLAYWRIGHT_ENV_VAR_PWDEBUG
+	 * @see ScriptingConstants#PLAYWRIGHT_SLOW_MO
+	 * @see ScriptingConstants#PLAYWRIGHT_TRACES_DIR
 	 * @see ScriptingConstants#PLAYWRIGHT_OPEN_DEVTOOLS 
+	 * @see ScriptingConstants#PLAYWRIGHT_HAR_FILE_CREATION
+	 * @see ScriptingConstants#PLAYWRIGHT_HAR_URL_FILTER
 	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_SERVER
 	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_BYPASS
 	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_USERNAME
 	 * @see ScriptingConstants#PLAYWRIGHT_PROXY_PASSWORD
-	 * @see ScriptingConstants#PLAYWRIGHT_SLOW_MO
-	 * @see ScriptingConstants#PLAYWRIGHT_TIMEOUT_BROWSER_INIT
-	 * @see ScriptingConstants#PLAYWRIGHT_TRACES_DIR
-	 * @see ScriptingConstants#PLAYWRIGHT_DEFAULT_TIMEOUT
-	 * @see ScriptingConstants#PLAYWRIGHT_VIEWPORT_SIZE
+	 * @see ScriptingConstants#EMULATE_NETWORK_CONDITIONS 
 	 * @see IpUtilities#localIPisNotOnListOfIPaddresses(String)
 	 * @see IpUtilities#RESTRICT_TO_ONLY_RUN_ON_IPS_LIST 
 	 * @see JmeterFunctionsImpl#LOG_RESULTS_SUMMARY
@@ -236,8 +242,10 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 	public JmeterFunctionsUi UiScriptExecutionAndExceptionsHandling(JavaSamplerContext context, Map<String,String> jmeterRuntimeArgumentsMap, 
 			String tgName){
 		
+		jm = new JmeterFunctionsForPlaywrightScripts(context, jmeterRuntimeArgumentsMap);   	
+
 		try {
-			playwrightPage = makePlaywrightPage(jmeterRuntimeArgumentsMap);   
+			playwrightPage = makePlaywrightPage(jmeterRuntimeArgumentsMap);
 		} catch (Exception e) {
 			LOG.error("ERROR : " + this.getClass() + ". Fatal error has occurred for Thread Group " + tgName
 					+ " while attempting to initiate playwright!" );
@@ -245,8 +253,7 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 			e.printStackTrace();			
 			return null;
 		}
-
-		jm = new JmeterFunctionsForPlaywrightScripts(context, playwrightPage, jmeterRuntimeArgumentsMap);   	
+		jm.setPage(playwrightPage);
 		
 		try {
 			
@@ -402,7 +409,22 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		
 		browser = playwright.chromium().launch(browserLaunchOptions);
 		
-		browserContext = browser.newContext(new Browser.NewContextOptions());
+		Browser.NewContextOptions browserContextOptions = new Browser.NewContextOptions();
+		
+		// If .har recording requested, sets the .har file name and directory (to the mark59 log directlory 
+		if (Boolean.parseBoolean(arguments.get(ScriptingConstants.PLAYWRIGHT_HAR_FILE_CREATION))){
+			String harfilename = jm.reserveFullyQualifiedLogName("harfile","har"); 
+			browserContextOptions.setRecordHarPath(new File(harfilename).toPath());
+			LOG.info(MessageFormat.format("HAR file will be written to {0}", harfilename));
+			System.out.println("[" + Thread.currentThread().getName() + "] HAR file will be written to " + harfilename);
+		}		
+
+		// Include the .har recording filter when set 
+		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.PLAYWRIGHT_HAR_URL_FILTER))){
+			browserContextOptions.setRecordHarUrlFilter(arguments.get(ScriptingConstants.PLAYWRIGHT_HAR_URL_FILTER));
+		}		
+		
+		browserContext = browser.newContext(browserContextOptions);
 		
 		playwrightPage = browserContext.newPage();
 
@@ -410,7 +432,6 @@ public abstract class PlaywrightAbstractJavaSamplerClient extends UiAbstractJava
 		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.PLAYWRIGHT_DEFAULT_TIMEOUT))){
 			playwrightPage.setDefaultTimeout(Double.parseDouble(arguments.get(ScriptingConstants.PLAYWRIGHT_DEFAULT_TIMEOUT)));
 		}	
-		
 		
 		// Set browser dimensions
 		if (StringUtils.isNotBlank(arguments.get(ScriptingConstants.PLAYWRIGHT_VIEWPORT_SIZE))) {	

@@ -17,16 +17,18 @@
 package com.mark59.core.utils;
 
 /**
- * The current list of properties used by the Mark59 framework are defined here.
+ * The current list of properties used by the Mark59 framework are defined here.  
+ * These properties can be set in the mark59.properties file.  
  * <p>
  * <b>mark59.screenshot.directory</b> : deprecated - renamed as mark59.log.directory<br>
  * <b>mark59.log.directory</b> : value defines the directory where transaction-level/error logging will occur<br>
- * <b>mark59.logname.format</b> : formatter for log names output to the log directory<br>
  * <b>mark59.log.directory.suffix</b> : log directory suffix, may be a local 'date' or 'datetime'<br>
+ * <b>mark59.logname.format</b> : formatter for log names output to the log directory<br>
  * <b>mark59.selenium.driver.path.chrome</b> : location of the chrome driver executable<br>
  * <b>mark59.selenium.driver.path.firefox</b> :  location of the geokodriver executable <br>
  * <b>mark59.server.profiles.excel.file.path</b> :  location of a excel file to be used for server metrics capture<br> 
- * <b>mark59.browser.executable</b> :  location of an alternate browser executable  
+ * <b>mark59.browser.executable</b> :  location of an alternate browser executable <br> 
+ * <b>mark59.print.startup.console.messages</b> :  set true to print basic console messages on startup  
  * </p>
  * 
  * @author Michael Cohen
@@ -85,7 +87,7 @@ public class PropertiesKeys {
 	
 	
 	/**
-	 * mark59.print.startup.console.messages. Set to 'true' to print Mark59 console message output on start-up (default is false) 
+	 * mark59.print.startup.console.messages. Set to 'true' to print basic Mark59 console message output on start-up (default is false) 
 	 */
 	public static final String MARK59_PRINT_STARTUP_CONSOLE_MESSAGES = "mark59.print.startup.console.messages";
 	
