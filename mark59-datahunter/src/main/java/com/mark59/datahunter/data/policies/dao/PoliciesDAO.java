@@ -18,6 +18,7 @@ package com.mark59.datahunter.data.policies.dao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -39,6 +40,7 @@ public interface PoliciesDAO
 	public final String SELECT_POLICY_COLUMNS = " application, identifier, lifecycle, useability, otherdata, created, updated, epochtime ";
 	
 	SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect);
+	SqlWithParms constructSelectPolicySql(Policies policies);
 
 	SqlWithParms constructSelectPoliciesFilterSql(PolicySelectionFilter PolicySelectionFilter);
 	SqlWithParms constructSelectPoliciesFilterSql(PolicySelectionFilter policySelectionFilter, boolean applyLimit);	
@@ -49,10 +51,17 @@ public interface PoliciesDAO
 	
 	int runCountSql(SqlWithParms sqlWithParms);
 	List<Policies> runSelectPolicieSql(SqlWithParms sqlWithParms);
+	Stream<Policies> runStreamPolicieSql(SqlWithParms sqlWithParms);
 	List<CountPoliciesBreakdown> runCountPoliciesBreakdownSql(SqlWithParms sqlWithParms);
 	List<AsyncMessageaAnalyzerResult> runAsyncMessageaAnalyzerSql(SqlWithParms sqlWithParms);
 	
 	SqlWithParms constructInsertDataSql(Policies policies);
+	
+	SqlWithParms countReusableIndexedIdsInExpectedRange(PolicySelectionCriteria policySelect, int ixCount);
+	SqlWithParms countNonReusableIdsForReusableIndexedData(String application, String lifecycle);
+	SqlWithParms constructCollectDataOutOfExpectedIxRangeSql(String application, String lifecycle, int policyCount);
+
+	void insertMultiple(List<Policies> policiesList);
 	SqlWithParms constructDeletePoliciesSql(PolicySelectionCriteria policySelectionCriteria);
 	SqlWithParms constructDeleteMultiplePoliciesSql(PolicySelectionFilter policySelectionFilter);
 
@@ -72,5 +81,6 @@ public interface PoliciesDAO
 
 	void getLock(String lockResouceString, int timeout);
 	void releaseLock(String lockResouceString) throws SQLException;
+
 
 }

@@ -15,14 +15,14 @@
   Author:  Philip Webb
   Date:    Australian Winter 2019
   --%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c"%>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Upload Ids File</title>
+<title>Display Item</title>
 <link rel="shortcut icon"  href="favicon.png" />
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
@@ -33,37 +33,32 @@
 <jsp:include page="include/navigation.jsp" />
 <div class="content">
 
- <h1>Upload File of Identifiers - Result</h1>   		 
-
+ <h1>Reindexing Result</h1>   		 
+  
  <table>
    <tr>
     <td>Application </td><td>:</td>
-    <td>${uploadIdsFile.application}</td>
+    <td id=application>${policySelectionCriteria.application}</td>
    </tr>
    <tr>
     <td>Lifecycle </td><td>:</td>
-    <td>${uploadIdsFile.lifecycle}</td>
-   </tr>       
-   <tr>
-    <td>Useability </td><td>:</td>
-    <td>${uploadIdsFile.useability}</td>
+    <td id=lifecycle>${policySelectionCriteria.lifecycle}</td>
    </tr> 
    <tr>
-    <td>TypeOfUpload</td><td>:</td>
-    <td>${uploadIdsFile.typeOfUpload}</td>
-   </tr>     
- </table>
+    <td>Useability </td><td>:</td>
+    <td id=useability>${policySelectionCriteria.useability}</td>
+   </tr> 
+  </table>
  
- <br><br>
- <table class="tip">
-     <tr><td>filename</td>			<td>:</td><td id=sql>${model.filename}</td></tr>  
-     <tr><td>sql&nbsp;statement</td><td>{</td><td id=sql>${model.sql}</td></tr> 
-     <tr><td>result</td>			<td>:</td><td id=sqlResult>${model.sqlResult}</td></tr>
-     <tr><td>rows&nbsp;affected</td><td>:</td><td id=rowsAffected>${model.rowsAffected}</td></tr>
-     <tr><td>details</td>			<td>:</td><td id=sqlResultText>${model.sqlResultText}</td></tr>     
- </table>
- 
- <br><a href='upload_ids?${model.navUrParms}'>Back</a>
-</div>
+  <br><br>
+  <table  class="tip">
+      <tr><td>Success?</td><td>:</td><td id=reindexResultSuccess>${model.reindexResultSuccess}</td></tr>
+      <tr><td>Message</td><td>:</td><td id=reindexResultMessage>${model.reindexResultMessage}</td></tr>
+      <tr><td>Rows Moved</td><td>:</td><td id=reindexResultRowsMoved>${model.reindexResultRowsMoved}</td></tr>
+      <tr><td>Index Row Count</td><td>:</td><td id=reindexResulIxCount>${model.reindexResulIxCount}</td></tr>
+  </table>
+
+  <br><br><a href='policies_breakdown_action?${model.navUrParms}'>Back</a>
+</div>  
 </body>
 </html>

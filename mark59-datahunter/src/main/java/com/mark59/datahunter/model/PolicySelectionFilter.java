@@ -22,6 +22,10 @@ package com.mark59.datahunter.model;
  */
 public class PolicySelectionFilter extends PolicySelectionCriteria {
 
+	boolean identifierLikeSelected;
+	String identifierLike;
+	boolean identifierListSelected;
+	String identifierList;		
 	boolean otherdataSelected;	
 	String otherdata;
 	boolean createdSelected;		
@@ -37,6 +41,39 @@ public class PolicySelectionFilter extends PolicySelectionCriteria {
 	String limit; 
 	
 	public PolicySelectionFilter() {
+	}
+	
+	
+	public boolean isIdentifierLikeSelected() {
+		return identifierLikeSelected;
+	}
+
+	public void setIdentifierLikeSelected(boolean identifierLikeSelected) {
+		this.identifierLikeSelected = identifierLikeSelected;
+	}
+	
+	public String getIdentifierLike() {
+		return identifierLike;
+	}
+
+	public void setIdentifierLike(String identifierLike) {
+		this.identifierLike = identifierLike;
+	}
+	
+	public boolean isIdentifierListSelected() {
+		return identifierListSelected;
+	}
+
+	public void setIdentifierListSelected(boolean identifierListSelected) {
+		this.identifierListSelected = identifierListSelected;
+	}
+
+	public String getIdentifierList() {
+		return identifierList;
+	}
+
+	public void setIdentifierList(String identifierList) {
+		this.identifierList = identifierList;
 	}
 
 	public boolean isOtherdataSelected() {
@@ -147,6 +184,10 @@ public class PolicySelectionFilter extends PolicySelectionCriteria {
 	@Override
     public String toString() {
         return  super.toString() + 
+        		", identifierLikeSelected="+ identifierLikeSelected +  
+        		", identifierLike="+ identifierLike +  
+        		", identifierListSelected="+ identifierListSelected +          		
+        		", identifierList="+ identifierList +          		
         		", otherdataSelected="+ otherdataSelected +  
         		", otherdata="+ otherdata +  
         		", createdSelected="+ createdSelected +  

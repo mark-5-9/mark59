@@ -26,7 +26,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+
+<script type="text/javascript">
+
+function displayReindexing(lineid) {
+	document.getElementById(lineid+"_reindex" ).style.display = 'none';
+	document.getElementById(lineid+"_tag").style.display = 'block';
+}
+
+</script>
 </head>
+
 <body>
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
@@ -42,6 +52,9 @@
     <th>lifecycle</th>
     <th>useability</th>    
     <th>count</th>
+    <th>indexed?</th>
+    <th>holes</th>
+    <th></th>
     <th style="display:none;"></th>
    </tr>
    <c:forEach var="countPoliciesBreakdownForm" items="${model.countPoliciesBreakdownFormList}">
@@ -54,6 +67,28 @@
      <td id=lifecycle>${countPoliciesBreakdownForm.lifecycle}</td>
      <td id=useability>${countPoliciesBreakdownForm.useability}</td>
      <td id=${app_id}_${lcy_id}_${countPoliciesBreakdownForm.useability}_count>${countPoliciesBreakdownForm.rowCount}</td>
+     <td id=${app_id}_${lcy_id}_${countPoliciesBreakdownForm.useability}_isindexed>${countPoliciesBreakdownForm.isReusableIndexed}</td>
+     <td id=${app_id}_${lcy_id}_${countPoliciesBreakdownForm.useability}_holestats>${countPoliciesBreakdownForm.holeStats}</td>
+     
+          
+     <c:if test = "${countPoliciesBreakdownForm.isReusableIndexed == 'Y'}">
+     	<td id=${app_id}_${lcy_id}_${countPoliciesBreakdownForm.useability}_reindex>
+     		<a href="policies_breakdown_reindex?${countPoliciesBreakdownForm.lookupParmsUrl}" 
+     			title="reindex" 
+     			onclick="displayReindexing('${app_id}_${lcy_id}_${countPoliciesBreakdownForm.useability}')" >
+     			<img src="icons/index.png"  height="15" width="15" /></a>
+     	</td>
+     	<td><span id="${app_id}_${lcy_id}_${countPoliciesBreakdownForm.useability}_tag" 
+     			class="loading" style="display: none;" >Indexing<br>.</span></td>     
+     </c:if>	
+     <c:if test = "${countPoliciesBreakdownForm.isReusableIndexed != 'Y'}">
+     	<td id=${app_id}_${lcy_id}_${countPoliciesBreakdownForm.useability}_reindex ></td>
+     	<td></td>     
+     </c:if>	
+ 
+     
+     
+     
 	 <td style="display:none;" id=counter>${countPoliciesBreakdownForm.rowCount}</td>
     </tr>
    </c:forEach>

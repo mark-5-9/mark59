@@ -137,6 +137,9 @@ public class DataHunterRegressionScript  extends SeleniumAbstractJavaSamplerClie
 		dslPageFunctions.countItems(usedInitalState, driver, 2L);
 		dslPageFunctions.countItems(wholeApp, driver, 3L);
 
+		PolicySelectionCriteria usedAppBreakdown = new PolicySelectionCriteria(null, application, EQUALS, "", "", USED, null);
+		dslPageFunctions.countItemsBreakdown(usedAppBreakdown, driver, usedInitalState, 2L);	
+		
 		PolicySelectionCriteria wholeAppBreakdown = new PolicySelectionCriteria(null, application, EQUALS, "", "", "", null);
 		dslPageFunctions.countItemsBreakdown(wholeAppBreakdown, driver, unusedInitalState, 1L);
 		dslPageFunctions.countItemsBreakdown(wholeAppBreakdown, driver, usedInitalState, 2L);		
@@ -228,13 +231,14 @@ public class DataHunterRegressionScript  extends SeleniumAbstractJavaSamplerClie
 			driver.get(dataHunterUrl + DslConstants.COUNT_POLICIES_BREAKDOWN_URL_PATH  + DslConstants.URL_PARM_APPLICATION + selectionCriteria.getApplication());
 			CountPoliciesBreakdownPage countPoliciesBreakdownPage = new CountPoliciesBreakdownPage(driver); 
 			CountPoliciesBreakdownActionPage countPoliciesBreakdownActionPage = new CountPoliciesBreakdownActionPage(driver);
-			
+		
 			countPoliciesBreakdownPage.applicationStartsWithOrEquals().selectByVisibleText(selectionCriteria.getApplicationStartsWithOrEquals());		
 			if (StringUtils.isNotBlank(selectionCriteria.getLifecycle())){
 				countPoliciesBreakdownPage.lifecycle().type(selectionCriteria.getLifecycle());		
 			}
 			if (StringUtils.isNotBlank(selectionCriteria.getUseability())){
-				countPoliciesBreakdownPage.useability().selectByVisibleText(selectionCriteria.getUseability());				
+				countPoliciesBreakdownPage.useability().selectByVisibleText(selectionCriteria.getUseability());	
+				assertEquals(selectionCriteria.getUseability(), countPoliciesBreakdownPage.useability().getSelectedOptionValue());
 			}
 			countPoliciesBreakdownPage.submit().submit();
 			

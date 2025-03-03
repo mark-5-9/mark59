@@ -5,6 +5,15 @@
 
 ## Releases 
 
+<p>Release 6.3<br>
+
+  <ul>
+	<li>DataHunter : New 'Reusable Indexed' datatype introduced</li> 
+	<li>DataHunter : Extra "Identifier Like' filter for Multiple Item Selection</li> 
+	<li>Dependencies Updated: spring-boot to 3.4.3, selenium to 4.29.0 (to chrome v133), playwright to 1.50.0,
+	jackson xmlapis to 2.16.1, okhttp to 4.12.0, org.json to 20250107, commons-beanutils to 1.10.0</li>  
+  </ul>
+
 
 <p>Release 6.2<br>
 

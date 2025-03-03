@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-common</artifactId>
-	<version>6.2</version>
+	<version>6.3</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-common</name>
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.2</version>
+			<version>6.3</version>
 		</dependency>
 
 		<dependency>
@@ -72,7 +72,7 @@
 		<dependency>
 		    <groupId>org.json</groupId>
 		    <artifactId>json</artifactId>
-		    <version>20231013</version>
+		    <version>20250107</version>
 		</dependency>
 	
 		<!-- added to simplify (Groovy) api scripting (eg  New Relic )-->
@@ -80,34 +80,35 @@
 		<dependency>
 		    <groupId>com.squareup.okhttp3</groupId>
 		    <artifactId>okhttp</artifactId>
-		    <version>4.11.0</version>
+		    <version>4.12.0</version>
 		</dependency>
 		
 		<!-- added for usage of StringSubstitutorr in command parameterization-->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-text</artifactId>
-		    <version>1.10.0</version>
+		    <version>1.13.0</version>
 		</dependency>
 		
 		<!-- Note: common to SpringBoot and JMeter-->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-lang3</artifactId>
-		    <version>3.12.0</version>
+		    <version>3.17.0</version>
 		</dependency>
 		
-		<!-- Note: common to SpringBoot and JMeter (version may differ)-->
+		<!-- Note: common to SpringBoot and JMeter (version may differ)
+		            in line with jmeter 5.6.3-->
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>
-		    <version>2.15.2</version>
+		    <version>2.16.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
-		    <version>2.15.2</version>
+		    <version>2.16.1</version>
 			<scope>provided</scope>		    
 		</dependency>
 		

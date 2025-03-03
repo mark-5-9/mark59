@@ -62,7 +62,7 @@ public class NextPolicyController {
 	@RequestMapping("/next_policy_action")
 	public ModelAndView nextPolicyAction(@RequestParam String pUseOrLookup, @ModelAttribute PolicySelectionCriteria policySelectionCriteria,
 			Model model, HttpServletRequest httpServletRequest) {
-
+		
 		DataHunterUtils.expireSession(httpServletRequest);
 		model.addAttribute("UseOrLookup", pUseOrLookup);
 		
@@ -92,16 +92,47 @@ public class NextPolicyController {
 			model.addAttribute("rowsAffected", rowsAffected);
 	
 			if (policiesList.size() == 0) {
-				model.addAttribute("sqlResult", "FAIL");
-				model.addAttribute("sqlResultText",
-						"No rows matching the selection.  Possibly we have ran out of data for application:["
-								+ policySelectionCriteria.getApplication() + "]");
+				
+				if (selectSqlWithParms.getSqlparameters().hasValue(DataHunterConstants.REUSEABLE_INDEXED_RAND)){
+					// for the special case of a random lookup on 'Reusable Indexed' data, we will do retries 
+					int retries = 0 ;
+					while (rowsAffected==0 && retries<=10){
+						try {
+							selectSqlWithParms = policiesDAO.constructSelectNextPolicySql(policySelectionCriteria);
+							policiesList = policiesDAO.runSelectPolicieSql(selectSqlWithParms);
+							rowsAffected = policiesList.size();
+							if (rowsAffected != 0){ 
+								model.addAttribute("sqlResult", "PASS");
+								model.addAttribute("sqlResultText", "sql execution OK (retries were made).");								
+								model.addAttribute("rowsAffected", rowsAffected);
+								model.addAttribute("policies", policiesList.get(0));
+								return new ModelAndView("/next_policy_action", "model", model);
+							}
+						} catch (Exception e) {
+							model.addAttribute("sqlResult", "FAIL");
+							model.addAttribute("sqlResultText", "sql exception caught: " + e.getMessage());
+							return new ModelAndView("/next_policy_action", "model", model);
+						}						
+						retries++;
+					}  // end retries loop
+					
+					model.addAttribute("sqlResult", "FAIL");
+					model.addAttribute("sqlResultText",
+							"Too many holes it looks like for Application:["+policySelectionCriteria.getApplication()+"]");
+					
+				} else { // empty policy list and not the  random lookup on 'Reusable Indexed' special case 
+				
+					model.addAttribute("sqlResult", "FAIL");
+					model.addAttribute("sqlResultText",
+							"No rows matching the selection.  Possibly we have ran out of data for application:["
+									+ policySelectionCriteria.getApplication() + "]");
+				}
 				return new ModelAndView("/next_policy_action", "model", model);
 	
 			} else if (policiesList.size() > 1) {
 				model.addAttribute("sqlResult", "FAIL");
 				model.addAttribute("sqlResultText",
-						"sql execution : Error.  1 row should of been selected, but sql result indicates "
+					"sql execution : Error.  1 row should of been selected, but sql result indicates "
 								+ policiesList.size() + " rows selected?");
 				return new ModelAndView("/next_policy_action", "model", model);
 			}
@@ -113,9 +144,7 @@ public class NextPolicyController {
 			model.addAttribute("navUrParms", navUrParms);	
 	
 			if (DataHunterConstants.USE.equalsIgnoreCase(pUseOrLookup)){
-	
 				model = updateNextPolicy(model, selectSqlWithParms, nextPolicy);
-	
 			} else { // assume just a lookup
 				model.addAttribute("sqlResult", "PASS");
 				model.addAttribute("sqlResultText", "sql execution OK (no update) ");

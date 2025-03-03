@@ -27,6 +27,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
+<script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 <script type="text/javascript">
 
 function buildHomeLink() {
@@ -38,9 +39,29 @@ function buildHomeLink() {
 	document.getElementById('HomeLink').href = homeLinkUrl;
 }
 
+
+function usabilityForIndexedReuseableLoad(){
+	var typeDd = document.getElementById("typeOfUpload");
+	var selectedType = typeDd.value;
+	var useDd = document.getElementById("useability");
+	
+	if (selectedType == "BULK_LOAD_AS_INDEXED_REUSABLE"){
+		useDd.value = "REUSABLE";
+		for (var i=0; i < useDd.options.length; i++) {
+			if (useDd.options[i].value != "REUSABLE"){
+				useDd.options[i].disabled = true;
+			}
+		}
+	} else {
+		for (var i=0; i < useDd.options.length; i++) {
+			useDd.options[i].disabled = false;
+		}
+	}	
+}
+
 </script>
 </head>
-<body onload="buildHomeLink();"> 
+<body onload="buildHomeLink();usabilityForIndexedReuseableLoad()"> 
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
 <div class="content"> 
@@ -53,7 +74,8 @@ function buildHomeLink() {
    
    <table>
     <tr>
-     <td class="tip" colspan=3>Note that files with a large number of lines (over 100K) may take several minutes to load <br>
+     <td class="tip" colspan=3>Note that files with a large number of lines (over 100K) may take several minutes to load
+      (the Bulk load types are faster).<br>
       Application MaxFileSize = 5GB, but you may hit other application or network capacity limits below this size<br><br></td> 
     </tr>     
 
@@ -74,7 +96,9 @@ function buildHomeLink() {
     </tr>
     <tr>
      <td></td><td></td>
-     <td class="tip">optional (leaving empty creates items with a blank lifecycle)</td>
+     <td class="tip">optional.  Leaving empty creates items with a blank lifecycle 
+     (Not recommended unless lifecycle is not going to be used at all within this Application)</td>
+     
     </tr>
 
     <tr>
@@ -88,9 +112,9 @@ function buildHomeLink() {
     </tr>      
    
     <tr>
-     <td>For existing entries</td>
+     <td>Type of Upload</td>
      <td>:</td>
-     <td><form:select path="updateOrBypassExisting" items="${updateOrBypass}" /></td>
+     <td><form:select path="typeOfUpload" items="${TypeOfUploads}" onchange="usabilityForIndexedReuseableLoad()" /></td>
     </tr>
 
     <tr>
@@ -101,9 +125,14 @@ function buildHomeLink() {
      <td colspan="3"><input type="file" name="file" /></td>  <%-- set via @RequestParam --%>
     </tr>   
     <tr>
-     <td colspan="3"><br><br><input type="submit" value="submit"  id="submit"  /></td>
+     <td colspan="3"><br><br><input type="submit" value="submit" id="submit" onclick="hideSubmitBtn();" /></td>
     </tr>
+    <tr>
+     <td colspan="3"><span id="loading" class="loading" style="display: none;" >Loading.</span></td>     
+    </tr>
+    
    </table>
+   
   </form:form>
  
   <br><a id="HomeLink" href="see_buildHomeLink_JS">Home Page</a> 

@@ -32,10 +32,10 @@ public class Policies {
 	Timestamp		created;
 	Timestamp		updated;	
 	Long			epochtime;
+
 	
 	public Policies() {
 	}
-	
 	
 	/**
 	 * convenience constructor mainly intended for use during internal testing. 
@@ -49,6 +49,20 @@ public class Policies {
 		this.epochtime = epochtime;
 	}
 	
+	/**
+	 * convenience constructor mainly intended for use when needing to create a new policies object 
+	 * (eg for adding a new Policies object to a List) or during internal testing. 
+	 */
+	public Policies(Policies policies) {
+		this.application = policies.application;
+		this.identifier = policies.identifier;
+		this.lifecycle = policies.lifecycle;
+		this.useability = policies.useability;
+		this.otherdata = policies.otherdata;
+		this.epochtime = policies.epochtime;
+	}
+
+
 	public String getApplication() {
 		return application;
 	}

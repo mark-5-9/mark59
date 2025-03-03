@@ -49,10 +49,13 @@ public class UploadPoliciesFileController {
 	public ModelAndView uploadPoliciesAction(@ModelAttribute UploadPoliciesFile uploadPoliciesFile, Model model, 
 			@RequestParam("file") MultipartFile file){
 	
-		String navUrParms = "updateOrBypassExisting=" + DataHunterUtils.encode(uploadPoliciesFile.getUpdateOrBypassExisting())	;	
+		String navUrParms = "&typeOfUpload=" + DataHunterUtils.encode(uploadPoliciesFile.getTypeOfUpload());	
 		model.addAttribute("navUrParms", navUrParms);			
 		
-		int lineCount=1; int rowsInserted=0; int rowsUpdated=0; int rowsBypassed=0; int errorLines=0;  BufferedReader br = null;
+		int lineCount=1; int rowsInserted=0; int rowsUpdated=0; int rowsBypassed=0; int errorLines=0;
+		List<Policies> policiesList = new ArrayList<Policies>();
+		BufferedReader br = null;
+		
 		String errorLinesTxt = "";
 		Policies policy = new Policies();
 		SqlWithParms sqlWithParms = new SqlWithParms();
@@ -73,7 +76,7 @@ public class UploadPoliciesFileController {
 					if ( DataHunterConstants.OK.equals(policyValidationMsg)){
 						policy = createPolicy(line);
 
-						if (DataHunterConstants.UPDATE_EXISTING_ITEMS.equals(uploadPoliciesFile.getUpdateOrBypassExisting())){
+						if (DataHunterConstants.UPDATE_EXISTING_ITEMS.equals(uploadPoliciesFile.getTypeOfUpload())){
 							
 							if (policyAlreadyExists(policy)) {
 								sqlWithParms = policiesDAO.constructUpdatePoliciesSql(policy);
@@ -85,7 +88,7 @@ public class UploadPoliciesFileController {
 								rowsInserted++;
 							}
 							
-						} else {  // LEAVE_EXISTING_ITEMS_UNCHANGED
+						} else if (DataHunterConstants.LEAVE_EXISTING_ITEMS_UNCHANGED.equals(uploadPoliciesFile.getTypeOfUpload())){ 
 							
 							if (policyAlreadyExists(policy)) {
 								rowsBypassed++;
@@ -94,6 +97,19 @@ public class UploadPoliciesFileController {
 								policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 								rowsInserted++;
 							}
+						
+						} else if (DataHunterConstants.BULK_LOAD.equals(uploadPoliciesFile.getTypeOfUpload())) {
+							
+							policiesList.add(new Policies(policy));
+							rowsInserted++; 						// only get actually inserted every 100:
+							
+					    	if ( (rowsInserted % 100) == 0 ){
+					    		policiesDAO.insertMultiple(policiesList);
+					    		policiesList.clear();
+					    	}
+						
+						} else {
+							throw new Exception("logic error - invalid action for load : " + uploadPoliciesFile.getTypeOfUpload());
 						}
 						
 					} else { // invalid line
@@ -102,16 +118,29 @@ public class UploadPoliciesFileController {
 					}
 				} // blank line	
 			} //end-while
+
+			if (DataHunterConstants.BULK_LOAD.equals(uploadPoliciesFile.getTypeOfUpload()) && rowsInserted > 0){
+	    		policiesDAO.insertMultiple(policiesList);
+	    		policiesList.clear();
+			}
 			br.close();
 		
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			//System.err.println(e.getMessage());
 			model.addAttribute("filename", file.getOriginalFilename());
 			model.addAttribute("sql", sqlWithParms.getSql());
-			model.addAttribute("sqlResult", "<b>FATAL ERROR - LOAD ABORTED DURING EXECUTION</b> "
-					+ "<br>" + e.getMessage()
-					+ "<br>Error occured processing line " + lineCount + " [" + line + "]"
-					+ "<br>" + sqlWithParms.getSql() + "<br>" + sqlWithParms.getSqlparameters());
+
+			String erroredSqlResult =  "<b>FATAL ERROR - LOAD ABORTED DURING EXECUTION</b> "
+					+ "<br><br>" + e.getMessage()
+					+ "<br><br>Error occured processing line " + lineCount + " [" + line + "]";
+			if (DataHunterConstants.BULK_LOAD.equals(uploadPoliciesFile.getTypeOfUpload())){
+				erroredSqlResult = erroredSqlResult 
+					+ "<br>For a Bulk Load no items in the file being loaded can already exist on the database (is this the problem?)"
+					+ "<br>Also For a Bulk Load the number of inserts shown may be misleading as they are grouped (100 at a time) ";
+			} else {
+				erroredSqlResult = erroredSqlResult + "<br>" + sqlWithParms.getSql() + "<br>" + sqlWithParms.getSqlparameters(); 			
+			}
+			model.addAttribute("sqlResult", erroredSqlResult);
 			model.addAttribute("rowsAffected", "At point of failure: " + (rowsInserted+rowsUpdated) + 
 					" (" + rowsInserted + " inserts, " + rowsUpdated + " updates, " + rowsBypassed + " bypassed)." 
 					+ " Also " + errorLines + " invalid data lines found" );	
@@ -249,8 +278,9 @@ public class UploadPoliciesFileController {
 	    
 
 	private void createDropdownAttributes(Model model) {
-		List<String> updateOrBypass = new ArrayList<>(DataHunterConstants.UPDATE_OR_BYPASS_POLICIES);
-		model.addAttribute("updateOrBypass",updateOrBypass);
+		List<String> typeOfUploadList = new ArrayList<>(DataHunterConstants.TYPE_OF_ITEMS_FILE_UPLOAD);
+		model.addAttribute("TypeOfUploads",typeOfUploadList);		
+		
 	}
 
 }

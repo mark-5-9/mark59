@@ -76,7 +76,19 @@ function buildHomeLink() {
     <tr>
      <td>Useability</td><td>&nbsp;:&nbsp;</td>
      <td><form:select path="useability" items="${Useabilities}" value="${useability}" /></td>
-    </tr>  
+    </tr>
+    
+    <tr>
+     <td>Identifier Like</td><td>&nbsp;:&nbsp;</td>
+     <td><form:checkbox path="identifierLikeSelected" />&nbsp;&nbsp;like&nbsp;<form:input path="identifierLike" size="64" height="20" /></td>
+    </tr> 
+    
+    <tr>
+     <td>Identifier List</td><td>&nbsp;:&nbsp;</td>
+     <td><form:checkbox path="identifierListSelected" />&nbsp;&nbsp;in&nbsp;&nbsp;&nbsp;
+     	 <form:textarea path="identifierList" style="width:82%;height:15px" /></td>
+    </tr> 
+      
     <tr>
      <td>Otherdata</td><td>&nbsp;:&nbsp;</td>
      <td><form:checkbox path="otherdataSelected" />&nbsp;&nbsp;like&nbsp;<form:input path="otherdata" size="64" height="20" /></td>

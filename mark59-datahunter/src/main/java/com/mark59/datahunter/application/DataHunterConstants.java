@@ -21,12 +21,12 @@ import java.util.List;
 
 public class DataHunterConstants {
 
-	public static final String MARK59_VERSION_DATAHUNTER 	= "6.2";  
+	public static final String MARK59_VERSION_DATAHUNTER 	= "6.3";  
 	
 	public static final String UNSELECTED = "";  
 	public static final String OK		  = "OK";  
 	
-    public static final String PG     		= "pg";
+    public static final String PG     	  = "pg";
 
 	
 	public static final String REUSABLE	= "REUSABLE";  
@@ -46,6 +46,8 @@ public class DataHunterConstants {
 	public static final String SELECT_OLDEST_ENTRY    		= "SELECT_OLDEST_ENTRY"; 
 	public static final String SELECT_RANDOM_ENTRY			= "SELECT_RANDOM_ENTRY";  
 	public static final String SELECT_UNORDERED				= "SELECT_UNORDERED";  
+
+	public static final String REUSEABLE_INDEXED_RAND = "REUSEABLE_INDEXED_RAND";
 
 	/**
 	 * SELECT_MOST_RECENTLY_ADDED, SELECT_OLDEST_ENTRY, SELECT_RANDOM_ENTRY
@@ -82,17 +84,20 @@ public class DataHunterConstants {
 	public static final String STARTS_WITH	= "STARTS_WITH";  	
 	public static final List<String>  APPLICATION_OPERATORS = Arrays.asList( EQUALS, STARTS_WITH);
 
-	public static final String UPDATE_USEABILITY_ON_EXISTING_ENTRIES 			= "UPDATE_USEABILITY_ON_EXISTING_ENTRIES";  
-	public static final String LEAVE_USEABILITY_ON_EXISTING_ENTRIES_UNCHANGED	= "LEAVE_USEABILITY_ON_EXISTING_ENTRIES_UNCHANGED";  
 	
-	public static final List<String>  UPDATE_OR_BYPASS      =  
-			Arrays.asList( UPDATE_USEABILITY_ON_EXISTING_ENTRIES, LEAVE_USEABILITY_ON_EXISTING_ENTRIES_UNCHANGED);
+	public static final String UPDATE_EXISTING_ITEMS 				= "UPDATE_EXISTING_ITEMS";  
+	public static final String LEAVE_EXISTING_ITEMS_UNCHANGED		= "LEAVE_EXISTING_ITEMS_UNCHANGED";  
+	public static final String UPDATE_USEABILITY_ON_EXISTING_ITEMS	= "UPDATE_USEABILITY_ON_EXISTING_ITEMS";  
+	public static final String BULK_LOAD							= "BULK_LOAD";
+	public static final String BULK_LOAD_AS_INDEXED_REUSABLE		= "BULK_LOAD_AS_INDEXED_REUSABLE";
 	
-	public static final String UPDATE_EXISTING_ITEMS 			= "UPDATE_EXISTING_ITEMS";  
-	public static final String LEAVE_EXISTING_ITEMS_UNCHANGED	= "LEAVE_EXISTING_ITEMS_UNCHANGED";  
-	
-	public static final List<String>  UPDATE_OR_BYPASS_POLICIES      =  
-			Arrays.asList( UPDATE_EXISTING_ITEMS, LEAVE_EXISTING_ITEMS_UNCHANGED);
+	public static final List<String> TYPE_OF_ITEMS_FILE_UPLOAD =  
+			Arrays.asList( UPDATE_EXISTING_ITEMS, LEAVE_EXISTING_ITEMS_UNCHANGED, BULK_LOAD );
+
+	public static final List<String> TYPE_OF_IDS_FILE_UPLOAD =  
+			Arrays.asList( UPDATE_USEABILITY_ON_EXISTING_ITEMS, LEAVE_EXISTING_ITEMS_UNCHANGED, BULK_LOAD, BULK_LOAD_AS_INDEXED_REUSABLE);
+
+	public static final String INDEXED_ROW_COUNT = "0000000000_IX";
 	
 	
 	public static final String USE	  = "USE";  
@@ -107,4 +112,6 @@ public class DataHunterConstants {
     public static final String CSV_DOWNLOAD_HEADER_TEXT = "APPLICATION,IDENTIFIER,LIFECYCLE,USEABILITY,OTHERDATA,EPOCHTIME";
 	public static final String CSV_DOWNLOAD_HEADER_QUOTES = "\"APPLICATION\",\"IDENTIFIER\",\"LIFECYCLE\",\"USEABILITY\",\"OTHERDATA\",\"EPOCHTIME\"";
 	public static final String CSV_DOWNLOAD_BLANK_LINE = ",,,,,";
+
+
 }

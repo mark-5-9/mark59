@@ -37,8 +37,8 @@
 
  <table>
      <tr>
-      <td>UpdateOrBypassExisting</td><td>:</td>
-      <td>${uploadPoliciesFile.updateOrBypassExisting}</td>
+      <td>TypeOfUpload</td><td>:</td>
+      <td>${uploadPoliciesFile.typeOfUpload}</td>
      </tr>
  </table>
  

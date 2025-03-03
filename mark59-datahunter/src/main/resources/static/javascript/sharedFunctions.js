@@ -18,4 +18,9 @@
 	function trimkey(key) {
 		key.value = key.value.trim();
 	}
+
+	function hideSubmitBtn() {
+		document.getElementById("submit").style.display = 'none';
+		document.getElementById("loading").style.display = 'block';
+	}
 		

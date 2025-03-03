@@ -22,28 +22,44 @@ package com.mark59.datahunter.api.model;
  */
 public class CountPoliciesBreakdown extends PolicySelectionCriteria   {
 
-	Long rowCount;	
+	Long rowCount;
+	String isReusableIndexed;
+	Long holeCount;	
 	
 	public CountPoliciesBreakdown() {
-		
 	}
 
 	public Long getRowCount() {
 		return rowCount;
 	}
 
-
 	public void setRowCount(Long rowCount) {
 		this.rowCount = rowCount;
 	}
+	
+	public String getIsReusableIndexed() {
+		return isReusableIndexed;
+	}
 
+	public void setIsReusableIndexed(String isReusableIndexed) {
+		this.isReusableIndexed = isReusableIndexed;
+	}
+
+	public Long getHoleCount() {
+		return holeCount;
+	}
+
+	public void setHoleCount(Long holeCount) {
+		this.holeCount = holeCount;
+	}
 
 	@Override
     public String toString() {
         return  super.toString() + 
         		", rowCount="+ rowCount +         		
+        		", isReusableIndexed="+ isReusableIndexed +         		
+        		", holeCount="+ holeCount +         		
         		"]";
 	}
-		
 		
 }

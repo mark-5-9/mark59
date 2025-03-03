@@ -14,30 +14,25 @@
  * limitations under the License.
  */
 
-package com.mark59.datahunter.model;
+package com.mark59.datahunter.data.policies.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
+
+import com.mark59.datahunter.data.beans.Policies;
 
 /**
  * @author Philip Webb
- * Written: Australian Autumn 2020
+ * Written: Australian Summer 2024/25  
  */
-public class UploadPoliciesFile {
+public class PoliciesRowMapper implements RowMapper<Policies> {
 
-	String	typeOfUpload;	
-	
-	public UploadPoliciesFile() {
-	}
+	 @Override
+	 public Policies mapRow(ResultSet resultSet, int line) throws SQLException {
+	 PoliciesExtractor policiesExtractor = new PoliciesExtractor();
+	  return policiesExtractor.extractData(resultSet);
+	 }
 
-	public String getTypeOfUpload() {
-		return typeOfUpload;
-	}
-	public void setTypeOfUpload(String typeOfUpload) {
-		this.typeOfUpload = typeOfUpload;
-	}
-
-	@Override
-    public String toString() {
-        return   "[typeOfUpload="+ typeOfUpload + 
-        		"]";
-	}
-		
 }

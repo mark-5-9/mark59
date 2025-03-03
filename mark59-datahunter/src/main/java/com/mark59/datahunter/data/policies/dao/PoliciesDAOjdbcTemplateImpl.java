@@ -21,6 +21,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
@@ -31,6 +33,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.datahunter.application.DataHunterConstants;
+import com.mark59.datahunter.application.DataHunterUtils;
+import com.mark59.datahunter.application.ReusableIndexedUtils;
 import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.model.AsyncMessageaAnalyzerResult;
@@ -38,6 +42,7 @@ import com.mark59.datahunter.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
 import com.mark59.datahunter.model.PolicySelectionFilter;
 import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
+import com.mark59.datahunter.pojo.ValidReuseIxPojo;
 
 
 /**
@@ -52,8 +57,19 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 
     @Autowired
     private String currentDatabaseProfile;
+    
+    
+	@Override	
+	public SqlWithParms constructSelectPolicySql(Policies policies){
+		PolicySelectionCriteria policySelect = new PolicySelectionCriteria();
+		policySelect.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
+		policySelect.setApplication(policies.getApplication());
+		policySelect.setIdentifier(policies.getIdentifier());
+		policySelect.setLifecycle(policies.getLifecycle());
+		return constructSelectPolicySql(policySelect);
+	}
 	
-	
+    
 	@Override	
 	public SqlWithParms constructSelectPolicySql(PolicySelectionCriteria policySelect){
 		trimKeys(policySelect);
@@ -64,7 +80,6 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		} else {
 			sql = "SELECT " + PoliciesDAO.SELECT_POLICY_COLUMNS + " FROM POLICIES ";
 		}
-		
 		sql += "WHERE APPLICATION = :application "
 				+ "  AND IDENTIFIER = :identifier "
 				+ "  AND LIFECYCLE = :lifecycle ";
@@ -72,7 +87,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		if (StringUtils.isBlank(policySelect.getLifecycle())) {
 			policySelect.setLifecycle(""); 
 		}   	
-				
+		
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("application", policySelect.getApplication())
 				.addValue("identifier", policySelect.getIdentifier())
@@ -103,7 +118,6 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		if (applyLimit) {
 			sql = limitSelector(policySelectionFilter, sql);
 		}
-		
 		return new SqlWithParms(sql,sqlparameters);
 	}
 
@@ -117,14 +131,40 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		MapSqlParameterSource sqlparameters = sqlWithParms.getSqlparameters()
 				.addValue("application", policySelect.getApplication());
 
-		String sql = "SELECT " + PoliciesDAO.SELECT_POLICY_COLUMNS + " FROM POLICIES WHERE APPLICATION = :application " + sqlWithParms.getSql();		
+		String sql = "SELECT " + PoliciesDAO.SELECT_POLICY_COLUMNS + " FROM POLICIES WHERE APPLICATION = :application " + sqlWithParms.getSql();
 		
-		if (DataHunterConstants.SELECT_MOST_RECENTLY_ADDED.equals(policySelect.getSelectOrder())){
-			sql += " ORDER BY CREATED DESC, EPOCHTIME DESC, IDENTIFIER DESC LIMIT 1 ";		// Epoch time and Id are just tie-breakers
-		} else if (DataHunterConstants.SELECT_OLDEST_ENTRY.equals(policySelect.getSelectOrder())){
-			sql += " ORDER BY CREATED ASC, EPOCHTIME ASC, IDENTIFIER ASC LIMIT 1 ";			// Epoch time and Id are just tie-breakers
-		} else { // assume select order DataHunterConstants.SELECT_RANDOM_ENTRY.
-			sql += " ORDER BY RAND() LIMIT 1 ";				
+		ValidReuseIxPojo validReuseIx = ReusableIndexedUtils.validateReusableIndexed(policySelect, this);
+
+		if (validReuseIx.getPolicyReusableIndexed()){  // the special  'Reusable Indexed' case
+			if (!validReuseIx.getValidatedOk()) {
+				throw new RuntimeException(validReuseIx.getErrorMsg());				
+			}
+			if (DataHunterConstants.SELECT_MOST_RECENTLY_ADDED.equals(policySelect.getSelectOrder())){
+				sql += " AND IDENTIFIER <> '" + DataHunterConstants.INDEXED_ROW_COUNT + "' ORDER BY IDENTIFIER DESC LIMIT 1 ";
+			} else if (DataHunterConstants.SELECT_OLDEST_ENTRY.equals(policySelect.getSelectOrder())){
+				sql += " AND IDENTIFIER <> '" + DataHunterConstants.INDEXED_ROW_COUNT + "' ORDER BY IDENTIFIER ASC LIMIT 1 ";
+			} else if (DataHunterConstants.SELECT_RANDOM_ENTRY.equals(policySelect.getSelectOrder())){
+				int randInRange = ThreadLocalRandom.current().nextInt(1, Integer.parseInt(validReuseIx.getIxPolicy().getOtherdata())+1);
+				String randIdentifer = StringUtils.leftPad(String.valueOf(randInRange), 10, "0");
+				sqlparameters = sqlWithParms.getSqlparameters().addValue("identifier", randIdentifer);
+				// mark this as a special case of a random lookup on 'reusable Indexed' data.
+				sqlparameters = sqlWithParms.getSqlparameters().addValue(DataHunterConstants.REUSEABLE_INDEXED_RAND, String.valueOf(true));
+				sql += " AND IDENTIFIER = :identifier ";
+			} else {
+				throw new RuntimeException("error - invalid Select Order (Reusable Indexed data) : " + policySelect.getSelectOrder());
+			}
+			
+		} else { // not a special 'Reusable Indexed' case
+
+			if (DataHunterConstants.SELECT_MOST_RECENTLY_ADDED.equals(policySelect.getSelectOrder())){
+				sql += " ORDER BY CREATED DESC, EPOCHTIME DESC, IDENTIFIER DESC LIMIT 1 ";		// Epoch time and Id are just tie-breakers
+			} else if (DataHunterConstants.SELECT_OLDEST_ENTRY.equals(policySelect.getSelectOrder())){
+				sql += " ORDER BY CREATED ASC, EPOCHTIME ASC, IDENTIFIER ASC LIMIT 1 ";			// Epoch time and Id are just tie-breakers
+			} else if (DataHunterConstants.SELECT_RANDOM_ENTRY.equals(policySelect.getSelectOrder())){
+				sql += " ORDER BY RAND() LIMIT 1 ";	
+			} else {
+				throw new RuntimeException("error - invalid Select Order : " + policySelect.getSelectOrder());
+			}
 		}
 		return new SqlWithParms(sql,sqlparameters);
 	}
@@ -309,10 +349,25 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		return policiesList;
 	}
 	
+	
+	@Override
+	public Stream<Policies> runStreamPolicieSql(SqlWithParms sqlWithParms) {
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		Stream<Policies> PolicyStream = jdbcTemplate.queryForStream (
+				sqlWithParms.getSql(), 
+				sqlWithParms.getSqlparameters(),
+				new PoliciesRowMapper());		
+		return PolicyStream;
+	}
+	
+	
 				
 	@Override
 	public SqlWithParms constructInsertDataSql(Policies policies) {
 		trimKeys(policies);
+		if (policies.getEpochtime() == null){
+			policies.setEpochtime(System.currentTimeMillis());
+		}
 
 		String sql = "INSERT INTO POLICIES "
 				+ "( APPLICATION,  IDENTIFIER,  LIFECYCLE,  USEABILITY,  OTHERDATA, CREATED, UPDATED, EPOCHTIME) VALUES "
@@ -325,10 +380,136 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 				.addValue("useability",  policies.getUseability())
 				.addValue("otherdata",   policies.getOtherdata())
 				.addValue("epochtime",   policies.getEpochtime());
-		
+
 		return new SqlWithParms(sql,sqlparameters);
 	}
 
+    
+	@Override	
+	public SqlWithParms countReusableIndexedIdsInExpectedRange(PolicySelectionCriteria policySelect, int ixCount){
+		trimKeys(policySelect);
+		String highid = StringUtils.leftPad(String.valueOf(ixCount), 10, "0");
+		
+		String sql = " SELECT " + PoliciesDAO.SELECT_POLICY_COUNTS + " FROM POLICIES "
+				+ " WHERE APPLICATION = :application "
+				+ "  AND LIFECYCLE = :lifecycle "
+				+ "  AND USEABILITY = 'REUSABLE'"
+				+ "  AND IDENTIFIER BETWEEN '0000000001' AND :highid "
+				+ "  AND CHAR_LENGTH(IDENTIFIER) = 10 ";
+		if (DataHunterConstants.PG.equalsIgnoreCase(currentDatabaseProfile)){				
+			sql = sql + " AND NOT IDENTIFIER ~ '[^0-9]' ";
+		} else {	
+			sql = sql + " AND NOT IDENTIFIER REGEXP '[^0-9]' ";
+		}
+		
+		if (StringUtils.isBlank(policySelect.getLifecycle())) {
+			policySelect.setLifecycle(""); 
+		}   	
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", policySelect.getApplication())
+				.addValue("lifecycle", policySelect.getLifecycle())
+				.addValue("highid", highid); 
+	
+		return new SqlWithParms(sql,sqlparameters);
+	}
+
+
+	@Override	
+	public SqlWithParms countNonReusableIdsForReusableIndexedData(String application, String lifecycle){
+		
+		String sql = " SELECT " + PoliciesDAO.SELECT_POLICY_COUNTS + " FROM POLICIES "
+				+ " WHERE APPLICATION = :application "
+				+ "  AND LIFECYCLE = :lifecycle "
+				+ "  AND USEABILITY != 'REUSABLE'";
+	
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("lifecycle", lifecycle);
+
+		return new SqlWithParms(sql,sqlparameters);
+	}
+
+
+
+	@Override
+	public SqlWithParms constructCollectDataOutOfExpectedIxRangeSql(String application, String lifecycle, int policyCount) {
+		String highid = StringUtils.leftPad(String.valueOf(policyCount), 10, "0");
+		//System.out.println("highid:"+highid);
+		
+		String sql = " SELECT " + PoliciesDAO.SELECT_POLICY_COLUMNS + " FROM POLICIES "
+				+ " WHERE APPLICATION = :application "
+				+ "  AND LIFECYCLE = :lifecycle "
+				+ "  AND IDENTIFIER != '0000000000_IX' "  
+				+ "  AND (IDENTIFIER < '0000000001' "
+				+ "      OR IDENTIFIER > :highid "
+				+ "      OR CHAR_LENGTH(IDENTIFIER) != 10 " ;          // belt and braces check
+		if (DataHunterConstants.PG.equalsIgnoreCase(currentDatabaseProfile)){				
+			sql = sql + " OR IDENTIFIER ~ '[^0-9]' ) ";
+		} else {	
+			sql = sql + " OR IDENTIFIER REGEXP '[^0-9]' ) ";
+		}
+
+		if (StringUtils.isBlank(lifecycle)){
+			lifecycle = ""; 
+		}   	
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("application", application)
+				.addValue("lifecycle", lifecycle)
+				.addValue("highid", highid); 
+	
+		return new SqlWithParms(sql,sqlparameters);
+	}
+
+	
+	@Override
+	public void insertMultiple(List<Policies> policiesList) {
+		
+		boolean yetToAddFirstRowToSqlStatement = true;
+		StringBuilder sqlSb = new StringBuilder();
+		
+		sqlSb.append("INSERT INTO POLICIES "
+				+ "(APPLICATION,IDENTIFIER,LIFECYCLE,USEABILITY,OTHERDATA,CREATED,UPDATED,EPOCHTIME)"
+				+ " VALUES (?,?,?,?,?,CURRENT_TIMESTAMP(6),CURRENT_TIMESTAMP(6),?)");
+		
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		ArrayList<Object> sqlBindParms = new ArrayList<>();
+		
+		for (Policies policies : policiesList) {
+			trimKeys(policies);
+			policies.setEpochtime(System.currentTimeMillis());
+			
+			sqlBindParms.add(policies.getApplication());
+			sqlBindParms.add(policies.getIdentifier());
+			sqlBindParms.add(policies.getLifecycle());
+			sqlBindParms.add(policies.getUseability());
+			sqlBindParms.add(policies.getOtherdata());
+			sqlBindParms.add(policies.getEpochtime());
+			
+			if (yetToAddFirstRowToSqlStatement) {
+				yetToAddFirstRowToSqlStatement = false;
+			} else {
+				sqlSb.append( ",(?,?,?,?,?,CURRENT_TIMESTAMP(6),CURRENT_TIMESTAMP(6),?)" );
+			}
+
+		} //end for
+				
+		if (!yetToAddFirstRowToSqlStatement) {
+			try {
+				jdbcTemplate.update(sqlSb.toString() , sqlBindParms.toArray());			
+			} catch (Exception e) {
+				e.printStackTrace();
+				String sqlBindParmsToArray="";
+		        for(int i = 0; i < sqlBindParms.size(); i++) {
+		        	sqlBindParmsToArray += (" - " + (i+1)  + " : " + sqlBindParms.get(i));
+		        }
+				throw new RuntimeException("RuntimeException at PoliciesDAOjdbcTemplateImpl.insertMultiple"
+						+ "<br><br> message=" + e.getMessage()
+						+ "<br><br> sql=" + sqlSb.toString() 
+						+ "<br><br> sqlBindParms=" + sqlBindParmsToArray);
+			}
+		}
+	}
+	
 	
 	@Override
 	public SqlWithParms constructDeletePoliciesSql(PolicySelectionCriteria policySelectionCriteria) {
@@ -585,40 +766,50 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 //		System.out.println("sql lock : " + sql + "(" + lockResult + ")"  );
 	}
 
-
+	
 	private String otherDataAndDatesSelector(PolicySelectionFilter policySelectionFilter,
 			MapSqlParameterSource sqlparameters, String sql) {
 		
+		if (policySelectionFilter.isIdentifierLikeSelected()   ){
+			sqlparameters.addValue("identifierLike", policySelectionFilter.getIdentifierLike());
+			sql += " AND IDENTIFIER LIKE :identifierLike ";			
+		}
+		
+		if (policySelectionFilter.isIdentifierListSelected()){
+			sqlparameters.addValue("identifierList", DataHunterUtils.commaDelimStringToStringSet(policySelectionFilter.getIdentifierList()));
+			sql += " AND IDENTIFIER in ( :identifierList ) ";			
+		}
+
 		if (policySelectionFilter.isOtherdataSelected()){
 			sqlparameters.addValue("otherdata", policySelectionFilter.getOtherdata() );
-			sql += " AND otherdata LIKE :otherdata ";			
+			sql += " AND OTHERDATA LIKE :otherdata ";			
 		}
 		if (policySelectionFilter.isCreatedSelected()){
 			sqlparameters.addValue("createdFrom", policySelectionFilter.getCreatedFrom());
 			sqlparameters.addValue("createdTo"  , policySelectionFilter.getCreatedTo());
 			
 			if (DataHunterConstants.PG.equalsIgnoreCase(currentDatabaseProfile)){
-				sql += " AND created BETWEEN TO_TIMESTAMP( :createdFrom, 'YYYY-MM-DD HH24:MI:SS.US') AND TO_TIMESTAMP( :createdTo , 'YYYY-MM-DD HH24:MI:SS.US')";
+				sql += " AND CREATED BETWEEN TO_TIMESTAMP( :createdFrom, 'YYYY-MM-DD HH24:MI:SS.US') AND TO_TIMESTAMP( :createdTo , 'YYYY-MM-DD HH24:MI:SS.US')";
 			} else {
-				sql += " AND created BETWEEN :createdFrom AND :createdTo ";			
+				sql += " AND CREATED BETWEEN :createdFrom AND :createdTo ";			
 			}
 		}
 		if (policySelectionFilter.isUpdatedSelected()){
 			sqlparameters.addValue("updatedFrom", policySelectionFilter.getUpdatedFrom());
 			sqlparameters.addValue("updatedTo"  , policySelectionFilter.getUpdatedTo());
 			if (DataHunterConstants.PG.equalsIgnoreCase(currentDatabaseProfile)){
-				sql += " AND updated BETWEEN TO_TIMESTAMP( :updatedFrom, 'YYYY-MM-DD HH24:MI:SS.US') AND TO_TIMESTAMP( :updatedTo , 'YYYY-MM-DD HH24:MI:SS.US')";			
+				sql += " AND UPDATED BETWEEN TO_TIMESTAMP( :updatedFrom, 'YYYY-MM-DD HH24:MI:SS.US') AND TO_TIMESTAMP( :updatedTo , 'YYYY-MM-DD HH24:MI:SS.US')";			
 			} else {
-				sql += " AND updated BETWEEN :updatedFrom AND :updatedTo ";			
+				sql += " AND UPDATED BETWEEN :updatedFrom AND :updatedTo ";			
 			}
 		}
 		if (policySelectionFilter.isEpochtimeSelected()){
 			sqlparameters.addValue("epochtimeFrom", policySelectionFilter.getEpochtimeFrom());
 			sqlparameters.addValue("epochtimeTo"  , policySelectionFilter.getEpochtimeTo());
 			if (DataHunterConstants.PG.equalsIgnoreCase(currentDatabaseProfile)){
-				sql += " AND epochtime BETWEEN cast( :epochtimeFrom as bigint) AND cast( :epochtimeTo as bigint) ";			
+				sql += " AND EPOCHTIME BETWEEN cast( :epochtimeFrom as bigint) AND cast( :epochtimeTo as bigint) ";			
 			} else {
-				sql += " AND epochtime BETWEEN :epochtimeFrom AND :epochtimeTo ";			
+				sql += " AND EPOCHTIME BETWEEN :epochtimeFrom AND :epochtimeTo ";			
 			}
 		}
 		return sql;
@@ -710,5 +901,5 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 			policies.setLifecycle(policies.getLifecycle().trim());
 		}
 	}
-		
+	
 }

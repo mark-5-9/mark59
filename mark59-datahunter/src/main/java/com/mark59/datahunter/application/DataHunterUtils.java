@@ -19,8 +19,16 @@ package com.mark59.datahunter.application;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -88,6 +96,43 @@ public class DataHunterUtils  {
 			prettyOut+= "<br> (no sql paramters) " ;
 	    }
 	    return prettyOut;
+	}
+	
+	
+	/**
+	 * returns the given list with empty values and white spaces trimmed off
+	 * 
+	 * <p>EG: ", ,,cat 1, ,, mat 2, , ,," returns "cat 1,mat 2"
+	 * 
+	 * @param commaDelimitedString a list of comma delimited strings (can be a single value)
+	 * @return the commaDelimitedString but with whitespace stripped from the start and end of every string 
+	 */
+	public static String commaDelimStringTrimAll(String commaDelimitedString) {
+		String trimmedStrings = "";
+		// note when an empty string is passed to the split, it creates a empty first element ... 
+		if (StringUtils.isNotBlank(commaDelimitedString)){
+			String[] strippedStringAry = StringUtils.stripAll(StringUtils.split(commaDelimitedString, ","));
+			for (String strippedString : strippedStringAry){
+				if (StringUtils.isNotBlank(strippedString)){
+					trimmedStrings = trimmedStrings + strippedString + ",";
+				}
+			}
+			trimmedStrings = StringUtils.stripEnd(trimmedStrings, ",");
+		}	
+		return trimmedStrings;
+	}
+	
+	
+	/**
+	 * @param commaDelimitedString string with comma(",") being used as a field delimiter 
+	 * @return the Set of split strings 
+	 */
+	public static Set<String> commaDelimStringToStringSet(String commaDelimitedString) {
+		List<String> listOfStrings = new ArrayList<>();
+		if ( StringUtils.isNotBlank(commaDelimitedString)){
+			listOfStrings =  Arrays.asList(StringUtils.stripAll(StringUtils.split(commaDelimitedString, ",")));
+		}
+		return new HashSet<>(listOfStrings);
 	}
 	
 	

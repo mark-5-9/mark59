@@ -26,9 +26,18 @@ package com.mark59.datahunter.model;
  */
 public class CountPoliciesBreakdownForm extends CountPoliciesBreakdown  {
 
+	String holeStats; 	
 	String lookupParmsUrl; 	
 	
 	public CountPoliciesBreakdownForm() {
+	}
+
+	public String getHoleStats() {
+		return holeStats;
+	}
+
+	public void setHoleStats(String holeStats) {
+		this.holeStats = holeStats;
 	}
 
 	public String getLookupParmsUrl() {
@@ -42,6 +51,7 @@ public class CountPoliciesBreakdownForm extends CountPoliciesBreakdown  {
 	@Override
     public String toString() {
         return  super.toString() + 
+        		", holeStats="+ holeStats +         		
         		", lookupParmsUrl="+ lookupParmsUrl +         		
         		"]";
 	}

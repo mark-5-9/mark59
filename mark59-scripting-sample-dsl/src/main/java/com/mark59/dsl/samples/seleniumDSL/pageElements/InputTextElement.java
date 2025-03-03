@@ -78,7 +78,7 @@ public class InputTextElement extends Elemental {
 	public String getText() {
 		WebElement webElement = waitForAndFindElement();
 		if (webElement != null) {
-			return webElement.getAttribute("value");
+			return webElement.getDomAttribute("value");
 		}
 		return null;
 	}

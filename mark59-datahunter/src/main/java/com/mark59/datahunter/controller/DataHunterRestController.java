@@ -17,6 +17,7 @@
 package com.mark59.datahunter.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mark59.datahunter.application.DataHunterConstants;
+import com.mark59.datahunter.application.ReusableIndexedUtils;
 import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
@@ -39,6 +41,8 @@ import com.mark59.datahunter.model.DataHunterRestApiResponsePojo;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
 import com.mark59.datahunter.model.PolicySelectionFilter;
 import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
+import com.mark59.datahunter.pojo.ReindexResult;
+import com.mark59.datahunter.pojo.ValidReuseIxPojo;
 
 
 /**
@@ -105,17 +109,45 @@ public class DataHunterRestController {
 		} else {
 			policies.setEpochtime(System.currentTimeMillis());
 		}
-		
-		SqlWithParms sqlWithParms = policiesDAO.constructInsertDataSql(policies);
-		int rowsAffected;
 
 		DataHunterRestApiResponsePojo response = new DataHunterRestApiResponsePojo();
 		response.setPolicies(Collections.singletonList(policies));
-		
+
 		if (!DataHunterConstants.USEABILITY_LIST.contains(useability)){
 			return ResponseEntity.ok(UseabilityError(useability, response));	
 		}
+	
+		ValidReuseIxPojo validReuseIx = ReusableIndexedUtils.validateReusableIndexed(policies, policiesDAO);
+		
+		if (validReuseIx.getPolicyReusableIndexed()){
+			if (validReuseIx.getValidatedOk()) {
+				int newCount = validReuseIx.getCurrentIxCount() + 1;
+				validReuseIx.getIxPolicy().setOtherdata(String.valueOf(newCount)); 		
+				SqlWithParms sqlWithParmsIx = policiesDAO.constructUpdatePoliciesSql(validReuseIx.getIxPolicy());
+				
+				try {
+					//System.out.println("update ix : " + validReuseIx.getIxPolicy());
+					policiesDAO.runDatabaseUpdateSql(sqlWithParmsIx);
+				} catch (Exception e) {
+					response.setSuccess(String.valueOf(false));			
+					response.setFailMsg("sql exception caught: " + e.getMessage() + ", sqlWithParms=" + sqlWithParmsIx);
+					response.setRowsAffected(-1);
+					return ResponseEntity.ok(response);						
+				}	
+				
+				policies.setIdentifier(StringUtils.leftPad(String.valueOf(newCount), 10, "0"));
+				
+			} else { // invalid
+				response.setSuccess(String.valueOf(false));			
+				response.setFailMsg("validation error: "  + validReuseIx.getErrorMsg());
+				response.setRowsAffected(-1);
+				return ResponseEntity.ok(response);					
+			}
+		} 
 
+		SqlWithParms sqlWithParms = policiesDAO.constructInsertDataSql(policies);
+
+		int rowsAffected;
 		try {
 			rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 		} catch (Exception e) {
@@ -131,7 +163,7 @@ public class DataHunterRestController {
 			response.setFailMsg("");
 		} else {
 			response.setSuccess(String.valueOf(false));	
-			response.setFailMsg("sql execution : Error.  1 row should of been affected, but sql result indicates " + rowsAffected + " rows affected?" );
+			response.setFailMsg("sql execution : Error.  1 row should of been affected, but sql result indicates "+rowsAffected+" rows affected?" );
 		}
 		return ResponseEntity.ok(response);	
 	}
@@ -212,8 +244,22 @@ public class DataHunterRestController {
 		
 		SqlWithParms sqlWithParms = policiesDAO.constructCountPoliciesBreakdownSql(policySelectionCriteria);
 		List<CountPoliciesBreakdown> countPoliciesBreakdownList = policiesDAO.runCountPoliciesBreakdownSql(sqlWithParms);
+		
+		for (CountPoliciesBreakdown countPoliciesBreakdown : countPoliciesBreakdownList) {
+			countPoliciesBreakdown.setIsReusableIndexed("N");
+			countPoliciesBreakdown.setHoleCount(0L);
+			ValidReuseIxPojo validReuseIx = ReusableIndexedUtils.validateReusableIndexed(countPoliciesBreakdown, policiesDAO);
+			if (validReuseIx.getPolicyReusableIndexed()){
+				countPoliciesBreakdown.setIsReusableIndexed("Y");
+				if (validReuseIx.getValidatedOk()) {
+					countPoliciesBreakdown.setHoleCount(Long.valueOf(validReuseIx.getCurrentIxCount()) - validReuseIx.getIdsinRangeCount());
+				} else {
+					countPoliciesBreakdown.setHoleCount(-1L);
+				}
+			}
+		}		
+		
 		int rowsAffected = countPoliciesBreakdownList.size();
-
 		response.setCountPoliciesBreakdown(countPoliciesBreakdownList);
 		response.setRowsAffected(rowsAffected);
 		response.setSuccess(String.valueOf(true));			
@@ -277,7 +323,10 @@ public class DataHunterRestController {
 	 * @param application  	application (required)
 	 * @param lifecycle    	blank to select all lifecycles matching the other criteria
 	 * @param useability   	{@link DataHunterConstants#USEABILITY_LIST},or blank to select all useabilities matching the other criteria
-	 * @param selectOrder	field used to ORDER the list by {@link DataHunterConstants#FILTERED_SELECT_ORDER_LIST} default is natural key order
+	 * @param identifierLikeSelected true|false to filter on identifier 'LIKE'
+	 * @param identifierLike identifier filter - SQL 'LIke' format is used eg %id6% 
+	 * @param identifierListSelected true|false to filter on identifier 'IN'
+	 * @param identifierList identifier filter - comma separated list of identifiers to be used in a SQL 'IN' format   
 	 * @param otherdataSelected true|false to filter on otherdata
 	 * @param otherdata     otherdata filter - SQL 'LIke' format is used eg %5other% 
 	 * @param createdSelected true|false to filter on a created date range
@@ -289,24 +338,32 @@ public class DataHunterRestController {
 	 * @param epochtimeSelected true|false to filter on an epochtime range
 	 * @param epochtimeFrom eg 0   (max 13 numerics)
 	 * @param epochtimeTo	eg 4102444799999 (max 13 numerics)
+	 * @param selectOrder	field used to ORDER the list by {@link DataHunterConstants#FILTERED_SELECT_ORDER_LIST} default is natural key order
 	 * @param orderDirection ASCENDING (default) | DESCENDING  {@link DataHunterConstants#ORDER_DIRECTION_LIST}
 	 * @param limit			0 to 1000  (default 100, if gt 1000 will be set to 1000)
 	 * @return ResponseEntity (ok) list of items matching the above criteria.  Maximum of 1000 returned rows
 	 */
 	@GetMapping(path = "/printSelectedPolicies")
-	public ResponseEntity<Object> printSelectedPolicies(@RequestParam String application, @RequestParam(required=false) String lifecycle, 
-			@RequestParam(required=false) String useability,@RequestParam(required=false) String selectOrder, 
+	public ResponseEntity<Object> printSelectedPolicies(@RequestParam String application, 
+			@RequestParam(required=false) String lifecycle,
+			@RequestParam(required=false) String useability,
+			@RequestParam(required=false) String identifierLikeSelected,@RequestParam(required=false) String identifierLike,
+			@RequestParam(required=false) String identifierListSelected,@RequestParam(required=false) String identifierList,
 			@RequestParam(required=false) String otherdataSelected,@RequestParam(required=false) String otherdata,
 			@RequestParam(required=false) String createdSelected,@RequestParam(required=false) String createdFrom,@RequestParam(required=false) String createdTo,
 			@RequestParam(required=false) String updatedSelected,@RequestParam(required=false) String updatedFrom,@RequestParam(required=false) String updatedTo,
 			@RequestParam(required=false) String epochtimeSelected,@RequestParam(required=false) String epochtimeFrom,@RequestParam(required=false) String epochtimeTo,
-			@RequestParam(required=false) String orderDirection,@RequestParam(required=false) String limit ){
+			@RequestParam(required=false) String selectOrder, @RequestParam(required=false) String orderDirection,
+			@RequestParam(required=false) String limit ){
 		
 		PolicySelectionFilter policySelectionFilter = new PolicySelectionFilter();
 		policySelectionFilter.setApplication(application);
 		policySelectionFilter.setLifecycle(lifecycle);
 		policySelectionFilter.setUseability(useability);
-		policySelectionFilter.setSelectOrder(selectOrder);
+		policySelectionFilter.setIdentifierLikeSelected(Boolean.valueOf(identifierLikeSelected));
+		policySelectionFilter.setIdentifierLike(identifierLike);
+		policySelectionFilter.setIdentifierListSelected(Boolean.valueOf(identifierListSelected));
+		policySelectionFilter.setIdentifierList(identifierList);			
 		policySelectionFilter.setOtherdataSelected(Boolean.valueOf(otherdataSelected));
 		policySelectionFilter.setOtherdata(otherdata);	
 		policySelectionFilter.setCreatedSelected(Boolean.valueOf(createdSelected));
@@ -318,6 +375,7 @@ public class DataHunterRestController {
 		policySelectionFilter.setEpochtimeSelected(Boolean.valueOf(epochtimeSelected));
 		policySelectionFilter.setEpochtimeFrom(epochtimeFrom);	
 		policySelectionFilter.setEpochtimeTo(epochtimeTo);
+		policySelectionFilter.setSelectOrder(selectOrder);
 		policySelectionFilter.setOrderDirection(orderDirection);
 		policySelectionFilter.setLimit(limit);	
 		
@@ -403,6 +461,10 @@ public class DataHunterRestController {
 	 * <br> application  	application (required)
 	 * <br> lifecycle    	blank to select all lifecycles matching the other criteria
 	 * <br> useability   	{@link DataHunterConstants#USEABILITY_LIST},or blank to select all useabilities matching the other criteria
+	 * <br> identifierLikeSelected true|false to filter on identifier 'LIKE'
+	 * <br> identifierLike identifier filter - SQL 'LIke' format is used eg %id6% 
+	 * <br> identifierListSelected true|false to filter on identifier 'IN'
+	 * <br> identifierList identifier filter - comma separated list of identifiers to be used in a SQL 'IN' format   
 	 * <br> otherdataSelected true|false to filter on otherdata
 	 * <br> otherdata     	otherdata filter - SQL 'LIke' format is used eg %5other% 
 	 * <br> createdSelected true|false to filter on a created date range
@@ -419,16 +481,24 @@ public class DataHunterRestController {
 	 * @return ResponseEntity (ok) indicates number of rows deleted
 	 */
 	@GetMapping(path = "/deleteMultiplePolicies")
-	public ResponseEntity<Object> deleteMultiplePolicies(@RequestParam String application, @RequestParam(required=false) String lifecycle, 
-			@RequestParam(required=false) String useability,@RequestParam(required=false) String otherdataSelected,@RequestParam(required=false) String otherdata,
-			@RequestParam(required=false) String createdSelected,@RequestParam(required=false) String createdFrom,@RequestParam(required=false) String createdTo,
-			@RequestParam(required=false) String updatedSelected,@RequestParam(required=false) String updatedFrom,@RequestParam(required=false) String updatedTo,
-			@RequestParam(required=false) String epochtimeSelected,@RequestParam(required=false) String epochtimeFrom,@RequestParam(required=false) String epochtimeTo){
-
+	public ResponseEntity<Object> deleteMultiplePolicies(@RequestParam String application,
+		@RequestParam(required=false) String lifecycle,
+		@RequestParam(required=false) String useability,
+		@RequestParam(required=false) String identifierLikeSelected,@RequestParam(required=false) String identifierLike,
+		@RequestParam(required=false) String identifierListSelected,@RequestParam(required=false) String identifierList,		
+		@RequestParam(required=false) String otherdataSelected,@RequestParam(required=false) String otherdata,
+		@RequestParam(required=false) String createdSelected,@RequestParam(required=false) String createdFrom,@RequestParam(required=false) String createdTo,
+		@RequestParam(required=false) String updatedSelected,@RequestParam(required=false) String updatedFrom,@RequestParam(required=false) String updatedTo,
+		@RequestParam(required=false) String epochtimeSelected,@RequestParam(required=false) String epochtimeFrom,@RequestParam(required=false) String epochtimeTo){		
+		
 		PolicySelectionFilter policySelectionFilter = new PolicySelectionFilter();
 		policySelectionFilter.setApplication(application);
 		policySelectionFilter.setLifecycle(lifecycle);
 		policySelectionFilter.setUseability(useability);
+		policySelectionFilter.setIdentifierLikeSelected(Boolean.valueOf(identifierLikeSelected));
+		policySelectionFilter.setIdentifierLike(identifierLike);
+		policySelectionFilter.setIdentifierListSelected(Boolean.valueOf(identifierListSelected));
+		policySelectionFilter.setIdentifierList(identifierList);			
 		policySelectionFilter.setOtherdataSelected(Boolean.valueOf(otherdataSelected));
 		policySelectionFilter.setOtherdata(otherdata);	
 		policySelectionFilter.setCreatedSelected(Boolean.valueOf(createdSelected));
@@ -469,8 +539,41 @@ public class DataHunterRestController {
 		}
 		return ResponseEntity.ok(response);	
 	}
+
 	
+	/**
+	 * Reindex Reusable Indexed datatype 
+	 * 
+	 * This will remove 'holes' the in the ids for a ReusableIndexed datatype.  Id's are ideally a contiguous
+	 * 'numeric' (actually stored as a string with leading zeros).
+	 * 
+	 * Where rows exist than do not have valid ids ('numeric' and within the row range count), they will be shuffled 
+	 * into any holes in the range. When the holes are filled they are added to the end of the range.    
+	 * 
+	 * @param application  application
+	 * @param lifecycle    blank for a blank lifecycle (not all lifecycles within the application)
+	 * @return ResponseEntity (ok) indicates the success or otherwise on the operation
+	 * 
+	 * @see ReusableIndexedUtils#reindexReusableIndexed(String, String, PoliciesDAO)
+	 */
+	@GetMapping(path = "/reindexReusableIndexedPolicies")
+	public ResponseEntity<Object> reindexReusableIndexedPolicies(@RequestParam String application, @RequestParam String lifecycle){ 
+		Policies policy = new Policies();
+		policy.setApplication(application);
+		policy.setLifecycle(lifecycle);
+		policy.setUseability(DataHunterConstants.REUSABLE);
+
+		ReindexResult result = new ReusableIndexedUtils().reindexReusableIndexed(application, lifecycle, policiesDAO);
+		
+		DataHunterRestApiResponsePojo response = new DataHunterRestApiResponsePojo();
+		response.setPolicies(Arrays.asList(policy));
+		response.setSuccess(String.valueOf(result.getSuccess()));			
+		response.setRowsAffected(result.getRowsMoved());
+		response.setFailMsg(result.getMessage());
+		return ResponseEntity.ok(response);	
+	}
 	
+
 	/**
 	 * Update an existing Item 
 	 *  
@@ -625,6 +728,8 @@ public class DataHunterRestController {
 		List<Policies> policiesList;
 		SqlWithParms selectSqlWithParms = policiesDAO.constructSelectNextPolicySql(policySelectionCriteria);
 
+//		System.out.println("@ norml sc id=" + (String)selectSqlWithParms.getSqlparameters().getValue("identifier"));
+		
 		DataHunterRestApiResponsePojo response = new DataHunterRestApiResponsePojo();
 		response.setPolicies(Collections.singletonList( // just setting for debug purposes on failure 
 				new Policies(application,null, lifecycle, useability, "(lookup=" + lookupOrUse + " selectOrder="+ selectOrder +""  , null)));
@@ -644,13 +749,44 @@ public class DataHunterRestController {
 				return ResponseEntity.ok(response);		
 			}
 	
+			int rowsAffected = policiesList.size();
 			response.setRowsAffected(policiesList.size());
 	
 			if (policiesList.size() == 0) {
-				response.setSuccess(String.valueOf(false));	
-				response.setFailMsg(
-						"No rows matching the selection.  Possibly we have ran out of data for application:["
-								+ policySelectionCriteria.getApplication() + "]");
+				
+				if (selectSqlWithParms.getSqlparameters().hasValue(DataHunterConstants.REUSEABLE_INDEXED_RAND)){
+					// for the special case of a random lookup on 'Reusable Indexed' data, we will do retries 
+					int retries = 0 ;
+					while (rowsAffected==0 && retries<=10){
+						try {
+							selectSqlWithParms = policiesDAO.constructSelectNextPolicySql(policySelectionCriteria);
+							policiesList = policiesDAO.runSelectPolicieSql(selectSqlWithParms);
+							rowsAffected = policiesList.size();
+							if (rowsAffected != 0){
+								response.setSuccess(String.valueOf(true));
+								response.setPolicies(policiesList);
+								response.setRowsAffected(rowsAffected);
+								return ResponseEntity.ok(response);	
+							}
+						} catch (Exception e) {
+							response.setSuccess(String.valueOf(false));			
+							response.setFailMsg("sql exception caught: " + e.getMessage() + ", selectSqlWithParms=" + selectSqlWithParms); 
+							response.setRowsAffected(-1);
+							return ResponseEntity.ok(response);	
+						}						
+						retries++;
+					} // end retries loop
+					
+					response.setSuccess(String.valueOf(false));	
+					response.setFailMsg("Too many holes it looks like for Application:["+policySelectionCriteria.getApplication()+"]");
+				
+				} else { // empty policy list and not the  random lookup on 'Reusable Indexed' special case 
+
+					response.setSuccess(String.valueOf(false));	
+					response.setFailMsg(
+							"No rows matching the selection.  Possibly we have ran out of data for application:["
+									+ policySelectionCriteria.getApplication() + "]");
+				}	
 				return ResponseEntity.ok(response);		
 	
 			} else if (policiesList.size() > 1) {
@@ -665,9 +801,7 @@ public class DataHunterRestController {
 			Policies nextPolicy = policiesList.get(0);
 			
 			if (DataHunterConstants.USE.equalsIgnoreCase(lookupOrUse)){
-				
 				response = updateNextPolicy(response, nextPolicy);
-
 			} else { // a lookup
 				response.setSuccess(String.valueOf(true));
 				response.setFailMsg("OK (no update)");

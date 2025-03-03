@@ -30,7 +30,7 @@ public class DropdownList extends Elemental {
 		WebElement element = FluentWaitFactory.getFluentWait(driver, FluentWaitFactory.DEFAULT_TIMEOUT)
 				.until(ExpectedConditions.elementToBeClickable(by));
 		Select dropdown = new Select(element);
-		return dropdown.getFirstSelectedOption().getAttribute("value");
+		return dropdown.getFirstSelectedOption().getDomAttribute("value");
 	}
 
 	public DropdownList selectByVisibleTextAndConfirmExpectedValue(String visibleText, String expectedOptionValue) {

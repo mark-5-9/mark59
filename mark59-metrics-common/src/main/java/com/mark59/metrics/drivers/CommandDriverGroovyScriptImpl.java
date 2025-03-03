@@ -52,6 +52,7 @@ public class CommandDriverGroovyScriptImpl implements CommandDriver {
 	 * Executes the 'command', which in this case is a Groovy script 
 	 * @param command (Groovy script)
 	 * @param cmdParms  Not used. The parameter list for Groovy commands built here.
+	 * @param testMode  Not used. 
 	 * @return CommandDriverResponse
 	 */
 	@Override

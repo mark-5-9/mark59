@@ -65,10 +65,15 @@ function buildAddItemLink() {
 
 
 function urlParmeters() {
+	// window.alert("identifierSelected = " + document.getElementById("identifierSelected").value );
+	
 	return "?application=" 	+ encodeURIComponent(document.getElementById("application").value)
 	+ "&lifecycle=" 		+ encodeURIComponent(document.getElementById("lifecycle").value)
 	+ "&useability=" 		+ encodeURIComponent(document.getElementById("useability").value)
-	+ "&selectOrder=" 		+ encodeURIComponent(document.getElementById("selectOrder").value)
+	+ "&identifierLikeSelected="+ encodeURIComponent(document.getElementById("identifierLikeSelected").value)
+	+ "&identifierLike=" 	+ encodeURIComponent(document.getElementById("identifierLike").value)	
+	+ "&identifierListSelected="+ encodeURIComponent(document.getElementById("identifierListSelected").value)
+	+ "&identifierList=" 	+ encodeURIComponent(document.getElementById("identifierList").value)		
 	+ "&otherdataSelected=" + encodeURIComponent(document.getElementById("otherdataSelected").value)
 	+ "&otherdata=" 		+ encodeURIComponent(document.getElementById("otherdata").value)
 	+ "&createdSelected=" 	+ encodeURIComponent(document.getElementById("createdSelected").value)
@@ -80,6 +85,7 @@ function urlParmeters() {
 	+ "&epochtimeSelected=" + encodeURIComponent(document.getElementById("epochtimeSelected").value)
 	+ "&epochtimeFrom=" 	+ encodeURIComponent(document.getElementById("epochtimeFrom").value)
 	+ "&epochtimeTo=" 		+ encodeURIComponent(document.getElementById("epochtimeTo").value)
+	+ "&selectOrder=" 		+ encodeURIComponent(document.getElementById("selectOrder").value)
 	+ "&orderDirection=" 	+ encodeURIComponent(document.getElementById("orderDirection").value)
 	+ "&limit=" 			+ encodeURIComponent(document.getElementById("limit").value);
 }
@@ -143,23 +149,27 @@ function urlParmeters() {
      <tr><td>details</td>			<td>:</td><td id=sqlResultText>${model.sqlResultText}</td></tr>     
  </table>
 
- <input type="hidden" id="application" 			value="${policySelectionFilter.application}" />
- <input type="hidden" id="lifecycle" 			value="${policySelectionFilter.lifecycle}" />
- <input type="hidden" id="useability" 			value="${policySelectionFilter.useability}" />
- <input type="hidden" id="selectOrder" 			value="${policySelectionFilter.selectOrder}" />
- <input type="hidden" id="otherdataSelected" 	value="${policySelectionFilter.otherdataSelected}" />
- <input type="hidden" id="otherdata" 			value="${policySelectionFilter.otherdata}" />
- <input type="hidden" id="createdSelected" 		value="${policySelectionFilter.createdSelected}" />
- <input type="hidden" id="createdFrom" 			value="${policySelectionFilter.createdFrom}" />
- <input type="hidden" id="createdTo" 			value="${policySelectionFilter.createdTo}" />
- <input type="hidden" id="updatedSelected" 		value="${policySelectionFilter.updatedSelected}" />
- <input type="hidden" id="updatedFrom" 			value="${policySelectionFilter.updatedFrom}" />
- <input type="hidden" id="updatedTo" 			value="${policySelectionFilter.updatedTo}" />
- <input type="hidden" id="epochtimeSelected" 	value="${policySelectionFilter.epochtimeSelected}" />
- <input type="hidden" id="epochtimeFrom" 		value="${policySelectionFilter.epochtimeFrom}" />
- <input type="hidden" id="epochtimeTo" 			value="${policySelectionFilter.epochtimeTo}" />
- <input type="hidden" id="orderDirection" 		value="${policySelectionFilter.orderDirection}" />
- <input type="hidden" id="limit" 				value="${policySelectionFilter.limit}" />
+ <input type="hidden" id="application" 				value="${policySelectionFilter.application}" />
+ <input type="hidden" id="lifecycle" 				value="${policySelectionFilter.lifecycle}" />
+ <input type="hidden" id="useability" 				value="${policySelectionFilter.useability}" />
+ <input type="hidden" id="selectOrder" 				value="${policySelectionFilter.selectOrder}" />
+ <input type="hidden" id="identifierLikeSelected" 	value="${policySelectionFilter.identifierLikeSelected}" />
+ <input type="hidden" id="identifierLike" 			value="${policySelectionFilter.identifierLike}" />
+ <input type="hidden" id="identifierListSelected" 	value="${policySelectionFilter.identifierListSelected}" />
+ <input type="hidden" id="identifierList" 			value="${policySelectionFilter.identifierList}" />
+ <input type="hidden" id="otherdataSelected" 		value="${policySelectionFilter.otherdataSelected}" />
+ <input type="hidden" id="otherdata" 				value="${policySelectionFilter.otherdata}" />
+ <input type="hidden" id="createdSelected" 			value="${policySelectionFilter.createdSelected}" />
+ <input type="hidden" id="createdFrom" 				value="${policySelectionFilter.createdFrom}" />
+ <input type="hidden" id="createdTo" 				value="${policySelectionFilter.createdTo}" />
+ <input type="hidden" id="updatedSelected" 			value="${policySelectionFilter.updatedSelected}" />
+ <input type="hidden" id="updatedFrom" 				value="${policySelectionFilter.updatedFrom}" />
+ <input type="hidden" id="updatedTo" 				value="${policySelectionFilter.updatedTo}" />
+ <input type="hidden" id="epochtimeSelected" 		value="${policySelectionFilter.epochtimeSelected}" />
+ <input type="hidden" id="epochtimeFrom" 			value="${policySelectionFilter.epochtimeFrom}" />
+ <input type="hidden" id="epochtimeTo" 				value="${policySelectionFilter.epochtimeTo}" />
+ <input type="hidden" id="orderDirection" 			value="${policySelectionFilter.orderDirection}" />
+ <input type="hidden" id="limit" 					value="${policySelectionFilter.limit}" />
 
  <br><a id="BackLink" href="see_buildBackLink_JS" >Back</a>  
 </div> 
