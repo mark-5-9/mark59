@@ -172,6 +172,9 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 				e.printStackTrace();
 			}
         	LOG.debug("File excelFile path: " + Objects.requireNonNull(excelFile).getPath()+":"+excelFile.getCanonicalPath() );
+
+//        	WorkbookFactory.addProvider(new HSSFWorkbookFactory());
+//        	WorkbookFactory.addProvider(new XSSFWorkbookFactory());        	
         	 
         	Workbook workbook = WorkbookFactory.create(excelFile, null, true);    // Factory class necessary to avoid excel file being 'touched' 
             
@@ -220,7 +223,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 		//from test cases..		 
 		ServerMetricsCaptureViaExcel ostest = new ServerMetricsCaptureViaExcel();
 		additionalTestParametersMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH,
-				"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");	
+				"./src/test/resources/hackedSampleXlsx/mark59serverprofiles.xlsx");	
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "localhost_" + Mark59Utils.obtainOperatingSystemForLocalhost());	
 		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'
 		// to force Results summary to log:	
@@ -234,7 +237,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 
 		ServerMetricsCaptureViaExcel groovyscripttest = new ServerMetricsCaptureViaExcel();
 		additionalTestParametersMap.put(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH,
-				"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");	
+				"./src/test/resources/hackedSampleXlsx/mark59serverprofiles.xlsx");	
 		additionalTestParametersMap.put(SERVER_PROFILE_NAME, "SimpleScriptSampleRunner");	
 		additionalTestParametersMap.put(MetricsApiConstants.PRINT_ERROR_MESSAGES,"short");   // 'short' 'full' 'no'
 		Arguments groovyscriptjmeterParameters = groovyscripttest.getDefaultParameters();

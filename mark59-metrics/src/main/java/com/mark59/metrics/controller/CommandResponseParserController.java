@@ -24,9 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.core.utils.Mark59Constants;
@@ -45,7 +43,7 @@ public class CommandResponseParserController {
 	@Autowired
 	CommandResponseParsersDAO commandResponseParsersDAO; 
 
-	@RequestMapping("/registerCommandResponseParser")
+	@GetMapping("/registerCommandResponseParser")
 	public ModelAndView registerCommandResponseParser(@RequestParam(required=false) String reqMetricTxnType, @RequestParam(required=false) String reqErr, 
 			@ModelAttribute CommandResponseParser commandResponseParser) { 
 		Map<String, Object> map = createMapOfDropdowns();
@@ -55,7 +53,7 @@ public class CommandResponseParserController {
 	}
 	
 
-	@RequestMapping("/insertCommandResponseParser")
+	@PostMapping("/insertCommandResponseParser")
 	public ModelAndView insertCommandResponseParser( @RequestParam(required=false) String reqMetricTxnType, @RequestParam(required=false) String reqErr,  
 			@ModelAttribute CommandResponseParser commandResponseParser) {
 
@@ -85,7 +83,7 @@ public class CommandResponseParserController {
 	}
 	
 
-	@RequestMapping("/commandResponseParserList")
+	@GetMapping("/commandResponseParserList")
 	public ModelAndView commandResponseParserList(@RequestParam(required=false) String reqMetricTxnType) {
 
 		List<CommandResponseParser> commandResponseParserList;
@@ -106,7 +104,7 @@ public class CommandResponseParserController {
 		return new ModelAndView("commandResponseParserList", "parmsMap", parmsMap);
 	}
 
-	@RequestMapping("/viewCommandResponseParser")
+	@GetMapping("/viewCommandResponseParser")
 	public String viewCommandResponseParser(@RequestParam String reqParserName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
 		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName); 
 		model.addAttribute("commandResponseParser", commandResponseParser);
@@ -119,7 +117,7 @@ public class CommandResponseParserController {
 	}
 	
 	
-	@RequestMapping("/copyCommandResponseParser")
+	@GetMapping("/copyCommandResponseParser")
 	public String copyCommandResponseParser(@RequestParam String reqParserName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
 		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName); 
 		model.addAttribute("commandResponseParser", commandResponseParser);
@@ -132,7 +130,7 @@ public class CommandResponseParserController {
 	}
 	
 	
-	@RequestMapping("/editCommandResponseParser")
+	@GetMapping("/editCommandResponseParser")
 	public String editCommandResponseParser(@RequestParam String reqParserName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
 		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName); 
 		model.addAttribute("commandResponseParser", commandResponseParser);
@@ -146,7 +144,7 @@ public class CommandResponseParserController {
 	}
 
 	
-	@RequestMapping("/updateCommandResponseParser")
+	@PostMapping("/updateCommandResponseParser")
 	public ModelAndView updateCommandResponseParser(@RequestParam(required=false) String reqMetricTxnType, @ModelAttribute CommandResponseParser commandResponseParser) {
 		commandResponseParsersDAO.updateCommandResponseParser(commandResponseParser);
 		Map<String, Object> map = createMapOfDropdowns();			
@@ -156,7 +154,7 @@ public class CommandResponseParserController {
 	}
 
 
-	@RequestMapping("/deleteCommandResponseParser")
+	@GetMapping("/deleteCommandResponseParser")
 	public String deleteCommandResponseParser(@RequestParam String reqParserName, @RequestParam String reqMetricTxnType) {
 		commandResponseParsersDAO.deleteCommandResponseParser(reqParserName);
 		return "redirect:/commandResponseParserList?reqMetricTxnType=" + reqMetricTxnType;

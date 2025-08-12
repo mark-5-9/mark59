@@ -24,14 +24,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
-import com.mark59.datahunter.application.ReusableIndexedUtils;
 import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
@@ -50,10 +50,10 @@ public class AddPolicyController {
 	PoliciesDAO policiesDAO;	
 		
 
-	@RequestMapping("/add_policy")
+	@GetMapping("/add_policy")
 	public String addPolicyUrl(@RequestParam(required=false) String application,@ModelAttribute Policies policies, Model model) {
 		
-		ValidReuseIxPojo validReuseIx = ReusableIndexedUtils.validateReusableIndexed(policies, policiesDAO);
+		ValidReuseIxPojo validReuseIx = policiesDAO.validateReusableIndexed(policies);
 		if (validReuseIx.getPolicyReusableIndexed()){
 			if (validReuseIx.getValidatedOk()) {
 				int newCount = validReuseIx.getCurrentIxCount() + 1;
@@ -70,7 +70,7 @@ public class AddPolicyController {
 	}
 	
 		
-	@RequestMapping("/add_policy_action")
+	@PostMapping("/add_policy_action")
 	public ModelAndView addPolicyAction(@ModelAttribute Policies policies, Model model, HttpServletRequest httpServletRequest ) {
 
 		DataHunterUtils.expireSession(httpServletRequest); 
@@ -85,7 +85,7 @@ public class AddPolicyController {
 			+ "&useability=" + DataHunterUtils.encode(policies.getUseability());
 		model.addAttribute("navUrParms", navUrParms);		
 				
-		ValidReuseIxPojo validReuseIx = ReusableIndexedUtils.validateReusableIndexed(policies, policiesDAO);
+		ValidReuseIxPojo validReuseIx = policiesDAO.validateReusableIndexed(policies);
 		
 		if (validReuseIx.getPolicyReusableIndexed()){
 			if (validReuseIx.getValidatedOk()) {
@@ -94,7 +94,7 @@ public class AddPolicyController {
 				SqlWithParms sqlWithParmsIx = policiesDAO.constructUpdatePoliciesSql(validReuseIx.getIxPolicy());
 				
 				try {
-					System.out.println("update ix : " + validReuseIx.getIxPolicy());
+					// System.out.println("update ix : " + validReuseIx.getIxPolicy());
 					policiesDAO.runDatabaseUpdateSql(sqlWithParmsIx);
 				} catch (Exception e) {
 					model.addAttribute("sqlResult", "FAIL");

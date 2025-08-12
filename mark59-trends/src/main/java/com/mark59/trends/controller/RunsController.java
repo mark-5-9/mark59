@@ -25,8 +25,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -44,7 +45,7 @@ public class RunsController {
 	@Autowired
 	RunDAO  runDAO; 	
 
-	@RequestMapping("/runsList")
+	@GetMapping("/runsList")
 	public ModelAndView runsList(@RequestParam(required=false) String reqApp) {
 		List<String> applicationList = populateApplicationDropdown();
 		if (reqApp == null  && applicationList.size() > 1  ){
@@ -60,7 +61,7 @@ public class RunsController {
 		return new ModelAndView("runsList", "map", map);
 	}	
 		
-	@RequestMapping("/editRun")
+	@GetMapping("/editRun")
 	public String editRun(@RequestParam String reqApp, @RequestParam String runTime, @ModelAttribute Run run, Model model) {
 
 		run = runDAO.findRun(reqApp, runTime);
@@ -77,7 +78,7 @@ public class RunsController {
 	}
 
 	
-	@RequestMapping("/updateRun")
+	@PostMapping("/updateRun")
 	public ModelAndView updateRun(@ModelAttribute Run run) {
 //		System.out.println("@ updateRun : app=" + run.getApplication() + ", time="     + run.getRunTime()  + ", file=" + run.getRunReference() 
 //				                 + ",  period=" + run.getPeriod()      + ", duration=" + run.getDuration() + ", baseline=" + run.getBaselineRun()
@@ -87,7 +88,7 @@ public class RunsController {
 	}
 
 	
-	@RequestMapping("/deleteRun")
+	@GetMapping("/deleteRun")
 	public String deleteRun(@RequestParam String reqApp, @RequestParam String runTime) {
 		System.out.println("deleting run for application: " + reqApp  + ", runtime: " +  runTime);
 		runDAO.deleteRun(reqApp, runTime ) ;	

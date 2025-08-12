@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DataHunter Selenium Using Downloaded Excel Profiles File" enabled="true">
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DataHunter Selenium Using Downloaded Excel Profiles File">
       <stringProp name="TestPlan.comments">                                                                                                                                       ** BEFORE YOU RUN **
 
 Download the Server Profiles Excel file using the Server Metrics Web application ( http://localhost:8085/mark59-metrics/serverProfileList -&gt; Download.. ), and copy it into the apache-jmeter/bin directory.  Or alternatively just copy across the mark59serverprofiles.xlsx sheet supplied in the root of the mark59-scripting-samples project into the apache-jmeter/bin directory.
 
 Finally, the &apos;Quick Start&apos; instructions should of been completed.   This ensures the required jars mark59-scripting-samples.jar and mark59-metrics-api.jar are in apache-jmeter/lib/ext, and mark59.properties and a chromdriver.exe are in the apache-jmeter/bin directory (or manually copy all these files over ). 
 </stringProp>
-      <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
-      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
-      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
-      <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group ">
@@ -91,8 +88,8 @@ log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
       </Arguments>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycle" enabled="true">
-        <intProp name="ThreadGroup.num_threads">2</intProp>
-        <intProp name="ThreadGroup.ramp_time">25</intProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,25)}</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
@@ -211,6 +208,11 @@ return 0;</stringProp>
                 <stringProp name="Argument.value">${user}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="FORCE_EXCEPTION" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_EXCEPTION</stringProp>
+                <stringProp name="Argument.value">${__P(ForceException,false)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="______________________ driver settings: ________________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ driver settings: ________________________</stringProp>
                 <stringProp name="Argument.value">Refer Mark59 User Guide for details</stringProp>
@@ -228,7 +230,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="PAGE_LOAD_STRATEGY" elementType="Argument">
                 <stringProp name="Argument.name">PAGE_LOAD_STRATEGY</stringProp>
-                <stringProp name="Argument.value">normal</stringProp>
+                <stringProp name="Argument.value">none</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="BROWSER_DIMENSIONS" elementType="Argument">
@@ -238,12 +240,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="PROXY" elementType="Argument">
                 <stringProp name="Argument.name">PROXY</stringProp>
-                <stringProp name="Argument.value"> </stringProp>
+                <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
                 <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
-                <stringProp name="Argument.value">--auto-open-devtools-for-tabs</stringProp>
+                <stringProp name="Argument.value">${additionalOptions}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="WRITE_FFOX_BROWSER_LOGFILE" elementType="Argument">
@@ -263,7 +265,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="______________________ logging settings: _______________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ logging settings: _______________________</stringProp>
-                <stringProp name="Argument.value">Expected values: &apos;default&apos;, &apos;buffer&apos;, or &apos;write&apos;</stringProp>
+                <stringProp name="Argument.value">Expected values: &apos;default&apos;, &apos;buffer&apos;, &apos;write&apos; or &apos;off&apos; </stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="Log_Screenshots_At_Start_Of_Transactions" elementType="Argument">
@@ -316,6 +318,16 @@ return 0;</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace_to_Console" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace_to_Console</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace_to_Log4J_Logger" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace_to_Log4J_Logger</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
                 <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
@@ -348,12 +360,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.3</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="TestPlan.comments">default DATAHUNTER_URL set to  http://localhost:8081/mark59-datahunter</stringProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL:  http://localhost:8081/mark59-datahunter   </stringProp>
           <stringProp name="classname">com.mark59.datahunter.samples.selenium.scripts.DataHunterLifecyclePvtScript</stringProp>
         </JavaSampler>
         <hashTree/>
@@ -544,6 +556,16 @@ return 0;</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace_to_Console" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace_to_Console</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace_to_Log4J_Logger" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace_to_Log4J_Logger</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
                 <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
@@ -576,7 +598,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.3</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -680,7 +702,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.3</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>

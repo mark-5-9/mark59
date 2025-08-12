@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-common</artifactId>
-	<version>6.3</version>
+	<version>6.4</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-common</name>
@@ -21,26 +21,26 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.3</version>
+			<version>6.4</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.20.0</version>
+			<version>2.24.3</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>2.20.0</version>
+			<version>2.24.3</version>
 		</dependency>
 
  		<!-- implement log4j 'SFLF bindings' for test purposes only  -->
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-slf4j-impl</artifactId>
-		    <version>2.20.0</version>
+		    <version>2.24.3</version>
 		    <scope>test</scope>
 		</dependency>
 
@@ -49,15 +49,38 @@
 		<dependency>
 		    <groupId>org.apache.poi</groupId>
 		    <artifactId>poi</artifactId>
-		    <version>4.1.2</version>
+		    <version>5.4.1</version>
 		</dependency>
       
 		<dependency>
 		    <groupId>org.apache.poi</groupId>
 		    <artifactId>poi-ooxml</artifactId>
-		    <version>4.1.2</version>
+		    <version>5.4.1</version>
 		</dependency>
-
+		
+		<!-- added to dep issue with the POI classes
+		https://stackoverflow.com/questions/77256330/java-lang-nosuchmethoderror-org-apache-commons-io-output-unsynchronizedbytearr-->
+	    <dependency>
+	        <groupId>commons-io</groupId>
+	        <artifactId>commons-io</artifactId>
+	        <version>2.20.0</version>
+	    </dependency>
+		
+		<!-- added for usage of StringSubstitutorr in command parameterization-->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-text</artifactId>
+		    <version>1.14.0</version>
+		</dependency>
+		
+		<!-- Note: Was common to SpringBoot and JMeter
+			- now from v17 to 18 due to dependabot vunerability -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		    <version>3.18.0</version>
+		</dependency>
+		
 		<!-- Note: kept in line with version used by JMeter
 		     (note from SpringBoot 3.1.2, groovy 4.x.x deps are used)-->
 		<dependency>
@@ -81,20 +104,6 @@
 		    <groupId>com.squareup.okhttp3</groupId>
 		    <artifactId>okhttp</artifactId>
 		    <version>4.12.0</version>
-		</dependency>
-		
-		<!-- added for usage of StringSubstitutorr in command parameterization-->
-		<dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-text</artifactId>
-		    <version>1.13.0</version>
-		</dependency>
-		
-		<!-- Note: common to SpringBoot and JMeter-->
-		<dependency>
-		    <groupId>org.apache.commons</groupId>
-		    <artifactId>commons-lang3</artifactId>
-		    <version>3.17.0</version>
 		</dependency>
 		
 		<!-- Note: common to SpringBoot and JMeter (version may differ)

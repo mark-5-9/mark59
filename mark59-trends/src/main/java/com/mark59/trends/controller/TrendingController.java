@@ -23,12 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
+import org.springframework.web.bind.annotation.*;
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.application.UtilsTrends;
@@ -77,7 +72,7 @@ public class TrendingController {
 	VisGraphicDataProductionInterface visGraphicDataProduction;
 
 	
-	@RequestMapping(value="/trending",  method = RequestMethod.GET )
+	@GetMapping("/trending")
 	public String loadTrendingPage( @RequestParam(required=false) String reqApp,
 									@RequestParam(required=false) String reqGraph,	
 									@RequestParam(required=false) String reqShowCdpOption,	
@@ -293,14 +288,14 @@ public class TrendingController {
 	}
 
 	
-	@RequestMapping(value="/trending", method=RequestMethod.POST)
+	@PostMapping("/trending")
 	public String processTrendingForm(@RequestParam(required = false) String reqApp,
-			@ModelAttribute("trendingForm") TrendingForm trendingForm, Model model, HttpServletRequest request) {
+			@ModelAttribute TrendingForm trendingForm, Model model, HttpServletRequest request) {
 		throw new RuntimeException("The POST method has been removed.  All requests are now by GET, using URL parms (to allow copy paste)" );
 	}
 
 	
-	@RequestMapping("/trendingAsyncPopulateApplicationList" )	
+	@GetMapping("/trendingAsyncPopulateApplicationList" )	
 	public @ResponseBody String trendingAsyncPopulateApplicationList(@RequestParam(required=false) String reqAppListSelector ) {  
 		List<String> applicationList = populateApplicationDropdown(reqAppListSelector); 
 		return  UtilsTrends.stringListToCommaDelimString(applicationList);  	

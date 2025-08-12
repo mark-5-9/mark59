@@ -1,9 +1,27 @@
 
+
 ## Mark59 Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases 
+
+
+<p>Release 6.4<br>
+
+  <ul>
+	<li>Trends Load : New parameter 'maxNumberofruns' (n) : Maximum number of runs to be stored for this application id excluding baselines.  
+	The oldest non-baseline run(s) will be removed from the database when this count is exceeded.  Set to '-1' or '0' to deactive. 
+	Defaults to 500</li> 
+	<li>DataHunter : (Bug) Remove an unnecessary SQL when processing Reusable Indexed' data</li> 
+	<li>All Web Apps : Explicitly use GetMapping or PostMapping anotation instead of RequestMapping, plus many smaller code and JavaDocs tidy ups</li> 
+	<li>Dependencies Updated: spring-boot to 3.5.4, selenium to 4.34.0 (to chrome v138), playwright to 1.53.0</li>  
+  </ul>
+  <figure>
+    <figcaption>Summary of Changes with Potential Incompatibilities For this Release 
+	<li>For UI scripting 'BROWSER_EXECUTABLE' argument is no longer in use. Please use 'OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE'"</li>
+  </figure>
+
 
 <p>Release 6.3<br>
 

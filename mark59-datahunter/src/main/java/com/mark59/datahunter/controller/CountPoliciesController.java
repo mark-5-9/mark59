@@ -23,8 +23,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -47,7 +48,7 @@ public class CountPoliciesController {
 	PoliciesDAO policiesDAO;	
 
 	
-	@RequestMapping("/count_policies")
+	@GetMapping("/count_policies")
 	public String countPoliciesUrl(@RequestParam(required=false) String application,@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model  ) { 
 		List<String> usabilityList = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		usabilityList.add(0,"");
@@ -56,7 +57,7 @@ public class CountPoliciesController {
 	}
 	
 		
-	@RequestMapping("/count_policies_action")
+	@PostMapping("/count_policies_action")
 	public ModelAndView countPoliciesAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model, HttpServletRequest httpServletRequest) {
 		// https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc
 		// HttpServletRequest request .. fields of ModelAttribute are actually request parameters (eg "application") 

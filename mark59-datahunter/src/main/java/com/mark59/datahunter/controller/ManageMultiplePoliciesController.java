@@ -30,8 +30,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -66,7 +67,7 @@ public class ManageMultiplePoliciesController {
 	private DataSource dataSource;
 		
 	
-	@RequestMapping (value = "/download_selected_policies")
+	@GetMapping ("/download_selected_policies")
 	public ResponseEntity<StreamingResponseBody> streamSelectedDataAsFile(@ModelAttribute PolicySelectionFilter policySelectionFilter, Model model) {
 
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesFilterSql(policySelectionFilter, false);
@@ -96,7 +97,7 @@ public class ManageMultiplePoliciesController {
 	}
 	
 	
-	@RequestMapping("/select_multiple_policies")
+	@GetMapping("/select_multiple_policies")
 	public String printSelectedPoliciesUrl(@RequestParam(required=false) String application,@ModelAttribute PolicySelectionFilter policySelectionFilter, Model model){ 
 		// System.out.println("/print_selected_policies : " + policySelectionFilter );
 
@@ -141,10 +142,21 @@ public class ManageMultiplePoliciesController {
 		return "/select_multiple_policies";				
 	}
 	
-		
-	@RequestMapping("/select_multiple_policies_action")
-	public ModelAndView printSelectedPoliciesAction(@ModelAttribute PolicySelectionFilter policySelectionFilter, Model model, HttpServletRequest httpServletRequest) {
 
+	@GetMapping("/select_multiple_policies_action")
+	public ModelAndView printMultiplePoliciesGet(@ModelAttribute PolicySelectionFilter policySelectionFilter, Model model, HttpServletRequest httpServletRequest) {
+		printMultiplePoliciesAction(policySelectionFilter, model, httpServletRequest);
+		return new ModelAndView("/select_multiple_policies_action", "model", model);
+	}
+
+	@PostMapping("/select_multiple_policies_action")
+	public ModelAndView printMultiplePoliciesPost(@ModelAttribute PolicySelectionFilter policySelectionFilter, Model model, HttpServletRequest httpServletRequest) {
+		printMultiplePoliciesAction(policySelectionFilter, model, httpServletRequest);
+		return new ModelAndView("/select_multiple_policies_action", "model", model);
+	}
+
+	private void printMultiplePoliciesAction(PolicySelectionFilter policySelectionFilter, Model model,
+			HttpServletRequest httpServletRequest) {
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPoliciesFilterSql(policySelectionFilter);
 		List<Policies> policiesList = new ArrayList<>();
 		
@@ -182,12 +194,10 @@ public class ManageMultiplePoliciesController {
 			model.addAttribute("sqlResultText", "sql exception caught: " + e.getMessage()) ;
 		}
 		DataHunterUtils.expireSession(httpServletRequest);
-		
-		return new ModelAndView("/select_multiple_policies_action", "model", model);
 	}
 	
 	
-	@RequestMapping("/delete_multiple_selected_policies")
+	@GetMapping("/delete_multiple_selected_policies")
 	public ModelAndView deleteMultipleSelected(@ModelAttribute PolicySelectionFilter policySelectionFilter, Model model, HttpServletRequest httpServletRequest) {
 
 		SqlWithParms sqlWithParms = policiesDAO.constructDeleteMultiplePoliciesSql(policySelectionFilter);

@@ -27,8 +27,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -50,7 +51,7 @@ public class EventMappingController {
 	/**
 	 * Note that for the selectors 'Metric Source' and 'Tool' simply wipe each other out (i.e. the are not additive ) 
 	 */
-	@RequestMapping("/eventMappingList")
+	@GetMapping("/eventMappingList")
 	public ModelAndView eventMappingList(@RequestParam(required=false) String reqPerformanceTool, @RequestParam(required=false) String reqMetricSource) {
 //		System.out.println("eventMappingList reqPerformanceTool=" + reqPerformanceTool + ",reqMetricSource=" + reqMetricSource  );
 
@@ -85,7 +86,7 @@ public class EventMappingController {
 	}
 
 	
-	@RequestMapping("/registerEventMapping")
+	@GetMapping("/registerEventMapping")
 	public ModelAndView registerEventMapping(@RequestParam(required=false) String reqMetricSource, @RequestParam(required=false) String reqErr, @ModelAttribute EventMapping eventMapping) { 
 		Map<String, Object> map = createMapOfDropdowns();
 		eventMapping.setMetricSource(reqMetricSource);
@@ -95,7 +96,7 @@ public class EventMappingController {
 	}
 	
 
-	@RequestMapping("/insertEventMapping")
+	@PostMapping("/insertEventMapping")
 	public ModelAndView insertData( @RequestParam(required=false) String reqMetricSource, @RequestParam(required=false) String reqErr,  @ModelAttribute EventMapping eventMapping) {
 		EventMapping existingEventMapping = new EventMapping();
 		if (eventMapping != null){
@@ -132,7 +133,7 @@ public class EventMappingController {
 	}
 	
 	
-	@RequestMapping("/copyEventMapping")
+	@PostMapping("/copyEventMapping")
 	public String copyEventMapping(@RequestParam String txnType ,@RequestParam String metricSource, @RequestParam String matchWhenLike, @RequestParam(required=false) String reqMetricSource,  
 			@ModelAttribute EventMapping eventMapping, Model model) {
 		eventMapping = eventMappingDAO.getEventMapping(metricSource, matchWhenLike); 
@@ -146,7 +147,7 @@ public class EventMappingController {
 	}
 	
 	
-	@RequestMapping("/editEventMapping")
+	@GetMapping("/editEventMapping")
 	public String editEventMapping(@RequestParam String txnType, @RequestParam String metricSource, @RequestParam String matchWhenLike, @RequestParam(required = false) String reqMetricSource,
 								   Model model) {
 		EventMapping eventMapping = eventMappingDAO.getEventMapping(metricSource, matchWhenLike);
@@ -160,7 +161,7 @@ public class EventMappingController {
 	}
 
 	
-	@RequestMapping("/updateEventMapping")
+	@GetMapping("/updateEventMapping")
 	public String updateEventMapping(@RequestParam(required=false) String reqMetricSource, @ModelAttribute EventMapping eventMapping) {
 		eventMapping.setPerformanceTool(determinePerformanceTool(eventMapping.getMetricSource()));
 		eventMappingDAO.updateData(eventMapping);
@@ -169,7 +170,7 @@ public class EventMappingController {
 
 
 
-	@RequestMapping("/deleteEventMapping")
+	@GetMapping("/deleteEventMapping")
 	public String deleteEventMapping(@RequestParam String txnType ,@RequestParam String metricSource, @RequestParam String matchWhenLike, @RequestParam(required=false) String reqMetricSource) {
 		eventMappingDAO.deleteData(txnType, metricSource, matchWhenLike);
 		return "redirect:/eventMappingList?reqMetricSource=" + reqMetricSource;

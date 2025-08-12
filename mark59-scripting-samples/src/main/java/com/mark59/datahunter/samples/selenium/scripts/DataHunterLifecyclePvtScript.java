@@ -39,6 +39,7 @@ import com.mark59.core.Outcome;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Constants;
+import com.mark59.core.utils.Mark59LogLevels;
 import com.mark59.core.utils.SafeSleep;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.AddPolicyActionPage;
 import com.mark59.datahunter.samples.dsl.datahunterSpecificPages.AddPolicyPage;
@@ -82,7 +83,7 @@ import com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory;
  * It takes a list of polling interval times, rather than just the one constant value using in FluentWaint for waiting between polls.  
  * For example, you can set a very short polling time for the first polling (has been found useful in some situations like 'waitUntilStale'
  * conditions or modal spinners), and/or then increase polling intervals incrementally (the last value in the list is just repeated), 
- * to reduce CPU load.    
+ * to reduce CPU load.  In practice we have found the reduction in CPU usage relatively minimal for the tests we have implemented it.    
  * 
  * <p>In a performance test, DataHunter should be invoked using it's API. Review 
  * {@link com.mark59.datahunter.api.rest.samples.DataHunterRestApiClientSampleUsage}, and 
@@ -117,6 +118,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jmeterAdditionalParameters.put("FORCE_TXN_FAIL_PERCENT", "20");
 		jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(true));
 		jmeterAdditionalParameters.put("USER", "default_user");				
+		jmeterAdditionalParameters.put("FORCE_EXCEPTION", String.valueOf(false));				
 
 		// optional selenium driver related settings (defaults apply)
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, Mark59Constants.CHROME);
@@ -129,21 +131,23 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.UNHANDLED_PROMPT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE.toString());
 //		jmeterAdditionalParameters.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");		
 		
-		// optional logging settings (defaults apply) 
-//		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
-//		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
-//		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
-//		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
-//		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_PERF_LOG_AT_END_OF_TRANSACTIONS, 		Mark59LogLevels.DEFAULT.getName());		
-//
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,	String.valueOf(true));
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 		String.valueOf(true));
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 		String.valueOf(true));
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PERF_LOG,			String.valueOf(true));
-//		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,		String.valueOf(true));
+		// optional log settings, defaults shown 
+		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_SCREENSHOTS_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
+		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_SCREENSHOTS_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
+		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,	Mark59LogLevels.DEFAULT.getName());
+		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
+		jmeterAdditionalParameters.put(JmeterFunctionsForSeleniumScripts.LOG_PERF_LOG_AT_END_OF_TRANSACTIONS, 		Mark59LogLevels.DEFAULT.getName());		
+
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,				String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 					String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 					String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PERF_LOG,						String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,					String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE_TO_CONSOLE,	 	String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE_TO_LOG4J_LOGGER,	String.valueOf(true));				
 		
-		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));		
-		jmeterAdditionalParameters.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));		
+		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, 		String.valueOf(true));  // default is 'false'		
+		jmeterAdditionalParameters.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, 		String.valueOf(false));		
 
 		// optional miscellaneous settings (defaults apply) 
 		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");			
@@ -179,6 +183,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 		int forceTxnFailPercent   = Integer.parseInt(context.getParameter("FORCE_TXN_FAIL_PERCENT").trim());
 		boolean startCdpListeners = Boolean.parseBoolean(context.getParameter("START_CDP_LISTENERS"));
 		String user               = context.getParameter("USER");
+		boolean forceException    = Boolean.parseBoolean(context.getParameter("FORCE_EXCEPTION"));		
 				
 		PrintSomeMsgOnceAtStartUp(dataHunterUrl, driver);
 
@@ -218,6 +223,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 			AddPolicyActionPage addPolicyActionPage = new AddPolicyActionPage(driver);			
 			
 			jm.startTransaction("DH_lifecycle_0200_addPolicy");
+			if (forceException){throw new RuntimeException("Selenium script throws runtime ex");};
 			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
 			addPolicyPage.submit().submit().waitUntilClickable( addPolicyActionPage.backLink() );   // ** note 2	
 			waitForSqlResultsTextOnActionPageAndCheckOk(addPolicyActionPage);						// ** note 4 
@@ -330,7 +336,7 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	
 	
 	/**
-	 *  Just as a demo, create some transaction and go the home page (in a real test you may want go to a logout page/option).
+	 *  Just as a demo, create some transaction (in a real test in a real test you may want go to a home page/logout page etc).
 	 *  Will be triggered when an exception is thrown during script . 	
 	 */
 	@Override

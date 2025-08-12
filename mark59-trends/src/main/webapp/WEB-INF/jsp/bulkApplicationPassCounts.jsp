@@ -26,7 +26,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
-<script type="text/javascript" src="javascript/asyncBulkAppplicationPassCounts.js"></script>
 <script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
 

@@ -23,10 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.trends.application.AppConstantsTrends;
@@ -52,7 +49,7 @@ public class SlaController {
 	RunDAO runDAO; 
 	
 	
-	@RequestMapping("/slaList")
+	@GetMapping("/slaList")
 	public ModelAndView getSlaList(@RequestParam(required=false) String reqApp) {
 		List<String> applicationList = populateSlaApplicationDropdown();
 		if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
@@ -75,7 +72,7 @@ public class SlaController {
 	}
 	
 	
-	@RequestMapping("/viewSlaList")
+	@GetMapping("/viewSlaList")
 	public ModelAndView viewSlaList(@RequestParam(required=false) String reqApp) {
 		List<Sla> slaList;
 		if (reqApp == null){
@@ -87,7 +84,7 @@ public class SlaController {
 	}	
 	
 	
-	@RequestMapping("/registerSla")
+	@GetMapping("/registerSla")
 	public ModelAndView registerSla(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr, @ModelAttribute Sla sla, Model model) {
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("sla",sla);		
@@ -96,7 +93,7 @@ public class SlaController {
 	}
 	
 
-	@RequestMapping("/insertSla")
+	@PostMapping("/insertSla")
 	public ModelAndView insertData(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr,  @ModelAttribute Sla sla) {
 		Sla	existingSla = new Sla();
 		if (sla != null)
@@ -133,7 +130,7 @@ public class SlaController {
 	}
 	
 	
-	@RequestMapping("/copySla")
+	@GetMapping("/copySla")
 	public String copySla(@RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam(required=false) String reqApp,  @ModelAttribute Sla sla, Model model) {
 		sla = slaDao.getSla(reqApp, reqTxnId, reqIsCdpTxn);
 		sla.setSlaOriginalTxnId(sla.getTxnId());
@@ -147,7 +144,7 @@ public class SlaController {
 	}
 	
 	
-	@RequestMapping("/editSla")
+	@GetMapping("/editSla")
 	public String editSla(@RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam(required=false) String reqApp, @ModelAttribute Sla sla, Model model) {
 		sla = slaDao.getSla(reqApp, reqTxnId, reqIsCdpTxn);
 		sla.setSlaOriginalTxnId(sla.getTxnId());
@@ -161,24 +158,31 @@ public class SlaController {
 	}
 	
 	
-	@RequestMapping("/updateSla")
+	@PostMapping("/updateSla")
 	public String updateSla(@RequestParam(required=false) String reqApp, @ModelAttribute Sla sla) {
 		slaDao.updateData(sla);
 		return "redirect:/slaList?reqApp=" + reqApp  ;
 	}
 
 
-	@RequestMapping("/deleteSla")
+	@GetMapping("/deleteSla")
 	public String deleteSla(@RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam(required=false) String reqApp) {
 		slaDao.deleteData(reqApp, reqTxnId, reqIsCdpTxn);
 		return "redirect:/slaList?reqApp=" + reqApp;
 	}
 
 	
-	@RequestMapping("/copyApplicationSla") 
-	public Object copyApplicationSla(@RequestParam(required=false) String reqApp,  @ModelAttribute CopyApplicationForm copyApplicationForm ) {
-//		System.out.println("@ copyApplicationSla : reqApp=" + copyApplicationForm.getReqApp() +	", ReqToApp=" + copyApplicationForm.getReqToApp()  );
+	@GetMapping("/copyApplicationSla") 
+	public Object copyApplicationSlaGet(@RequestParam(required=false) String reqApp,  @ModelAttribute CopyApplicationForm copyApplicationForm ) {
+		return copyApplicationSla(reqApp, copyApplicationForm);	
+	}
 
+	@PostMapping("/copyApplicationSla") 
+	public Object copyApplicationSlaPost(@RequestParam(required=false) String reqApp,  @ModelAttribute CopyApplicationForm copyApplicationForm ) {
+		return copyApplicationSla(reqApp, copyApplicationForm);	
+	}
+
+	private Object copyApplicationSla(String reqApp, CopyApplicationForm copyApplicationForm) {
 		copyApplicationForm.setReqApp(reqApp);
 		copyApplicationForm.setValidForm("N");
 
@@ -195,25 +199,25 @@ public class SlaController {
 			return "redirect:/slaList?reqApp=" + copyApplicationForm.getReqToApp();
 		} else {
 			return new ModelAndView("copyApplicationSla", "copyApplicationForm" , copyApplicationForm  );
-		}	
+		}
 	}
 
 	
-	@RequestMapping("/updateApplicationSla")	
+	@PostMapping("/updateApplicationSla")	
 	public String updateApplicationSla(@RequestParam(required=false) String reqApp, @ModelAttribute CopyApplicationForm copyApplicationForm) {
 //		System.out.println("@ updateApplicationSla : reqApp=" + copyApplicationForm.getReqApp() + ", ReqToApp=" + copyApplicationForm.getReqToApp()  );
 		return "redirect:/slaList?reqApp=" + reqApp  ;
 	}	
 		
 	
-	@RequestMapping("/deleteApplicationSla")
+	@GetMapping("/deleteApplicationSla")
 	public String deleteApplicationSla(@RequestParam String reqApp) {
 		slaDao.deleteAllSlasForApplication(reqApp);
 		return "redirect:/slaList?reqApp=";
 	}
 	
 	
-	@RequestMapping("/bulkApplicationPassCounts")
+	@GetMapping("/bulkApplicationPassCounts")
 	public ModelAndView bulkApplicationPassCounts(@RequestParam(required=false) String reqErr, @RequestParam(required=false) String reqApp,  
 			@ModelAttribute BulkApplicationPassCountsForm bulkApplicationPassCountsForm) { 
 		
@@ -236,13 +240,13 @@ public class SlaController {
 	}
 
 	
-	@RequestMapping("/asyncReloadSlaBulkLoadPage" )	
+	@GetMapping("/asyncReloadSlaBulkLoadPage" )	
 	public @ResponseBody String asyncReloadSlaBulkLoadPage(@RequestParam(required=false) String reqApp ) {  
 		return  referenceOfLastBaselineRun(reqApp);
 	}
 	
 	
-	@RequestMapping("/insertOrUpdateApplicationPassCounts")
+	@PostMapping("/insertOrUpdateApplicationPassCounts")
 	public String insertOrUdateApplicationPassCounts(@RequestParam(required=false) String reqErr, 
 			@ModelAttribute BulkApplicationPassCountsForm bulkApplicationPassCountsForm) {
 //		System.out.println("insertOrUdateApplicationPassCounts bulkApplicationPassCountsForm = " + bulkApplicationPassCountsForm );

@@ -63,7 +63,7 @@ public class ApplicationConfig {
     private String springProfilesActive;	
     	
     @Bean
-    public String currentDatabaseProfile() {
+    String currentDatabaseProfile() {
         return springProfilesActive;
     }   
 
@@ -71,58 +71,58 @@ public class ApplicationConfig {
     private String h2port;
     
     @Bean
-    public String h2Port() {
+    String h2Port() {
         return h2port;
     }   
    
     
     @Bean
-    public ApplicationDAO applicationDAO() {
+    ApplicationDAO applicationDAO() {
         return new ApplicationDAOjdbcTemplateImpl();
     }
     
     @Bean
-    public RunDAO runDAO() {
+    RunDAO runDAO() {
         return new RunDAOjdbcTemplateImpl();
     }
     
     @Bean
-    public TransactionDAO transactionDAO() {
+    TransactionDAO transactionDAO() {
         return new TransactionDAOjdbcTemplateImpl();
     }
     
     @Bean
-    public SlaDAO slaDAO() {
+    SlaDAO slaDAO() {
         return new SlaDAOjdbcImpl();
     }
     
     @Bean
-    public MetricSlaDAO metricSlaDAO() {
+    MetricSlaDAO metricSlaDAO() {
         return new MetricSlaDAOjdbcImpl();
     }
 
     @Bean
-    public GraphMappingDAO graphMappingDAO() {
+    GraphMappingDAO graphMappingDAO() {
         return new GraphMappingDAOjdbcTemplateImpl();
     }
 
     @Bean
-    public EventMappingDAO eventMappingDAO() {
+    EventMappingDAO eventMappingDAO() {
         return new EventMappingDAOjdbcTemplateImpl();
     }
 
     @Bean
-    public TestTransactionsDAO testTransactionsDAO() {
+    TestTransactionsDAO testTransactionsDAO() {
         return new TestTransactionsDAOjdbcTemplateImpl();
     }
     
     @Bean
-    public VisGraphicDataProductionInterface visGraphicDataProduction() {
+    VisGraphicDataProductionInterface visGraphicDataProduction() {
         return new VisGraphicDataProduction();
     }    
   
     @Bean(initMethod = "start", destroyMethod = "stop")
-    public Server h2DatabaseServer() throws SQLException {
+    Server h2DatabaseServer() throws SQLException {
 
     	if ( "h2tcpserver".equalsIgnoreCase(currentDatabaseProfile())){
     		if (StringUtils.isNumeric(h2Port())){

@@ -9,7 +9,7 @@ public class ValidReuseIxPojo {
 	String errorMsg;
 	Policies ixPolicy;
 	int currentIxCount;
-	int idsinRangeCount;
+	int validIdsinRangeCount;
 	
 	public Boolean getPolicyReusableIndexed() {
 		return policyReusableIndexed;
@@ -41,11 +41,11 @@ public class ValidReuseIxPojo {
 	public void setCurrentIxCount(int currentIxCount) {
 		this.currentIxCount = currentIxCount;
 	}
-	public int getIdsinRangeCount() {
-		return idsinRangeCount;
+	public int getValidIdsinRangeCount() {
+		return validIdsinRangeCount;
 	}
-	public void setIdsinRangeCount(int idsinRangeCount) {
-		this.idsinRangeCount = idsinRangeCount;
+	public void setValidIdsinRangeCount(int validIdsinRangeCount) {
+		this.validIdsinRangeCount = validIdsinRangeCount;
 	}
 	
 	@Override
@@ -55,7 +55,7 @@ public class ValidReuseIxPojo {
         		", validatedOk= "+ validatedOk +         	
         		", errorMsg= "+ errorMsg +        
         		", currentIxCount= "+ currentIxCount +                		
-        		", idsinRangeCount= "+ idsinRangeCount +                		
+        		", validIdsinRangeCount= "+ validIdsinRangeCount +                		
         		"]";
 	}
 

@@ -28,9 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.metrics.data.beans.Command;
@@ -65,7 +63,7 @@ public class CommandController {
 	CommandResponseParsersDAO commandResponseParsersDAO; 		
 
 
-	@RequestMapping("/registerCommand")
+	@GetMapping("/registerCommand")
 	public ModelAndView registerCommand(@RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr, 
 			@ModelAttribute CommandEditingForm commandEditingForm) {
 
@@ -84,7 +82,7 @@ public class CommandController {
 	}
 	
 
-	@RequestMapping("/insertCommand")
+	@PostMapping("/insertCommand")
 	public String insertCommand( @RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr, 
 			@RequestParam(required=false) String fromAction,
 			@ModelAttribute CommandEditingForm commandEditingForm, Model model) {
@@ -134,7 +132,7 @@ public class CommandController {
 	
 	
 
-	@RequestMapping("/commandList")
+	@GetMapping("/commandList")
 	public ModelAndView commandList(@RequestParam(required=false) String reqExecutor) {
 
 		List<Command> commandList;
@@ -164,7 +162,7 @@ public class CommandController {
 	}
 
 
-	@RequestMapping("/copyCommand")
+	@GetMapping("/copyCommand")
 	public String copyCommand(@RequestParam String reqCommandName, @RequestParam(required=false) String reqExecutor,  
 			@ModelAttribute CommandEditingForm commandEditingForm, Model model) {
 		
@@ -184,7 +182,7 @@ public class CommandController {
 	}
 	
 	
-	@RequestMapping("/editCommand")
+	@GetMapping("/editCommand")
 	public String editCommand(@RequestParam String reqCommandName, @RequestParam(required=false) String reqExecutor, 
 			@RequestParam(required=false) String reqLastSavedTimestamp,
 			@ModelAttribute CommandEditingForm commandEditingForm, Model model) {
@@ -214,7 +212,7 @@ public class CommandController {
 	}
 
 
-	@RequestMapping("/updateCommand")
+	@PostMapping("/updateCommand")
 	public String updateCommand(@RequestParam(required=false) String reqExecutor, @ModelAttribute CommandEditingForm commandEditingForm) {
 		
 		Command command = commandEditingForm.getCommand();
@@ -237,7 +235,7 @@ public class CommandController {
 	}
 
 
-	@RequestMapping("/deleteCommand")
+	@GetMapping("/deleteCommand")
 	public String deleteCommand(@RequestParam String reqCommandName, @RequestParam String reqExecutor) {
 		commandParserLinksDAO.deleteCommandParserLinksForCommandName(reqCommandName);
 		commandsDAO.deleteCommand(reqCommandName); 

@@ -82,25 +82,34 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	public static final Logger LOG = LogManager.getLogger(UiAbstractJavaSamplerClient.class);	
 
 
-	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
-	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
-	public static final String ON_EXCEPTION_WRITE_BUFFERED_LOGS	 		= "On_Exception_Write_Buffered_Logs";
+	/** @see PlaywrightAbstractJavaSamplerClient#scriptExceptionHandling
+	 *  @see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling  */
+	public static final String ON_EXCEPTION_WRITE_BUFFERED_LOGS	 			= "On_Exception_Write_Buffered_Logs";
 	
-	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
-	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
-	public static final String ON_EXCEPTION_WRITE_SCREENSHOT	 		= "On_Exception_Write_Screenshot";
+	/** @see PlaywrightAbstractJavaSamplerClient#scriptExceptionHandling
+	 *  @see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling  */
+	public static final String ON_EXCEPTION_WRITE_SCREENSHOT	 			= "On_Exception_Write_Screenshot";
 	
-	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
-	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
-	public static final String ON_EXCEPTION_WRITE_PAGE_SOURCE	 		= "On_Exception_Write_Page_Source";
+	/** @see PlaywrightAbstractJavaSamplerClient#scriptExceptionHandling
+	 *  @see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling  */
+	public static final String ON_EXCEPTION_WRITE_PAGE_SOURCE	 			= "On_Exception_Write_Page_Source";
 	
-	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
-	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
-	public static final String ON_EXCEPTION_WRITE_PERF_LOG		 		= "On_Exception_Write_Perf_Log";
+	/** This is a Selenium only log
+	 *  @see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling  */
+	public static final String ON_EXCEPTION_WRITE_PERF_LOG		 			= "On_Exception_Write_Perf_Log";
 	
-	/** @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
-	 *  @see SeleniumAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)  */
-	public static final String ON_EXCEPTION_WRITE_STACK_TRACE	 		= "On_Exception_Write_Stack_Trace";
+	/** @see PlaywrightAbstractJavaSamplerClient#scriptExceptionHandling
+	 *  @see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling  */
+	public static final String ON_EXCEPTION_WRITE_STACK_TRACE	 			= "On_Exception_Write_Stack_Trace";
+	
+	/** @see PlaywrightAbstractJavaSamplerClient#scriptExceptionHandling
+	 *  @see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling  */
+	public static final String ON_EXCEPTION_WRITE_STACK_TRACE_TO_CONSOLE	= "On_Exception_Write_Stack_Trace_to_Console";
+	
+	/** @see PlaywrightAbstractJavaSamplerClient#scriptExceptionHandling
+	 *  @see SeleniumAbstractJavaSamplerClient#scriptExceptionHandling  */
+	public static final String ON_EXCEPTION_WRITE_STACK_TRACE_TO_LOG4J_LOGGER= "On_Exception_Write_Stack_Trace_to_Log4J_Logger";
+	
 	
 	/**  generic JMeterFunctions (can be overridden by extending classes) */		
 	protected JmeterFunctionsUi jm;
@@ -182,7 +191,7 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 			jmeterArgumentsAsMap.put(paramKey, context.getParameter(paramKey) );
 		}
 		
-		if (LOG.isDebugEnabled()) LOG.debug("context parameters at convert... :  "  + Arrays.toString(jmeterArgumentsAsMap.entrySet().toArray()));
+		if (LOG.isDebugEnabled()) LOG.debug("context parameters at convert... :  "+Arrays.toString(jmeterArgumentsAsMap.entrySet().toArray()));
 		return jmeterArgumentsAsMap;
 	}
 	

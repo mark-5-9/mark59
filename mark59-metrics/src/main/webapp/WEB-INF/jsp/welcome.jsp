@@ -123,11 +123,10 @@ Also put your userid in the Username field (but do not enter a password).
  (pretty limiting for both the web application, and any use of a downloaded Server Profile spreadsheet).    
 </ul> 
 
-The supplied examples should get you started. 
-There is much more detail available including a fully worked example of adding a Profile, a Command and its Parser,
- in the User Guide available at <a href="https://mark59.com">The Mark59 Website</a>. 
+The supplied examples should get you started. There is much more detail available including a fully worked example of
+ adding a Profile, a Command and its Parser, in the User Guide. 
 
-<p>Mark59 Version: 6.3</p>  
+<p>Version: 6.4  Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
 			
 </div>
 </body>

@@ -20,8 +20,9 @@ package com.mark59.datahunter.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -43,14 +44,14 @@ public class DeletePolicyController {
 	PoliciesDAO policiesDAO;	
 		
 
-	@RequestMapping("/delete_policy")
+	@GetMapping("/delete_policy")
 	public String deletePolicyUrl(@RequestParam(required=false) String application, @ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model  ) { 
 //		System.out.println("/delete_policy");
 		return "/delete_policy";				
 	}
 	
 		
-	@RequestMapping("/delete_policy_action")
+	@PostMapping("/delete_policy_action")
 	public ModelAndView deletePolicyAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model, HttpServletRequest httpServletRequest) {
 		DataHunterUtils.expireSession(httpServletRequest);
 		

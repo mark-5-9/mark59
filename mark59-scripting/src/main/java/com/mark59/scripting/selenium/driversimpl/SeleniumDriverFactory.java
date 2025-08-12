@@ -242,12 +242,11 @@ public class SeleniumDriverFactory {
 		if (LOG.isDebugEnabled())
 			LOG.debug(pathMsg);
 
-		
-		// Create a warning for the now deprecated, unused BROWSER_EXECUTABLE argument		
+		// throw error for the now deprecated unused BROWSER_EXECUTABLE argument		
 		if (StringUtils.isNotBlank(arguments.get(BROWSER_EXECUTABLE))) {
-			LOG.warn("'BROWSER_EXECUTABLE' JMeter argument is no longer in use! Please use 'OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE'");			
+			LOG.error("'BROWSER_EXECUTABLE' JMeter argument is no longer in use! Please use 'OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE'");
+			throw new IllegalArgumentException("'OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE' has replaced 'BROWSER_EXECUTABLE'" );
 		}
-		
 		
 		// Turn driver headless mode on or off. Default: ON
 		if (arguments.containsKey(HEADLESS_MODE))

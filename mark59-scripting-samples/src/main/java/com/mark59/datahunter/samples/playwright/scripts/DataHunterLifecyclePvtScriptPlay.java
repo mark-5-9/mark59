@@ -87,7 +87,8 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 		jmeterAdditionalParameters.put("DATAHUNTER_APPLICATION_ID", "DATAHUNTER_PV_TEST");
 		jmeterAdditionalParameters.put("FORCE_TXN_FAIL_PERCENT", "20");
 		jmeterAdditionalParameters.put("START_CDP_LISTENERS", String.valueOf(true));			
-		jmeterAdditionalParameters.put("USER", "default_user");				
+		jmeterAdditionalParameters.put("USER", "default_user");	
+		jmeterAdditionalParameters.put("FORCE_EXCEPTION", String.valueOf(false));			
 
 		// Optional playwright settings. Defaults apply - you DON'T need to include default valued parameters in a script,
 		// in a script,they have been included in the script to demonstrate the options available. 
@@ -126,13 +127,15 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_PAGE_SOURCE_AT_START_OF_TRANSACTIONS,Mark59LogLevels.DEFAULT.getName());
 		jmeterAdditionalParameters.put(JmeterFunctionsForPlaywrightScripts.LOG_PAGE_SOURCE_AT_END_OF_TRANSACTIONS, 	Mark59LogLevels.DEFAULT.getName());
 
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,	String.valueOf(true));
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 		String.valueOf(true));
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 		String.valueOf(true));
-		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,		String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_BUFFERED_LOGS,				String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_SCREENSHOT, 					String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_PAGE_SOURCE, 					String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE,					String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE_TO_CONSOLE,	 	String.valueOf(true));
+		jmeterAdditionalParameters.put(ON_EXCEPTION_WRITE_STACK_TRACE_TO_LOG4J_LOGGER,	String.valueOf(true));		
 		
-		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));		// default is 'false'		
-		jmeterAdditionalParameters.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, String.valueOf(false));		
+		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, 		String.valueOf(true));	// default is 'false'		
+		jmeterAdditionalParameters.put(JmeterFunctionsImpl.PRINT_RESULTS_SUMMARY, 		String.valueOf(false));		
 	
 		return jmeterAdditionalParameters;			
 	}
@@ -161,7 +164,8 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 		int forceTxnFailPercent   = Integer.parseInt(context.getParameter("FORCE_TXN_FAIL_PERCENT").trim());
 		boolean startNetListeners = Boolean.parseBoolean(context.getParameter("START_CDP_LISTENERS"));
 		String user               = context.getParameter("USER");
-				
+		boolean forceException    = Boolean.parseBoolean(context.getParameter("FORCE_EXCEPTION"));
+
 		PrintSomeMsgOnceAtStartUp(dataHunterUrl, page);
 
 		if (startNetListeners) {
@@ -197,6 +201,7 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 			// jm.writeScreenshot("add_policy_TESTID" + i);
 			
 			jm.startTransaction("DH_lifecycle_0200_addPolicy");
+			if (forceException){throw new RuntimeException("Playwright script throws runtime ex");};
 			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
 			dhpage.submitBtn().click();
 			dhpage.backLink().click(dhpage.waitUntilClickable);
@@ -297,6 +302,20 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
 //		jm.writeBufferedArtifacts();
 	}
 
+
+	/**
+	 *  Just as a demo, create some transaction (in a real test in a real test you may want go to a home page/logout page etc).
+	 *  Will be triggered when an exception is thrown during script . 	
+	 */
+	@Override
+	protected void userActionsOnScriptFailure(JavaSamplerContext context, JmeterFunctionsForPlaywrightScripts jm, Page page) {
+		jm.startTransaction("DH_lifecycle_9998_userActionsOnScriptFailure");
+		System.out.println("  -- page title at userActionsOnScriptFailure is " + page.title() + " --");
+		jm.endTransaction("DH_lifecycle_9998_userActionsOnScriptFailure");
+	}
+	
+	
+	
 	
 	private void startNetworkListeners(JmeterFunctionsImpl jm,Page page) {
         // page.onRequest(req -> { System.out.println( "ON_REQ Url: "+req.url()+", Type: "+req.resourceType()+", Method: "+req.method());});

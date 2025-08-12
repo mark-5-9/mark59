@@ -24,6 +24,7 @@ CD /D "%~dp0"
 rem use SET "StartCdpListeners=true" to allow the cdp listeners in the test script to execute 
 SET "StartCdpListeners=false"
 rem SET "StartCdpListeners=true"
+SET "ForceException=false"
 
 REM copied from DeployDataHunterTestArtifactsToJmeter.bat in the mark59-scripting-samples project ..
 cd  ..\mark59-scripting-samples   

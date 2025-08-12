@@ -11,6 +11,8 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 
 import com.mark59.trends.data.application.dao.ApplicationDAO;
@@ -34,38 +36,38 @@ import com.mark59.trends.data.transaction.dao.TransactionDAOjdbcTemplateImpl;
 
 import junit.framework.TestCase;
 
-
-
-public class PerformanceTestTest extends TestCase {
+@Profile("ForceSpringBeanConfigurationUniqueForThisTest")
+@Configuration
+ public class PerformanceTestTest extends TestCase {
 
 	@Autowired
 	ApplicationContext context;
 	
 	@Bean
-	public DataSource dataSource() {
+	DataSource dataSource() {
 		return DataSourceBuilder.create().build()  ;
 	};
 		
     @Value("h2mem")
-    private String springProfilesActive;	
+    String springProfilesActive;	
 	@Bean
-    public String currentDatabaseProfile() {return "h2mem";   }   
+    String currentDatabaseProfile() {return "h2mem";   }   
 	@Bean
-	public ApplicationDAO applicationDAO() {return new ApplicationDAOjdbcTemplateImpl();}
+	ApplicationDAO applicationDAO() {return new ApplicationDAOjdbcTemplateImpl();}
 	@Bean
-	public RunDAO runDAO() {return new RunDAOjdbcTemplateImpl();}
+	RunDAO runDAO() {return new RunDAOjdbcTemplateImpl();}
 	@Bean
-	public TransactionDAO transactionDAO() {return new TransactionDAOjdbcTemplateImpl();}
+	TransactionDAO transactionDAO() {return new TransactionDAOjdbcTemplateImpl();}
 	@Bean
-	public SlaDAO slaDAO() {return new SlaDAOjdbcImpl();}
+	SlaDAO slaDAO() {return new SlaDAOjdbcImpl();}
 	@Bean
-	public MetricSlaDAO metricSlaDAO() {return new MetricSlaDAOjdbcImpl();}
+	MetricSlaDAO metricSlaDAO() {return new MetricSlaDAOjdbcImpl();}
 	@Bean
-	public GraphMappingDAO graphMappingDAO() {	return new GraphMappingDAOjdbcTemplateImpl();}
+	GraphMappingDAO graphMappingDAO() {	return new GraphMappingDAOjdbcTemplateImpl();}
 	@Bean
-	public EventMappingDAO eventMappingDAO() {	return new EventMappingDAOjdbcTemplateImpl();}
+	EventMappingDAO eventMappingDAO() {	return new EventMappingDAOjdbcTemplateImpl();}
 	@Bean
-	public TestTransactionsDAO testTransactionsDAO() {return new TestTransactionsDAOjdbcTemplateImpl();	}
+	TestTransactionsDAO testTransactionsDAO() {return new TestTransactionsDAOjdbcTemplateImpl();	}
 		
 	PerformanceTest performanceTest;
 	EmbeddedDatabase db; 
@@ -73,6 +75,7 @@ public class PerformanceTestTest extends TestCase {
 	public void setUp() {
 		String applicationId = "testApplicationId";
 		String runReferenceArg = "testRunReferenceArg";
+		System.setProperty("spring.profile", "ForceSpringBeanConfigurationUniqueForThisTest");
 		SpringApplication springApplication = new SpringApplication(PerformanceTestTest.class);
 		springApplication.setWebApplicationType(WebApplicationType.NONE);
 		springApplication.setBannerMode(Banner.Mode.OFF);

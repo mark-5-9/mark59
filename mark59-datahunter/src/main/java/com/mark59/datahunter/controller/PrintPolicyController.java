@@ -22,8 +22,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -46,13 +47,13 @@ public class PrintPolicyController {
 	PoliciesDAO policiesDAO;	
 		
 
-	@RequestMapping("/print_policy")
+	@GetMapping("/print_policy")
 	public String printPolicyUrl(@RequestParam(required=false) String application,@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model  ) { 
 		return "/print_policy";				
 	}
 	
 		
-	@RequestMapping("/print_policy_action")
+	@PostMapping("/print_policy_action")
 	public ModelAndView printPolicyAction(@ModelAttribute PolicySelectionCriteria policySelectionCriteria,  Model model, HttpServletRequest httpServletRequest) {
 		DataHunterUtils.expireSession(httpServletRequest);
 		

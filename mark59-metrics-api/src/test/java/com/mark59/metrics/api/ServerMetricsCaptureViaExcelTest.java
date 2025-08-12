@@ -43,7 +43,7 @@ public class ServerMetricsCaptureViaExcelTest  {
 		ServerMetricsCaptureViaExcel groovyscripttest = new ServerMetricsCaptureViaExcel();
 		Map<String,String> additionalTestParametersMap = new LinkedHashMap<String,String>();
 		additionalTestParametersMap.put(ServerMetricsCaptureViaExcel.OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH , 
-				"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");
+				"./src/test/resources/hackedSampleXlsx/mark59serverprofiles.xlsx");
 		JavaSamplerContext groovyscriptcontext = new JavaSamplerContext( setArgs(groovyscripttest, "SimpleScriptSampleRunner") );
 		groovyscripttest.setupTest(groovyscriptcontext);
 		SampleResult srMain = groovyscripttest.runTest(groovyscriptcontext);
@@ -51,16 +51,23 @@ public class ServerMetricsCaptureViaExcelTest  {
 		SampleResult[] subResArray = srMain.getSubResults();
 		String listOfTxnNames = "";
 		String listOfResponses= "";
+		String listOfTimes    = "";
 		for (int i = 0; i < subResArray.length; i++) {
 			listOfTxnNames  += "_" + subResArray[i].getSampleLabel() + "_";
 			listOfResponses += subResArray[i].getResponseMessage();
+			listOfTimes  += subResArray[i].getTime() + "_";
 		} 
-		System.out.println(listOfTxnNames + " : " + listOfResponses );		
+		System.out.println(listOfTxnNames + " : " + listOfResponses + " T: " + listOfTimes );		
 		
 		assertEquals("wrong txn count", 3, subResArray.length);
-		assertTrue(listOfTxnNames + " isnt right, no listng for a_memory_txn" , listOfTxnNames.contains( "a_memory_txn") );		
-		assertTrue(listOfTxnNames + " isnt right, no listng for a_cpu_util_txn" , listOfTxnNames.contains( "a_cpu_util_txn") );		
-		assertTrue(listOfTxnNames + " isnt right, no listng for some_datapoint" , listOfTxnNames.contains( "some_datapoint") );		
+		assertTrue(listOfTxnNames + " isnt right, no listng for a_memory_txn "   , listOfTxnNames.contains( "a_memory_txn"));		
+		assertTrue(listOfTxnNames + " isnt right, no listng for a_cpu_util_txn " , listOfTxnNames.contains( "a_cpu_util_txn"));		
+		assertTrue(listOfTxnNames + " isnt right, no listng for some_datapoint " , listOfTxnNames.contains( "some_datapoint"));	
+		
+		assertTrue(listOfTimes + " isnt right, not found an expected timing of 123 " , listOfTimes.contains( "123"));
+		assertTrue(listOfTimes + " isnt right, not found an expected timing of 33 " ,  listOfTimes.contains( "33"));
+		assertTrue(listOfTimes + " isnt right, not found an expected timing of 66 " ,  listOfTimes.contains( "66"));
+		
 		assertTrue(listOfResponses + " isnt right"  , "PASSPASSPASS".equals(listOfResponses));	  //the failure is not sent 	
     }
 
@@ -101,7 +108,7 @@ public class ServerMetricsCaptureViaExcelTest  {
 				assertTrue(listOfTxnNames + " isnt right, no listng for Memory_server_freeG"  		, listOfTxnNames.contains( "Memory_"+server+"_freeG") );
 				assertTrue(listOfTxnNames + " isnt right, no listng for Memory_server_totalG"   	, listOfTxnNames.contains( "Memory_"+server+"_totalG") );
 				assertTrue(listOfTxnNames + " isnt right, no listng for Memory_server_usedG"   		, listOfTxnNames.contains( "Memory_"+server+"_usedG") );
-				//  for mpstat may not be installed so should not be checked, and has been hacked out of test sheet)
+				//  mpstat may not be installed so should not be used, and has been hacked out of test sheet
 				assertTrue(listOfResponses + " isnt right"  , listOfResponses.startsWith("PASSPASSPASS"));
 			} 
 		}else {
@@ -116,7 +123,8 @@ public class ServerMetricsCaptureViaExcelTest  {
 		
 		Map<String,String> testMap = new LinkedHashMap<String,String>();
 		testMap.put(ServerMetricsCaptureViaExcel.OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH , 
-					"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");
+					"./src/test/resources/hackedSampleXlsx/mark59serverprofiles.xlsx");
+//					"./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");
 		testMap.put(ServerMetricsCaptureViaExcel.SERVER_PROFILE_NAME, serverProfileName);
 		Arguments testargs = Mark59Utils.mergeMapWithAnOverrideMap(argmap,testMap);
 		return testargs; 

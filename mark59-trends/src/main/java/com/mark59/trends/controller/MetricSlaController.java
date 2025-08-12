@@ -26,8 +26,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -49,7 +50,7 @@ public class MetricSlaController {
 	MetricSlaDAO metricSlaDAO; 
 
 	
-	@RequestMapping("/metricSlaList")
+	@GetMapping("/metricSlaList")
 	public ModelAndView getMetricSlaList(@RequestParam(required=false) String reqApp) {
 		List<String> applicationList = populateApplicationDropdown();
 		if (StringUtils.isBlank(reqApp)  && applicationList.size() > 0  ){
@@ -73,7 +74,7 @@ public class MetricSlaController {
 	
 	
 	
-	@RequestMapping("/registerMetricSla")
+	@GetMapping("/registerMetricSla")
 	public ModelAndView registerMetricSla(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqMetricName, @RequestParam(required=false) String reqErr, @ModelAttribute MetricSla metricSla, Model model) {
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("metricSla",metricSla);		
@@ -82,7 +83,7 @@ public class MetricSlaController {
 	}
 	
 
-	@RequestMapping("/insertMetricSla")
+	@PostMapping("/insertMetricSla")
 	public ModelAndView insertData(@RequestParam(required=false) String reqApp, @RequestParam(required=false) String reqErr, @ModelAttribute MetricSla metricSla) {
 		MetricSla existingMetricSla = new MetricSla();
 		if (metricSla != null)
@@ -119,7 +120,7 @@ public class MetricSlaController {
 	}
 	
 	
-	@RequestMapping("/copyMetricSla")
+	@GetMapping("/copyMetricSla")
 	public String copyMetricSla(@RequestParam String metricName, @RequestParam String metricTxnType, @RequestParam String valueDerivation, @RequestParam(required=false) String reqApp,  
 			@ModelAttribute MetricSla metricSla, Model model) {
 		metricSla = metricSlaDAO.getMetricSla(reqApp, metricName, metricTxnType,valueDerivation);   
@@ -134,7 +135,7 @@ public class MetricSlaController {
 	}
 	
 	
-	@RequestMapping("/editMetricSla")
+	@GetMapping("/editMetricSla")
 	public String editMetricSla(@RequestParam String metricName,@RequestParam String metricTxnType, @RequestParam String valueDerivation, @RequestParam(required=false) String reqApp,  
 			@ModelAttribute MetricSla metricSla, Model model) {
 		metricSla = metricSlaDAO.getMetricSla(reqApp, metricName, metricTxnType,valueDerivation);   
@@ -149,24 +150,31 @@ public class MetricSlaController {
 	}
 
 	
-	@RequestMapping("/updateMetricSla")
+	@PostMapping("/updateMetricSla")
 	public String updateMetricSla(@RequestParam(required=false) String reqApp, @ModelAttribute MetricSla metricSla) {
 		metricSlaDAO.updateData(metricSla);
 		return "redirect:/metricSlaList?reqApp=" + reqApp  ;
 	}
 
 	
-	@RequestMapping("/deleteMetricSla")
+	@GetMapping("/deleteMetricSla")
 	public String deleteSla(@RequestParam String metricName,@RequestParam String metricTxnType, @RequestParam String valueDerivation, @RequestParam(required=false) String reqApp) {
 		metricSlaDAO.deleteData(reqApp, metricName, metricTxnType,valueDerivation);
 		return "redirect:/metricSlaList?reqApp=" + reqApp;
 	}
-	
-	
-	@RequestMapping("/copyApplicationMetricSla") 
-	public Object copyApplicationMetricSla(@RequestParam(required=false) String reqApp,  @ModelAttribute CopyApplicationForm copyApplicationForm ) {
-//		System.out.println("@ copyApplicationSla : reqApp=" + copyApplicationForm.getReqApp() +	", ReqToApp=" + copyApplicationForm.getReqToApp()  );
 
+	
+	@GetMapping("/copyApplicationMetricSla") 
+	public Object copyApplicationMetricSlaGet(@RequestParam(required=false) String reqApp,  @ModelAttribute CopyApplicationForm copyApplicationForm ) {
+		return copyApplicationMetricSla(reqApp, copyApplicationForm);	
+	}
+	
+	@PostMapping("/copyApplicationMetricSla") 
+	public Object copyApplicationMetricSlaPost(@RequestParam(required=false) String reqApp,  @ModelAttribute CopyApplicationForm copyApplicationForm ) {
+		return copyApplicationMetricSla(reqApp, copyApplicationForm);	
+	}
+
+	private Object copyApplicationMetricSla(String reqApp, CopyApplicationForm copyApplicationForm) {
 		copyApplicationForm.setReqApp(reqApp);
 		copyApplicationForm.setValidForm("N");
 
@@ -183,18 +191,18 @@ public class MetricSlaController {
 			return "redirect:/metricSlaList?reqApp=" + copyApplicationForm.getReqToApp();
 		} else {
 			return new ModelAndView("copyApplicationMetricSla", "copyApplicationForm" , copyApplicationForm  );
-		}	
+		}
 	}
+	
 
-
-	@RequestMapping("/updateApplicationMetricSla")	
+	@GetMapping("/updateApplicationMetricSla")	
 	public String updateApplicationMetricSla(@RequestParam(required=false) String reqApp, @ModelAttribute CopyApplicationForm copyApplicationForm) {
 //		System.out.println("@ updateApplicationMetricSla : reqApp=" + copyApplicationForm.getReqApp() + ", ReqToApp=" + copyApplicationForm.getReqToApp()  );
 		return "redirect:/metricSlaList?reqApp=" + reqApp  ;
 	}	
 	
 
-	@RequestMapping("/deleteApplicationMetricSla")
+	@GetMapping("/deleteApplicationMetricSla")
 	public String deleteApplicationSla(@RequestParam String reqApp) {
 //		System.out.println("deleting all slas for application " + reqApp );
 		metricSlaDAO.deleteAllSlasForApplication(reqApp);

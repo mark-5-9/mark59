@@ -29,10 +29,10 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chromium.ChromiumDriver;
 import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v133.network.Network;
-import org.openqa.selenium.devtools.v133.network.model.LoadingFinished;
-import org.openqa.selenium.devtools.v133.network.model.RequestWillBeSent;
-import org.openqa.selenium.devtools.v133.network.model.ResponseReceived;
+import org.openqa.selenium.devtools.v138.network.Network;
+import org.openqa.selenium.devtools.v138.network.model.LoadingFinished;
+import org.openqa.selenium.devtools.v138.network.model.RequestWillBeSent;
+import org.openqa.selenium.devtools.v138.network.model.ResponseReceived;
 
 import com.mark59.scripting.selenium.JmeterFunctionsForSeleniumScripts;
 
@@ -68,7 +68,8 @@ public class DevToolsDSL  {
 	public DevTools createDevToolsSession(WebDriver driver) {
 	    devTools = ((ChromiumDriver) driver).getDevTools();     
 	    devTools.createSession();
-	    devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
+//	    devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
+	    devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
 	    return devTools;
 	}
 	

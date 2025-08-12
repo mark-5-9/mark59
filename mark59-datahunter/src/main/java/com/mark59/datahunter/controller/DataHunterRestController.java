@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mark59.datahunter.application.DataHunterConstants;
-import com.mark59.datahunter.application.ReusableIndexedUtils;
 import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
@@ -75,7 +74,6 @@ public class DataHunterRestController {
 	@Autowired
 	PoliciesDAO policiesDAO;	
 
-
 	/**
 	 * Add an Item to DataHunter  
 	 * <br>The Item key is application|identifier|lifecycle, and must be unique
@@ -117,7 +115,7 @@ public class DataHunterRestController {
 			return ResponseEntity.ok(UseabilityError(useability, response));	
 		}
 	
-		ValidReuseIxPojo validReuseIx = ReusableIndexedUtils.validateReusableIndexed(policies, policiesDAO);
+		ValidReuseIxPojo validReuseIx = policiesDAO.validateReusableIndexed(policies);
 		
 		if (validReuseIx.getPolicyReusableIndexed()){
 			if (validReuseIx.getValidatedOk()) {
@@ -248,11 +246,13 @@ public class DataHunterRestController {
 		for (CountPoliciesBreakdown countPoliciesBreakdown : countPoliciesBreakdownList) {
 			countPoliciesBreakdown.setIsReusableIndexed("N");
 			countPoliciesBreakdown.setHoleCount(0L);
-			ValidReuseIxPojo validReuseIx = ReusableIndexedUtils.validateReusableIndexed(countPoliciesBreakdown, policiesDAO);
+			ValidReuseIxPojo validReuseIx = policiesDAO.validateReusableIndexed(countPoliciesBreakdown);
 			if (validReuseIx.getPolicyReusableIndexed()){
 				countPoliciesBreakdown.setIsReusableIndexed("Y");
 				if (validReuseIx.getValidatedOk()) {
-					countPoliciesBreakdown.setHoleCount(Long.valueOf(validReuseIx.getCurrentIxCount()) - validReuseIx.getIdsinRangeCount());
+					sqlWithParms = policiesDAO.countValidIndexedIdsInExpectedRange(countPoliciesBreakdown, validReuseIx.getCurrentIxCount());
+					validReuseIx.setValidIdsinRangeCount(policiesDAO.runCountSql(sqlWithParms));		
+					countPoliciesBreakdown.setHoleCount(Long.valueOf(validReuseIx.getCurrentIxCount()) - validReuseIx.getValidIdsinRangeCount());
 				} else {
 					countPoliciesBreakdown.setHoleCount(-1L);
 				}
@@ -553,8 +553,6 @@ public class DataHunterRestController {
 	 * @param application  application
 	 * @param lifecycle    blank for a blank lifecycle (not all lifecycles within the application)
 	 * @return ResponseEntity (ok) indicates the success or otherwise on the operation
-	 * 
-	 * @see ReusableIndexedUtils#reindexReusableIndexed(String, String, PoliciesDAO)
 	 */
 	@GetMapping(path = "/reindexReusableIndexedPolicies")
 	public ResponseEntity<Object> reindexReusableIndexedPolicies(@RequestParam String application, @RequestParam String lifecycle){ 
@@ -563,7 +561,7 @@ public class DataHunterRestController {
 		policy.setLifecycle(lifecycle);
 		policy.setUseability(DataHunterConstants.REUSABLE);
 
-		ReindexResult result = new ReusableIndexedUtils().reindexReusableIndexed(application, lifecycle, policiesDAO);
+		ReindexResult result = policiesDAO.reindexReusableIndexed(application, lifecycle);
 		
 		DataHunterRestApiResponsePojo response = new DataHunterRestApiResponsePojo();
 		response.setPolicies(Arrays.asList(policy));

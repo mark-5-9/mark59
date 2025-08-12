@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>			
+		<version>3.5.4</version>			
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
 	
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-trends</artifactId>
-	<version>6.3</version>
+	<version>6.4</version>
 	<packaging>war</packaging>
 
 	<name>mark59-trends</name>
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.3</version>
+			<version>6.4</version>
 		</dependency>
 
 		<!-- Spring Boot related dependencies -->
@@ -80,9 +80,12 @@
 		
 		<!-- Other project dependencies -->
 
+		<!-- Note: Was common to SpringBoot and JMeter
+			- now from default v17 to 18 due to dependabot vunerability -->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-lang3</artifactId>
+		    <version>3.18.0</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
 
 		<dependency>

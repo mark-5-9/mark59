@@ -22,8 +22,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -45,7 +46,7 @@ public class NextPolicyController {
 	@Autowired
 	PoliciesDAO policiesDAO;
 
-	@RequestMapping("/next_policy")
+	@GetMapping("/next_policy")
 	public String lookupNextPolicyUrl(@RequestParam(required = false) String application,
 			@RequestParam String pUseOrLookup, @RequestParam(required = false) String pNextId,
 			@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model) {
@@ -59,7 +60,7 @@ public class NextPolicyController {
 	}
 
 	
-	@RequestMapping("/next_policy_action")
+	@PostMapping("/next_policy_action")
 	public ModelAndView nextPolicyAction(@RequestParam String pUseOrLookup, @ModelAttribute PolicySelectionCriteria policySelectionCriteria,
 			Model model, HttpServletRequest httpServletRequest) {
 		

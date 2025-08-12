@@ -49,7 +49,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -239,7 +239,7 @@ public class ServerProfileController {
 	}
 	
 
-	@RequestMapping("/registerServerProfile")
+	@GetMapping("/registerServerProfile")
 	public ModelAndView registerServerProfile(@RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr, 
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm) { 
 		ServerProfile serverProfile = new ServerProfile();
@@ -266,7 +266,7 @@ public class ServerProfileController {
 	}
 	
 
-	@RequestMapping("/insertServerProfile")
+	@PostMapping("/insertServerProfile")
 	public ModelAndView insertServerProfile( @RequestParam(required=false) String reqExecutor, @RequestParam(required=false) String reqErr,  
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm, Model model) {
 		Map<String, Object> map = createMapOfDropdowns();			
@@ -377,7 +377,7 @@ public class ServerProfileController {
 	}
 
 
-	@RequestMapping("/serverProfileList")
+	@GetMapping("/serverProfileList")
 	public ModelAndView serverProfileList(@RequestParam(required=false) String reqExecutor) {
 		List<ServerProfile> serverProfileList;
 
@@ -406,7 +406,7 @@ public class ServerProfileController {
 	}
 
 	
-	@RequestMapping("/viewServerProfile")
+	@GetMapping("/viewServerProfile")
 	public String viewServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqExecutor,  
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm, Model model) {
 		ServerProfile serverProfile = serverProfilesDAO.findServerProfile(reqServerProfileName); 
@@ -441,7 +441,7 @@ public class ServerProfileController {
 	}
 	
 	
-	@RequestMapping("/copyServerProfile")
+	@GetMapping("/copyServerProfile")
 	public String copyServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqExecutor,  
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm, Model model) {
 		ServerProfile serverProfile = serverProfilesDAO.findServerProfile(reqServerProfileName); 
@@ -467,7 +467,7 @@ public class ServerProfileController {
 	}
 	
 	
-	@RequestMapping("/editServerProfile")
+	@GetMapping("/editServerProfile")
 	public String editServerProfile(@RequestParam String reqServerProfileName, @RequestParam(required=false) String reqExecutor,  
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm, Model model) {
 		ServerProfile serverProfile = serverProfilesDAO.findServerProfile(reqServerProfileName); 
@@ -493,7 +493,7 @@ public class ServerProfileController {
 	}
 
 	
-	@RequestMapping("/updateServerProfile")
+	@PostMapping("/updateServerProfile")
 	public ModelAndView updateServerProfile(@RequestParam(required = false) String reqExecutor,
 			@ModelAttribute ServerProfileEditingForm serverProfileEditingForm) {
 		
@@ -533,7 +533,7 @@ public class ServerProfileController {
 	}
 
 	
-	@RequestMapping("/deleteServerProfile")
+	@GetMapping("/deleteServerProfile")
 	public String deleteServerProfile(@RequestParam String reqServerProfileName, @RequestParam String reqExecutor) {
 		serverCommandLinksDAO.deleteServerCommandLinksForServerProfile(reqServerProfileName);
 		serverProfilesDAO.deleteServerProfile(reqServerProfileName);

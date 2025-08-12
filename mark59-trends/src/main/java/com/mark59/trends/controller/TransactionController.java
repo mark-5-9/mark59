@@ -25,8 +25,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -60,7 +61,7 @@ public class TransactionController {
 	MetricSlaDAO metricSlaDAO; 	
 	
 	
-	@RequestMapping("/transactionList")
+	@GetMapping("/transactionList")
 	public ModelAndView getTransactionList(@RequestParam(required=false) String reqApp) {
 		List<String> applicationList = populateApplicationDropdown();
 		if (StringUtils.isBlank(reqApp) && applicationList.size() > 1  ){
@@ -77,7 +78,7 @@ public class TransactionController {
 	}
 	
 	
-	@RequestMapping("/transactionRenameDataEntry") 
+	@GetMapping("/transactionRenameDataEntry") 
 	public Object renameTransactionEntry(@RequestParam String reqApp, @RequestParam String reqTxnId, @RequestParam String reqIsCdpTxn, @RequestParam String reqTxnType, 
 			@ModelAttribute TransactionRenameForm transactionRenameForm  ) {
 		transactionRenameForm.setApplication(reqApp);
@@ -92,7 +93,7 @@ public class TransactionController {
 	}
 
 	
-	@RequestMapping("/transactionRenameValidate") 
+	@PostMapping("/transactionRenameValidate") 
 	public Object transactionRenameValidate(@ModelAttribute TransactionRenameForm transactionRenameForm){
 		System.out.println("@ transactionRenameValidate : Form=" + transactionRenameForm  );		
 		transactionRenameForm.setPassedValidation("Y");
@@ -191,7 +192,7 @@ public class TransactionController {
 	}	
 
 	
-	@RequestMapping("/updateTransactionTables")
+	@PostMapping("/updateTransactionTables")
 	public String updateTransactionTables(@ModelAttribute TransactionRenameForm transactionRenameForm){
 		
 		transactionDAO.renameTransactions(transactionRenameForm.getApplication(), 

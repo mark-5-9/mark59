@@ -29,8 +29,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -74,7 +75,7 @@ public class ApplicationController {
 	TransactionDAO transactionDAO; 	
 	
 	
-	@RequestMapping("/dashboard")
+	@GetMapping("/dashboard")
 	public ModelAndView dashboard(@RequestParam(required=false) String reqAppListSelector) {
 
 		List<Application> applicationList =  applicationDAO.findApplications(reqAppListSelector) ;
@@ -118,7 +119,7 @@ public class ApplicationController {
 	}	
 
 
-	@RequestMapping("/editApplication")
+	@GetMapping("/editApplication")
 	public String editApplication(@RequestParam String reqApp, @RequestParam String reqAppListSelector, 
 			@ModelAttribute Application application, Model model) {
 		
@@ -135,7 +136,7 @@ public class ApplicationController {
 	}
 	
 
-	@RequestMapping("/copyApplication")
+	@GetMapping("/copyApplication")
 	public ModelAndView copyApplication(@RequestParam(required = false) String reqApp,
 			@RequestParam(required = false) String reqAppListSelector, @RequestParam(required = false) String reqErr,
 			@ModelAttribute CopyApplicationForm copyApplicationForm, Model model) {
@@ -148,7 +149,7 @@ public class ApplicationController {
 	}
 	
 	
-	@RequestMapping("/duplicateApplication") 
+	@PostMapping("/duplicateApplication") 
 	public Object copyApplication(@RequestParam String reqApp, @RequestParam String reqAppListSelector,
 			@ModelAttribute CopyApplicationForm copyApplicationForm ) {
 
@@ -205,7 +206,7 @@ public class ApplicationController {
 	}
 	
 	
-	@RequestMapping("/updateApplication")
+	@PostMapping("/updateApplication")
 	public ModelAndView updateApplication(@RequestParam String reqAppListSelector, @ModelAttribute Application application){
 		System.out.println("@ updateApplication : app=" + application.getApplication() ); 
 		applicationDAO.updateApplication(application);
@@ -213,7 +214,7 @@ public class ApplicationController {
 	}
 	
 	
-	@RequestMapping("/deleteApplication")
+	@GetMapping("/deleteApplication")
 	public String deleteApplication(@RequestParam String reqApp) {
 		System.out.println("deleting all application data for: " + reqApp  );
 		runDAO.deleteAllForApplication(reqApp);

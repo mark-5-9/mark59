@@ -29,6 +29,8 @@ import com.mark59.datahunter.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
 import com.mark59.datahunter.model.PolicySelectionFilter;
 import com.mark59.datahunter.model.UpdateUseStateAndEpochTime;
+import com.mark59.datahunter.pojo.ReindexResult;
+import com.mark59.datahunter.pojo.ValidReuseIxPojo;
 
 /**
  * @author Philip Webb
@@ -57,7 +59,7 @@ public interface PoliciesDAO
 	
 	SqlWithParms constructInsertDataSql(Policies policies);
 	
-	SqlWithParms countReusableIndexedIdsInExpectedRange(PolicySelectionCriteria policySelect, int ixCount);
+	SqlWithParms countValidIndexedIdsInExpectedRange(PolicySelectionCriteria policySelect, int ixCount);
 	SqlWithParms countNonReusableIdsForReusableIndexedData(String application, String lifecycle);
 	SqlWithParms constructCollectDataOutOfExpectedIxRangeSql(String application, String lifecycle, int policyCount);
 
@@ -81,6 +83,11 @@ public interface PoliciesDAO
 
 	void getLock(String lockResouceString, int timeout);
 	void releaseLock(String lockResouceString) throws SQLException;
+	
+	int updateIndexedRowCounter(Policies policies, int indexedId);
+	ReindexResult reindexReusableIndexed(String application, String lifecycle);
+	ValidReuseIxPojo validateReusableIndexed(Policies policies);
+	ValidReuseIxPojo validateReusableIndexed(PolicySelectionCriteria policySelect);
 
 
 }

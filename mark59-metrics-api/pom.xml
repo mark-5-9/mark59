@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-api</artifactId>
-	<version>6.3</version>
+	<version>6.4</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-api</name>
@@ -17,6 +17,7 @@
 	</properties>
 
 
+
 	<dependencies>
 		
    		<!-- mark59 classes only from mark59 projects, as we use JMeter versions of deps  -->
@@ -24,7 +25,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.3</version>
+			<version>6.4</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>*</groupId>
@@ -36,7 +37,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-metrics-common</artifactId>
-			<version>6.3</version>
+			<version>6.4</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>*</groupId>

@@ -9,16 +9,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
-import com.mark59.datahunter.application.ReusableIndexedUtils;
 import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
 import com.mark59.datahunter.data.policies.dao.PoliciesDAO;
@@ -31,12 +30,11 @@ import com.mark59.datahunter.model.UploadIdsFile;
 @Controller
 public class UploadIdsFileController {
 
-	
 	@Autowired
 	PoliciesDAO policiesDAO;	
+
 	
-	
-	@RequestMapping("/upload_ids")
+	@GetMapping("/upload_ids")
 	public ModelAndView uploadIds(@ModelAttribute UploadIdsFile uploadIdsFile, Model model) {
 		createDropdownAttributes(model);		
 		return new ModelAndView("upload_ids");
@@ -45,7 +43,7 @@ public class UploadIdsFileController {
 	
 	@PostMapping("/upload_ids_action")	
 	public ModelAndView uploadIdsAction(@ModelAttribute UploadIdsFile uploadIdsFile, Model model, 
-			@RequestParam("file") MultipartFile file){
+			@RequestParam MultipartFile file){
 		
 		Policies policies = new Policies();
 		policies.setApplication(uploadIdsFile.getApplication().trim());
@@ -73,7 +71,6 @@ public class UploadIdsFileController {
 				lineCount++;
 				if (!DataHunterUtils.isEmpty(line)){
 					// System.out.println("  <"+lineCount+"> ["+line+"]" );
-					
 		
 					if (DataHunterConstants.UPDATE_USEABILITY_ON_EXISTING_ITEMS.equals(uploadIdsFile.getTypeOfUpload())){
 						
@@ -146,9 +143,11 @@ public class UploadIdsFileController {
 			if ( (DataHunterConstants.BULK_LOAD.equals(uploadIdsFile.getTypeOfUpload()) || 
 				  DataHunterConstants.BULK_LOAD_AS_INDEXED_REUSABLE.equals(uploadIdsFile.getTypeOfUpload()))
 					&& rowsInserted > 0){
-	    		policiesDAO.insertMultiple(policiesList);
-	    		policiesList.clear();
-				ReusableIndexedUtils.updateIndexedRowCounter(policies, indexedId, policiesDAO);		
+				policiesDAO.insertMultiple(policiesList);
+				policiesList.clear();
+				if (DataHunterConstants.BULK_LOAD_AS_INDEXED_REUSABLE.equals(uploadIdsFile.getTypeOfUpload())){
+					policiesDAO.updateIndexedRowCounter(policies, indexedId);
+				}	
 			}
 			br.close();
 		
@@ -182,7 +181,6 @@ public class UploadIdsFileController {
 
 		return new ModelAndView("/upload_ids_action", "model", model);		
 	}
-
 	
 
 	private boolean policyAlreadyExists(Policies policies) {

@@ -23,8 +23,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -47,7 +48,7 @@ public class UpdatePoliciesUseStateController {
 	PoliciesDAO policiesDAO;	
 		
 
-	@RequestMapping("/update_policies_use_state")
+	@GetMapping("/update_policies_use_state")
 	public String updatePoliciesUseStatetateUrl(@RequestParam(required=false) String application, @ModelAttribute UpdateUseStateAndEpochTime updateUseStateAndEpochTime, Model model  ) { 
 //		System.out.println("/update_policies_use_state");
 		List<String> usabilityListFrom = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
@@ -59,7 +60,7 @@ public class UpdatePoliciesUseStateController {
 	}
 	
 		
-	@RequestMapping("/update_policies_use_state_action")
+	@PostMapping("/update_policies_use_state_action")
 	public ModelAndView updatePoliciesUseStatetateUrlAction(@ModelAttribute UpdateUseStateAndEpochTime updateUseStateAndEpochTime,  Model model, HttpServletRequest httpServletRequest) {
 		DataHunterUtils.expireSession(httpServletRequest);
 

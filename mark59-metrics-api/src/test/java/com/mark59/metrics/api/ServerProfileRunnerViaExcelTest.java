@@ -52,7 +52,7 @@ public class ServerProfileRunnerViaExcelTest  {
     public final void testServerProfileRunnerUsingSimpleScriptSampleRunnerViaExcel() throws EncryptedDocumentException, IOException
     {
 		String testModeNo = "Y";  // a hack to get the test summary
-		File excelFile = new File("./src/test/resources/simpleXlsx/mark59serverprofiles.xlsx");
+		File excelFile = new File("./src/test/resources/hackedSampleXlsx/mark59serverprofiles.xlsx");
 		String reqServerProfileName = "SimpleScriptSampleRunner";
     	 
     	Workbook workbook = WorkbookFactory.create(excelFile, null, true);  // Factory class necessary to avoid excel file being 'touched' 
@@ -128,9 +128,8 @@ public class ServerProfileRunnerViaExcelTest  {
 		ParsedCommandResponse parsedCommandResponse = response.getParsedCommandResponses().get(0);
 		assertEquals("number of commands", 1, response.getParsedCommandResponses().size());
 		assertEquals(parsedCommandResponse.isCommandFailure(), true);
-
 		
-		System.out.println("parsedCommandResponse.getCommandResponse() = " + parsedCommandResponse.getCommandResponse() );
+		// System.out.println("parsedCommandResponse.getCommandResponse() = " + parsedCommandResponse.getCommandResponse() );
 		
 		assertTrue(parsedCommandResponse.getCommandResponse().contains(
 				"Failure attempting to execute groovy script command : No such property: scriptResponseZ"));
@@ -138,7 +137,7 @@ public class ServerProfileRunnerViaExcelTest  {
 		List<ParsedMetric> parsedMetrics = parsedCommandResponse.getParsedMetrics();
 		assertEquals("number of parsed metrics", 0, parsedMetrics.size());
 		
-		System.out.println("response.getLogLines() = " + response.getLogLines());
+		// System.out.println("response.getLogLines() = " + response.getLogLines());
 		
 		assertTrue(response.getLogLines(), response.getLogLines().contains(
 				"Command SimpleScriptSampleCmd, on Server Profile SimpleScriptSampleRunner has failed."));	 		

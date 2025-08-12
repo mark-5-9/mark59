@@ -18,8 +18,7 @@ package com.mark59.datahunter.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
@@ -35,7 +34,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class HomeController {
 	
 	
-	@RequestMapping(value = {"/", "menu"},  method = RequestMethod.GET)
+	@GetMapping({"/", "menu"})
 	public String menu(Model model, HttpServletRequest request ) {
 
 		String urltoContext = request.getServerName() + ":" + request.getServerPort() + request.getContextPath() ;
@@ -81,7 +80,7 @@ public class HomeController {
 	}
 	
 	
-	@RequestMapping(value = "/overview")
+	@GetMapping("/overview")
 	public String overview(Model model, HttpServletRequest request) {
         return "overview";
 	}		

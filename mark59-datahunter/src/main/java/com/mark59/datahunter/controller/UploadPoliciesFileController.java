@@ -10,9 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -38,7 +38,7 @@ public class UploadPoliciesFileController {
 	public static final int NUM_OF_EXPECTED_COLS = 6; 
 	
 	
-	@RequestMapping("/upload_policies")
+	@GetMapping("/upload_policies")
 	public ModelAndView uploadPolicies(@ModelAttribute UploadPoliciesFile uploadPoliciesFile, Model model) {
 		createDropdownAttributes(model);		
 		return new ModelAndView("upload_policies");
@@ -47,7 +47,7 @@ public class UploadPoliciesFileController {
 	
 	@PostMapping("/upload_policies_action")	
 	public ModelAndView uploadPoliciesAction(@ModelAttribute UploadPoliciesFile uploadPoliciesFile, Model model, 
-			@RequestParam("file") MultipartFile file){
+			@RequestParam MultipartFile file){
 	
 		String navUrParms = "&typeOfUpload=" + DataHunterUtils.encode(uploadPoliciesFile.getTypeOfUpload());	
 		model.addAttribute("navUrParms", navUrParms);			

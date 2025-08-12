@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class MetricsConstants {
 	
-	public static final String MARK59_VERSION_METRICS = "6.3";	
+	public static final String MARK59_VERSION_METRICS = "6.4";	
 	public static final String MARK59_SERVER_PROFILES_EXCEL_FILE = "mark59serverprofiles.xlsx";  
 	public static final String SERVER_PROFILE_NOT_FOUND  = "SERVER_PROFILE_NOT_FOUND";	
 	

@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DataHunter Selenium Test Plan" enabled="true">
-      <stringProp name="TestPlan.comments"></stringProp>
-      <boolProp name="TestPlan.functional_mode">false</boolProp>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DataHunter Selenium Test Plan">
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
-      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
-      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
-      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
@@ -44,6 +42,7 @@
             <stringProp name="Argument.name">additionalOptions</stringProp>
             <stringProp name="Argument.value">${__P(AdditionalOptions, )}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc"></stringProp>
           </elementProp>
           <elementProp name="headlessModeIteratorTG" elementType="Argument">
             <stringProp name="Argument.name">headlessModeIteratorTG</stringProp>
@@ -60,7 +59,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group " enabled="true">
+      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group ">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">0</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -92,7 +91,7 @@ OUT.println (&quot;------------------------------------------------------------&
           <stringProp name="TestPlan.comments">Windows example of using system properties to override mark59.properties setting  (by default this script should be disabled)</stringProp>
         </JSR223Sampler>
         <hashTree/>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="setOperatingSystemProperty" enabled="true">
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="setOperatingSystemProperty">
           <stringProp name="scriptLanguage">groovy</stringProp>
           <stringProp name="parameters"></stringProp>
           <stringProp name="filename"></stringProp>
@@ -118,16 +117,17 @@ SampleResult.setIgnore();
 OUT.println(&quot;OS property has been set to : &quot; + os );
 log.info   (&quot;OS property has been set to : &quot; + os );
 
-if (&quot;LINUX&quot;.equals(os)){
-	OUT.println(&quot;    - scripts set to HEADLESS for this os. &quot;);
-	log.info   (&quot;    - scripts set to HEADLESS for this os. &quot;);
-	System.getProperties().setProperty(&quot;HEADLESS_PROP&quot;, &quot;true&quot;);
-}
+// HEADED Selenium scripts on some chrome versions did not work for some LINUX envs, so forced to HEADLESS
+// if (&quot;LINUX&quot;.equals(os)){
+// 	OUT.println(&quot;    - scripts set to HEADLESS for this os. &quot;);
+//	log.info   (&quot;    - scripts set to HEADLESS for this os. &quot;);
+//	System.getProperties().setProperty(&quot;HEADLESS_PROP&quot;, &quot;true&quot;);
+// }
 </stringProp>
         </JSR223Sampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycle" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycle">
         <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,25)}</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
@@ -220,7 +220,7 @@ return 0;</stringProp>
           <boolProp name="UserParameters.per_iteration">false</boolProp>
         </UserParameters>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle" enabled="true">
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
@@ -248,6 +248,11 @@ return 0;</stringProp>
                 <stringProp name="Argument.value">${user}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="FORCE_EXCEPTION" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_EXCEPTION</stringProp>
+                <stringProp name="Argument.value">${__P(ForceException,false)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="______________________ driver settings: ________________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ driver settings: ________________________</stringProp>
                 <stringProp name="Argument.value">Refer Mark59 User Guide for details</stringProp>
@@ -260,7 +265,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="HEADLESS_MODE" elementType="Argument">
                 <stringProp name="Argument.name">HEADLESS_MODE</stringProp>
-                <stringProp name="Argument.value">${__property(HEADLESS_PROP)}</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="PAGE_LOAD_STRATEGY" elementType="Argument">
@@ -353,6 +358,16 @@ return 0;</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace_to_Console" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace_to_Console</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace_to_Log4J_Logger" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace_to_Log4J_Logger</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
                 <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
@@ -385,17 +400,17 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.3</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="TestPlan.comments">default DATAHUNTER_URL:  http://localhost:8081/mark59-datahunter      Replace  ${__property(HEADLESS_PROP)}  with  ${__P(headlessModeIteratorTG,false)} to parametize HEADLESS_MODE</stringProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL:  http://localhost:8081/mark59-datahunter </stringProp>
           <stringProp name="classname">com.mark59.datahunter.samples.selenium.scripts.DataHunterLifecyclePvtScript</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator">
         <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,20)}</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
@@ -423,7 +438,7 @@ return 0;</stringProp>
           <boolProp name="UserParameters.per_iteration">false</boolProp>
         </UserParameters>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator" enabled="true">
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
@@ -581,6 +596,16 @@ return 0;</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace_to_Console" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace_to_Console</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="On_Exception_Write_Stack_Trace_to_Log4J_Logger" elementType="Argument">
+                <stringProp name="Argument.name">On_Exception_Write_Stack_Trace_to_Log4J_Logger</stringProp>
+                <stringProp name="Argument.value">true</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="LOG_RESULTS_SUMMARY" elementType="Argument">
                 <stringProp name="Argument.name">LOG_RESULTS_SUMMARY</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
@@ -613,17 +638,17 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.3</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="TestPlan.comments">default DATAHUNTER_URL:  http://localhost:8081/mark59-datahunter      Replace  ${__property(HEADLESS_PROP)}  with  ${__P(headlessModeIteratorTG,false)} to parametize HEADLESS_MODE</stringProp>
+          <stringProp name="TestPlan.comments">default DATAHUNTER_URL:  http://localhost:8081/mark59-datahunter      Replace  ${__property(HEADLESS_PROP)}  with  ${__P(headlessModeIteratorTG,false)} to parameterize HEADLESS_MODE  (see  setOperatingSystemProperty)</stringProp>
           <stringProp name="classname">com.mark59.datahunter.samples.selenium.scripts.DataHunterLifecycleIteratorPvtScript</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost-via-web">
         <stringProp name="ThreadGroup.num_threads">${__P(MonitoringUsers,1)}</stringProp>
         <intProp name="ThreadGroup.ramp_time">0</intProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
@@ -740,7 +765,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api Version: 6.3</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -749,9 +774,9 @@ return 0;</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_distributed" enabled="true">
-        <stringProp name="TestPlan.comments">Using the HOSTID profile ( &quot;localhost_WINDOWS_HOSTID&quot; ) to pick up the load generator name for distrubted tests - set DistributedUsers to 1 to activate</stringProp>
-        <stringProp name="ThreadGroup.num_threads">${__P(DistributedUsers,0)}</stringProp>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_local_via_excel">
+        <stringProp name="TestPlan.comments">Using the HOSTID profile ( &quot;localhost_WINDOWS_HOSTID&quot; ) Useful  to pick up the load generator name for distrubted tests - set MonitoringUsersExcel to 1 to activate</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(MonitoringUsersExcel,0)}</stringProp>
         <intProp name="ThreadGroup.ramp_time">0</intProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -772,7 +797,7 @@ return 0;</stringProp>
           <intProp name="calcMode">0</intProp>
         </ConstantThroughputTimer>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_distributed_via_web" enabled="true">
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_excel" enabled="true">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
@@ -812,7 +837,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="-" elementType="Argument">
                 <stringProp name="Argument.name">-</stringProp>
-                <stringProp name="Argument.value">   use actual machine name or (better) &apos;..viaExcel&apos; &apos;localhost..&apos; entry instead (see Mark59 User Guide)</stringProp>
+                <stringProp name="Argument.value">   use actual machine name or (better) &apos;..viaExcel&apos; &apos;localhost..&apos; with the Alternative Server Id set to HOSTID as here instead (see Mark59 User Guide)</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="______________________ miscellaneous: ____________________" elementType="Argument">
@@ -832,7 +857,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="_" elementType="Argument">
                 <stringProp name="Argument.name">_</stringProp>
-                <stringProp name="Argument.value">- server profile of &apos;localhost&apos; only reports metrics of the mark59-metrics machine!</stringProp>
+                <stringProp name="Argument.value">- note using &apos;vai web&apos; a server profile of &apos;localhost&apos; only reports metrics of the mark59-metrics machine!</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="___________________" elementType="Argument">
@@ -842,12 +867,12 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.3</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="TestPlan.comments">requires a excel spreadsheet with profiels for each of the laod generalors in the distributed test</stringProp>
+          <stringProp name="TestPlan.comments">requires a mark59serverprofiles.xlsx excel spreadsheet </stringProp>
           <stringProp name="classname">com.mark59.metrics.api.ServerMetricsCaptureViaExcel</stringProp>
         </JavaSampler>
         <hashTree/>
@@ -1461,7 +1486,7 @@ SampleResult.setEndTime(0);
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.3</stringProp>
+                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>

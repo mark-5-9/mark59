@@ -25,7 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import com.mark59.metrics.PropertiesConfiguration;
 
@@ -44,13 +45,13 @@ public class HomeController {
 	PropertiesConfiguration springBootConfiguration;
 
 	
-	@RequestMapping("/login")
+	@GetMapping("/login")
 	public String loginUrl() {
 		return "/login";
 	}	
 	
 	
-	@RequestMapping("/loginAction")
+	@PostMapping("/loginAction")
    	public String loginAction(HttpServletRequest httpServletRequest, HttpServletResponse response, 
    			Model model){
 
@@ -77,7 +78,7 @@ public class HomeController {
 	}
   
    
-	@RequestMapping("/logout")
+	@GetMapping("/logout")
     public String logoutPage (HttpServletRequest httpServletRequest, HttpServletResponse response) {
 	     HttpSession existingSession = httpServletRequest.getSession(false);
 	     if (existingSession != null) {
@@ -87,13 +88,13 @@ public class HomeController {
     }
 
    
-	@RequestMapping(value = "/")
+	@GetMapping(value = "/")
 	public String root(Model model, HttpServletRequest request) {
         return "login";
 	}	
 	
 	
-	@RequestMapping(value = "/welcome")
+	@GetMapping(value = "/welcome")
 	public String overview(Model model, HttpServletRequest request) {
         return "welcome";
 	}		

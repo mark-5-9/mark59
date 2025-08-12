@@ -24,8 +24,8 @@ import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -45,14 +45,14 @@ public class GraphMappingController {
 	GraphMappingDAO  graphMappingDAO; 	
 	
 
-	@RequestMapping("/graphMappingList")
+	@GetMapping("/graphMappingList")
 	public ModelAndView runsList(@RequestParam(required=false) String graph) {
 		List<GraphMapping> graphMappingList = graphMappingDAO.getGraphMappings() ;				
 		return new ModelAndView("graphMappingList", "graphMappingList", graphMappingList);
 	}	
 	
 	
-	@RequestMapping("/registerGraphMapping")
+	@GetMapping("/registerGraphMapping")
 	public ModelAndView registerSla(@RequestParam(required=false) String reqErr, @ModelAttribute GraphMapping graphMapping) { 
 		List<String>transactionTypes = Mark59Constants.DatabaseTxnTypes.listOfDatabaseTxnTypes();  
 		Map<String, Object> map = new HashMap<>();
@@ -61,7 +61,7 @@ public class GraphMappingController {
 	}	
 		
 	
-	@RequestMapping("/insertGraphMapping")
+	@GetMapping("/insertGraphMapping")
 	public String insertData(@RequestParam(required=false) String reqErr,  @ModelAttribute GraphMapping graphMapping) {
 		GraphMapping existingGraphMapping = new GraphMapping();
 		if (graphMapping != null)
@@ -76,7 +76,7 @@ public class GraphMappingController {
 	}	
 
 	
-	@RequestMapping("/editGraphMapping")
+	@GetMapping("/editGraphMapping")
 	public ModelAndView editGraphMapping(@RequestParam String graph,  @ModelAttribute GraphMapping graphMapping) {
 		System.out.println("GraphMappingController:editGraphMapping : graph=" + graph  );		
 		graphMapping = graphMappingDAO.findGraphMapping(graph);
@@ -88,14 +88,14 @@ public class GraphMappingController {
 	}
 
 	
-	@RequestMapping("/updateGraphMapping")
+	@GetMapping("/updateGraphMapping")
 	public String updateGraphMapping( @ModelAttribute GraphMapping graphMapping) {
 		graphMappingDAO.updateGraphMapping(graphMapping);
 		return "redirect:/graphMappingList";
 	}
 
 	
-	@RequestMapping("/deleteGraphMapping")
+	@GetMapping("/deleteGraphMapping")
 	public String deleteGraphMapping(@RequestParam String graph) {
 		System.out.println("GraphMappingController:deleteGraphMapping : graph=" + graph  );	
 		graphMappingDAO.deleteGraphMapping(graph);

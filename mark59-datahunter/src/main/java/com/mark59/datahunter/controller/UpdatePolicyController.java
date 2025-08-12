@@ -25,9 +25,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.datahunter.application.DataHunterConstants;
@@ -50,7 +48,7 @@ public class UpdatePolicyController {
 	PoliciesDAO policiesDAO;	
 		
 
-	@RequestMapping("/update_policy")
+	@GetMapping("/update_policy")
 	public ModelAndView updatePolicyUrl(@RequestParam(required=false) String application,
 			@RequestParam(required=false) String identifier,@RequestParam(required=false) String lifecycle,
 			@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model){ 
@@ -59,12 +57,27 @@ public class UpdatePolicyController {
 		map.put("application", application);
 		return new ModelAndView("update_policy", "map", map);		
 	}
-	
 
-	@RequestMapping("/update_policy_data")
-	public ModelAndView addPolicyUrl(@RequestParam(required=false) String application,
+	
+	@GetMapping("/update_policy_data")
+	public ModelAndView updatePolicyDataGet(@RequestParam(required=false) String application,
+			@RequestParam(required=false) String identifier,@RequestParam(required=false) String lifecycle,			
+			Model model){ 
+		PolicySelectionCriteria policySelectionCriteria = new PolicySelectionCriteria();
+		policySelectionCriteria.setApplication(application);
+		policySelectionCriteria.setIdentifier(identifier);
+		policySelectionCriteria.setLifecycle(lifecycle);
+		return updatePolicyData(policySelectionCriteria, model);			
+	}
+
+	@PostMapping("/update_policy_data")
+	public ModelAndView updatePolicyDataPost(@RequestParam(required=false) String application,
 			@RequestParam(required=false) String identifier,@RequestParam(required=false) String lifecycle,			
 			@ModelAttribute	PolicySelectionCriteria policySelectionCriteria, Model model){ 
+		return updatePolicyData(policySelectionCriteria, model);			
+	}
+
+	private ModelAndView updatePolicyData(PolicySelectionCriteria policySelectionCriteria, Model model) {
 		List<String> usabilityList = new ArrayList<String>(DataHunterConstants.USEABILITY_LIST);
 
 		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
@@ -93,11 +106,11 @@ public class UpdatePolicyController {
 		model.addAttribute("navUrParms", createNavUrlParms(policies));			
 		model.addAttribute("policies", policies);		
 		model.addAttribute("Useabilities", usabilityList);
-		return new ModelAndView("/update_policy_data", "model", model);			
+		return new ModelAndView("/update_policy_data", "model", model);
 	}
 		
 	
-	@RequestMapping("/update_policy_action")
+	@PostMapping("/update_policy_action")
 	public ModelAndView updatePolicyAction(@ModelAttribute Policies policies, Model model, HttpServletRequest httpServletRequest ) {
 		DataHunterUtils.expireSession(httpServletRequest); 
 		

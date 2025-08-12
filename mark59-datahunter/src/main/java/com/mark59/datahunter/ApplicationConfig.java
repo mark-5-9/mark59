@@ -30,24 +30,24 @@ import com.mark59.datahunter.data.policies.dao.PoliciesDAOjdbcTemplateImpl;
 public class ApplicationConfig {
 
     @Value("${spring.profiles.active}")
-    private String springProfilesActive;	
-	
+    private String springProfilesActive;
+
     @Bean
-    public String currentDatabaseProfile() {
+    String currentDatabaseProfile() {
         return springProfilesActive;
-    }   
-	
-	
+    }
+
+
     /**
      * This method is equivalent to the following appConfig.xml:
-	 * <pre><code>
- 	 * &lt;bean id="PoliciesDAO" 	
-	 *	class="com.mark59.datahunter.data.policies.dao.PoliciesDAOjdbcTemplateImpl"&gt;
-	 * &lt;/bean&gt;
+     * <pre><code>
+     * &lt;bean id="PoliciesDAO" 	
+     *	class="com.mark59.datahunter.data.policies.dao.PoliciesDAOjdbcTemplateImpl"&gt;
+     * &lt;/bean&gt;
      * </code></pre>
      */
     @Bean
-    public PoliciesDAO policiesDAO() {
+    PoliciesDAO policiesDAO() {
         return new PoliciesDAOjdbcTemplateImpl();
     }
 }

@@ -44,53 +44,53 @@ import com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAOjdbcTemplateI
 public class ApplicationConfig {
 
     @Value("${spring.profiles.active}")
-    private String springProfilesActive;	
-	
+    private String springProfilesActive;
+
     @Bean
-    public String currentDatabaseProfile() {
+    String currentDatabaseProfile() {
         return springProfilesActive;
-    }   
-	
+    }
+
     @Bean
-    public PropertiesConfiguration PropertiesConfiguration() {
+    PropertiesConfiguration PropertiesConfiguration() {
         return new PropertiesConfiguration();
-    }   
-    
+    }
+
     /**
      * This method is equivalent to the following appConfig.xml:
-	 * <pre><code>
- 	 * &lt;bean id="ServersDAO" 	
-	 *	class="com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAOjdbcTemplateImpl"&gt;
-	 * &lt;/bean&gt;
+     * <pre><code>
+     * &lt;bean id="ServersDAO" 	
+     *	class="com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAOjdbcTemplateImpl"&gt;
+     * &lt;/bean&gt;
      * </code></pre>
      */
     @Bean
-    public ServerProfilesDAO serverProfilesDAO() {
+    ServerProfilesDAO serverProfilesDAO() {
         return new ServerProfilesDAOjdbcTemplateImpl();
     }
-    
+
     @Bean
-    public CommandsDAO commandsDAO() {
+    CommandsDAO commandsDAO() {
     	return new CommandsDAOjdbcTemplateImpl();
     } 
 
     @Bean
-    public CommandResponseParsersDAO commandResponseParsersDAO() {
+    CommandResponseParsersDAO commandResponseParsersDAO() {
         return new CommandResponseParsersDAOjdbcTemplateImpl();
     } 
  
    @Bean
-    public ServerCommandLinksDAO serverCommandLinksDAO() {
+    ServerCommandLinksDAO serverCommandLinksDAO() {
 	    return new ServerCommandLinksDAOjdbcTemplateImpl();
 	}     
 
     @Bean
-    public CommandParserLinksDAO commandParserLinksDAO() {
+    CommandParserLinksDAO commandParserLinksDAO() {
 	    return new CommandParserLinksDAOjdbcTemplateImpl();
 	}     
         
     @Bean
-    public BaseDAO baseDAO() {
+    BaseDAO baseDAO() {
 	    return new BaseDAOjdbcTemplateImpl();
 	}     
     

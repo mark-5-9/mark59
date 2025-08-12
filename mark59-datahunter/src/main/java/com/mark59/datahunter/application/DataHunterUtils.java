@@ -37,7 +37,9 @@ import jakarta.servlet.http.HttpSession;
 public class DataHunterUtils  {
 
 	public static void expireSession(HttpServletRequest httpServletRequest) {
-		expireSession( httpServletRequest, 10); 
+		if (httpServletRequest != null){
+			expireSession( httpServletRequest, 10);
+		}
 	}
 	
 	public static void expireSession(HttpServletRequest httpServletRequest, int intervalinSecs) {

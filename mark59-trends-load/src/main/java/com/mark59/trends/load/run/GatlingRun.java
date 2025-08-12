@@ -63,12 +63,12 @@ public class GatlingRun extends PerformanceTest  {
 	private int fieldPosRequestErrorMsg;
 	
 	public GatlingRun(ApplicationContext context, String application, String inputdirectory, String runReference, String excludestart, String captureperiod, 
-			String keeprawresults, String ignoredErrors, String simulationLog, String simlogCustom) {
+			String keeprawresults, String ignoredErrors, String simulationLog, String simlogcustoM) {
 		
 		super(context,application, runReference);
 		testTransactionsDAO.deleteAllForRun(run.getApplication(), AppConstantsTrends.RUN_TIME_YET_TO_BE_CALCULATED);
 		
-		loadTestTransactionDataFromGatlingSimulationLog(run.getApplication(), inputdirectory, ignoredErrors, simulationLog, simlogCustom);
+		loadTestTransactionDataFromGatlingSimulationLog(run.getApplication(), inputdirectory, ignoredErrors, simulationLog, simlogcustoM);
 		
 		DateRangeBean dateRangeBean = getRunDateRangeUsingTestTransactionalData(run.getApplication());
 		run = new Run( calculateAndSetRunTimesUsingEpochStartAndEnd(run, dateRangeBean));
@@ -86,12 +86,12 @@ public class GatlingRun extends PerformanceTest  {
 	}
 
 
-	private void loadTestTransactionDataFromGatlingSimulationLog(String application, String inputdirectory, String ignoredErrors, String simulationLog, String simlogCustom) {
+	private void loadTestTransactionDataFromGatlingSimulationLog(String application, String inputdirectory, String ignoredErrors, String simulationLog, String simlogcustoM) {
 		int sampleCount;
 		
 		try {
 			File simulationLogFile = new File(inputdirectory + "/" + simulationLog);
-			sampleCount = loadTestTransactionDataFromGatlingSimulationLogFile(simulationLogFile, application, ignoredErrors, simlogCustom);
+			sampleCount = loadTestTransactionDataFromGatlingSimulationLogFile(simulationLogFile, application, ignoredErrors, simlogcustoM);
 		} catch (IOException e) {
 			System.out.println( "Error : problem with processing Gatling simulation log file  " + inputdirectory + "/" + simulationLog );
 			StringWriter sw = new StringWriter();
@@ -107,7 +107,7 @@ public class GatlingRun extends PerformanceTest  {
 	/**
 	 * A validly name named Gatling simulation log file is expected to be passed, now need determine its version and extract results 
 	 */
-	private int loadTestTransactionDataFromGatlingSimulationLogFile(File simulationLogFile, String application, String ignoredErrors, String simlogCustom) throws IOException {
+	private int loadTestTransactionDataFromGatlingSimulationLogFile(File simulationLogFile, String application, String ignoredErrors, String simlogcustoM) throws IOException {
 
 		List<TestTransaction> testTransactionList = new ArrayList<>();
 		long startLoadms = System.currentTimeMillis(); 
@@ -127,7 +127,7 @@ public class GatlingRun extends PerformanceTest  {
 		
 		String gatlingFormat = GATLING_FORMAT_UNKNOWN;
 		
-		if (StringUtils.isNotBlank(simlogCustom)) {
+		if (StringUtils.isNotBlank(simlogcustoM)) {
 			System.out.println("\n  A custom 'REQUEST' field layout has been requested for this Gatling file load !" );
 			System.out.println("\n  The 'RUN' (verion info) line will be bypassed, and the first REQUEST start time in the simulation log will be used as the test start time.\n" );				
 		
@@ -172,8 +172,8 @@ public class GatlingRun extends PerformanceTest  {
 			fieldPosTimeStampEnd = 5;
 			fieldPosSuccess = 6;	
 			fieldPosRequestErrorMsg = 7;
-		} else if (StringUtils.isNotBlank(simlogCustom)) {
-			List<String> mPos = Mark59Utils.commaDelimStringToStringList(simlogCustom);
+		} else if (StringUtils.isNotBlank(simlogcustoM)) {
+			List<String> mPos = Mark59Utils.commaDelimStringToStringList(simlogcustoM);
 			fieldPosTxnId            = Integer.parseInt(mPos.get(0));	
 			fieldPosTimeStampStart   = Integer.parseInt(mPos.get(1));	
 			fieldPosTimeStampEnd     = Integer.parseInt(mPos.get(2));	

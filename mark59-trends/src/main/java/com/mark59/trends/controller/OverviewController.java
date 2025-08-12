@@ -18,8 +18,7 @@ package com.mark59.trends.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -31,22 +30,22 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class OverviewController {
 	
-	@RequestMapping(value = "/",  method = RequestMethod.GET)
+	@GetMapping("/")
 	public String empty(Model model, HttpServletRequest request ) {
 		return "overview";
 	}	
 
-	@RequestMapping(value = "/overview",  method = RequestMethod.GET)
+	@GetMapping("/overview")
 	public String overview(Model model, HttpServletRequest request ) {
 		return "overview";
 	}		
 	
-	@RequestMapping(value = "/welcome",  method = RequestMethod.GET)
+	@GetMapping("/welcome")
 	public String welcome(Model model, HttpServletRequest request ) {
 		return "overview";
 	}		
 
-	@RequestMapping(value = "/home",  method = RequestMethod.GET)
+	@GetMapping("/home")
 	public String home(Model model, HttpServletRequest request ) {
 		return "overview";
 	}		

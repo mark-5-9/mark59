@@ -17,7 +17,6 @@
 package com.mark59.trends.data.run.dao;
 
 import java.util.List;
-
 import com.mark59.trends.data.beans.Run;
 
 /**
@@ -26,6 +25,14 @@ import com.mark59.trends.data.beans.Run;
  */
 public interface RunDAO 
 {
+	
+	public enum BaselineOption {
+		EXCLUDE_BASELINES("EXCLUDE_BASELINES"), ONLY_BASELINES("ONLY_BASELINES"), ALL_RUNS("ALL_RUNS");
+		private final String baselineOption;
+		BaselineOption(String baselineOption) {this.baselineOption = baselineOption;}
+		public String getBaselineOption() {return baselineOption;}
+	}
+	
 	void insertRun(Run run);
 
 	void updateRun(Run run);
@@ -45,6 +52,7 @@ public interface RunDAO
 	String findLastRunDate(String application);
 	
 	List<String> findRunDates(String application);
+	List<String> findRunDates(String application, BaselineOption baselineOption);
 
 	List<String> findApplicationsWithBaselines();
 
@@ -53,6 +61,7 @@ public interface RunDAO
 	String determineRunDatesToGraph(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean isManuallySelectRuns, String chosenRuns, boolean isUseRawRunSQL, String runTimeSelectionSQL, String maxRun, String maxBaselineRun);
 	
 	String runsSQL(String application, String sqlSelectRunLike, String reqSqlSelectRunNotLike, boolean useRawRunSQL, String rawRunTimeSelectionSQL);
+
 
 
 }

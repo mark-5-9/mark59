@@ -22,8 +22,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -47,7 +48,7 @@ public class AsyncMessageaAnalyzerController {
 	PoliciesDAO policiesDAO;	
 		
 
-	@RequestMapping("/async_message_analyzer")
+	@GetMapping("/async_message_analyzer")
 	public String asyncMessageaAnalyzerUrl(@RequestParam(required=false) String application, AsyncMessageaAnalyzerRequest asyncMessageaAnalyzerRequest, Model model) { 
 		List<String> applicationOperators = new ArrayList<>(DataHunterConstants.APPLICATION_OPERATORS);
 		model.addAttribute("applicationOperators",applicationOperators);
@@ -65,7 +66,7 @@ public class AsyncMessageaAnalyzerController {
 	}
 	
 		
-	@RequestMapping("/async_message_analyzer_action")
+	@PostMapping("/async_message_analyzer_action")
 	public ModelAndView asyncMessageaAnalyzerUrlAction(@ModelAttribute AsyncMessageaAnalyzerRequest asyncMessageaAnalyzerRequest, Model model, HttpServletRequest httpServletRequest) {
 		
 		SqlWithParms analyzerSqlWithParms = policiesDAO.constructAsyncMessageaAnalyzerSql(asyncMessageaAnalyzerRequest);
