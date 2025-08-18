@@ -10,6 +10,9 @@
 <p>Release 6.4<br>
 
   <ul>
+  	<li>UI Scripting: By default, Exception stack traces have always been written to the console and the log4j log (as well as to a log file if 
+  	parameter ON_EXCEPTION_WRITE_STACK_TRACE is true). This can now be suppressed by setting the new additionalTestParameters
+  	ON_EXCEPTION_WRITE_STACK_TRACE_TO_CONSOLE and ON_EXCEPTION_WRITE_STACK_TRACE_TO_LOG4J_LOGGER to false.</li>
 	<li>Trends Load : New parameter 'maxNumberofruns' (n) : Maximum number of runs to be stored for this application id excluding baselines.  
 	The oldest non-baseline run(s) will be removed from the database when this count is exceeded.  Set to '-1' or '0' to deactive. 
 	Defaults to 500</li> 
@@ -17,9 +20,10 @@
 	<li>All Web Apps : Explicitly use GetMapping or PostMapping anotation instead of RequestMapping, plus many smaller code and JavaDocs tidy ups</li> 
 	<li>Dependencies Updated: spring-boot to 3.5.4, selenium to 4.34.0 (to chrome v138), playwright to 1.53.0</li>  
   </ul>
+  
   <figure>
     <figcaption>Summary of Changes with Potential Incompatibilities For this Release 
-	<li>For UI scripting 'BROWSER_EXECUTABLE' argument is no longer in use. Please use 'OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE'"</li>
+	<li>For UI scripting BROWSER_EXECUTABLE argument is no longer in use. Please use OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE<br><br></li>
   </figure>
 
 
