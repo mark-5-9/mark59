@@ -259,7 +259,10 @@ function drawSummaryTable(data, sortby){
 	}
 	
 	var trxnIdsWithAnyFailedSlaText  = document.getElementById("trxnIdsWithAnyFailedSlaId").value;
-	var trxnIdsWithAnyFailedSlaArray = trxnIdsWithAnyFailedSlaText.split(',');  	
+	var trxnIdsWithAnyFailedSlaArray = trxnIdsWithAnyFailedSlaText.split(','); 
+
+	var slaIconColoursText  = document.getElementById("slaIconColoursId").value;
+	var slaIconColoursIdArray = slaIconColoursText.split(',');  	
 	
 	var applicationText =  document.getElementById("application").value;
 	var selectedGraph = document.getElementById("graph").value; 
@@ -307,7 +310,14 @@ function drawSummaryTable(data, sortby){
 	
 	comparetabContent += "<th>" + runDatesToGraphArray[0].substring(0,4)  + "." + runDatesToGraphArray[0].substring(4,6)+ "." + runDatesToGraphArray[0].substring(6,8);
 	comparetabContent += "<br>" + runDatesToGraphArray[0].substring(8,10) + ":" + runDatesToGraphArray[0].substring(10,12);
-	comparetabContent += "<br><br>" + labelRunDescriptionsArray[0] + "</th>";
+	comparetabContent += "<br>";
+	comparetabContent += "<span style='cursor:pointer';";
+	comparetabContent += " title='These balls represent the Sla Results for the lastest run : Summary (larger ball), Transactional, Metric'>"
+	comparetabContent += "<img src='images/"+slaIconColoursIdArray[2]+".png' style='width:10px;height:10px;'/>";	
+	comparetabContent += "<img src='images/"+slaIconColoursIdArray[3]+".png' style='width:7px;height:7px;'/>";	
+	comparetabContent += "<img src='images/"+slaIconColoursIdArray[4]+".png' style='width:7px;height:7px;'/>";	
+	comparetabContent += "</span>"	
+	comparetabContent += "<br>" + labelRunDescriptionsArray[0] + "</th>";
 
 	if ( runDatesToGraphArray[1] == undefined ){  
 		comparetabContent += "<th> only single run available ! </th>";		

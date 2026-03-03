@@ -26,10 +26,6 @@ public class ApplicationDashboardEntry {
 	String	active;
 	String	comment;
 	String	sinceLastRun;
-	String	slaTransactionResultIcon;
-	String	slaMetricsResultIcon;
-	String  slaSummaryIcon;
-
 	
 	public String getApplication() {
 		return application;
@@ -55,24 +51,6 @@ public class ApplicationDashboardEntry {
 	public void setSinceLastRun(String sinceLastRun) {
 		this.sinceLastRun = sinceLastRun;
 	}
-	public String getSlaTransactionResultIcon() {
-		return slaTransactionResultIcon;
-	}
-	public void setSlaTransactionResultIcon(String slaTransactionResultIcon) {
-		this.slaTransactionResultIcon = slaTransactionResultIcon;
-	}
-	public String getSlaMetricsResultIcon() {
-		return slaMetricsResultIcon;
-	}
-	public void setSlaMetricsResultIcon(String slaMetricsResultIcon) {
-		this.slaMetricsResultIcon = slaMetricsResultIcon;
-	}
-	public String getSlaSummaryIcon() {
-		return slaSummaryIcon;
-	}
-	public void setSlaSummaryIcon(String slaSummaryIcon) {
-		this.slaSummaryIcon = slaSummaryIcon;
-	}
 	
 	@Override
 	public String toString(){
@@ -81,9 +59,6 @@ public class ApplicationDashboardEntry {
 				+ " active="+active 
 				+ " comment="+comment 
 				+ " sinceLastRun="+sinceLastRun 
-				+ " slaTransactionResultIcon="+slaTransactionResultIcon 
-				+ " slaMetricsResultIcon="+slaMetricsResultIcon 
-				+ " slaSummaryIcon="+slaSummaryIcon 
 				;
 	}
 }

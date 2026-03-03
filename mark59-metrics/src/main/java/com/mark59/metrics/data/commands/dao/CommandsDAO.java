@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,21 +30,21 @@ import com.mark59.metrics.data.beans.Command;
  * @author Philip Webb
  * Written: Australian Summer 2020
  */
-public interface CommandsDAO 
+public interface CommandsDAO
 {
 	Command findCommand(String commandName);
-	
+
 	List<Command> findCommands();
-	
+
 	List<Command> findCommands(String selectionCol, String selectionValue);
-	
+
 	void insertCommand(Command command);
 
 	void updateCommand(Command command);
 
 	void deleteCommand(String commandName);
-	
-	
+
+
 	default String serializeListToJson(List<String> parameters)  {
 		try {
 			return new ObjectMapper().writeValueAsString(parameters);
@@ -52,8 +52,8 @@ public interface CommandsDAO
 			return "";
 		}
 	}
-	
-	
+
+
 	default List<String> deserializeJsonToList(String parameters)  {
 		List<String> parametersList;
 		TypeReference<ArrayList<String>> typeRef = new TypeReference<ArrayList<String>>(){};
@@ -64,6 +64,6 @@ public interface CommandsDAO
 		}
 		Collections.sort(parametersList);
 		return parametersList;
-	}	
+	}
 
 }

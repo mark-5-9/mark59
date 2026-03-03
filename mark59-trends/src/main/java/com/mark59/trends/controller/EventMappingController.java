@@ -133,7 +133,7 @@ public class EventMappingController {
 	}
 	
 	
-	@PostMapping("/copyEventMapping")
+	@GetMapping("/copyEventMapping")
 	public String copyEventMapping(@RequestParam String txnType ,@RequestParam String metricSource, @RequestParam String matchWhenLike, @RequestParam(required=false) String reqMetricSource,  
 			@ModelAttribute EventMapping eventMapping, Model model) {
 		eventMapping = eventMappingDAO.getEventMapping(metricSource, matchWhenLike); 
@@ -161,7 +161,7 @@ public class EventMappingController {
 	}
 
 	
-	@GetMapping("/updateEventMapping")
+	@PostMapping("/updateEventMapping")
 	public String updateEventMapping(@RequestParam(required=false) String reqMetricSource, @ModelAttribute EventMapping eventMapping) {
 		eventMapping.setPerformanceTool(determinePerformanceTool(eventMapping.getMetricSource()));
 		eventMappingDAO.updateData(eventMapping);

@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,13 +28,12 @@ import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
- * Written: Australian Autumn 2020  
+ * Written: Australian Autumn 2020
  */
-public class CommandResponseParsersDAOexcelWorkbookImpl implements CommandResponseParsersDAO 
-{
-	
+public class CommandResponseParsersDAOexcelWorkbookImpl implements CommandResponseParsersDAO {
+
 	Sheet commandresponseparsersSheet;
-	
+
 
 	public CommandResponseParsersDAOexcelWorkbookImpl(Sheet commandresponseparsersSheet) {
 		this.commandresponseparsersSheet = commandresponseparsersSheet;
@@ -42,18 +41,18 @@ public class CommandResponseParsersDAOexcelWorkbookImpl implements CommandRespon
 
 
 	@Override
-	public CommandResponseParser findCommandResponseParser(String parserName){
+	public CommandResponseParser findCommandResponseParser(String parserName) {
 
-		CommandResponseParser commandResponseParser = null; 
+		CommandResponseParser commandResponseParser = null;
         Iterator<Row> iterator = commandresponseparsersSheet.iterator();
         iterator.next();  //a header row is assumed and bypassed
         boolean notFound = true;
-		
+
         while (iterator.hasNext() && notFound ) {
             Row commandResponseParserRow = iterator.next();
-            //System.out.println("commandResponseParser parserName=" + ServerMetricsWebUtils.cellValue(commandResponseParserRow.getCell(0)));
-            
-			if (parserName != null && parserName.equalsIgnoreCase(MetricsUtils.cellValue(commandResponseParserRow.getCell(0)))){	
+            // System.out.println("commandResponseParser parserName=" + ServerMetricsWebUtils.cellValue(commandResponseParserRow.getCell(0)));
+
+			if (parserName != null && parserName.equalsIgnoreCase(MetricsUtils.cellValue(commandResponseParserRow.getCell(0)))){
             	notFound=false;
             	commandResponseParser = new CommandResponseParser();
             	commandResponseParser.setParserName				(MetricsUtils.cellValue(commandResponseParserRow.getCell(0)));
@@ -63,7 +62,7 @@ public class CommandResponseParsersDAOexcelWorkbookImpl implements CommandRespon
             	commandResponseParser.setComment   				(MetricsUtils.cellValue(commandResponseParserRow.getCell(4)));
             	commandResponseParser.setSampleCommandResponse  (MetricsUtils.cellValue(commandResponseParserRow.getCell(5)));
             }
-        }   	
+        }
 		return  commandResponseParser;
 	}
 

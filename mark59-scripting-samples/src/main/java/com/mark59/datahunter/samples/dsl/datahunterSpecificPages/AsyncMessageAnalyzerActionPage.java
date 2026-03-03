@@ -30,8 +30,8 @@ public class AsyncMessageAnalyzerActionPage extends _GenericDataHunterActionPage
 	
 	public AsyncMessageAnalyzerActionPage( WebDriver driver) { super(driver); }
 
-	public HtmlTable asyncMessageaAnalyzerTable() {
-		return new HtmlTable(driver, "asyncMessageaAnalyzerTable");
+	public HtmlTable asyncMessageAnalyzerTable() {
+		return new HtmlTable(driver, "asyncMessageAnalyzerTable");
 	}
 
 	public Link backLink() {

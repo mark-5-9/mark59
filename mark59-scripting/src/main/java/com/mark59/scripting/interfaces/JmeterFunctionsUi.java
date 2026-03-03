@@ -8,7 +8,7 @@ import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
 import com.mark59.core.utils.Mark59LogLevels;
 
 /**
- * Extends the JmeterFunctions interface, to cover methods that can are considered specific to UI based scripts (Selenium and Playwright)
+ * Extends the JmeterFunctions interface, to cover methods that are considered specific to UI based scripts (Selenium and Playwright)
  * 
  * 
  * @author Philip Webb    
@@ -49,8 +49,8 @@ public interface JmeterFunctionsUi extends JmeterFunctions {
 			boolean includeInStartOfTransactionLogs);
 
 	/**
-	 * As per endTransaction(String), but also allows for overriding current logging config and forcing logging off for 
-	 * this transaction (set includeInEndOfTransactionshots to false). 
+	 * As per endTransaction(String transactionLabel), (JmeterFunctions in mark59-core), but also allows for overriding current logging config and 
+	 * forcing logging off for this transaction (set includeInEndOfTransactionLogs to false). 
 	 * 
 	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
 	 * @param includeInEndOfTransactionLogs boolean option to switch on/off logs for transaction ends (an override for this txn) 
@@ -59,8 +59,8 @@ public interface JmeterFunctionsUi extends JmeterFunctions {
 	SampleResult endTransaction(String transactionLabel, boolean includeInEndOfTransactionLogs);
 
 	/**
-	 * As per #endTransaction(String, Outcome, String), but also allows for overriding current logging config for this transaction 
-	 * (set includeInEndOfTransactionLogs to false). 
+	 * As per endTransaction(String transactionLabel, Outcome result, String responseCode) (JmeterFunctionsImpl in mark59-core), but also allows for 
+	 * overriding current logging config for this transaction (set includeInEndOfTransactionLogs to false). 
 	 * 
 	 * @param transactionLabel ('label' in JMeter terminology) for the transaction
 	 * @param result transaction pass or fail as Outcome

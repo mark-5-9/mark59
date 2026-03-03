@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
@@ -27,14 +26,14 @@ import com.mark59.metrics.utils.MetricsConstants;
 
 /**
  * @author Philip Webb
- * Written: Australian Autumn 2020  
+ * Written: Australian Autumn 2020
  */
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+@SpringBootApplication
 public class ApplicationEntry extends SpringBootServletInitializer {
-	
-	static final Logger LOG = LogManager.getLogger(ApplicationEntry.class);	
 
-	
+	static final Logger LOG = LogManager.getLogger(ApplicationEntry.class);
+
+
 	public static void main(String[] args) {
 		setUserAccessibleDefinedVariables();
 		SpringApplication.run(ApplicationEntry.class, args);
@@ -42,19 +41,19 @@ public class ApplicationEntry extends SpringBootServletInitializer {
 
 
     /**
-     *   Required for Application Server (Tomcat) deployment 
+     *   Required for Application Server (Tomcat) deployment
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(ApplicationEntry.class);
     }
 
-    
+
     private static void setUserAccessibleDefinedVariables() {
-    	// this variable is used in the win demo scripts (it's awkward to getting to pwd using the WMIC cmd window) 
+    	// this variable is used in the win demo scripts (it's awkward to getting to pwd using the WMIC cmd window)
 		System.setProperty(MetricsConstants.METRICS_BASE_DIR, System.getProperty("user.dir"));
 		LOG.trace("User variable " + MetricsConstants.METRICS_BASE_DIR + " : "
 				+ System.getProperty(MetricsConstants.METRICS_BASE_DIR));
     }
-	
+
 }

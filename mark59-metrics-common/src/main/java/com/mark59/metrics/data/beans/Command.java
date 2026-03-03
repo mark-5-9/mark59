@@ -28,7 +28,7 @@ public class Command {
 	String commandName;
 	String executor;
 	String command;
-	String ingoreStderr;
+	String ignoreStderr;
 	String comment;
 	List<String> paramNames;
 	
@@ -60,12 +60,12 @@ public class Command {
 		this.command = command;
 	}
 
-	public String getIngoreStderr() {
-		return ingoreStderr;
+	public String getIgnoreStderr() {
+		return ignoreStderr;
 	}
 
-	public void setIngoreStderr(String ingoreStderr) {
-		this.ingoreStderr = ingoreStderr;
+	public void setIgnoreStderr(String ignoreStderr) {
+		this.ignoreStderr = ignoreStderr;
 	}
 
 	public String getComment() {
@@ -90,7 +90,7 @@ public class Command {
         return   "[commandName="+ commandName + 
         		", executor="+ executor + 
         		", command="+ command + 
-        		", ingoreStderr="+ ingoreStderr + 
+        		", ignoreStderr="+ ignoreStderr + 
         		", comment="+ comment + 
         		", paramNames="+ paramNames + 
         		"]";

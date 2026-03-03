@@ -18,8 +18,8 @@ import com.mark59.trends.data.beans.EventMapping;
 import com.mark59.trends.data.beans.Run;
 import com.mark59.trends.data.beans.Transaction;
 import com.mark59.trends.load.TrendsLoad;
-import com.mark59.trends.metricSla.MetricSlaResult;
-import com.mark59.trends.sla.SlaTransactionResult;
+import com.mark59.trends.slaMetrics.MetricSlaResult;
+import com.mark59.trends.slaTransactions.SlaTransactionResult;
 
 import junit.framework.TestCase;
 

@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,11 +32,11 @@ import org.apache.logging.log4j.Logger;
 /**
  * Static properties file reader, loading the mark59 properties file into memory
  * just once per run to reduce disk I/O.
- * 
+ *
  * @see PropertiesKeys
- * 
+ *
  * @author Michael Cohen
- * @author Philip Webb 
+ * @author Philip Webb
  * Written: Australian Winter 2019
  */
 public class PropertiesReader {
@@ -63,7 +63,7 @@ public class PropertiesReader {
 		if (System.getProperty("os.name") != null) {
 			osNameLowerCase = System.getProperty("os.name").toLowerCase(java.util.Locale.ENGLISH);
 		}
-		
+
 		os = NIX;
 		if (osNameLowerCase.contains("win")) {
 			os = WINDOWS;
@@ -109,22 +109,22 @@ public class PropertiesReader {
 		setMark59property(PropertiesKeys.MARK59_PROP_DRIVER_FIREFOX, EXECUTABLE, NOT_DEPRECATED);
 		setMark59property(PropertiesKeys.MARK59_PROP_SERVER_PROFILES_EXCEL_FILE_PATH);
 		setMark59property(PropertiesKeys.MARK59_PROP_BROWSER_EXECUTABLE, EXECUTABLE, NOT_DEPRECATED);
-		setMark59property(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES);		
+		setMark59property(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES);
 		LOG.info("    ----------------------- ");
-		
+
 		if (Mark59Constants.TRUE.equalsIgnoreCase(getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES))){
 			System.out.println("Using Mark59 Version: " +  Mark59Constants.MARK59_VERSION);
-			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOG_DIRECTORY 
+			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOG_DIRECTORY
 					+ " : "	+ getProperty(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY));
-			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX 
+			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX
 					+ " : "	+ getProperty(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX));
-			System.out.println("     " + PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES 
-					+ " : "	+ getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES));			
+			System.out.println("     " + PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES
+					+ " : "	+ getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES));
 			System.out.println();
 		}
 	}
 
-	
+
 	/**
 	 * Load the JMeter properties file; if not found, then default to
 	 * "org/apache/jmeter/mark59.properties" from the classpath.
@@ -137,8 +137,8 @@ public class PropertiesReader {
 		String javaClassPath = System.getProperty("java.class.path");
 		LOG.debug("javaClassPath : " + javaClassPath);
 
-		// Try and find the JMeter install directory (based on initial class path), or if using an IDE the project root  
-		
+		// Try and find the JMeter install directory (based on initial class path), or if using an IDE the project root
+
 		String searchDir;
 		StringTokenizer tok = new StringTokenizer(javaClassPath, File.pathSeparator);
 		String javaClassPathFile = tok.nextToken();
@@ -160,16 +160,16 @@ public class PropertiesReader {
 			LOG.debug("mark59.properties dir based on jmeter.home or user.dir : " + searchDir);
 		}
 
-		// Next, try and find a mark59.properties file		
-		
+		// Next, try and find a mark59.properties file
+
 		if (loadMark59propertiesNotFound(searchDir + File.separator + MARK59_PROPERTIES)) {
-			
+
 			// try again (using a path that works running as a Win System Administrator)
-			String searchJavaClassPathParentFile = new File(javaClassPathFile).getParent() + File.separator	+ MARK59_PROPERTIES; 
+			String searchJavaClassPathParentFile = new File(javaClassPathFile).getParent() + File.separator	+ MARK59_PROPERTIES;
 			LOG.debug(" mark59.properties not found using user.dir, jmeter.home or java.class.path trying : "+ searchJavaClassPathParentFile);
 
 			if (loadMark59propertiesNotFound(searchJavaClassPathParentFile)) {
-				
+
 				LOG.debug("mark59.properties not found in dirs, attempting to find on class search path org/apache/jmeter/mark59.properties .. ");
 				InputStream is = ClassLoader.getSystemResourceAsStream("org/apache/jmeter/mark59.properties");
 				if (is != null) {
@@ -187,37 +187,36 @@ public class PropertiesReader {
 		}
 	}
 
-	
+
 	private boolean loadMark59propertiesNotFound(String mark59properties) {
-		FileInputStream is = null;
-		try {
-			File mark59propertiesFile = new File(mark59properties);
-			is = new FileInputStream(mark59properties);
+		try (FileInputStream is = new FileInputStream(mark59properties)) {
 			properties.load(is);
-			is.close();
+			File mark59propertiesFile = new File(mark59properties);
 			LOG.info("Using mark59.properties found at " + mark59propertiesFile + ".");
 			return false;
-		} catch (Exception e) {
-			try {
-				if (is != null) {is.close();}
-			} catch (Exception ignored){}
+		} catch (IOException e) {
+			LOG.debug("Failed to load properties from: " + mark59properties + " - " + e.getMessage());
 			return true;
 		}
 	}
+
 
 	private void setMark59property(String mark59PropertyKey) {
 		setMark59property(mark59PropertyKey, false, false);
 	}
 
-	
+
 	/**
-	 * Properties in mark59.properties should already be loaded before this method is invoked. 
-	 * Here, system properties can be used to override the mark59.properties, 
+	 * Properties in mark59.properties should already be loaded before this method is invoked.
+	 * Here, system properties can be used to override the mark59.properties,
 	 * and properties will be updated with substitutions when required.
-	 * 
+	 *
+	 * <code>SuppressWarnings(deprecation)</code> is in place to code prevent warnings caused by the reference to
+	 * <code>MARK59_PROP_SCREENSHOT_DIRECTORY</code> - a property deprecated in an earlier release.
+	 *
 	 * @param mark59PropertyKey  one of the Mark59 property key values
 	 * @param isExecutable indicates that the file defined by the property value is an o/s executable
-	 * @param isDeprecated indicate if a property is deprecated.  
+	 * @param isDeprecated indicate if a property is deprecated.
 	 */
 	@SuppressWarnings("deprecation")
 	private void setMark59property(String mark59PropertyKey, boolean isExecutable, boolean isDeprecated) {
@@ -233,9 +232,8 @@ public class PropertiesReader {
 				LOG.info("    " + mark59PropertyKey + " has not been set. ");
 			}
 		}
-		
+
 		// Specific message for the the use of deprecated 'mark59.screenshot.directory'property
-		
 		if (PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY.equals(mark59PropertyKey)
 				&& (StringUtils.isNotEmpty(System.getProperty(mark59PropertyKey))
 						|| StringUtils.isNotEmpty(properties.getProperty(mark59PropertyKey)))) {
@@ -243,10 +241,10 @@ public class PropertiesReader {
 					+ " Please delete. Use property key value "	+ PropertiesKeys.MARK59_PROP_LOG_DIRECTORY + " instead.");
 		}
 	}
-		
-	
+
+
 	private void substitutePredfinedStringsIfNecessary(String mark59PropertyKey, String propertyValue,	boolean isExecutable) {
-		
+
 		if (propertyValue.contains("${mark59.runs}")) {
 			if (os.equals(WINDOWS)) {
 				propertyValue = propertyValue.replace("${mark59.runs}", System.getenv("SYSTEMDRIVE") + "/Mark59_Runs");
@@ -255,7 +253,7 @@ public class PropertiesReader {
 			}
 			properties.setProperty(mark59PropertyKey, propertyValue);
 		}
-		
+
 		if (propertyValue.contains("${user.home}")) {
 			propertyValue = propertyValue.replace("${user.home}", System.getProperty("user.home"));
 			properties.setProperty(mark59PropertyKey, propertyValue);
@@ -270,8 +268,9 @@ public class PropertiesReader {
 	}
 
 	/**
+	 * return the given property's value
 	 * @param key property name
-	 * @return property value
+	 * @return string
 	 */
 	public String getProperty(String key) {
 		if (!properties.containsKey(key))
@@ -280,7 +279,8 @@ public class PropertiesReader {
 	}
 
 	/**
-	 * @return exist or otherwise new instance of PropertiesReader
+	 * return existing or otherwise a new instance of PropertiesReader
+	 * @return PropertiesReader instance
 	 * @throws IOException when attempting to read mark59.properties
 	 */
 	public static synchronized PropertiesReader getInstance() throws IOException {

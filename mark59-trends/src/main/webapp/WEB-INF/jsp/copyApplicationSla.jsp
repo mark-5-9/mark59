@@ -65,7 +65,7 @@
      </tr>   
 
      <tr>
-      <td> </td>
+      <td></td>
       <td><input type="submit" value="Copy All" />
       </td>
      </tr>

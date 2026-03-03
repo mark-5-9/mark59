@@ -31,7 +31,7 @@ public interface GraphMappingDAO
 	
 	List<GraphMapping> getGraphMappings();
 
-	void inserttGraphMapping(GraphMapping graphMapping);
+	void insertGraphMapping(GraphMapping graphMapping);
 
 	void updateGraphMapping(GraphMapping graphMapping);
 

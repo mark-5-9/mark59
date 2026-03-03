@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,36 +23,38 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import com.mark59.scripting.selenium.interfaces.DriverFunctionsSelenium;
 
 /**
- * Firefox implementation of {@link DriverFunctionsSelenium}.  
- * 
+ * Firefox implementation of {@link DriverFunctionsSelenium}.
+ *
  * @author Michael Cohen
- * Written: Australian Winter 2019  
+ * Written: Australian Winter 2019
  */
 public class DriverFunctionsSeleniumFirefox extends DriverFunctionsSelenium<FirefoxDriver> {
 
-	static final Logger LOG = LogManager.getLogger(DriverFunctionsSeleniumFirefox.class);	
-	
+	static final Logger LOG = LogManager.getLogger(DriverFunctionsSeleniumFirefox.class);
+
 	WebDriver webDriver;
-	
+
 	/**
+	 * Constructs a DriverFunctionsSeleniumFirefox instance with the specified WebDriver.
+	 *
 	 * @param webDriver webDriver
 	 */
 	public DriverFunctionsSeleniumFirefox(WebDriver webDriver) {
 		this.webDriver = webDriver;
 	}
-	
-	
+
+
 	@Override
 	public WebDriver getDriver() {
 		return webDriver;
 	}
-	
-	
+
+
 	@Override
 	public String getDriverClass() {
-		return this.getDriver().getClass().getName();  
+		return this.getDriver().getClass().getName();
 	}
-	
+
 	@Override
 	public byte[] captureDriverPerfLogs() {
 		// FireFox doesn't support performance logs
@@ -64,11 +66,11 @@ public class DriverFunctionsSeleniumFirefox extends DriverFunctionsSelenium<Fire
 	public void clearDriverPerfLogs() {
 		// FireFox doesn't support performance logs
 	}
-	
+
 	/**
 	 *  For a Firefox Selenium driver 'quit' will end the session.
-	 *  Wrapping it in a try/catch, as historical gekodrivers used 'close'
-	 *  (ie, just in case someone runs using an old gekodriver) 
+	 *  Wrapping it in a try/catch, as historical geckodrivers used 'close'
+	 *  (ie, just in case someone runs using an old geckodriver)
 	 */
 	@Override
 	public void driverDispose() {
@@ -78,5 +80,5 @@ public class DriverFunctionsSeleniumFirefox extends DriverFunctionsSelenium<Fire
 			LOG.debug("attempting driver quit() : " + e.getMessage());
 		}
 	}
-	
+
 }

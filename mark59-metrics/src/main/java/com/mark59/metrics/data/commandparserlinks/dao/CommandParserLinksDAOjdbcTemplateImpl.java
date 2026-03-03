@@ -43,14 +43,17 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 	@Override
 	public CommandParserLink findCommandParserLink(String commandName, String parserName){
 
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		String sql = "select COMMAND_NAME, PARSER_NAME from COMMANDPARSERLINKS"
+				+ " where COMMAND_NAME = :commandName"
+				+ "   and PARSER_NAME = :parserName"
+				+ " order by COMMAND_NAME";
 		
-		String selectServerSQL   = "select COMMAND_NAME, PARSER_NAME from COMMANDPARSERLINKS"
-				+ " where COMMAND_NAME = '" + commandName + "'"
-				+ "   and PARSER_NAME = '"  + parserName  + "'"
-				+ " order by COMMAND_NAME;";
+		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
+				.addValue("commandName", commandName)
+				.addValue("parserName", parserName);
 		
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL);
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
 		if (rows.size() == 0 ){
 			return null;
@@ -78,6 +81,12 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 	@Override
 	public List<CommandParserLink> findCommandParserLinks(String selectionCol, String selectionValue){
 
+		// Whitelist validation to prevent SQL injection
+		List<String> allowedColumns = List.of("COMMAND_NAME", "PARSER_NAME");
+		if (!selectionCol.isEmpty() && !allowedColumns.contains(selectionCol.toUpperCase())) {
+			throw new IllegalArgumentException("Invalid column name: " + selectionCol);
+		}
+
 		String sql = "SELECT COMMAND_NAME, PARSER_NAME FROM COMMANDPARSERLINKS ";
 		
 		if (!selectionValue.isEmpty()  ) {			
@@ -88,7 +97,6 @@ public class CommandParserLinksDAOjdbcTemplateImpl implements CommandParserLinks
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("selectionValue", selectionValue);
 
-//		System.out.println(" ..CommandParserLinks: "+sql+Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
 		List<CommandParserLink> commandParserLinkList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);

@@ -80,7 +80,7 @@
       <td><form:input path="comment"  size="140" height="20"  maxlength="140"  /></td>     
      </tr>  
      <tr>
-      <td> </td>
+      <td></td>
       <td><input type="submit" value="Save" /></td>
      </tr>
      <tr>

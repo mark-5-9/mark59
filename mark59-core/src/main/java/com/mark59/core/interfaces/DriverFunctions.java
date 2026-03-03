@@ -47,6 +47,7 @@ public interface DriverFunctions<T> {
 	String getDriverClass();
 
 	/**
+	 * captured screenshot
 	 * @return byte[] captured screenshot as a byte array (abstract)
 	 */
 	byte[] captureScreenshot();

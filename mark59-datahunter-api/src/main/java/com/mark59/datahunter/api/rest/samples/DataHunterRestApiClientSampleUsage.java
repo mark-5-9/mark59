@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.mark59.datahunter.api.application.DataHunterConstants;
 import com.mark59.datahunter.api.data.beans.Policies;
-import com.mark59.datahunter.api.model.AsyncMessageaAnalyzerResult;
+import com.mark59.datahunter.api.model.AsyncMessageAnalyzerResult;
 import com.mark59.datahunter.api.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.api.model.DataHunterRestApiResponsePojo;
 import com.mark59.datahunter.api.model.PolicySelectionFilter;
@@ -47,10 +47,10 @@ public class DataHunterRestApiClientSampleUsage {
 		DataHunterRestApiResponsePojo response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.EQUALS,"TESTAPI_ASYNC_TOUSED", null, null, "USED");
 
 		int i=0;
-		List<AsyncMessageaAnalyzerResult>  asyncResults = response.getAsyncMessageaAnalyzerResults();
+		List<AsyncMessageAnalyzerResult>  asyncResults = response.getAsyncMessageAnalyzerResults();
 		System.out.println( "    asyncMessageAnalyzerPrintResults  (" + asyncResults.size() + ") - asyncLifeCycleTestWithUseabilityUpdate" );		
 		System.out.println( "    -------------------------------- ");		
-		for (AsyncMessageaAnalyzerResult asyncResult : asyncResults) {
+		for (AsyncMessageAnalyzerResult asyncResult : asyncResults) {
 			System.out.println("    " +  ++i + "   " + asyncResult);
 		}
 		
@@ -58,7 +58,7 @@ public class DataHunterRestApiClientSampleUsage {
 		assertEquals("[application=TESTAPI_ASYNC_TOUSED, startsWith=null, identifier=T99-testonly-02, lifecycle=null, useability=USED, selectOrder=null], starttm= 1460613153000, endtm= 1460613155001, differencetm= 2001]", asyncResults.get(0).toString());
 		assertEquals("[application=TESTAPI_ASYNC_TOUSED, startsWith=null, identifier=T99-testonly-01, lifecycle=null, useability=USED, selectOrder=null], starttm= 1460613152000, endtm= 1460613153001, differencetm= 1001]", asyncResults.get(1).toString());
 		
-		for (AsyncMessageaAnalyzerResult  pairedAsyncTxn : asyncResults ) {
+		for (AsyncMessageAnalyzerResult  pairedAsyncTxn : asyncResults ) {
 			// example of a typical transaction name you could set (and its response time)
 			System.out.println( "    Txn Name :  "  + pairedAsyncTxn.getApplication() + "_" + pairedAsyncTxn.getIdentifier() + "  Respsonse time (Assumed msecs) : "  + pairedAsyncTxn.getDifferencetm()  );				
 		}
@@ -320,8 +320,7 @@ public class DataHunterRestApiClientSampleUsage {
 		psc.setUseability("");
 		psc.setIdentifierListSelected(true);
 		psc.setIdentifierList("im2,im3");
-		psc.setOtherdataSelected(false);
-		psc.setOtherdataSelected(false);
+		psc.setOtherdataSelected(false); 
 		psc.setOtherdata("nothing!");
 		psc.setCreatedSelected(false);
 		psc.setEpochtimeSelected(false);
@@ -630,7 +629,7 @@ public class DataHunterRestApiClientSampleUsage {
 		response = dhApiClient.useNextPolicy("testapi", null, "UNUSED", DataHunterConstants.SELECT_OLDEST_ENTRY);
 		assertEquals("No rows matching the selection.  Possibly we have ran out of data for application:[testapi]", response.getFailMsg()); 			
 		
-		response = dhApiClient.updatePoliciesUseState("testapi", "im3", "USED", "UNUSED", "1234");
+		response = dhApiClient.updatePoliciesUseState ("testapi", "im3", null, "USED", "UNUSED", "1234");
 		assertEquals(Integer.valueOf(2), response.getRowsAffected());
 		response = dhApiClient.useNextPolicy("testapi", null, "UNUSED", DataHunterConstants.SELECT_OLDEST_ENTRY);		
 		assertsOnPolicy(new Policies("testapi","im3", "nonblanklc", "UNUSED", "otherdata3", 1234L), response.getPolicies().get(0));		
@@ -639,8 +638,8 @@ public class DataHunterRestApiClientSampleUsage {
 		response = dhApiClient.useNextPolicy("testapi", null, "UNUSED", DataHunterConstants.SELECT_OLDEST_ENTRY);
 		assertEquals("No rows matching the selection.  Possibly we have ran out of data for application:[testapi]", response.getFailMsg()); 		
 	
-		assertEquals(Integer.valueOf(2), dhApiClient.updatePoliciesUseState("testapi", "im3", "USED", "UNUSED", null).getRowsAffected());
-		assertEquals(Integer.valueOf(1), dhApiClient.updatePoliciesUseState("testapi", "im4", "USED", "UNUSED", null).getRowsAffected());
+		assertEquals(Integer.valueOf(2), dhApiClient.updatePoliciesUseState("testapi", "im3", "", "USED", "UNUSED", null).getRowsAffected());
+		assertEquals(Integer.valueOf(1), dhApiClient.updatePoliciesUseState("testapi", "im4", null, "USED", "UNUSED", null).getRowsAffected());
 		response = dhApiClient.useNextPolicy("testapi", "nonblanklc", "UNUSED", DataHunterConstants.SELECT_OLDEST_ENTRY);		
 		assertsOnPolicy(new Policies("testapi","im3", "nonblanklc", "UNUSED", "otherdata3", null), response.getPolicies().get(0));	
 		response = dhApiClient.useNextPolicy("testapi", "nonblanklc", "UNUSED", DataHunterConstants.SELECT_OLDEST_ENTRY);
@@ -664,35 +663,35 @@ public class DataHunterRestApiClientSampleUsage {
 		dhApiClient.deleteMultiplePolicies("norowsfound", null, null);
 		//response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.STARTS_WITH,"TESTAPI_ASYNC_HIGH_VOL", null, "UNPAIRED", "USED");
 		response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.EQUALS,"norowsfound", null, null, null);
-		assertEquals(("response = " + response), 0, response.getAsyncMessageaAnalyzerResults().size());		
+		assertEquals(("response = " + response), 0, response.getAsyncMessageAnalyzerResults().size());		
 		assertEquals(Integer.valueOf(0), response.getRowsAffected());
 
 		response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.EQUALS,"testapi-async", null, null, null);		
-		assertEquals(5, response.getAsyncMessageaAnalyzerResults().size());	
+		assertEquals(5, response.getAsyncMessageAnalyzerResults().size());	
 		assertEquals(Integer.valueOf(5), response.getRowsAffected());
 	
 		insertPolicySets(dhApiClient, "testapi-like", "t02-", 1);
 		assertEquals(Integer.valueOf(8), dhApiClient.policiesBreakdown(DataHunterConstants.STARTS_WITH, "testapi-", "", "UNPAIRED").getRowsAffected());
 		response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.STARTS_WITH ,"testapi-", null, null, null);			
-		assertEquals(6, response.getAsyncMessageaAnalyzerResults().size());				
-		assertTrue(response.getAsyncMessageaAnalyzerResults().get(0).toString().startsWith("[application=testapi-like, startsWith=null, identifier=t02-testonly-1, lifecycle=null, useability=UNPAIRED"));
-		assertTrue(response.getAsyncMessageaAnalyzerResults().get(1).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-5, lifecycle=null, useability=UNPAIRED"));
-		assertTrue(response.getAsyncMessageaAnalyzerResults().get(2).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-4, lifecycle=null, useability=UNPAIRED"));
-		assertTrue(response.getAsyncMessageaAnalyzerResults().get(3).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-3, lifecycle=null, useability=UNPAIRED"));
-		assertTrue(response.getAsyncMessageaAnalyzerResults().get(4).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-2, lifecycle=null, useability=UNPAIRED"));
-		assertTrue(response.getAsyncMessageaAnalyzerResults().get(5).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-1, lifecycle=null, useability=UNPAIRED"));
+		assertEquals(6, response.getAsyncMessageAnalyzerResults().size());				
+		assertTrue(response.getAsyncMessageAnalyzerResults().get(0).toString().startsWith("[application=testapi-like, startsWith=null, identifier=t02-testonly-1, lifecycle=null, useability=UNPAIRED"));
+		assertTrue(response.getAsyncMessageAnalyzerResults().get(1).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-5, lifecycle=null, useability=UNPAIRED"));
+		assertTrue(response.getAsyncMessageAnalyzerResults().get(2).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-4, lifecycle=null, useability=UNPAIRED"));
+		assertTrue(response.getAsyncMessageAnalyzerResults().get(3).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-3, lifecycle=null, useability=UNPAIRED"));
+		assertTrue(response.getAsyncMessageAnalyzerResults().get(4).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-2, lifecycle=null, useability=UNPAIRED"));
+		assertTrue(response.getAsyncMessageAnalyzerResults().get(5).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-1, lifecycle=null, useability=UNPAIRED"));
 
 		response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.EQUALS ,"testapi-async", "t01-testonly-4", null, "USED");			
-		assertEquals(1, response.getAsyncMessageaAnalyzerResults().size());				
-		assertTrue(response.getAsyncMessageaAnalyzerResults().get(0).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-4, lifecycle=null, useability=USED"));
+		assertEquals(1, response.getAsyncMessageAnalyzerResults().size());				
+		assertTrue(response.getAsyncMessageAnalyzerResults().get(0).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-4, lifecycle=null, useability=USED"));
 		assertEquals(3, dhApiClient.printSelectedPolicies("testapi-async", null, "USED").getPolicies().size());
 		response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.STARTS_WITH ,"testapi-async", "t01-testonly-3", null, "USED");			
-		assertEquals(1, response.getAsyncMessageaAnalyzerResults().size());				
-		assertTrue(response.getAsyncMessageaAnalyzerResults().get(0).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-3, lifecycle=null, useability=USED"));
+		assertEquals(1, response.getAsyncMessageAnalyzerResults().size());				
+		assertTrue(response.getAsyncMessageAnalyzerResults().get(0).toString().startsWith("[application=testapi-async, startsWith=null, identifier=t01-testonly-3, lifecycle=null, useability=USED"));
 		assertEquals(6, dhApiClient.printSelectedPolicies("testapi-async", null, "USED").getPolicies().size());
 
 		response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.EQUALS ,"testapi-async", "t01-someother-5", null, "USED");			
-		assertEquals(0, response.getAsyncMessageaAnalyzerResults().size());	
+		assertEquals(0, response.getAsyncMessageAnalyzerResults().size());	
 		System.out.println("	<< workingWithAsyncMessages");				
 	}
 

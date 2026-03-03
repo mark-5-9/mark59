@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Constants and Enums for for Mark59 Core
+ * 
  * @author Michael Cohen
  * @author Philip Webb
  * Written: Australian Winter 2019  
@@ -30,7 +32,7 @@ public class Mark59Constants {
 	/**
 	 * current Mark59 version
 	 */
-	public static final String MARK59_VERSION  = "6.4";	
+	public static final String MARK59_VERSION  = "6.5";	
 		
 	/**
 	 * TRUE
@@ -185,19 +187,22 @@ public class Mark59Constants {
     		this.metricDataType = metricDataType;
     	}
     	/**
-    	 * @return value of text as used in the JMeter file
+    	 * return value of text as used in the JMeter file
+    	 * @return string
     	 */
     	public String getDatatypeText() {
     		return datatypeText;
     	}
 		/**
-		 * @return true if it is a 'metric' type 
+		 * true if it is a 'metric' type 
+		 * @return boolean
 		 */
 		public boolean isMetricDataType() {
 			return this.metricDataType;
 		}    	
 		/**
-		 * @return a string list of all transaction data types as used in the JMeter file   
+		 * list of all transaction data types as used in the JMeter file
+		 * @return a string list    
 		 */
 		public static List<String> listOfJMeterFileDatatypes() {
 			List<String> listOfJMeterFileDatatypes = new ArrayList<>();
@@ -207,7 +212,8 @@ public class Mark59Constants {
 			return listOfJMeterFileDatatypes;
 		}
 		/**
-		 * @return a string list of metrics data types as used in the JMeter file   
+		 * list of metrics data types as used in the JMeter file 
+		 * @return a string list    
 		 */
 		public static List<String> listOfMetricJMeterFileDatatypes() {
 			List<String> listOfMetricJMeterFileDatatypes = new ArrayList<>();
@@ -242,13 +248,15 @@ public class Mark59Constants {
 			this.metricTxnType = metricTxnType;  
 		}
 		/**
-		 * @return true if it is a 'metric' transaction type 
+		 * is this a 'metric' transaction type ? 
+		 * @return true for a 'metric' 
 		 */
 		public boolean isMetricTxnType() {
 			return this.metricTxnType;
 		}
 		/**
-		 * @return string list of all transaction types as used in the database  
+		 * return list of all transaction types as used in the database
+		 * @return string list  
 		 */
 		public static List<String> listOfDatabaseTxnTypes(){
 			List<String> listOfDatabaseTxnTypes = new ArrayList<>();
@@ -258,7 +266,8 @@ public class Mark59Constants {
 			return listOfDatabaseTxnTypes;
 		}
 		/**
-		 * @return a string list of metrics types as used in the database   
+		 * return string list of metrics types as used in the database 
+		 * @return a string list of metrics types  
 		 */
 		public static List<String> listOfMetricDatabaseTxnTypes() {
 			List<String> listOfMetricDatabaseTxnTypes = new ArrayList<>();
@@ -286,7 +295,9 @@ public class Mark59Constants {
 		private final String osName;
 		/** @param osName operating system name */
 		OS(String osName) {	this.osName = osName;}
-		/** @return a string holding the operating system name */
+		/** the operating system name 
+		 * @return string
+		*/
 		public String getOsName() {return osName;}
 	}
 

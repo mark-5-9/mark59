@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-datahunter-api</artifactId>
-	<version>6.4</version>
+	<version>6.5</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -21,19 +21,20 @@
 
 	<dependencies>
 
+		<!-- may be ahead of JMeter due to vunerabilty reporting -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.20.0</version>
+			<version>2.25.3</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>2.20.0</version>
+			<version>2.25.3</version>
 		</dependency>
 
-		<!-- in alignnment the version provided by JMeter -->
+		<!-- in alignnment to the versions provided in JMeter -->
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>

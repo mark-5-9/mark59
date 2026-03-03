@@ -1,17 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-core</artifactId>
-	<version>6.4</version>
+	<version>6.5</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Common core components of the mark59 framework.</description>
 	<url>http://www.mark59.com</url>
-	
+
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -32,7 +32,7 @@
 		    <groupId>org.apache.jmeter</groupId>
 		    <artifactId>jorphan</artifactId>
 		    <version>5.6.3</version>
-			<scope>provided</scope>		    
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -69,7 +69,7 @@
 		<connection>scm:git:git://github.com/iagcl/mark59.git</connection>
 		<developerConnection>scm:git:ssh://github.com:iagcl/mark59.git</developerConnection>
 		<url>http://github.com/iagcl/mark59/tree/master</url>
-	</scm>	
+	</scm>
 
 	<distributionManagement>
 		<snapshotRepository>
@@ -80,23 +80,23 @@
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
-	</distributionManagement>	
+	</distributionManagement>
 
 	<build>
 		<plugins>
-			
+
 			<!--local build goals: clean package install -->
-				
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.10.1</version>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.2.1</version>				
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -107,7 +107,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.3.2</version>					
+				<version>3.3.2</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -124,18 +124,18 @@
 			   <activation><activeByDefault>false</activeByDefault></activation>
 			   	<build>
 				<plugins>
-				
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
 						<version>3.10.1</version>
 					</plugin>
-					
-					<!-- maven central requirements -->	
+
+					<!-- maven central requirements -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.2.1</version>				
+						<version>3.2.1</version>
 						<executions>
 							<execution>
 								<id>attach-sources</id>
@@ -143,11 +143,11 @@
 							</execution>
 						</executions>
 					</plugin>
-		
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.3.2</version>					
+						<version>3.3.2</version>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -155,11 +155,11 @@
 							</execution>
 						</executions>
 					</plugin>
-				
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>				
+						<version>1.6</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -168,7 +168,7 @@
 							</execution>
 						</executions>
 					</plugin>
-		
+
 			     	<plugin>
 				       <groupId>org.sonatype.central</groupId>
 				       <artifactId>central-publishing-maven-plugin</artifactId>
@@ -191,10 +191,10 @@
 <!--							<autoReleaseAfterClose>false</autoReleaseAfterClose>-->
 <!--						</configuration>-->
 <!--					</plugin>-->
-		
+
 				</plugins>
 			</build>
-		</profile>	
+		</profile>
 	</profiles>
-	
+
 </project>

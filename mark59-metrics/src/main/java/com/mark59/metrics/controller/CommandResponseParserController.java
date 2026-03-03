@@ -62,7 +62,7 @@ public class CommandResponseParserController {
 
 		if (StringUtils.isEmpty(commandResponseParser.getParserName())) {
 			map.put("commandResponseParser", commandResponseParser);		
-			map.put("reqErr", "Parser Name id is required");			
+			map.put("reqErr", "Parser Name is required");			
 			return new ModelAndView("registerCommandResponseParser", "map", map);
 		}
 
@@ -76,8 +76,8 @@ public class CommandResponseParserController {
 			
 		} else {
 		
-			map.put("serverProfileName",existingCommandResponseParser);		
-			map.put("reqErr","Oh, a listing for parser name  " + existingCommandResponseParser.getParserName() + " AlreadyExists");			
+			map.put("commandResponseParser",existingCommandResponseParser);		
+			map.put("reqErr","Oh, a parser named " + existingCommandResponseParser.getParserName() + " Already Exists");			
 			return new ModelAndView("registerCommandResponseParser", "map", map);
 		}
 	}
@@ -137,7 +137,6 @@ public class CommandResponseParserController {
 		
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqMetricTxnType", reqMetricTxnType);
-		// System.out.println( "commandResponseParser=" + commandResponseParser );
 		map.put("commandResponseParser", commandResponseParser);
 		model.addAttribute("map", map);	
 		return "editCommandResponseParser";

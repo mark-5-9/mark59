@@ -50,7 +50,6 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("commandName", commandName);
 
-//		System.out.println(" findCommand : " + sql + " : " + commandName);
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -63,7 +62,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		command.setCommandName((String)row.get("COMMAND_NAME"));
 		command.setExecutor((String)row.get("EXECUTOR"));
 		command.setCommand((String)row.get("COMMAND"));
-		command.setIngoreStderr((String)row.get("IGNORE_STDERR"));
+		command.setIgnoreStderr((String)row.get("IGNORE_STDERR"));
 		command.setComment((String)row.get("COMMENT"));
 		command.setParamNames(deserializeJsonToList((String)row.get("PARAM_NAMES")));
 		return  command;
@@ -79,6 +78,12 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 	@Override
 	public List<Command> findCommands(String selectionCol, String selectionValue){
 		
+		// Whitelist validation to prevent SQL injection
+		List<String> allowedColumns = List.of("COMMAND_NAME", "EXECUTOR", "COMMAND", "IGNORE_STDERR", "COMMENT", "PARAM_NAMES");
+		if (!selectionCol.isEmpty() && !allowedColumns.contains(selectionCol.toUpperCase())) {
+			throw new IllegalArgumentException("Invalid column name: " + selectionCol);
+		}
+
 		String sql = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES from COMMANDS ";
 		
 		if (!selectionValue.isEmpty()  ) {			
@@ -89,7 +94,6 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("selectionValue", selectionValue);
 
-//		System.out.println(" findCommands : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
 		List<Command> commandList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
@@ -99,11 +103,10 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 			command.setCommandName((String)row.get("COMMAND_NAME"));
 			command.setExecutor((String)row.get("EXECUTOR"));
 			command.setCommand((String)row.get("COMMAND"));
-			command.setIngoreStderr((String)row.get("IGNORE_STDERR"));			
+			command.setIgnoreStderr((String)row.get("IGNORE_STDERR"));			
 			command.setComment((String)row.get("COMMENT"));
 			command.setParamNames(deserializeJsonToList((String)row.get("PARAM_NAMES")));	
 			commandList.add(command);
-//			System.out.println("CommandsDAOjdbcTemplateImpl.findCommands  : " + command.toString()  ) ;		
 		}	
 		return commandList;
 	}
@@ -121,7 +124,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 				command.getCommandName(),
 				command.getExecutor(),
 				command.getCommand(),
-				command.getIngoreStderr(),
+				command.getIgnoreStderr(),
 				command.getComment(),
 				serializeListToJson(command.getParamNames()));
 	}
@@ -129,7 +132,6 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 	
 	@Override
 	public void updateCommand(Command command){
-//		System.out.println(">> CommandsDAOjdbcTemplateImpl.updateCommand  : " + command.toString()  ) ;		
 		
 		String sql = "UPDATE COMMANDS set EXECUTOR = ?, COMMAND = ?, IGNORE_STDERR = ?, COMMENT = ?, PARAM_NAMES = ? "
 				+ "where COMMAND_NAME = ? ";
@@ -139,7 +141,7 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		jdbcTemplate.update(sql,
 				command.getExecutor(),
 				command.getCommand(),
-				command.getIngoreStderr(),
+				command.getIgnoreStderr(),
 				command.getComment(),
 				serializeListToJson(command.getParamNames()),
 				command.getCommandName());

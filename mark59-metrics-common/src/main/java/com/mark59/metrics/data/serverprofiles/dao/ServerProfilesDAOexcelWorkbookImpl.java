@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,29 +27,28 @@ import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
- * Written: Australian Autumn 2020  
+ * Written: Australian Autumn 2020
  */
 public class ServerProfilesDAOexcelWorkbookImpl implements ServerProfilesDAO {
-	
+
 	Sheet serverprofilesSheet;
 
 	public ServerProfilesDAOexcelWorkbookImpl(Sheet serverprofilesSheet) {
 		this.serverprofilesSheet = serverprofilesSheet;
 	}
 
-	
-	@Override
-	public ServerProfile  findServerProfile(String serverProfileName){
-		ServerProfile serverProfile = null; 
-        Iterator<Row> iterator = serverprofilesSheet.iterator();
-        iterator.next();   										 //a header row is assumed and bypassed
-        boolean notFound = true;
 
-        while (iterator.hasNext() && notFound ) {
-            Row serverProfileRow = iterator.next();
-            // System.out.println("findServerProfile key=" + ServerMetricsWebUtils.cellValue(serverProfileRow.getCell(0)));
-            
-			if (serverProfileName != null && serverProfileName.equalsIgnoreCase(MetricsUtils.cellValue(serverProfileRow.getCell(0)))){	
+	@Override
+	public ServerProfile findServerProfile(String serverProfileName) {
+		ServerProfile serverProfile = null;
+		Iterator<Row> iterator = serverprofilesSheet.iterator();
+		iterator.next();   //a header row is assumed and bypassed
+		boolean notFound = true;
+
+		while (iterator.hasNext() && notFound) {
+			Row serverProfileRow = iterator.next();
+
+			if (serverProfileName != null && serverProfileName.equalsIgnoreCase(MetricsUtils.cellValue(serverProfileRow.getCell(0)))){
             	notFound=false;
             	serverProfile = new ServerProfile();
             	serverProfile.setServerProfileName	(MetricsUtils.cellValue(serverProfileRow.getCell(0)));
@@ -64,11 +63,11 @@ public class ServerProfilesDAOexcelWorkbookImpl implements ServerProfilesDAO {
             	serverProfile.setComment			(MetricsUtils.cellValue(serverProfileRow.getCell(9)));
             	serverProfile.setParameters(deserializeJsonToMap(MetricsUtils.cellValue(serverProfileRow.getCell(10))));
             }
-        }   
+        }
 		return  serverProfile;
 	}
 
-	
+
 	@Override
 	public List<ServerProfile> findServerProfiles() {
 		return null;

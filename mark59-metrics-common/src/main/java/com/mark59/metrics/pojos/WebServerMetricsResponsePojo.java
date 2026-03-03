@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Philip Webb
  * Written: Australian Summer 2020
- * 
+ *
  */
 public class WebServerMetricsResponsePojo {
 
@@ -33,13 +33,13 @@ public class WebServerMetricsResponsePojo {
 	private List<ParsedCommandResponse> parsedCommandResponses;
 	private String logLines;
 	private String testModeResult;
-	private String failMsg;	
+	private String failMsg;
 
-	
+
 	public WebServerMetricsResponsePojo() {
 	}
 
-	
+
 	public String getServerProfileName() {
 		return serverProfileName;
 	}
@@ -106,20 +106,20 @@ public class WebServerMetricsResponsePojo {
 
 
 	@Override
-    public String toString() {
+	public String toString() {
 		String parsedCommandResponsesStr = " NULL ";
-		if (parsedCommandResponses!=null) {
-			parsedCommandResponsesStr= Arrays.toString(parsedCommandResponses.toArray());
+		if (parsedCommandResponses != null) {
+			parsedCommandResponsesStr = Arrays.toString(parsedCommandResponses.toArray());
 		}
-		
-        return   "[serverProfileName" + serverProfileName
-        		+ ", server="+ server
-        		+ ", alternativeServerId="+ alternativeServerId
-        		+ ", parsedCommandResponses = "+ parsedCommandResponsesStr  
-        		+ ", logLines = "+ logLines  
-        		+ ", testModeResult  = "+ testModeResult
-        		+ ", failMsg="+ failMsg   
-        		+ "]";
+
+		return "[serverProfileName=" + serverProfileName
+				+ ", server=" + server
+				+ ", alternativeServerId=" + alternativeServerId
+				+ ", parsedCommandResponses=" + parsedCommandResponsesStr
+				+ ", logLines=" + logLines
+				+ ", testModeResult=" + testModeResult
+				+ ", failMsg=" + failMsg
+				+ "]";
 	}
-		
+
 }

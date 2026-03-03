@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,17 +31,42 @@ import com.mark59.core.JmeterFunctionsImpl;
 
 /**
  * A simple encryption program to allow for non clear-case entry of passwords in scripts. <br>
- * It is <b>NOT</b> meant to be used when a high level of security is required.<br>  
+ * It is <b>NOT</b> meant to be used when a high level of security is required.<br>
+ * It is <b>NEVER TO BE USED IN A PRODUCTION IMPLEMENTATION</b><br>
  * Reference: https://howtodoinjava.com/security/java-aes-encryption-example
+ *
+ *
+ * <p><b>This class does not handle modern cryptography standards.</b> As of version 5.6, 
+ * the preferred way to handle this is via the new {@link SecureAES} class.
  * 
- * @author Philip Webb    
- * Written: Australian Winter 2019  
+ * <p>The only use case would be to 'decrypt' an existing string when you have lost 
+ * its actual value.
+ * 
+ * <p>This class <b>will be removed in the next release</b>, as it may become problematic for 
+ * automated security scans in future. 
+ * @deprecated
+ *
+ *
+ * @author Philip Webb
+ * Written: Australian Winter 2019
  */
+@Deprecated(since = "5.6", forRemoval = true)
 public class SimpleAES {
 
 	private static final Logger LOG = LogManager.getLogger(JmeterFunctionsImpl.class);
-	
+
 	/**
+	 * Private constructor to prevent instantiation of this utility class.
+	 * This class contains only static methods and should not be instantiated.
+	 */
+	private SimpleAES() {
+		// Utility class - no instances should be created
+	}
+
+	/**
+	 * <b>DO NOT USE</b> when a anything other than the use of non clear case password
+	 * level of security is required.<br>
+	 * It is <b>NEVER TO BE USED IN A PRODUCTION IMPLEMENTATION</b><br>
 	 * @param strToEncrypt string to encrypt
 	 * @return encrypted string
 	 */
@@ -62,10 +87,12 @@ public class SimpleAES {
 		return null;
 	}
 
-	
+
 	/**
+	 * return decrypted string
 	 * @param strToDecrypt  string to decrypt
-	 * @return decrypted string
+	 * @return string
+	 * @throws RuntimeException if decryption fails
 	 */
 	public static synchronized String decrypt(String strToDecrypt) {
 		try {
@@ -85,10 +112,10 @@ public class SimpleAES {
 		}
 	}
 
-	
+
 	/**
-	 * uncomment and run this main to see how encrypt/decrypt works on a given string.
-	 * @param args no args required
+	 * Main method for encrypt/decrypt a string
+	 * @param args  none required
 	 */
 	public static void main(String[] args) {
 		String originalString = "My test string!";

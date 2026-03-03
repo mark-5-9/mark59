@@ -1,34 +1,34 @@
 
 -- DROP DATABASE IF EXISTS mark59metricsdb;
-CREATE DATABASE mark59metricsdb CHARACTER SET utf8mb4  COLLATE utf8mb4_bin; 
+CREATE DATABASE mark59metricsdb CHARACTER SET utf8mb4  COLLATE utf8mb4_bin;
 
 USE mark59metricsdb;
 
 
--- PLEASE RUN  "MYSQLcreateAdminUser.sql"  TO CREATE THE 'ADMIN' USER IF YOU HAVE NOT ALREADY DONE SO.  
+-- PLEASE RUN  "MYSQLcreateAdminUser.sql"  TO CREATE THE 'ADMIN' USER IF YOU HAVE NOT ALREADY DONE SO.
 
 -- Note that character set utf8mb4 is the default from MySQL 8.0.
 -- The collation for the database is set to utf8mb4_bin
--- Useful as is allows for stuff like case-sensitive eventmapping matching.  Also aligns H2 database and Java case sensitive sorting.           
+-- Useful as is allows for stuff like case-sensitive eventmapping matching.  Also aligns H2 database and Java case sensitive sorting.
 
 
--- create tables  -- 
+-- create tables  --
 
 
 CREATE TABLE IF NOT EXISTS SERVERPROFILES  (
    SERVER_PROFILE_NAME  varchar(64)   NOT NULL,
-   EXECUTOR             varchar(32)   NOT NULL,   
+   EXECUTOR             varchar(32)   NOT NULL,
    SERVER               varchar(64)   DEFAULT '',
    ALTERNATE_SERVER_ID  varchar(64)   DEFAULT '',
    USERNAME             varchar(64)   DEFAULT '',
    PASSWORD             varchar(64)   DEFAULT '',
-   PASSWORD_CIPHER      varchar(64)   DEFAULT '',
+   PASSWORD_CIPHER      varchar(512)  DEFAULT '',
    CONNECTION_PORT      varchar(8)    DEFAULT '',
    CONNECTION_TIMEOUT   varchar(8)    DEFAULT '',
    COMMENT              varchar(128)  DEFAULT NULL,
-   PARAMETERS           varchar(8196) DEFAULT NULL,   
+   PARAMETERS           varchar(8196) DEFAULT NULL,
   PRIMARY KEY ( SERVER_PROFILE_NAME )
-); 
+);
 
 
 CREATE TABLE IF NOT EXISTS COMMANDS  (
@@ -37,9 +37,9 @@ CREATE TABLE IF NOT EXISTS COMMANDS  (
    COMMAND         MEDIUMTEXT    NOT NULL,
    IGNORE_STDERR   varchar(1)    DEFAULT NULL,
    COMMENT         varchar(128)  DEFAULT NULL,
-   PARAM_NAMES     varchar(1000) DEFAULT NULL,   
+   PARAM_NAMES     varchar(1000) DEFAULT NULL,
   PRIMARY KEY ( COMMAND_NAME )
-); 
+);
 
 
 CREATE TABLE IF NOT EXISTS SERVERCOMMANDLINKS  (
@@ -57,17 +57,17 @@ CREATE TABLE IF NOT EXISTS COMMANDRESPONSEPARSERS  (
    COMMENT  varchar(1024) NOT NULL,
    SAMPLE_COMMAND_RESPONSE  varchar(8196) NOT NULL,
   PRIMARY KEY ( PARSER_NAME )
-); 
+);
 
 
 CREATE TABLE IF NOT EXISTS COMMANDPARSERLINKS  (
    COMMAND_NAME  varchar(64) NOT NULL,
    PARSER_NAME  varchar(64) NOT NULL,
   PRIMARY KEY ( COMMAND_NAME , PARSER_NAME )
-); 
+);
 
 
--- populate with initial data  -- 
+-- populate with initial data  --
 
 INSERT INTO `SERVERPROFILES` VALUES ('DemoLINUX-DataHunterPlaywrightDeployAndExecute','SSH_LINUX_UNIX','localhost','','','','','22','60000','',NULL);
 INSERT INTO `SERVERPROFILES` VALUES ('DemoLINUX-DataHunterSeleniumDeployAndExecute','SSH_LINUX_UNIX','localhost','','','','','22','60000','',NULL);

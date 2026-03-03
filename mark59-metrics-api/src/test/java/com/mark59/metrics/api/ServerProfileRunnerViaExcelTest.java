@@ -74,6 +74,13 @@ public class ServerProfileRunnerViaExcelTest  {
 				MetricsApiConstants.RUNNING_VIA_EXCEL);
  		workbook.close();
 
+//		System.out.println(">>>> loglines >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//		System.out.println(response.getLogLines());
+//		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+//		System.out.println(">>>> getTestModeResult>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+//		System.out.println(response.getTestModeResult());
+//		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
  		ParsedCommandResponse parsedCommandResponse = response.getParsedCommandResponses().get(0);
 		assertEquals("number of commands", 1, response.getParsedCommandResponses().size());
 		assertEquals(parsedCommandResponse.isCommandFailure(), false);
@@ -85,22 +92,13 @@ public class ServerProfileRunnerViaExcelTest  {
 		assertEquals(parsedMetrics.get(2).toString(), "[label=some_datapoint, result=66.6, dataType=DATAPOINT, success=true, parseFailMsg=null]");		
 		assertEquals(response.getFailMsg(), "");
 		
-		System.out.println(">>>> loglines >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-		System.out.println(response.getLogLines());
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-		System.out.println(">>>> getTestModeResult>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-		System.out.println(response.getTestModeResult());
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-		
-		
-		
 		assertTrue(response.getLogLines(), response.getTestModeResult().contains(
-				"<font color='green'> You have received metrics results!  Please check the values are as you expect. ["));		
+				"<font color='green'> You have received metrics results! Please check the values are as you expect. ["));	
     }
 
 	
 	@Test
-    public final void testServerProfileRunnerUsingDuffSimpleScriptSampleRunnerExcelSheet() throws EncryptedDocumentException, IOException
+    public final void testServerProfileRunnerOutputsExpectedResponsesOnaBadCommandUsingSampleExcelSheet() throws EncryptedDocumentException, IOException
     {
 		String testModeNo = "Y"; // a hack to get the test summary
 		File excelFile = new File("./src/test/resources/duffSimple/mark59serverprofiles.xlsx");
@@ -125,11 +123,18 @@ public class ServerProfileRunnerViaExcelTest  {
 				MetricsApiConstants.RUNNING_VIA_EXCEL);
  		workbook.close();
 
-		ParsedCommandResponse parsedCommandResponse = response.getParsedCommandResponses().get(0);
+// 		System.out.println(">>>> loglines >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+// 		System.out.println(response.getLogLines());
+// 		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+// 		System.out.println(">>>> getTestModeResult>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+// 		System.out.println(response.getTestModeResult());
+// 		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");		
+
+ 		ParsedCommandResponse parsedCommandResponse = response.getParsedCommandResponses().get(0);
 		assertEquals("number of commands", 1, response.getParsedCommandResponses().size());
 		assertEquals(parsedCommandResponse.isCommandFailure(), true);
 		
-		// System.out.println("parsedCommandResponse.getCommandResponse() = " + parsedCommandResponse.getCommandResponse() );
+//		System.out.println("parsedCommandResponse.getCommandResponse() = " + parsedCommandResponse.getCommandResponse() );
 		
 		assertTrue(parsedCommandResponse.getCommandResponse().contains(
 				"Failure attempting to execute groovy script command : No such property: scriptResponseZ"));
@@ -137,12 +142,12 @@ public class ServerProfileRunnerViaExcelTest  {
 		List<ParsedMetric> parsedMetrics = parsedCommandResponse.getParsedMetrics();
 		assertEquals("number of parsed metrics", 0, parsedMetrics.size());
 		
-		// System.out.println("response.getLogLines() = " + response.getLogLines());
+//		System.out.println("response.getLogLines() = " + response.getLogLines());
 		
 		assertTrue(response.getLogLines(), response.getLogLines().contains(
 				"Command SimpleScriptSampleCmd, on Server Profile SimpleScriptSampleRunner has failed."));	 		
 		assertTrue(response.getTestModeResult(), response.getTestModeResult().contains(
-				"<font color='red'> You have not received any metrics back!  Please check your commands (1 failures recorded)"));	
+				"<font color='red'> You have not received any metrics back! Please check your commands (1 failures recorded)"));	
 		assertEquals(response.getFailMsg(), "");
     }
 	

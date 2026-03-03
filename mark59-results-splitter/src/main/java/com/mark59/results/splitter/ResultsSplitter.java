@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,110 +51,110 @@ import com.opencsv.exceptions.CsvValidationException;
 
 
 /**
- * Parses a Jmeter results file(s) in XML or CSVformat, and converts the data to CSV formatted file(s) suitable to produce Jmeter Reports. See program arguments
+ * Parses a Jmeter results file(s) in XML or CSV format, and converts the data to CSV formatted file(s) suitable to produce Jmeter Reports. See program arguments
  *  descriptions for more detail on file output options.
- * 
+ *
  * <p>For XML, the general format of the file we want to parse:
  * <pre>{@code
  *   <sample t="871" it="0" lt="0" ct="0" ts="1513135421532" s="true" lb="MyApp_010_HomePage" rc="200" rm="PASS" tn="tgMyApp 1-1" dt="" by="0" sby="0" ng="1" na="2"/>
- * }</pre>    
+ * }</pre>
  * - see http://jmeter.apache.org/usermanual/listeners.html  (section 12.4 and 12.7 for formats).  We want to turn it into a line of csv which kinda looks like:
  * <pre>
  *     timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
  *     1513135421532,871,MyApp_010_HomePage,200,PASS,tgMyApp 1-1,,true,,0,0,1,2,null,0,0,0
  * </pre>
- * 
- * <p>More generally, the field CSV format and its relationship to XML attribute names (data line stretched out to make it easier to read) is assumed to be:  
+ *
+ * <p>More generally, the field CSV format and its relationship to XML attribute names (data line stretched out to make it easier to read) is assumed to be:
  * <pre>
  *     timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
- *     ts,       t,      lb   ,rc (added)  ,rm (added)     ,tn        ,dt      ,s      ,(unmapped)    ,by   ,sby      ,ng        ,na        ,*  ,lt     ,it      ,ct       
- * </pre> 
+ *     ts,       t,      lb   ,rc (added)  ,rm (added)     ,tn        ,dt      ,s      ,(unmapped)    ,by   ,sby      ,ng        ,na        ,*  ,lt     ,it      ,ct
+ * </pre>
  * * URL is unmapped
  * <p>For CSV, the fields are simply (re)ordered the same way for all files (so that only one format for the header is required).
- *   
+ *
  * <p>For both CSV and XML files, additional entries may be produced for ERROR reporting,  See the "errortransactionnaming (e)" program argument description.
- *   
+ *
  * <p>Will process all the JMeter results files (suffixes .xml, .csv or .jtl) residing in the top level of the input directory.
- * 
+ *
  * @author Philip Webb
- * Written: Australian Winter 2019  
+ * Written: Australian Winter 2019
  */
-public class ResultsSplitter { 
-	
-	public static final String MARK59_VERSION  = "6.4";	
+public class ResultsSplitter {
+
+	public static final String MARK59_VERSION = "6.5";
 
 	public static final String ERROR_TXNS_NO						= "No";
 	public static final String ERROR_TXNS_RENAME					= "Rename";
 	public static final String ERROR_TXNS_DUPLICATE					= "Duplicate";
-	
+
 	public static final String METRICS_FILE_NO 						= "No";
 	public static final String METRICS_FILE_CREATE_METRICS_REPORT	= "CreateMetricsReport";
 	public static final String METRICS_FILE_SPLIT_BY_DATATYPE 		= "SplitByDataType";
 
-	private static final String IGNORE ="IGNORE";
-	
+	private static final String IGNORE = "IGNORE";
+
 	/* taken from Commons StringUtils */
-    public static final int INDEX_NOT_FOUND = -1;
-	
-	private static final String DEFAULT_OUTPUT_FOLDER 	= "MERGED";
-	private static final String DEFAULT_NO			  	= "NO";
-	
-	public static final String CDP_TAG 	= " (CDP)";
-	
+	public static final int INDEX_NOT_FOUND = -1;
+
+	private static final String DEFAULT_OUTPUT_FOLDER = "MERGED";
+	private static final String DEFAULT_NO = "NO";
+
+	public static final String CDP_TAG = " (CDP)";
+
 	/* argCdpfilter values */
-	public static final String SHOW_CDP	= "ShowCDP";
-	public static final String HIDE_CDP	= "HideCDP";
+	public static final String SHOW_CDP = "ShowCDP";
+	public static final String HIDE_CDP = "HideCDP";
 	public static final String ONLY_CDP = "OnlyCDP";
-	
-	private static String argInputdirectory;	
-	private static String argOutputdirectoy;	
-	private static String argOutputFilename;	
-	private static String argErrortransactions;	
-	private static String argeXcludeResultsWithSub;	
-	private static String argMetricsfile;	
-	private static String argCdpfilter;	
-	
+
+	private static String argInputdirectory;
+	private static String argOutputdirectory;
+	private static String argOutputFilename;
+	private static String argErrortransactions;
+	private static String argeXcludeResultsWithSub;
+	private static String argMetricsfile;
+	private static String argCdpfilter;
+
 	private static final String CSV_STANDARD_HEADER = "timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,"
 			+ "failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect";
-	
+
 	private static final String CSV_STANDARD_HEADER_PLUS_HOSTNAME = "timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,"
 			+ "failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,Hostname,IdleTime,Connect";
 
 	private static final String[] blankLine = {"0","0","","0","","","","","","0","0","0","0","","0","","0","0"};
-	
+
 	private final String[] nextLine = new String[18];
 
 	private int fieldPostimeStamp;
-	private int fieldPoselapsed;	
-	private int fieldPoslabel;	
-	private int fieldPosresponseCode;  
-	private int fieldPosresponseMessage;		
-	private int fieldPosthreadName; 
-	private int fieldPosdataType;	
+	private int fieldPoselapsed;
+	private int fieldPoslabel;
+	private int fieldPosresponseCode;
+	private int fieldPosresponseMessage;
+	private int fieldPosthreadName;
+	private int fieldPosdataType;
 	private int fieldPossuccess;
-	private int fieldPosfailureMessage;		
-	private int fieldPosbytes;	
+	private int fieldPosfailureMessage;
+	private int fieldPosbytes;
 	private int fieldPossentBytes;
 	private int fieldPosgrpThreads;
 	private int fieldPosallThreads;
-	private int fieldPosURL;	
+	private int fieldPosURL;
 	private int fieldPosLatency;
-	private int fieldPosHostname;	
+	private int fieldPosHostname;
 	private int fieldPosIdleTime;
 	private int fieldPosConnect;
 
 	private CSVWriter baseCsvFileNameWriter;
-	private CSVWriter metrics_CsvFileNameWriter; 	
-	private CSVWriter datapoint_CsvFileNameWriter; 	
-	private CSVWriter cpu_util_CsvFileNameWriter; 	
+	private CSVWriter metrics_CsvFileNameWriter;
+	private CSVWriter datapoint_CsvFileNameWriter;
+	private CSVWriter cpu_util_CsvFileNameWriter;
 	private CSVWriter memory_CsvFileNameWriter;
 
 	public void parseArguments(String[] args) {
-		
+
 		Options options = new Options();
 		options.addOption("i", "inputdirectory", true,
 				"The directory containing the performance test result file(s).  Multiple xml/csv/jtl results files allowed.  Default is current directory");
-		options.addOption("o", "outputdirectoy", true,
+		options.addOption("o", "outputdirectory", true,
 				"Directory in which to write the output CSV file. Must already exist.  Default is a folder named 'MERGED' under the input directory");
 		options.addRequiredOption("f", "outputFilename", true,
 				"Base output CSV file name.  File extension will be .csv (will be suffixed .csv even if not included in the argument).  If metrics are split out, "
@@ -171,32 +171,32 @@ public class ResultsSplitter {
 		options.addOption("c", "cdpfilter", true,
 				"'ShowCDP' (the default) will include CDP transaction in the transactions. 'HideCDP' will remove any CDP transactions from the report. "
 				+ "'OnlyCDP' will create a transactions report that ONLY contains transactions marked as CDP transactions.  Any separate Metrics report(s) will not be "
-				+ "affected, as CDP filtering is only to transactional data");		
-		
+				+ "affected, as CDP filtering is only to transactional data");
+
 		HelpFormatter formatter = new HelpFormatter();
 		CommandLine commandLine;
 		CommandLineParser parser = new DefaultParser();
 		try {
 			commandLine = parser.parse( options, args );
 		} catch( ParseException exp ) {
-			System.err.println( "ERROR:  ERROR : Parsing failed.  Reason: " + exp.getMessage() );
+			System.err.println( "ERROR : Parsing failed.  Reason: " + exp.getMessage() );
 			formatter.printHelp( "ResultsConverter", options );
 			printSampleUsage();
-			throw new RuntimeException(); 
+			throw new RuntimeException();
 		}
-		
+
 		String cwd = System.getProperty("user.dir");
 		System.out.println("cwd = "  + cwd);
-		
-		argInputdirectory 		 = commandLine.getOptionValue("i", cwd);	
-		argOutputdirectoy		 = commandLine.getOptionValue("o", argInputdirectory + File.separator + DEFAULT_OUTPUT_FOLDER );	
-		argOutputFilename		 = commandLine.getOptionValue("f");	
-		argErrortransactions	 = commandLine.getOptionValue("e", DEFAULT_NO);	
-		argeXcludeResultsWithSub = commandLine.getOptionValue("x", "True");	
-		argMetricsfile			 = commandLine.getOptionValue("m", DEFAULT_NO);	
-		argCdpfilter			 = commandLine.getOptionValue("c", SHOW_CDP);	
-	
-	
+
+		argInputdirectory 		 = commandLine.getOptionValue("i", cwd);
+		argOutputdirectory		 = commandLine.getOptionValue("o", argInputdirectory + File.separator + DEFAULT_OUTPUT_FOLDER );
+		argOutputFilename		 = commandLine.getOptionValue("f");
+		argErrortransactions	 = commandLine.getOptionValue("e", DEFAULT_NO);
+		argeXcludeResultsWithSub = commandLine.getOptionValue("x", "True");
+		argMetricsfile			 = commandLine.getOptionValue("m", DEFAULT_NO);
+		argCdpfilter			 = commandLine.getOptionValue("c", SHOW_CDP);
+
+
 		File inputdirectory = new File(argInputdirectory);
 		if (! inputdirectory.exists()) {
 			throwRuntimeError(options, "The input directory (option i) '" + argInputdirectory + "' must exist! "  );
@@ -204,65 +204,65 @@ public class ResultsSplitter {
 		if (! inputdirectory.isDirectory()) {
 			throwRuntimeError(options, "The input directory (option i) '" + argInputdirectory + "' must be a directory (not a file) "  );
 		}
-		
-		File outputdirectory = new File(argOutputdirectoy);
+
+		File outputdirectory = new File(argOutputdirectory);
 		if (! outputdirectory.exists()) {
-			throwRuntimeError(options, "The output directory (option o) '" + argOutputdirectoy + "' must exist! (please note it should also be a directory) "  );
+			throwRuntimeError(options, "The output directory (option o) '" + argOutputdirectory + "' must exist! (please note it should also be a directory) "  );
 		}
 		if (! outputdirectory.isDirectory()) {
-			throwRuntimeError(options, "The output directory (option o) '" + argOutputdirectoy + "' must be a directory (not a file) "  );
+			throwRuntimeError(options, "The output directory (option o) '" + argOutputdirectory + "' must be a directory (not a file) "  );
 		}
-			
-		if ( !ERROR_TXNS_NO.equalsIgnoreCase(argErrortransactions)  
+
+		if ( !ERROR_TXNS_NO.equalsIgnoreCase(argErrortransactions)
 				&&  !ERROR_TXNS_RENAME.equalsIgnoreCase(argErrortransactions)
 				&&  !ERROR_TXNS_DUPLICATE.equalsIgnoreCase(argErrortransactions)) {
-			throwRuntimeError(options, "The errortransactions (-e) arg must be " + ERROR_TXNS_NO + ", " + ERROR_TXNS_RENAME + ", or  " + ERROR_TXNS_DUPLICATE );   
+			throwRuntimeError(options, "The errortransactions (-e) arg must be " + ERROR_TXNS_NO + ", " + ERROR_TXNS_RENAME + ", or  " + ERROR_TXNS_DUPLICATE );
 		}
-			
+
 		if ( !"TRUE".equalsIgnoreCase(argeXcludeResultsWithSub) &&  !"FALSE".equalsIgnoreCase(argeXcludeResultsWithSub)) {
-			throwRuntimeError(options, "The argeXcludeResultsWithSub (-x) arg must be True or False" );   
+			throwRuntimeError(options, "The argeXcludeResultsWithSub (-x) arg must be True or False" );
 		}
-		
-		if ( !METRICS_FILE_NO.equalsIgnoreCase(argMetricsfile)  
+
+		if ( !METRICS_FILE_NO.equalsIgnoreCase(argMetricsfile)
 				&&  !METRICS_FILE_CREATE_METRICS_REPORT.equalsIgnoreCase(argMetricsfile)
 				&&  !METRICS_FILE_SPLIT_BY_DATATYPE.equalsIgnoreCase(argMetricsfile)) {
-			throwRuntimeError(options, "The metricsfile (-m) arg must be " + METRICS_FILE_NO + ", " + METRICS_FILE_CREATE_METRICS_REPORT 
-					+ ", or  " + METRICS_FILE_SPLIT_BY_DATATYPE );   
+			throwRuntimeError(options, "The metricsfile (-m) arg must be " + METRICS_FILE_NO + ", " + METRICS_FILE_CREATE_METRICS_REPORT
+					+ ", or  " + METRICS_FILE_SPLIT_BY_DATATYPE );
 		}
-		
-		if ( !SHOW_CDP.equalsIgnoreCase(argCdpfilter)  
+
+		if ( !SHOW_CDP.equalsIgnoreCase(argCdpfilter)
 				&&  !HIDE_CDP.equalsIgnoreCase(argCdpfilter)
 				&&  !ONLY_CDP.equalsIgnoreCase(argCdpfilter)) {
-			throwRuntimeError(options, "The cdpfilter (-c) arg must be " + SHOW_CDP + ", " + HIDE_CDP + ", or  " + ONLY_CDP );   
+			throwRuntimeError(options, "The cdpfilter (-c) arg must be " + SHOW_CDP + ", " + HIDE_CDP + ", or  " + ONLY_CDP );
 		}
 
-		
+
 		System.out.println();
-		System.out.println("JmterResultsConverter  executing using the following arguments " );
-		System.out.println("-------------------------------------------------------------- " );	
-		System.out.println(" inputdirectory        : " + argInputdirectory );				    
-		System.out.println(" outputdirectoy        : " + argOutputdirectoy );
+		System.out.println("ResultsSplitter executing using the following arguments " );
+		System.out.println("-------------------------------------------------------------- " );
+		System.out.println(" inputdirectory        : " + argInputdirectory );
+		System.out.println(" outputdirectory       : " + argOutputdirectory );
 		System.out.println(" outputFilename        : " + argOutputFilename );
-		System.out.println(" errortransactions     : " + argErrortransactions );		
-		System.out.println(" eXcludeResultsWithSub : " + argeXcludeResultsWithSub );		
-		System.out.println(" metricsfile           : " + argMetricsfile );				
-		System.out.println(" cdpfilter             : " + argCdpfilter );				
-		System.out.println("-------------------------------------------------------------- " );			    
+		System.out.println(" errortransactions     : " + argErrortransactions );
+		System.out.println(" eXcludeResultsWithSub : " + argeXcludeResultsWithSub );
+		System.out.println(" metricsfile           : " + argMetricsfile );
+		System.out.println(" cdpfilter             : " + argCdpfilter );
+		System.out.println("-------------------------------------------------------------- " );
 		System.out.println();
-	}	
-	
-	
+	}
+
+
 
 	private void throwRuntimeError(Options options, String error) {
-		new HelpFormatter().printHelp( "JmterResultsConverter", options );
+		new HelpFormatter().printHelp( "ResultsSplitter", options );
 		printSampleUsage();
-		throw new RuntimeException(error); 
+		throw new RuntimeException(error);
 	}
 
 
 
 	private void printSampleUsage() {
-		System.out.println();	
+		System.out.println();
 		System.out.println( "Sample usage");
 		System.out.println( "------------");
 		System.out.println( "1.  Concatenate a set of Jmeter result files in D:/Jmeter_Results/MyTestApp, into a single .csv result file, output file"
@@ -270,13 +270,13 @@ public class ResultsSplitter {
 		System.out.println( "      java -jar mark59-results-splitter.jar -iD:\\Jmeter_Results\\MyTestApp\\ -fMyTestAppJmeterResult" );
 		System.out.println( "2.  As above (but with the current directory set as D:/Jmeter_Results/MyTestApp before running), but this time split the"
 				+ " metric data types out into separate csv files, and suffix errored txns named with _ERRORED  ");
-		System.out.println( "      java -jar mark59-results-splitter.jar -fMyTestAppJmeterResult -eRename -mSplitByDataType" );		
+		System.out.println( "      java -jar mark59-results-splitter.jar -fMyTestAppJmeterResult -eRename -mSplitByDataType" );
 		System.out.println();
 	}
 
-	
+
 	public void clearOutputDirectory() {
-		File outputDirectory = new File(argOutputdirectoy);
+		File outputDirectory = new File(argOutputdirectory);
 		if (outputDirectory.listFiles() != null) {
 			for (File file : Objects.requireNonNull(outputDirectory.listFiles())) {
 				if (!file.isDirectory()) {
@@ -284,99 +284,97 @@ public class ResultsSplitter {
 				}
 			}
 		}
-	}	
-	
-	
+	}
+
+
 	public int convert() throws IOException,  ParserConfigurationException, SAXException {
 
-		String outputBaseCsvFileName = argOutputdirectoy + File.separator + removeCsvSuffixIfEntered(argOutputFilename);
+		String outputBaseCsvFileName = argOutputdirectory + File.separator + removeCsvSuffixIfEntered(argOutputFilename);
 		baseCsvFileNameWriter = initializeCsvWriter(outputBaseCsvFileName + ".csv");
-		
+
 		boolean metricsOutputCsvFilesInitialized = false;
 		int sampleCount = 0;
-		
+
 		File jmeterResultsDirectory = new File(argInputdirectory);
-		
+
 		if (jmeterResultsDirectory.listFiles() != null) {
-		
+
 			for (File jmeterResultsFile : Objects.requireNonNull(jmeterResultsDirectory.listFiles())){
-			
+
 				if ( jmeterResultsFile.isFile() && (
-						jmeterResultsFile.getName().toUpperCase().endsWith(".JTL") || 
-						jmeterResultsFile.getName().toUpperCase().endsWith(".XML") || 
+						jmeterResultsFile.getName().toUpperCase().endsWith(".JTL") ||
+						jmeterResultsFile.getName().toUpperCase().endsWith(".XML") ||
 						jmeterResultsFile.getName().toUpperCase().endsWith(".CSV"))){
-					
+
 					if (!metricsOutputCsvFilesInitialized) {
 						metricsOutputCsvFilesInitialized = true;
 						initializeCsvMetricWriters(outputBaseCsvFileName);
-					}				
-					
+					}
+
 					try {
-						sampleCount = sampleCount + convertaJmeterFile(jmeterResultsFile);
+						sampleCount = sampleCount + convertJmeterFile(jmeterResultsFile);
 					} catch (IOException e) {
 						System.out.println( "Error: problem with processing Jmeter results file transactions " + jmeterResultsFile.getName() );
 						e.printStackTrace();
 					}
-					
+
 				} else {
-					System.out.println( "\n   " + jmeterResultsFile.getName() + " bypassed"  ); 
+					System.out.println( "\n   " + jmeterResultsFile.getName() + " bypassed"  );
 				}
 			}
-			
+
 		} else {
 			throw new RuntimeException("Was unable to list file(s) from the input directory : " + argInputdirectory);
 		}
-		
+
 		baseCsvFileNameWriter.close();
 	    if (metricsOutputCsvFilesInitialized) {
 	    	closeCsvMetricWriters();
 	    }
-	    
+
 	    System.out.println("____________________________________" );
 	    System.out.println(sampleCount + " Total samples written" );
-	    System.out.println(" " );	    
+	    System.out.println(" " );
 	    return sampleCount;
 	}
 
-	
+
 	/**
-	 * Determine the JMeter file data format . A validly named and structured JMeter results file is expected to be passed for conversion. 
-	 * 
+	 * Determine the JMeter file data format. A validly named and structured JMeter results file is expected to be passed for conversion.
+	 *
 	 * @param jmeterResultsFile jmeterResultsFile
 	 * @throws IOException IOException
-	 * @throws SAXException  SAXException
+	 * @throws SAXException SAXException
 	 * @throws ParserConfigurationException ParserConfigurationException
 	 */
-	private int convertaJmeterFile(File jmeterResultsFile) throws IOException, ParserConfigurationException, SAXException {
-		
-		FileReader fileReader = new FileReader(jmeterResultsFile);
-		BufferedReader brOneLine = new BufferedReader(fileReader);
-		String firstLineOfFile = brOneLine.readLine();
-		brOneLine.close();
-		
-		if (firstLineOfFile == null) {
-			System.out.println("   Warning : " + jmeterResultsFile.getName() + " bypassed - empty file" );
-			return 0;
-		
-		} else  if (firstLineOfFile.trim().startsWith("<")) {
-			return convertXMLFile(jmeterResultsFile);
-			
-		} else if (firstLineOfFile.trim().startsWith("timeStamp") &&  firstLineOfFile.matches("timeStamp.elapsed.*")){	
-			return reformatCSVFile(jmeterResultsFile, true);
-			
-		//assuming a headerless CSV file in default layout	
-		} else if ( firstLineOfFile.length() > 28 && countMatches(firstLineOfFile, ",") > 14  && firstLineOfFile.indexOf(",") == 13   ){  
-			return reformatCSVFile(jmeterResultsFile, false);
-			
-		} else {
-			System.out.println("   Warning : " + jmeterResultsFile.getName() + " bypassed - not in expected Jmeter results format. "
-					+ "(Does not start with regex 'timeStamp.elapsed' (csv) or '<' (xml))" );
-			return 0;
-		}
+	private int convertJmeterFile(File jmeterResultsFile) throws IOException, ParserConfigurationException, SAXException {
 
+		try (BufferedReader brOneLine = new BufferedReader(new FileReader(jmeterResultsFile))) {
+			String firstLineOfFile = brOneLine.readLine();
+
+			if (firstLineOfFile == null) {
+				System.out.println("   Warning : " + jmeterResultsFile.getName() + " bypassed - empty file");
+				return 0;
+
+			} else if (firstLineOfFile.trim().startsWith("<")) {
+				return convertXMLFile(jmeterResultsFile);
+
+			} else if (firstLineOfFile.trim().startsWith("timeStamp") && firstLineOfFile.matches("timeStamp.elapsed.*")) {
+				return reformatCSVFile(jmeterResultsFile, true);
+
+			// assuming a headerless CSV file in default layout
+			} else if (firstLineOfFile.length() > 28 && countMatches(firstLineOfFile, ",") > 14 && firstLineOfFile.indexOf(",") == 13) {
+				return reformatCSVFile(jmeterResultsFile, false);
+
+			} else {
+				System.out.println("   Warning : " + jmeterResultsFile.getName() + " bypassed - not in expected Jmeter results format. "
+						+ "(Does not start with regex 'timeStamp.elapsed' (csv) or '<' (xml))");
+				return 0;
+			}
+		}
 	}
-	
-	
+
+
 	private String removeCsvSuffixIfEntered(String argOutputFilename) {
 		if ( argOutputFilename.toUpperCase().endsWith(".CSV")){
 			return argOutputFilename.substring(0, argOutputFilename.length()-4);
@@ -386,111 +384,111 @@ public class ResultsSplitter {
 
 
 	private void initializeCsvMetricWriters(String outputBaseCsvFileName) {
-		
+
 		if (METRICS_FILE_CREATE_METRICS_REPORT.equalsIgnoreCase(argMetricsfile)) {
 			metrics_CsvFileNameWriter  	= initializeCsvWriter(outputBaseCsvFileName + "_METRICS.csv");
 
 		} else if (METRICS_FILE_SPLIT_BY_DATATYPE.equalsIgnoreCase(argMetricsfile)) {
-			cpu_util_CsvFileNameWriter 	= initializeCsvWriter(outputBaseCsvFileName + "_" + JMeterFileDatatypes.CPU_UTIL.name() + ".csv");		
-			datapoint_CsvFileNameWriter	= initializeCsvWriter(outputBaseCsvFileName + "_" + JMeterFileDatatypes.DATAPOINT.name() + ".csv");		
-			memory_CsvFileNameWriter 	= initializeCsvWriter(outputBaseCsvFileName + "_" + JMeterFileDatatypes.MEMORY.name() + ".csv");		
+			cpu_util_CsvFileNameWriter 	= initializeCsvWriter(outputBaseCsvFileName + "_" + JMeterFileDatatypes.CPU_UTIL.name() + ".csv");
+			datapoint_CsvFileNameWriter	= initializeCsvWriter(outputBaseCsvFileName + "_" + JMeterFileDatatypes.DATAPOINT.name() + ".csv");
+			memory_CsvFileNameWriter 	= initializeCsvWriter(outputBaseCsvFileName + "_" + JMeterFileDatatypes.MEMORY.name() + ".csv");
 		}
 	}
 
-	
+
 	private void closeCsvMetricWriters() throws IOException {
-		
+
 		if (METRICS_FILE_CREATE_METRICS_REPORT.equalsIgnoreCase(argMetricsfile)) {
 			metrics_CsvFileNameWriter.close();
 
 		} else if (METRICS_FILE_SPLIT_BY_DATATYPE.equalsIgnoreCase(argMetricsfile)) {
 			cpu_util_CsvFileNameWriter.close();
-			datapoint_CsvFileNameWriter.close();		
-			memory_CsvFileNameWriter.close();		
+			datapoint_CsvFileNameWriter.close();
+			memory_CsvFileNameWriter.close();
 		}
 	}
 
-	
+
 	private CSVWriter initializeCsvWriter(String csvWriterFileName) {
 		System.out.println("initializeCsvWriter " + csvWriterFileName);
 		CSVWriter csvWriter;
 		try {
 			FileWriter fileWriter = new FileWriter(csvWriterFileName, false);
 			BufferedWriter bf = new BufferedWriter(fileWriter);
-			csvWriter = new CSVWriter(bf, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, 
-					CSVWriter.DEFAULT_LINE_END)					;		
-			csvWriter.writeNext(CSV_STANDARD_HEADER_PLUS_HOSTNAME.split(","), false   );  
+			csvWriter = new CSVWriter(bf, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+					CSVWriter.DEFAULT_LINE_END)					;
+			csvWriter.writeNext(CSV_STANDARD_HEADER_PLUS_HOSTNAME.split(","), false   );
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Was unable to open output csv file '" + csvWriterFileName + "' for output'.  \n\n    " + e.getMessage());
 		}
 		return csvWriter;
 	}
-	
-		
-	
-	public int convertXMLFile(File inputXmlFileName) throws IOException,  ParserConfigurationException, SAXException {
 
-		long startLoadms = System.currentTimeMillis(); 
-		System.out.println("\n\nProcessing Xml formatted Jmeter Results File " + inputXmlFileName.getName() + " at " + new Date(startLoadms));		
-		
-		int samplesCreated=0;
-		BufferedReader xmlReader = new BufferedReader(new FileReader(inputXmlFileName));
-		int lineCount = 0; 
+
+
+	public int convertXMLFile(File inputXmlFileName) throws IOException, ParserConfigurationException, SAXException {
+
+		long startLoadms = System.currentTimeMillis();
+		System.out.println("\n\nProcessing Xml formatted Jmeter Results File " + inputXmlFileName.getName() + " at " + new Date(startLoadms));
+
+		int samplesCreated = 0;
+		int lineCount = 0;
 		boolean isWithinASampleResult = false;
 		String potentialSampleResultWithNoSubResults = null;
-		
-	    for (String jmeterFileLine; (jmeterFileLine = xmlReader.readLine()) != null; ){
-	    	jmeterFileLine = jmeterFileLine.trim();
-	    	
-	    	if ( jmeterXmlLineIsAClosedSample(jmeterFileLine) ) {   
-	    		samplesCreated = samplesCreated + createOutputForAnXmlDataSample(jmeterFileLine);
-    			potentialSampleResultWithNoSubResults = null;
-    			
-	    	} else if ( jmeterXmlLineIsAnUnclosedSample(jmeterFileLine) ){   
-	    		
-	    		if (argeXcludeResultsWithSub.equalsIgnoreCase("FALSE") ){
-	    			samplesCreated = samplesCreated + createOutputForAnXmlDataSample(jmeterFileLine);	
-    			
-	    		} else if (isWithinASampleResult) {
-	    			samplesCreated = samplesCreated + createOutputForAnXmlDataSample(jmeterFileLine);
-	    			potentialSampleResultWithNoSubResults = null;
-	    			lineCount = readLinesToSubResultEndTag(xmlReader, lineCount);
-	    			
-	    		} else { 
-	    			isWithinASampleResult = true;
-	    			potentialSampleResultWithNoSubResults = jmeterFileLine;
-	    		}
-	    		
-	    	} else if ( jmeterXmlLineIsAnEndSampleTag(jmeterFileLine) ){  
-    			
-	    		if (potentialSampleResultWithNoSubResults != null ){
-	    			samplesCreated = samplesCreated + createOutputForAnXmlDataSample(potentialSampleResultWithNoSubResults);
-	    		}	
-	    		isWithinASampleResult = false;
-	    		potentialSampleResultWithNoSubResults = null;
-	    	}
 
-	    	lineCountProgressDisplay(lineCount);
-	    	lineCount++;		    	
-	    } 
-	    
-		long endLoadms = System.currentTimeMillis(); 	    
-		System.out.println("\n   " + inputXmlFileName.getName() + " processing completed  at " +  new Date(endLoadms) + " :" );
-	    System.out.println("        " + lineCount + " file lines processed" );
-	    System.out.println("        " + samplesCreated + " transaction samples loaded" );
-		System.out.println("        took " +  (endLoadms -startLoadms)/1000 + " secs" );	    
+		try (BufferedReader xmlReader = new BufferedReader(new FileReader(inputXmlFileName))) {
+			for (String jmeterFileLine; (jmeterFileLine = xmlReader.readLine()) != null; ) {
+				jmeterFileLine = jmeterFileLine.trim();
+
+				if (jmeterXmlLineIsAClosedSample(jmeterFileLine)) {
+					samplesCreated = samplesCreated + createOutputForAnXmlDataSample(jmeterFileLine);
+					potentialSampleResultWithNoSubResults = null;
+
+				} else if (jmeterXmlLineIsAnUnclosedSample(jmeterFileLine)) {
+
+					if (argeXcludeResultsWithSub.equalsIgnoreCase("FALSE")) {
+						samplesCreated = samplesCreated + createOutputForAnXmlDataSample(jmeterFileLine);
+
+					} else if (isWithinASampleResult) {
+						samplesCreated = samplesCreated + createOutputForAnXmlDataSample(jmeterFileLine);
+						potentialSampleResultWithNoSubResults = null;
+						lineCount = readLinesToSubResultEndTag(xmlReader, lineCount);
+
+					} else {
+						isWithinASampleResult = true;
+						potentialSampleResultWithNoSubResults = jmeterFileLine;
+					}
+
+				} else if (jmeterXmlLineIsAnEndSampleTag(jmeterFileLine)) {
+
+					if (potentialSampleResultWithNoSubResults != null) {
+						samplesCreated = samplesCreated + createOutputForAnXmlDataSample(potentialSampleResultWithNoSubResults);
+					}
+					isWithinASampleResult = false;
+					potentialSampleResultWithNoSubResults = null;
+				}
+
+				lineCountProgressDisplay(lineCount);
+				lineCount++;
+			}
+		}
+
+		long endLoadms = System.currentTimeMillis();
+		System.out.println("\n   " + inputXmlFileName.getName() + " processing completed  at " + new Date(endLoadms) + " :");
+		System.out.println("        " + lineCount + " file lines processed");
+		System.out.println("        " + samplesCreated + " transaction samples loaded");
+		System.out.println("        took " + (endLoadms - startLoadms) / 1000 + " secs");
 		System.out.println();
-	    
-	    xmlReader.close();
-	    return samplesCreated;
+
+		return samplesCreated;
 	}
 
 
 	private boolean jmeterXmlLineIsAClosedSample(String trimmedJmeterFileLine) {
 		return jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("/>");
 	}
-	
+
 	private boolean jmeterXmlLineIsAnUnclosedSample(String trimmedJmeterFileLine) {
 		return jmeterXmlLineIsASample(trimmedJmeterFileLine) && trimmedJmeterFileLine.endsWith("\">");
 	}
@@ -498,10 +496,10 @@ public class ResultsSplitter {
 	private boolean jmeterXmlLineIsASample(String trimmedJmeterFileLine) {
 		return trimmedJmeterFileLine.startsWith("<sample") || trimmedJmeterFileLine.startsWith("<httpSample");
 	}
-	
+
 	private boolean jmeterXmlLineIsAnEndSampleTag(String trimmedJmeterFileLine) {
 		return trimmedJmeterFileLine.startsWith("</sample>") || trimmedJmeterFileLine.startsWith("</httpSample>");
-	}	
+	}
 
 	private int readLinesToSubResultEndTag(BufferedReader xmlReader, int lineCount) throws IOException {
 	    for (String jmeterFileLine; (jmeterFileLine = xmlReader.readLine()) != null; ){
@@ -510,8 +508,8 @@ public class ResultsSplitter {
 	    	jmeterFileLine = jmeterFileLine.trim();
 	    	if (jmeterXmlLineIsAnEndSampleTag(jmeterFileLine)) {
 	    		return lineCount;
-	    	}			
-	    }	
+	    	}
+	    }
 	    throw new RuntimeException("Read to end of file when looking for and sub-result end tag!!!"  );
 	}
 
@@ -519,22 +517,22 @@ public class ResultsSplitter {
 		if ( (lineCount % 1000 )   == 0 ){	System.out.print("^");}
         if ( (lineCount % 100000 ) == 0 ){	System.out.println();}
     }
-	
-		
+
+
 	private int createOutputForAnXmlDataSample(String jmeterFileLine) throws ParserConfigurationException, SAXException, IOException {
-		int samplesCreatedForLine=0; 
-		
+		int samplesCreatedForLine=0;
+
 		if ( ! jmeterFileLine.trim().endsWith("/>")) {
     		//need the line to complete with /> instead of > in order to parse as xml
     		jmeterFileLine = jmeterFileLine.trim().substring(0, jmeterFileLine.trim().length() -1 ) + "/>";
 		}
-//		System.out.println(" xml line = " + xmlLine  );	
+//		System.out.println(" xml line = " + xmlLine  );
 
 		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		InputSource src = new InputSource();
 		src.setCharacterStream(new StringReader(jmeterFileLine));
-		
-		Document document = builder.parse(src);			
+
+		Document document = builder.parse(src);
 
 		NodeList nodeList;
 		if ( jmeterFileLine.trim().startsWith("<sample")){
@@ -545,200 +543,199 @@ public class ResultsSplitter {
 
 		Node sampleNode = nodeList.item(0);
 		NamedNodeMap nodeItems = sampleNode.getAttributes();
-		
+
 		String transactionNameLabel = nodeItems.getNamedItem("lb").getNodeValue();
 		String failureMessage = "";
 		String success = nodeItems.getNamedItem("s").getNodeValue();
 		String inputFileDatatype = nodeItems.getNamedItem("dt").getNodeValue();
-		
+
 		if (! "true".equalsIgnoreCase(success)) {
-			// the response message is used as the failure message 
+			// the response message is used as the failure message
 			if  (nodeItems.getNamedItem("rm") != null) {
-				failureMessage = nodeItems.getNamedItem("rm").getNodeValue(); 
+				failureMessage = nodeItems.getNamedItem("rm").getNodeValue();
 			}
 		}
 
 		if (!transactionNameLabel.startsWith(IGNORE)){
-			
+
 			System.arraycopy(blankLine, 0, nextLine, 0, blankLine.length);
 
-			nextLine[0]  =  nodeItems.getNamedItem("ts").getNodeValue();   
-			nextLine[1]  =  nodeItems.getNamedItem("t").getNodeValue(); 
+			nextLine[0]  =  nodeItems.getNamedItem("ts").getNodeValue();
+			nextLine[1]  =  nodeItems.getNamedItem("t").getNodeValue();
 			nextLine[2]  =  transactionNameLabel;
-			if (nodeItems.getNamedItem("rc")!=null) nextLine[3]  = nodeItems.getNamedItem("rc").getNodeValue(); 
+			if (nodeItems.getNamedItem("rc")!=null) nextLine[3]  = nodeItems.getNamedItem("rc").getNodeValue();
 			if (nodeItems.getNamedItem("rm")!=null) nextLine[4]  = nodeItems.getNamedItem("rm").getNodeValue();
-			if (nodeItems.getNamedItem("tn")!=null) nextLine[5]  = nodeItems.getNamedItem("tn").getNodeValue(); 			
-			nextLine[6]  =  inputFileDatatype; 
+			if (nodeItems.getNamedItem("tn")!=null) nextLine[5]  = nodeItems.getNamedItem("tn").getNodeValue();
+			nextLine[6]  =  inputFileDatatype;
 			nextLine[7]  =  success;
 			nextLine[8]  =  failureMessage;
-			if (nodeItems.getNamedItem("by")!=null) nextLine[9]  = nodeItems.getNamedItem("by").getNodeValue(); 				
-			if (nodeItems.getNamedItem("sby")!=null) nextLine[10] = nodeItems.getNamedItem("sby").getNodeValue(); 				
-			if (nodeItems.getNamedItem("ng")!=null) nextLine[11] = nodeItems.getNamedItem("ng").getNodeValue(); 				
-			if (nodeItems.getNamedItem("na")!=null) nextLine[12] = nodeItems.getNamedItem("na").getNodeValue(); 				
-			if (nodeItems.getNamedItem("by")!=null) nextLine[13] = "";  // URL 				
-			if (nodeItems.getNamedItem("lt")!=null) nextLine[14] = nodeItems.getNamedItem("lt").getNodeValue(); 				
-			if (nodeItems.getNamedItem("hn")!=null) nextLine[15] = nodeItems.getNamedItem("hn").getNodeValue(); 				
-			if (nodeItems.getNamedItem("it")!=null) nextLine[16] = nodeItems.getNamedItem("it").getNodeValue(); 				
-			if (nodeItems.getNamedItem("ct")!=null) nextLine[17] = nodeItems.getNamedItem("ct").getNodeValue(); 				
-			
-			
+			if (nodeItems.getNamedItem("by")!=null) nextLine[9]  = nodeItems.getNamedItem("by").getNodeValue();
+			if (nodeItems.getNamedItem("sby")!=null) nextLine[10] = nodeItems.getNamedItem("sby").getNodeValue();
+			if (nodeItems.getNamedItem("ng")!=null) nextLine[11] = nodeItems.getNamedItem("ng").getNodeValue();
+			if (nodeItems.getNamedItem("na")!=null) nextLine[12] = nodeItems.getNamedItem("na").getNodeValue();
+			if (nodeItems.getNamedItem("by")!=null) nextLine[13] = "";  // URL
+			if (nodeItems.getNamedItem("lt")!=null) nextLine[14] = nodeItems.getNamedItem("lt").getNodeValue();
+			if (nodeItems.getNamedItem("hn")!=null) nextLine[15] = nodeItems.getNamedItem("hn").getNodeValue();
+			if (nodeItems.getNamedItem("it")!=null) nextLine[16] = nodeItems.getNamedItem("it").getNodeValue();
+			if (nodeItems.getNamedItem("ct")!=null) nextLine[17] = nodeItems.getNamedItem("ct").getNodeValue();
+
+
 			if ( !cdpFilterRemovesLine(inputFileDatatype)){
-			
+
 				if ("true".equalsIgnoreCase(success) || ERROR_TXNS_NO.equalsIgnoreCase(argErrortransactions)) {
-					writeCsvOuptput(inputFileDatatype, nextLine);	
-					samplesCreatedForLine++;
-					
-				} else {   // an error transaction that needs handling 
-					
-					nextLine[2]  =  transactionNameLabel + "_ERRORED";		    			
 					writeCsvOuptput(inputFileDatatype, nextLine);
 					samplesCreatedForLine++;
-					
+
+				} else {   // an error transaction that needs handling
+
+					nextLine[2]  =  transactionNameLabel + "_ERRORED";
+					writeCsvOuptput(inputFileDatatype, nextLine);
+					samplesCreatedForLine++;
+
 					if (ERROR_TXNS_DUPLICATE.equalsIgnoreCase(argErrortransactions)) {
-						nextLine[2]  =  transactionNameLabel;		    			
+						nextLine[2]  =  transactionNameLabel;
 						writeCsvOuptput(inputFileDatatype, nextLine);
 						samplesCreatedForLine++;
-					} 
+					}
 				}
 			}
 
-		} 
+		}
 		return samplesCreatedForLine;
 	}
 
 
 	/**
-	 * CSV files are treated in a similarly manner to XML, without the complexity of dealing with sub-transactions 
-	 * (each line is considered a transaction unless it appears to be invalid, in which case it is just bypassed) 
-	 * 
+	 * CSV files are treated in a similarly manner to XML, without the complexity of dealing with sub-transactions
+	 * (each line is considered a transaction unless it appears to be invalid, in which case it is just bypassed)
+	 *
 	 * @param inputCsvFileName inputCsvFileName
 	 * @throws IOException IOException
 	 */
 	private int reformatCSVFile(File inputCsvFileName, boolean hasHeader) throws IOException {
-		
-		int samplesCreated=0; 
-		FileReader fileReader = new FileReader(inputCsvFileName);
-		CSVReader csvReader = new CSVReader(new BufferedReader(fileReader));
-		int lineCount = 0; 
-		long startLoadms = System.currentTimeMillis(); 
-		System.out.println("\n\nProcessing CSV formatted Jmeter Results File " + inputCsvFileName.getName() + " at " + new Date(startLoadms));					
-		
-		if (hasHeader) { 
-			List<String> csvHeaderFieldsList;
-			try {
-				csvHeaderFieldsList = Arrays.asList(csvReader.readNext());
-			} catch (CsvValidationException e) {
-				e.printStackTrace();
-				csvReader.close();
-				throw new RuntimeException("failed to process expected CVS header fields (line 1 of file) " + e.getMessage());
+
+		int samplesCreated = 0;
+		int lineCount = 0;
+		long startLoadms = System.currentTimeMillis();
+		System.out.println("\n\nProcessing CSV formatted Jmeter Results File " + inputCsvFileName.getName() + " at " + new Date(startLoadms));
+
+		try (CSVReader csvReader = new CSVReader(new BufferedReader(new FileReader(inputCsvFileName)))) {
+
+			if (hasHeader) {
+				List<String> csvHeaderFieldsList;
+				try {
+					csvHeaderFieldsList = Arrays.asList(csvReader.readNext());
+				} catch (CsvValidationException e) {
+					e.printStackTrace();
+					throw new RuntimeException("failed to process expected CVS header fields (line 1 of file) " + e.getMessage());
+				}
+
+				fieldPostimeStamp = csvHeaderFieldsList.indexOf("timeStamp");
+				fieldPoselapsed = csvHeaderFieldsList.indexOf("elapsed");
+				fieldPoslabel = csvHeaderFieldsList.indexOf("label");
+				fieldPosresponseCode = csvHeaderFieldsList.indexOf("responseCode");
+				fieldPosresponseMessage = csvHeaderFieldsList.indexOf("responseMessage");
+				fieldPosthreadName = csvHeaderFieldsList.indexOf("threadName");
+				fieldPosdataType = csvHeaderFieldsList.indexOf("dataType");
+				fieldPossuccess = csvHeaderFieldsList.indexOf("success");
+				fieldPosfailureMessage = csvHeaderFieldsList.indexOf("failureMessage");
+				fieldPosbytes = csvHeaderFieldsList.indexOf("bytes");
+				fieldPossentBytes = csvHeaderFieldsList.indexOf("sentBytes");
+				fieldPosgrpThreads = csvHeaderFieldsList.indexOf("grpThreads");
+				fieldPosallThreads = csvHeaderFieldsList.indexOf("allThreads");
+				fieldPosURL = csvHeaderFieldsList.indexOf("URL");
+				fieldPosLatency = csvHeaderFieldsList.indexOf("Latency");
+				fieldPosHostname = csvHeaderFieldsList.indexOf("Hostname");
+				fieldPosIdleTime = csvHeaderFieldsList.indexOf("IdleTime");
+				fieldPosConnect = csvHeaderFieldsList.indexOf("Connect");
+
+				if (fieldPostimeStamp == -1 || fieldPoselapsed == -1 || fieldPoslabel == -1 || fieldPosdataType == -1 || fieldPossuccess == -1) {
+					System.out.println("\n   Severe Error.  Unexpected csv file header format, terminating run");
+					System.out.println("   - the header is expected to contain at least these field names:  timeStamp, elapsed, label, dataType, success\n");
+					throw new RuntimeException("Error : Unexpected csv file header format for file " + inputCsvFileName.getName());
+				}
+
+			} else { // no csv header row.
+				setFieldPositionsAssumingTheDefaultCsvLayout();
 			}
 
-			fieldPostimeStamp 		= csvHeaderFieldsList.indexOf("timeStamp"); 
-			fieldPoselapsed   		= csvHeaderFieldsList.indexOf("elapsed"); 
-			fieldPoslabel     		= csvHeaderFieldsList.indexOf("label");
-			fieldPosresponseCode  	= csvHeaderFieldsList.indexOf("responseCode"); 
-			fieldPosresponseMessage	= csvHeaderFieldsList.indexOf("responseMessage"); 		
-			fieldPosthreadName  	= csvHeaderFieldsList.indexOf("threadName");		
-			fieldPosdataType  		= csvHeaderFieldsList.indexOf("dataType"); 
-			fieldPossuccess   		= csvHeaderFieldsList.indexOf("success"); 
-			fieldPosfailureMessage 	= csvHeaderFieldsList.indexOf("failureMessage"); 		
-			fieldPosbytes  			= csvHeaderFieldsList.indexOf("bytes"); 		
-			fieldPossentBytes  		= csvHeaderFieldsList.indexOf("sentBytes"); 		
-			fieldPosgrpThreads  	= csvHeaderFieldsList.indexOf("grpThreads"); 		
-			fieldPosallThreads  	= csvHeaderFieldsList.indexOf("allThreads"); 
-			fieldPosURL				= csvHeaderFieldsList.indexOf("URL");
-			fieldPosLatency 		= csvHeaderFieldsList.indexOf("Latency"); 		
-			fieldPosHostname  		= csvHeaderFieldsList.indexOf("Hostname"); 		
-			fieldPosIdleTime  		= csvHeaderFieldsList.indexOf("IdleTime"); 		
-			fieldPosConnect  		= csvHeaderFieldsList.indexOf("Connect"); 		
-			
-			if (fieldPostimeStamp==-1 || fieldPoselapsed==-1 || fieldPoslabel==-1 || fieldPosdataType==-1 || fieldPossuccess==-1 ){
-				System.out.println("\n   Severe Error.  Unexpected csv file header format, terminating run");
-				System.out.println("   - the header is expected to contain at least these field names:  timeStamp, elapsed, label, dataType, success\n");
-				csvReader.close();
-				throw new RuntimeException("Error : Unexpected csv file header format for file " + inputCsvFileName.getName());
-			}
-		
-		} else {  // no csv header row.
-			setFieldPositionsAssumingTheDefaultCsvLayout();
-		}
+			String[] csvDataLineFields = csvReadNextLine(csvReader, inputCsvFileName);
 
-		String[] csvDataLineFields = csvReadNextLine(csvReader, inputCsvFileName);
-		
-	   	while ( csvDataLineFields != null ) {
+			while (csvDataLineFields != null) {
 
-	   		// if not enough fields or first field cannot be a time stamp, bypass 		
-			if  ( ! (   csvDataLineFields.length < 5 || csvDataLineFields[0].length() == 12 )){
-				
-		    	//format all output csv files the same way (as the header is always the same) ...
+				// if not enough fields or first field cannot be a time stamp, bypass
+				if (!(csvDataLineFields.length < 5 || csvDataLineFields[0].length() == 12)) {
 
-	    		String transactionNameLabel = csvDataLineFields[fieldPoslabel];
-	    		String inputFileDatatype    = csvDataLineFields[fieldPosdataType];
-	    		String success 				= csvDataLineFields[fieldPossuccess];
+					// format all output csv files the same way (as the header is always the same)
 
-				if (!( transactionNameLabel.startsWith(IGNORE)
-						|| (inputFileDatatype.equals(JMeterFileDatatypes.PARENT.getDatatypeText())
-								&& argeXcludeResultsWithSub.equalsIgnoreCase("TRUE")) )){
-    			
-	    			System.arraycopy(blankLine, 0, nextLine, 0, blankLine.length);
-    			
-		    		nextLine[0]  =  csvDataLineFields[fieldPostimeStamp];
-		    		nextLine[1]  =  csvDataLineFields[fieldPoselapsed]; 
-		    		nextLine[2]  =  transactionNameLabel;
-		    		if (fieldPosresponseCode>0) 	nextLine[3]  =  csvDataLineFields[fieldPosresponseCode]; 
-		    		if (fieldPosresponseMessage>0) 	nextLine[4]  =  csvDataLineFields[fieldPosresponseMessage]; 
-		    		if (fieldPosthreadName>0) 		nextLine[5]  =  csvDataLineFields[fieldPosthreadName];  
-		    		nextLine[6]  =  inputFileDatatype; 
-		    		nextLine[7]  =  success;
-		    		if (fieldPosfailureMessage>0) 	nextLine[8]  =  csvDataLineFields[fieldPosfailureMessage];
-		    		if (fieldPosbytes>0) 			nextLine[9]  =  csvDataLineFields[fieldPosbytes];
-		    		if (fieldPossentBytes>0) 		nextLine[10] =  csvDataLineFields[fieldPossentBytes];
-		    		if (fieldPosgrpThreads>0) 		nextLine[11] =  csvDataLineFields[fieldPosgrpThreads];
-		    		if (fieldPosallThreads>0) 		nextLine[12] =  csvDataLineFields[fieldPosallThreads]; 
-		    		if (fieldPosURL>0) 				nextLine[13] =  csvDataLineFields[fieldPosURL]; 	    		
-		    		if (fieldPosLatency>0) 			nextLine[14] =  csvDataLineFields[fieldPosLatency]; 
-		    		if (fieldPosHostname>0) 		nextLine[15] =  csvDataLineFields[fieldPosHostname]; 		    		
-		    		if (fieldPosIdleTime>0) 		nextLine[16] =  csvDataLineFields[fieldPosIdleTime]; 
-		    		if (fieldPosConnect>0) 			nextLine[17] =  csvDataLineFields[fieldPosConnect]; 
-		    		
-					if ( !cdpFilterRemovesLine(inputFileDatatype)){
-		    		
-						if ("true".equalsIgnoreCase(success) || ERROR_TXNS_NO.equalsIgnoreCase(argErrortransactions)) {
-							writeCsvOuptput(inputFileDatatype, nextLine);	
-							samplesCreated++;
-						
-						} else {   // an error transaction that needs handling 
-	
-							nextLine[2]  =  transactionNameLabel + "_ERRORED";		    			
-							writeCsvOuptput(inputFileDatatype, nextLine);
-							samplesCreated++;
-							
-							if (ERROR_TXNS_DUPLICATE.equalsIgnoreCase(argErrortransactions)) {
-								nextLine[2]  =  transactionNameLabel;		    			
+					String transactionNameLabel = csvDataLineFields[fieldPoslabel];
+					String inputFileDatatype = csvDataLineFields[fieldPosdataType];
+					String success = csvDataLineFields[fieldPossuccess];
+
+					if (!(transactionNameLabel.startsWith(IGNORE)
+							|| (inputFileDatatype.equals(JMeterFileDatatypes.PARENT.getDatatypeText())
+									&& argeXcludeResultsWithSub.equalsIgnoreCase("TRUE")))) {
+
+						System.arraycopy(blankLine, 0, nextLine, 0, blankLine.length);
+
+						nextLine[0] = csvDataLineFields[fieldPostimeStamp];
+						nextLine[1] = csvDataLineFields[fieldPoselapsed];
+						nextLine[2] = transactionNameLabel;
+						if (fieldPosresponseCode > 0)    {nextLine[3]  = csvDataLineFields[fieldPosresponseCode];}
+						if (fieldPosresponseMessage > 0) {nextLine[4]  = csvDataLineFields[fieldPosresponseMessage];}
+						if (fieldPosthreadName > 0)      {nextLine[5]  = csvDataLineFields[fieldPosthreadName];}
+						nextLine[6] = inputFileDatatype;
+						nextLine[7] = success;
+						if (fieldPosfailureMessage > 0)  {nextLine[8]  = csvDataLineFields[fieldPosfailureMessage];}
+						if (fieldPosbytes > 0)           {nextLine[9]  = csvDataLineFields[fieldPosbytes];}
+						if (fieldPossentBytes > 0)       {nextLine[10] = csvDataLineFields[fieldPossentBytes];}
+						if (fieldPosgrpThreads > 0)      {nextLine[11] = csvDataLineFields[fieldPosgrpThreads];}
+						if (fieldPosallThreads > 0)      {nextLine[12] = csvDataLineFields[fieldPosallThreads];}
+						if (fieldPosURL > 0)             {nextLine[13] = csvDataLineFields[fieldPosURL];}
+						if (fieldPosLatency > 0)         {nextLine[14] = csvDataLineFields[fieldPosLatency];}
+						if (fieldPosHostname > 0)        {nextLine[15] = csvDataLineFields[fieldPosHostname];}
+						if (fieldPosIdleTime > 0)        {nextLine[16] = csvDataLineFields[fieldPosIdleTime];}
+						if (fieldPosConnect > 0)         {nextLine[17] = csvDataLineFields[fieldPosConnect];}
+
+						if (!cdpFilterRemovesLine(inputFileDatatype)) {
+
+							if ("true".equalsIgnoreCase(success) || ERROR_TXNS_NO.equalsIgnoreCase(argErrortransactions)) {
 								writeCsvOuptput(inputFileDatatype, nextLine);
 								samplesCreated++;
-							} 
+
+							} else { // an error transaction that needs handling
+
+								nextLine[2] = transactionNameLabel + "_ERRORED";
+								writeCsvOuptput(inputFileDatatype, nextLine);
+								samplesCreated++;
+
+								if (ERROR_TXNS_DUPLICATE.equalsIgnoreCase(argErrortransactions)) {
+									nextLine[2] = transactionNameLabel;
+									writeCsvOuptput(inputFileDatatype, nextLine);
+									samplesCreated++;
+								}
+							}
 						}
 					}
-		    	}
-	    	} 
-			
-	    	lineCountProgressDisplay(lineCount);
-	    	lineCount++;
-	    	csvDataLineFields = csvReadNextLine(csvReader, inputCsvFileName);
-			
-	    } // end for loop
-	    
-		long endLoadms = System.currentTimeMillis(); 	    
-		System.out.println("\n   " + inputCsvFileName.getName() + " processing completed  at " +  new Date(endLoadms) + " :" );
-	    System.out.println("        " + lineCount + " file lines processed" );
-	    System.out.println("        " + samplesCreated + " transaction samples loaded" );
-		System.out.println("        took " +  (endLoadms - startLoadms)/1000 + " secs" );	    
+				}
+
+				lineCountProgressDisplay(lineCount);
+				lineCount++;
+				csvDataLineFields = csvReadNextLine(csvReader, inputCsvFileName);
+
+			} // end for loop
+
+		} // CSVReader closes here
+
+		long endLoadms = System.currentTimeMillis();
+		System.out.println("\n   " + inputCsvFileName.getName() + " processing completed  at " + new Date(endLoadms) + " :");
+		System.out.println("        " + lineCount + " file lines processed");
+		System.out.println("        " + samplesCreated + " transaction samples loaded");
+		System.out.println("        took " + (endLoadms - startLoadms) / 1000 + " secs");
 		System.out.println();
-   
-	    csvReader.close();
+
 		return samplesCreated;
-    }
+	}
 
 
 	private String[] csvReadNextLine( CSVReader csvReader, File inputCsvFileName) throws IOException {
@@ -747,69 +744,69 @@ public class ResultsSplitter {
 			csvDataLineFields = csvReader.readNext();
 		} catch (CsvValidationException e) {
 			csvReader.close();
-			System.out.println("Error :  Unexpected csv line format for file " + inputCsvFileName.getName() + 
+			System.out.println("Error :  Unexpected csv line format for file " + inputCsvFileName.getName() +
 					" Records count at time of failure : "  +  csvReader.getRecordsRead() + e.getMessage());
 			e.printStackTrace();
 			throw new RuntimeException(e.getMessage());
 		}
 		return csvDataLineFields;
 	}
-	
-	
+
+
 	private void setFieldPositionsAssumingTheDefaultCsvLayout() {
 		System.out.println("\n   This file is assumed to be a CSV file WITHOUT A HEADER.  Therefore the default Jmeter CSV field layout has to be assumed:" );
 		System.out.println("\n       " + CSV_STANDARD_HEADER );
-		fieldPostimeStamp 		= 0; 
-		fieldPoselapsed   		= 1; 
+		fieldPostimeStamp 		= 0;
+		fieldPoselapsed   		= 1;
 		fieldPoslabel     		= 2;
-		fieldPosresponseCode  	= 3; 
-		fieldPosresponseMessage	= 4; 		
-		fieldPosthreadName  	= 5;		
-		fieldPosdataType  		= 6; 
-		fieldPossuccess   		= 7; 
-		fieldPosfailureMessage 	= 8; 		
-		fieldPosbytes  			= 9; 		
-		fieldPossentBytes  		= 10; 		
-		fieldPosgrpThreads  	= 11; 		
+		fieldPosresponseCode  	= 3;
+		fieldPosresponseMessage	= 4;
+		fieldPosthreadName  	= 5;
+		fieldPosdataType  		= 6;
+		fieldPossuccess   		= 7;
+		fieldPosfailureMessage 	= 8;
+		fieldPosbytes  			= 9;
+		fieldPossentBytes  		= 10;
+		fieldPosgrpThreads  	= 11;
 		fieldPosallThreads  	= 12;
 		fieldPosURL			  	= 13;
-		fieldPosLatency 		= 14; 
-		fieldPosHostname 		= -1; 			
-		fieldPosIdleTime  		= 15; 		
-		fieldPosConnect  		= 16; 		
+		fieldPosLatency 		= 14;
+		fieldPosHostname 		= -1;
+		fieldPosIdleTime  		= 15;
+		fieldPosConnect  		= 16;
 	}
 
 	private void writeCsvOuptput(String inputFileDatatype, String[] csvDataLine) {
 //		System.out.println("writeCsvOuptput  inputFileDatatype=" + inputFileDatatype + ", csvDataLine=" + csvDataLine);
-		
+
 		if (inputFileDatatype.equals(JMeterFileDatatypes.TRANSACTION.getDatatypeText())) {
 			baseCsvFileNameWriter.writeNext( csvDataLine, false );
 			return;
 		}
-		
+
 		if (inputFileDatatype.equals(JMeterFileDatatypes.CDP.getDatatypeText())) {
-			// tag CDP transactions and write them to the Transactions Report 
-			csvDataLine[2] = csvDataLine[2] + CDP_TAG; 
+			// tag CDP transactions and write them to the Transactions Report
+			csvDataLine[2] = csvDataLine[2] + CDP_TAG;
 			baseCsvFileNameWriter.writeNext( csvDataLine, false );
 			return;
 		}
-		
+
 		if (METRICS_FILE_NO.equalsIgnoreCase(argMetricsfile)) {
 			baseCsvFileNameWriter.writeNext( csvDataLine, false );
 			return;
-		}	
-		
+		}
+
 		if (METRICS_FILE_CREATE_METRICS_REPORT.equalsIgnoreCase(argMetricsfile)) {
-			if ( inputFileDatatype.equals(JMeterFileDatatypes.CPU_UTIL.getDatatypeText()) || 
-				 inputFileDatatype.equals(JMeterFileDatatypes.DATAPOINT.getDatatypeText()) || 
+			if ( inputFileDatatype.equals(JMeterFileDatatypes.CPU_UTIL.getDatatypeText()) ||
+				 inputFileDatatype.equals(JMeterFileDatatypes.DATAPOINT.getDatatypeText()) ||
 				 inputFileDatatype.equals(JMeterFileDatatypes.MEMORY.getDatatypeText()) ) {
-				metrics_CsvFileNameWriter.writeNext(csvDataLine, false);  
+				metrics_CsvFileNameWriter.writeNext(csvDataLine, false);
 			} else {	// should not get here (unresolved data type) Just assume its a (non-metric) normal Transaction
 				baseCsvFileNameWriter.writeNext( csvDataLine, false );
-			}	
+			}
 			return;
 		}
-		
+
 		if (METRICS_FILE_SPLIT_BY_DATATYPE.equalsIgnoreCase(argMetricsfile)) {
 			if ( inputFileDatatype.equals(JMeterFileDatatypes.CPU_UTIL.getDatatypeText() )) {
 				cpu_util_CsvFileNameWriter.writeNext( csvDataLine, false );
@@ -819,14 +816,14 @@ public class ResultsSplitter {
 				memory_CsvFileNameWriter.writeNext( csvDataLine, false);
 			} else {	// should not get here (unresolved data type) Just assume its a (non-metric) normal Transaction
 				baseCsvFileNameWriter.writeNext( csvDataLine, false );
-			}	
+			}
 			return;
 		}
-		
-		throw new RuntimeException("Logic error in writeCsvOuptput : " + inputFileDatatype + ", argMetricsfile=" + argMetricsfile); 
-	}	
 
-	
+		throw new RuntimeException("Logic error in writeCsvOuptput : " + inputFileDatatype + ", argMetricsfile=" + argMetricsfile);
+	}
+
+
 	private boolean cdpFilterRemovesLine(String inputFileDatatype) {
 		if (SHOW_CDP.equalsIgnoreCase(argCdpfilter)) {
 			return false;
@@ -851,9 +848,9 @@ public class ResultsSplitter {
 		throw new RuntimeException(
 				"Logic error in cdpFilterApplies : " + inputFileDatatype + ", argMetricsfile=" + argMetricsfile);
 	}
-	
+
 	/*
-	 *   The methods below are based on code in Commons StringUtils  
+	 *   The methods below are based on code in Commons StringUtils
 	 */
 
 
@@ -872,22 +869,22 @@ public class ResultsSplitter {
         }
         return count;
     }
- 
-	
+
+
     public static void main( String[] args ) throws IOException, SAXException, ParserConfigurationException
     {
         System.out.println( "Results Splitter starting..   Version: " + MARK59_VERSION);
 
 //        for a quick and dirty test ...
 //        args = new String[]{"-i", "C:/Jmeter_Results/myapp", "-f", "myapp_TestResults_converted.csv", "-m", "SplitByDataType", "-e", "No", "-x", "True" };
-        
-		ResultsSplitter resultsSplitter = new ResultsSplitter(); 
-		resultsSplitter.parseArguments(args);    
-		resultsSplitter.clearOutputDirectory();     
+
+		ResultsSplitter resultsSplitter = new ResultsSplitter();
+		resultsSplitter.parseArguments(args);
+		resultsSplitter.clearOutputDirectory();
         resultsSplitter.convert();
-        
+
         System.out.println();
-        System.out.println( "Results Splitter completed." );        
+        System.out.println( "Results Splitter completed." );
     }
-	
+
 }

@@ -37,7 +37,7 @@ import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.DataHunterUtils;
 import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
-import com.mark59.datahunter.model.AsyncMessageaAnalyzerResult;
+import com.mark59.datahunter.model.AsyncMessageAnalyzerResult;
 import com.mark59.datahunter.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
 import com.mark59.datahunter.model.PolicySelectionFilter;
@@ -216,7 +216,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 
 		
 	@Override
-	public SqlWithParms constructAsyncMessageaAnalyzerSql(PolicySelectionCriteria policySelect) {
+	public SqlWithParms constructAsyncMessageAnalyzerSql(PolicySelectionCriteria policySelect) {
 		String applicationStripStart = "%";
 		if (policySelect.getApplication() !=null ) {
 			applicationStripStart = StringUtils.stripStart(policySelect.getApplication(), null) + "%";
@@ -309,23 +309,23 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 
 	
 	@Override
-	public List<AsyncMessageaAnalyzerResult> runAsyncMessageaAnalyzerSql(SqlWithParms sqlWithParms) {
+	public List<AsyncMessageAnalyzerResult> runAsyncMessageAnalyzerSql(SqlWithParms sqlWithParms) {
 
-		List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList = new ArrayList<>();
+		List<AsyncMessageAnalyzerResult> asyncMessageAnalyzerResultList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sqlWithParms.getSql(), sqlWithParms.getSqlparameters());
 		
 		for (Map<String, Object> row : rows) {
-			AsyncMessageaAnalyzerResult asyncMessageaAnalyzerResult = new AsyncMessageaAnalyzerResult();
-			asyncMessageaAnalyzerResult.setApplication((String)row.get("APPLICATION"));
-			asyncMessageaAnalyzerResult.setIdentifier((String)row.get("IDENTIFIER"));
-			asyncMessageaAnalyzerResult.setUseability((String)row.get("USEABILITY"));
-			asyncMessageaAnalyzerResult.setStarttm((Long)row.get("STARTTM"));
-			asyncMessageaAnalyzerResult.setEndtm((Long)row.get("ENDTM"));	
-			asyncMessageaAnalyzerResult.setDifferencetm((Long)row.get("DIFFERENCETM"));			
-			asyncMessageaAnalyzerResultList.add(asyncMessageaAnalyzerResult);
+			AsyncMessageAnalyzerResult asyncMessageAnalyzerResult = new AsyncMessageAnalyzerResult();
+			asyncMessageAnalyzerResult.setApplication((String)row.get("APPLICATION"));
+			asyncMessageAnalyzerResult.setIdentifier((String)row.get("IDENTIFIER"));
+			asyncMessageAnalyzerResult.setUseability((String)row.get("USEABILITY"));
+			asyncMessageAnalyzerResult.setStarttm((Long)row.get("STARTTM"));
+			asyncMessageAnalyzerResult.setEndtm((Long)row.get("ENDTM"));	
+			asyncMessageAnalyzerResult.setDifferencetm((Long)row.get("DIFFERENCETM"));			
+			asyncMessageAnalyzerResultList.add(asyncMessageAnalyzerResult);
 		}	
-		return asyncMessageaAnalyzerResultList;
+		return asyncMessageAnalyzerResultList;
 	}
 
 	
@@ -537,18 +537,18 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 	 *  effective for MYSQL and POSTGRES, but for H2 updating single rows multiple times was faster.     
 	 */
 	@Override
-	public List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList,
+	public List<AsyncMessageAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageAnalyzerResult> asyncMessageAnalyzerResultList,
 			String toUseability) {
 		if (currentDatabaseProfile.startsWith(DataHunterConstants.H2)){
-			return updateMultiplePoliciesUseState(asyncMessageaAnalyzerResultList, toUseability, 1 );
+			return updateMultiplePoliciesUseState(asyncMessageAnalyzerResultList, toUseability, 1 );
 		} else {
-			return updateMultiplePoliciesUseState(asyncMessageaAnalyzerResultList, toUseability, 100 );			
+			return updateMultiplePoliciesUseState(asyncMessageAnalyzerResultList, toUseability, 100 );			
 		}
 	}
 	
 
 	@Override
-	public List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList, 
+	public List<AsyncMessageAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageAnalyzerResult> asyncMessageAnalyzerResultList, 
 			String toUseability, int maxEntriesSqlUpdateStmt ){
 		
 		if (toUseability != null){
@@ -562,8 +562,8 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		StringBuilder sqlSb = new StringBuilder().append(sqlBegins);
 		int i = 0;
 		
-		for (AsyncMessageaAnalyzerResult asyncMessageaAnalyzerResult : asyncMessageaAnalyzerResultList) {
-			asyncMessageaAnalyzerResult.setUseability(toUseability);
+		for (AsyncMessageAnalyzerResult asyncMessageAnalyzerResult : asyncMessageAnalyzerResultList) {
+			asyncMessageAnalyzerResult.setUseability(toUseability);
 			i++;
 			if (yetToAddFirstIdToSqlStatement) {
 				yetToAddFirstIdToSqlStatement = false;
@@ -572,8 +572,8 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 				sqlSb.append( "OR APPLICATION=? AND IDENTIFIER=? " );
 			}
 			
-			sqlBindParms.add(asyncMessageaAnalyzerResult.getApplication());
-			sqlBindParms.add(asyncMessageaAnalyzerResult.getIdentifier());
+			sqlBindParms.add(asyncMessageAnalyzerResult.getApplication());
+			sqlBindParms.add(asyncMessageAnalyzerResult.getIdentifier());
 
 	    	if ( (i % maxEntriesSqlUpdateStmt) == 0 ){
 	    		sqlSb.append(" )");
@@ -588,7 +588,7 @@ public class PoliciesDAOjdbcTemplateImpl implements PoliciesDAO
 		
 		sqlSb.append(" )");
 		runUpdateMultiplePoliciesUseState(sqlSb, sqlBindParms, yetToAddFirstIdToSqlStatement);
-		return asyncMessageaAnalyzerResultList;
+		return asyncMessageAnalyzerResultList;
 	}
 		
 

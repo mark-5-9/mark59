@@ -31,7 +31,7 @@ import com.mark59.core.utils.Mark59Constants;
  */
 public class AppConstantsTrends {
 	
-	public static final String MARK59_VERSION_TRENDS = "6.4";	
+	public static final String MARK59_VERSION_TRENDS = "6.5";	
 	
 	public static final String ALLOWED_CHARS_APP_NAME = "^[\\w-.]*$";   // alpha(international), underline, dash, dot
 	
@@ -116,7 +116,7 @@ public class AppConstantsTrends {
         result.put("PercentOver90",  "TXN_90TH");
         return Collections.unmodifiableMap(result);
     }
-	public static Map<String, String> getValueDerivatonToSourceFieldMap() {
+	public static Map<String, String> getValueDerivationToSourceFieldMap() {
 		return VALUE_DERIVATON_TO_SOURCE_FIELD_MAP;
 	}
 	

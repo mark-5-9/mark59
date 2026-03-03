@@ -63,7 +63,7 @@ function buildHomeLink() {
      <td><form:input path="lifecycle" value="" size="64" height="20" onchange="trimkey(this)" /></td>
     </tr>
     <tr>
-     <td> </td>
+     <td></td>
      <td><br><input type="submit" value="submit" id="submit"/></td>
     </tr>
    </table>

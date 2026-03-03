@@ -34,11 +34,11 @@
 
  <h1>Asynchronous Message Analyzer - Results</h1>  
  <span> 
- <b>Matching Criteria :</b> ${asyncMessageaAnalyzerRequest.applicationStartsWithOrEquals} "${asyncMessageaAnalyzerRequest.application}",
- 	&nbsp; Id = "${asyncMessageaAnalyzerRequest.identifier}",&nbsp; Useability = "${asyncMessageaAnalyzerRequest.useability}" )
+ <b>Matching Criteria :</b> ${asyncMessageAnalyzerRequest.applicationStartsWithOrEquals} "${asyncMessageAnalyzerRequest.application}",
+ 	&nbsp; Id = "${asyncMessageAnalyzerRequest.identifier}",&nbsp; Useability = "${asyncMessageAnalyzerRequest.useability}" )
  </span>       
  <br><br>
- <table id=asyncMessageaAnalyzerTable class=metricsTable >
+ <table id=asyncMessageAnalyzerTable class=metricsTable >
    <tr>
     <th>application</th>
     <th>identifier</th>
@@ -48,15 +48,15 @@
     <th>difference (msecs)</th>        
     <th style="display:none;"></th>
    </tr>
-   <c:forEach var="asyncMessageaAnalyzerResult" items="${model.asyncMessageaAnalyzerResultList}">
+   <c:forEach var="asyncMessageAnalyzerResult" items="${model.asyncMessageAnalyzerResultList}">
     <tr>
-     <td id=application>${asyncMessageaAnalyzerResult.application}</td>
-     <td id=identifier>${asyncMessageaAnalyzerResult.identifier}</td>
-     <td id=useability>${asyncMessageaAnalyzerResult.useability}</td>
-     <td id=starttm>${asyncMessageaAnalyzerResult.starttm}</td>
-     <td id=endtm>${asyncMessageaAnalyzerResult.endtm}</td>
-     <td id=${asyncMessageaAnalyzerResult.application}_${asyncMessageaAnalyzerResultidentifier}_${asyncMessageaAnalyzerResult.useability}_differencetm>${asyncMessageaAnalyzerResult.differencetm}</td>
-	 <td style="display:none;" id=differencetm>${asyncMessageaAnalyzerResult.differencetm}</td>
+     <td id=application>${asyncMessageAnalyzerResult.application}</td>
+     <td id=identifier>${asyncMessageAnalyzerResult.identifier}</td>
+     <td id=useability>${asyncMessageAnalyzerResult.useability}</td>
+     <td id=starttm>${asyncMessageAnalyzerResult.starttm}</td>
+     <td id=endtm>${asyncMessageAnalyzerResult.endtm}</td>
+     <td id=${asyncMessageAnalyzerResult.application}_${asyncMessageAnalyzerResultidentifier}_${asyncMessageAnalyzerResult.useability}_differencetm>${asyncMessageAnalyzerResult.differencetm}</td>
+	 <td style="display:none;" id=differencetm>${asyncMessageAnalyzerResult.differencetm}</td>
     </tr>
    </c:forEach>
  </table>

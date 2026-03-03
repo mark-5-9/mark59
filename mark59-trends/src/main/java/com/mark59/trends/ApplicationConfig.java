@@ -20,7 +20,6 @@ import java.sql.SQLException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.tools.Server;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +42,8 @@ import com.mark59.trends.data.transaction.dao.TransactionDAO;
 import com.mark59.trends.data.transaction.dao.TransactionDAOjdbcTemplateImpl;
 import com.mark59.trends.graphic.data.VisGraphicDataProduction;
 import com.mark59.trends.graphic.data.VisGraphicDataProductionInterface;
+import com.mark59.trends.slaIcons.SlaIconColourCodes;
+import com.mark59.trends.slaIcons.SlaIconColourCodesInterface;
 
 /**
  * Create  Spring bean(s) via program rather than XML configuration<br>
@@ -120,7 +121,13 @@ public class ApplicationConfig {
     VisGraphicDataProductionInterface visGraphicDataProduction() {
         return new VisGraphicDataProduction();
     }    
-  
+
+    @Bean
+    SlaIconColourCodesInterface slaIconColourCodes() {
+	    return new SlaIconColourCodes();
+	} 
+    
+    
     @Bean(initMethod = "start", destroyMethod = "stop")
     Server h2DatabaseServer() throws SQLException {
 

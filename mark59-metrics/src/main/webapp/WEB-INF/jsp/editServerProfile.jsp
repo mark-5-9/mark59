@@ -75,7 +75,7 @@
 	     </tr>
 	     <tr id=passwordCipherRow>
 	      <td>Password&nbsp;Cipher&nbsp;:</td>
-	      <td><form:input path="serverProfile.passwordCipher" size="64" maxlength="64"  height="20" /></td>
+		  <td><form:input path="serverProfile.passwordCipher" size="128" maxlength="512"  height="20" /></td>		  
 	     </tr>
 	     <c:if test="${commandexecutor.equals('SSH_LINUX_UNIX')}">
 		     <tr>

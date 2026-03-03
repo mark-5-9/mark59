@@ -112,8 +112,8 @@ public class ServerProfileController {
 			ByteArrayOutputStream stream = serverProfilesToExcelFile();
 			return new ResponseEntity<>(new ByteArrayResource(stream.toByteArray()), httpHeaders, HttpStatus.CREATED);
 		} catch (Exception e) {
+			System.err.println("Error generating server profiles Excel file: " + e.getMessage());
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}	
@@ -179,7 +179,7 @@ public class ServerProfileController {
 			dataRow.createCell(0).setCellValue(command.getCommandName());
 			dataRow.createCell(1).setCellValue(command.getExecutor());
 			dataRow.createCell(2).setCellValue(command.getCommand());
-			dataRow.createCell(3).setCellValue(command.getIngoreStderr());
+			dataRow.createCell(3).setCellValue(command.getIgnoreStderr());
 			dataRow.createCell(4).setCellValue(command.getComment());
 			dataRow.createCell(5).setCellValue(commandsDAO.serializeListToJson(command.getParamNames()));
 			rowIndex++;
@@ -348,7 +348,7 @@ public class ServerProfileController {
 		
 		if (StringUtils.isBlank(serverProfile.getServerProfileName())){
 			map.put("serverProfileEditingForm", serverProfileEditingForm);		
-			map.put("reqErr", "ServerProfile id is required");			
+			map.put("reqErr", "ServerProfile Name is required");			
 			model.addAttribute("map", map);	
 			return new ModelAndView("registerServerProfile", "map", map);
 		}
@@ -370,7 +370,7 @@ public class ServerProfileController {
 		} else {
 			serverProfileEditingForm.setServerProfile(serverProfile);
 			map.put("serverProfileEditingForm", serverProfileEditingForm);	
-			map.put("reqErr","Oh, a listing for serverProfileName " + existingServerProfile.getServerProfileName() + " AlreadyExists");			
+			map.put("reqErr","Oh, a server profile named " + existingServerProfile.getServerProfileName() + " Already Exists");			
 			model.addAttribute("map", map);	
 			return new ModelAndView("registerServerProfile", "map", map);
 		}
@@ -548,7 +548,6 @@ public class ServerProfileController {
 			//assume the first (and should be only) command for this profile is the GROOVY_SCRIPT command you want
 			selectedScriptCommandName = serverProfileWithCommandLinks.getCommandNames().get(0);
 		} 
-		// System.out.println("selectedScriptCommandName=" + selectedScriptCommandName);
 		return selectedScriptCommandName; 	
 	}
 	
@@ -593,7 +592,6 @@ public class ServerProfileController {
 					
 					if (parametersMap.containsKey(commandParmName)){ 
 						// a duplicate - uses the value (if exists and set) from the serverProfile (blank otherwise) 
-						parameter.setParamDuplicated("&#42;");
 						parameter.setParamDuplicated("<span style=\"color: maroon\">*</span>");
 						parameter.setParamValue( parameter.getParamValue());
 						parametersMap.put(commandParmName, parameter);

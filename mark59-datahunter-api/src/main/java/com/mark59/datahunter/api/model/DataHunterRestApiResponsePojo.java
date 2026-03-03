@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,21 +18,22 @@ package com.mark59.datahunter.api.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.mark59.datahunter.api.data.beans.Policies;
 
 /**
  * Used to provide the response back to the client for the DataHunter Rest API calls:
- * <p><code>policies</code> : contains the selected policy or policies (may contain debug information for requests 
- * not requiring policy data to be returned) 
+ * <p><code>policies</code> : contains the selected policy or policies (may contain debug information for requests
+ * not requiring policy data to be returned)
  * <p><code>countPoliciesBreakdown</code> : is only designed to be populated when the using the countPoliciesBreakdown
- * operation is invoked 
- * <p><code>asyncMessageaAnalyzerResult</code> : is only designed to be populated when the using the asyncMessageAnalyzer
- * operation is invoked  
+ * operation is invoked
+ * <p><code>asyncMessageAnalyzerResult</code> : is only designed to be populated when the using the asyncMessageAnalyzer
+ * operation is invoked
  * <p><code>success, rowsAffected, failMsg</code> : are populated in a similar manner to the values seen in the DataHunter
  * web application, aligning to most DataHunter action result pages with the values labeled 'result', 'rows affected' and
- * 'details'.  (<code>success</code> is set as 'true' or 'false', rather than using the values 'PASS' or 'FAIL' seen on 
- * the web pages)    
- * 
+ * 'details'.  (<code>success</code> is set as 'true' or 'false', rather than using the values 'PASS' or 'FAIL' seen on
+ * the web pages)
+ *
  * @author Philip Webb
  * Written: Australian Autumn 2022
  */
@@ -40,12 +41,14 @@ public class DataHunterRestApiResponsePojo {
 
 	private List<Policies> policies;
 	private List<CountPoliciesBreakdown> countPoliciesBreakdown;
-	private List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResults;
+	// TODO Remove legacy alias in next major release after 6.4 compatibility window ends.
+	@JsonAlias({"asyncMessageAnalyzerResults", "asyncMessageaAnalyzerResults"})
+	private List<AsyncMessageAnalyzerResult> asyncMessageAnalyzerResults;
 	private String success;
 	private Integer rowsAffected;
-	private String failMsg;	
+	private String failMsg;
 
-	
+
 	public DataHunterRestApiResponsePojo() {
 	}
 
@@ -58,7 +61,7 @@ public class DataHunterRestApiResponsePojo {
 	public void setPolicies(List<Policies> policies) {
 		this.policies = policies;
 	}
-	
+
 	public List<CountPoliciesBreakdown> getCountPoliciesBreakdown() {
 		return countPoliciesBreakdown;
 	}
@@ -67,12 +70,12 @@ public class DataHunterRestApiResponsePojo {
 		this.countPoliciesBreakdown = countPoliciesBreakdown;
 	}
 
-	public List<AsyncMessageaAnalyzerResult> getAsyncMessageaAnalyzerResults() {
-		return asyncMessageaAnalyzerResults;
+	public List<AsyncMessageAnalyzerResult> getAsyncMessageAnalyzerResults() {
+		return asyncMessageAnalyzerResults;
 	}
 
-	public void setAsyncMessageaAnalyzerResults(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResults) {
-		this.asyncMessageaAnalyzerResults = asyncMessageaAnalyzerResults;
+	public void setAsyncMessageAnalyzerResults(List<AsyncMessageAnalyzerResult> asyncMessageAnalyzerResults) {
+		this.asyncMessageAnalyzerResults = asyncMessageAnalyzerResults;
 	}
 
 	public String getSuccess() {
@@ -103,11 +106,11 @@ public class DataHunterRestApiResponsePojo {
     public String toString() {
        return   "[policies=" + policies
         		+ ", countPoliciesBreakdown="+ countPoliciesBreakdown
-        		+ ", asyncMessageaAnalyzerResults="+ asyncMessageaAnalyzerResults
+        		+ ", asyncMessageAnalyzerResults="+ asyncMessageAnalyzerResults
         		+ ", succes="+ success
         		+ ", rowsAffected="+ rowsAffected
         		+ ", failMsg="+ failMsg
         		+ "]";
 	}
-		
+
 }

@@ -6,12 +6,14 @@
 
 Download the Server Profiles Excel file using the Server Metrics Web application ( http://localhost:8085/mark59-metrics/serverProfileList -&gt; Download.. ), and copy it into the apache-jmeter/bin directory.  Or alternatively just copy across the mark59serverprofiles.xlsx sheet supplied in the root of the mark59-scripting-samples project into the apache-jmeter/bin directory.
 
-Finally, the &apos;Quick Start&apos; instructions should of been completed.   This ensures the required jars mark59-scripting-samples.jar and mark59-metrics-api.jar are in apache-jmeter/lib/ext, and mark59.properties and a chromdriver.exe are in the apache-jmeter/bin directory (or manually copy all these files over ). 
+Finally, the &apos;Quick Start&apos; instructions should of been completed.   This ensures the required jars mark59-scripting-samples.jar and mark59-metrics-api.jar are in apache-jmeter/lib/ext, and mark59.properties and a chromdriver.exe are in the apache-jmeter/bin directory (or manually copy all these files over ).
 </stringProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group ">
@@ -19,7 +21,7 @@ Finally, the &apos;Quick Start&apos; instructions should of been completed.   Th
 
 Download the Server Profiles Excel file using the Server Metrics Web application ( http://localhost:8085/mark59-metrics/serverProfileList -&gt; Download.. ), and copy it into the apache-jmeter/bin directory.  Or alternatively just copy across the mark59serverprofiles.xlsx sheet supplied in the root of the mark59-scripting-samples project into the apache-jmeter/bin directory.
 
-Finally, the &apos;Quick Start&apos; instructions should of been completed.   This ensures the required jars mark59-scripting-samples.jar and mark59-metrics-api.jar are in apache-jmeter/lib/ext, and mark59.properties and a chromdriver.exe are in the apache-jmeter/bin directory (or manually copy all these files over ). 
+Finally, the &apos;Quick Start&apos; instructions should of been completed.   This ensures the required jars mark59-scripting-samples.jar and mark59-metrics-api.jar are in apache-jmeter/lib/ext, and mark59.properties and a chromdriver.exe are in the apache-jmeter/bin directory (or manually copy all these files over ).
 </stringProp>
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">0</intProp>
@@ -44,16 +46,16 @@ log.info   (&quot;**** Operating system is  : &quot; + OS_NAME_LC );
 
 os = &quot;LINUX&quot;;
 if ( OS_NAME_LC.indexOf(&quot;win&quot;) &gt;= 0 ) {
-	os = &quot;WINDOWS&quot;; 
+	os = &quot;WINDOWS&quot;;
 } else if ( OS_NAME_LC.indexOf(&quot;mac&quot;) &gt;= 0 ) {
-	os = &quot;MAC&quot;; 
-}   
+	os = &quot;MAC&quot;;
+}
 
 // System Properties vs JMeterUtils - please review the mark59 User Guide if using JSR223 for Mark59 scripts
 System.getProperties().setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_&quot; + os);
 
 SampleResult.setIgnore();
- 
+
 OUT.println(&quot;OS property has been set to : &quot; + os );
 log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
           <stringProp name="scriptLanguage">groovy</stringProp>
@@ -104,11 +106,11 @@ log.info   (&quot;OS property has been set to : &quot; + os );</stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters">${pacing}</stringProp>
           <boolProp name="resetInterpreter">false</boolProp>
-          <stringProp name="script">// &quot;Iteration Pacing Timer&quot; - a recommended timing option for mark59 
-// Please put your target iteration time (delay + script run time) in seconds in the &quot;Parameters&quot; field above, optionally followed by variance in secs eg:  20 5  
-long currentTimeMillis = System.currentTimeMillis(); 
+          <stringProp name="script">// &quot;Iteration Pacing Timer&quot; - a recommended timing option for mark59
+// Please put your target iteration time (delay + script run time) in seconds in the &quot;Parameters&quot; field above, optionally followed by variance in secs eg:  20 5
+long currentTimeMillis = System.currentTimeMillis();
 
-long interation_pacing_ms  = Long.valueOf(bsh.args[0]) * 1000; 
+long interation_pacing_ms  = Long.valueOf(bsh.args[0]) * 1000;
 
 long interation_variance_ms = 0;
 if (bsh.args.length &gt; 1){
@@ -116,7 +118,7 @@ if (bsh.args.length &gt; 1){
 }
 
 long interation_pacing_this_iter_ms = interation_pacing_ms - interation_variance_ms +  (int)( Math.random() * (interation_variance_ms*2 + 1));
-long delay = 0;  
+long delay = 0;
 
 //System.out.println(&quot; &quot;);
 //System.out.println(&quot;&gt;&gt;  pacer parm - interation_pacing_ms         : &quot; + interation_pacing_ms );
@@ -129,20 +131,20 @@ if (last_delay_ms_str != null){
     last_delay_ms = Long.valueOf(last_delay_ms_str);
 }
 //System.out.println(&quot;               - last_delay_ms                : &quot; + last_delay_ms) ;
-	
+
 String interation_start_time_ms_str = vars.get(&quot;interation_start_time_ms&quot;);
 
 if ( interation_start_time_ms_str != null ){
-//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str + &quot;  -  &quot; + (new Date(Long.valueOf(interation_start_time_ms_str)).toString()) );     
-                                                                                                                               
+//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str + &quot;  -  &quot; + (new Date(Long.valueOf(interation_start_time_ms_str)).toString()) );
+
 	delay = interation_pacing_this_iter_ms + Long.valueOf(interation_start_time_ms_str) + last_delay_ms - System.currentTimeMillis();
 	if (delay &lt; 0){
          log.info(&quot;  script execution time exceeded pacing by  : &quot; + (0-delay) + &quot; ms.&quot;  );
          delay = 0;
 	}
 } else {
-//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str );    
-} 
+//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str );
+}
 
 vars.put(&quot;interation_start_time_ms&quot;, &quot;&quot; + currentTimeMillis );
 vars.put(&quot;last_delay_ms&quot;, &quot;&quot; + delay );
@@ -183,36 +185,6 @@ return 0;</stringProp>
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle" enabled="true">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="DATAHUNTER_URL" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
-                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
-                <stringProp name="Argument.value">DATAHUNTER_PV_TEST</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
-                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
-                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,25)}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="START_CDP_LISTENERS" elementType="Argument">
-                <stringProp name="Argument.name">START_CDP_LISTENERS</stringProp>
-                <stringProp name="Argument.value">${startCdpListeners}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="USER" elementType="Argument">
-                <stringProp name="Argument.name">USER</stringProp>
-                <stringProp name="Argument.value">${user}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="FORCE_EXCEPTION" elementType="Argument">
-                <stringProp name="Argument.name">FORCE_EXCEPTION</stringProp>
-                <stringProp name="Argument.value">${__P(ForceException,false)}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
               <elementProp name="______________________ driver settings: ________________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ driver settings: ________________________</stringProp>
                 <stringProp name="Argument.value">Refer Mark59 User Guide for details</stringProp>
@@ -243,8 +215,8 @@ return 0;</stringProp>
                 <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
-                <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
+              <elementProp name="BROWSER_LAUNCH_ARGS" elementType="Argument">
+                <stringProp name="Argument.name">BROWSER_LAUNCH_ARGS</stringProp>
                 <stringProp name="Argument.value">${additionalOptions}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
@@ -360,7 +332,37 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.4</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.5</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
+                <stringProp name="Argument.value">DATAHUNTER_PV_TEST</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
+                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,25)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="START_CDP_LISTENERS" elementType="Argument">
+                <stringProp name="Argument.name">START_CDP_LISTENERS</stringProp>
+                <stringProp name="Argument.value">${startCdpListeners}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="USER" elementType="Argument">
+                <stringProp name="Argument.name">USER</stringProp>
+                <stringProp name="Argument.value">${user}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_EXCEPTION" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_EXCEPTION</stringProp>
+                <stringProp name="Argument.value">${__P(ForceException,false)}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -370,7 +372,7 @@ return 0;</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator">
         <intProp name="ThreadGroup.num_threads">2</intProp>
         <intProp name="ThreadGroup.ramp_time">20</intProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
@@ -398,29 +400,9 @@ return 0;</stringProp>
           <boolProp name="UserParameters.per_iteration">false</boolProp>
         </UserParameters>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator" enabled="true">
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="DATAHUNTER_URL" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
-                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
-                <stringProp name="Argument.value">DATAHUNTER_PV_TEST</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
-                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
-                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,0)}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="USER" elementType="Argument">
-                <stringProp name="Argument.name">USER</stringProp>
-                <stringProp name="Argument.value">${user}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
               <elementProp name="______________________ interation settings: _____________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ interation settings: _____________________</stringProp>
                 <stringProp name="Argument.value"></stringProp>
@@ -481,8 +463,8 @@ return 0;</stringProp>
                 <stringProp name="Argument.value"> </stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
-                <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
+              <elementProp name="BROWSER_LAUNCH_ARGS" elementType="Argument">
+                <stringProp name="Argument.name">BROWSER_LAUNCH_ARGS</stringProp>
                 <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
@@ -598,7 +580,27 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.4</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.5</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
+                <stringProp name="Argument.value">DATAHUNTER_PV_TEST</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
+                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,0)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="USER" elementType="Argument">
+                <stringProp name="Argument.name">USER</stringProp>
+                <stringProp name="Argument.value">${user}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -608,7 +610,7 @@ return 0;</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost_via_Excel" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost_via_Excel">
         <stringProp name="TestPlan.comments">this captures metrics for machine(s) running the this test plan using the downloaded excel spreadsheet</stringProp>
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">5</intProp>
@@ -632,7 +634,7 @@ return 0;</stringProp>
           <intProp name="calcMode">0</intProp>
         </ConstantThroughputTimer>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_excel" enabled="true">
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="localhost_via_excel">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="SERVER_PROFILE_NAME" elementType="Argument">
@@ -702,7 +704,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.4</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.5</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>

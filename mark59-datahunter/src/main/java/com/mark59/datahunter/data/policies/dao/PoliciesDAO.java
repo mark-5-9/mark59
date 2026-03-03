@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
-import com.mark59.datahunter.model.AsyncMessageaAnalyzerResult;
+import com.mark59.datahunter.model.AsyncMessageAnalyzerResult;
 import com.mark59.datahunter.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.model.PolicySelectionCriteria;
 import com.mark59.datahunter.model.PolicySelectionFilter;
@@ -49,13 +49,13 @@ public interface PoliciesDAO
 	SqlWithParms constructSelectNextPolicySql(PolicySelectionCriteria policySelect);
 	SqlWithParms constructCountPoliciesSql(PolicySelectionCriteria policySelect);
 	SqlWithParms constructCountPoliciesBreakdownSql(PolicySelectionCriteria policySelectionCriteria);
-	SqlWithParms constructAsyncMessageaAnalyzerSql(PolicySelectionCriteria policySelectionCriteria);
+	SqlWithParms constructAsyncMessageAnalyzerSql(PolicySelectionCriteria policySelectionCriteria);
 	
 	int runCountSql(SqlWithParms sqlWithParms);
 	List<Policies> runSelectPolicieSql(SqlWithParms sqlWithParms);
 	Stream<Policies> runStreamPolicieSql(SqlWithParms sqlWithParms);
 	List<CountPoliciesBreakdown> runCountPoliciesBreakdownSql(SqlWithParms sqlWithParms);
-	List<AsyncMessageaAnalyzerResult> runAsyncMessageaAnalyzerSql(SqlWithParms sqlWithParms);
+	List<AsyncMessageAnalyzerResult> runAsyncMessageAnalyzerSql(SqlWithParms sqlWithParms);
 	
 	SqlWithParms constructInsertDataSql(Policies policies);
 	
@@ -71,9 +71,9 @@ public interface PoliciesDAO
 	SqlWithParms constructUpdatePolicyToUsedSql(Policies nextPolicy);
 	SqlWithParms constructUpdatePoliciesUseStateSql(UpdateUseStateAndEpochTime updateUse);
 
-	List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList, 
+	List<AsyncMessageAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageAnalyzerResult> asyncMessageAnalyzerResultList, 
 			String toUseability);
-	List<AsyncMessageaAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageaAnalyzerResult> asyncMessageaAnalyzerResultList, 
+	List<AsyncMessageAnalyzerResult> updateMultiplePoliciesUseState(List<AsyncMessageAnalyzerResult> asyncMessageAnalyzerResultList, 
 			String toUseability, int maxEntriesSqlUpdateStmt);
 
 	int runDatabaseUpdateSql(SqlWithParms sqlWithParms);

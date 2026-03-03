@@ -1,11 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-common</artifactId>
-	<version>6.4</version>
+	<version>6.5</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-common</name>
@@ -17,30 +17,31 @@
 	</properties>
 
 	<dependencies>
-		
+
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.4</version>
+			<version>6.5</version>
 		</dependency>
 
+		<!-- may be ahead of JMeter due to vunerabilty reporting -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.24.3</version>
+			<version>2.25.3</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>2.24.3</version>
+			<version>2.25.3</version>
 		</dependency>
 
  		<!-- implement log4j 'SFLF bindings' for test purposes only  -->
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-slf4j-impl</artifactId>
-		    <version>2.24.3</version>
+		    <version>2.25.3</version>
 		    <scope>test</scope>
 		</dependency>
 
@@ -49,30 +50,31 @@
 		<dependency>
 		    <groupId>org.apache.poi</groupId>
 		    <artifactId>poi</artifactId>
-		    <version>5.4.1</version>
+		    <version>5.5.1</version>
 		</dependency>
-      
+
 		<dependency>
 		    <groupId>org.apache.poi</groupId>
 		    <artifactId>poi-ooxml</artifactId>
-		    <version>5.4.1</version>
+		    <version>5.5.1</version>
 		</dependency>
-		
+
 		<!-- added to dep issue with the POI classes
 		https://stackoverflow.com/questions/77256330/java-lang-nosuchmethoderror-org-apache-commons-io-output-unsynchronizedbytearr-->
 	    <dependency>
 	        <groupId>commons-io</groupId>
 	        <artifactId>commons-io</artifactId>
-	        <version>2.20.0</version>
+	        <version>2.21.0</version>
 	    </dependency>
-		
+	    
+
 		<!-- added for usage of StringSubstitutorr in command parameterization-->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-text</artifactId>
 		    <version>1.14.0</version>
 		</dependency>
-		
+
 		<!-- Note: Was common to SpringBoot and JMeter
 			- now from v17 to 18 due to dependabot vunerability -->
 		<dependency>
@@ -80,7 +82,7 @@
 		    <artifactId>commons-lang3</artifactId>
 		    <version>3.18.0</version>
 		</dependency>
-		
+
 		<!-- Note: kept in line with version used by JMeter
 		     (note from SpringBoot 3.1.2, groovy 4.x.x deps are used)-->
 		<dependency>
@@ -89,7 +91,7 @@
 		    <version>3.0.17</version>
 		    <type>pom</type>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.json/json -->
 		<!-- added for the New Relic sample (org.json.* classes)-->
 		<dependency>
@@ -97,7 +99,7 @@
 		    <artifactId>json</artifactId>
 		    <version>20250107</version>
 		</dependency>
-	
+
 		<!-- added to simplify (Groovy) api scripting (eg  New Relic )-->
 		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
 		<dependency>
@@ -105,28 +107,27 @@
 		    <artifactId>okhttp</artifactId>
 		    <version>4.12.0</version>
 		</dependency>
-		
-		<!-- Note: common to SpringBoot and JMeter (version may differ)
-		            in line with jmeter 5.6.3-->
+
+		<!-- Note: common to SpringBoot (version may differ to JMeter)
+	            Updated to 2.18.2 for Spring Boot 4 compatibility -->
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>
-		    <version>2.16.1</version>
-			<scope>provided</scope>
+		    <version>2.18.2</version>
 		</dependency>
+
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
-		    <version>2.16.1</version>
-			<scope>provided</scope>		    
+		    <version>2.18.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>
 			<version>0.1.55</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -149,11 +150,11 @@
 
 			<!--local build goals: clean package install
 			    adds source into local repository when installed -->
-			    	
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.2.1</version>				
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -164,6 +165,6 @@
 
 		</plugins>
 		<finalName>${project.artifactId}</finalName>
-	</build>					
-		
+	</build>
+
 </project>

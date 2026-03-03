@@ -186,7 +186,8 @@ public interface JmeterFunctions {
 	
 	
 	/**
-	 * @return the Map of the buffered screenshots
+	 * returns the map of all buffered screenshots
+	 * @return Map of buffered screenshots
 	 */
 	Map<String, byte[]> getBufferedLogs();
 	

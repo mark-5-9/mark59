@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,17 +29,17 @@ import com.mark59.metrics.utils.MetricsUtils;
 
 
 /**
- * @author Philip Webb    
+ * @author Philip Webb
  * @author Michael Cohen
- * Written: Australian Winter 2019   
+ * Written: Australian Winter 2019
  */
 public class CommandDriverWinWmicImpl implements CommandDriver {
 
 	public static final String WMIC_DIR = MetricsUtils.wmicExecutableDirectory();
-	
-	private static final String WMIC_LOCAL_SWITCHES  = "WMIC /node:localhost ";
-	
-	private static final String WMIC_REMOTE_SWITCHES = "WMIC" 
+
+	private static final String WMIC_LOCAL_SWITCHES = "WMIC /node:localhost ";
+
+	private static final String WMIC_REMOTE_SWITCHES = "WMIC"
 		+ " /user: ${" + MetricsConstants.PROFILE_USERNAME + "}"
 		+ " /password: <PWD_PLACEHOLDER>"
 		+ " /node: ${" + MetricsConstants.PROFILE_SERVER + "} ";
@@ -49,40 +49,40 @@ public class CommandDriverWinWmicImpl implements CommandDriver {
 	public CommandDriverWinWmicImpl(ServerProfile serverProfile) {
 		this.serverProfile = serverProfile;
 	}
-	
-	
+
+
 	/**
-	 * Executes and logs WMI Commands, returning the response  
-	 * @param command  WMI Command
+	 * Executes and logs WMI Commands, returning the response
+	 * @param command WMI Command
 	 * @return CommandDriverResponse
 	 */
 	@Override
 	public CommandDriverResponse executeCommand(Command command, Map<String, String> cmdParms, boolean testMode) {
-		LOG.debug("wmic executeCommand :" + command + ", cmdParms=" + cmdParms );
+		LOG.debug("wmic executeCommand : " + command + ", cmdParms=" + cmdParms);
 		CommandDriverResponse commandDriverResponse;
-		StringSubstitutor parmSubstitutor = new StringSubstitutor(cmdParms);		
+		StringSubstitutor parmSubstitutor = new StringSubstitutor(cmdParms);
 		String runtimeCommand;
 		String runtimeCommandForLog;
-		
+
 		if ("localhost".equalsIgnoreCase(serverProfile.getServer())) {
 			runtimeCommand = WMIC_DIR + WMIC_LOCAL_SWITCHES + parmSubstitutor.replace(command.getCommand()).replaceAll("\\R", " ");
 			runtimeCommandForLog = runtimeCommand;
 
 		} else {
-			
+
 			runtimeCommand = WMIC_DIR
 				+ parmSubstitutor
-					.replace(WMIC_REMOTE_SWITCHES.replace("<PWD_PLACEHOLDER>",MetricsUtils.actualPwd(serverProfile)) + command.getCommand())
+					.replace(WMIC_REMOTE_SWITCHES.replace("<PWD_PLACEHOLDER>", MetricsUtils.actualPwd(serverProfile)) + command.getCommand())
 					.replaceAll("\\R", " ");
-			
+
 			runtimeCommandForLog = WMIC_DIR
 				+ parmSubstitutor
 					.replace(WMIC_REMOTE_SWITCHES.replace("<PWD_PLACEHOLDER>", "********") + command.getCommand())
 					.replaceAll("\\R", " ");
 		}
 
-		commandDriverResponse = CommandDriver.executeRuntimeCommand(runtimeCommand, command.getIngoreStderr(),CommandExecutorDatatypes.WMIC_WINDOWS);
-		commandDriverResponse.setCommandLog(CommandDriver.logExecution(runtimeCommandForLog, command.getIngoreStderr(),
+		commandDriverResponse = CommandDriver.executeRuntimeCommand(runtimeCommand, command.getIgnoreStderr(), CommandExecutorDatatypes.WMIC_WINDOWS);
+		commandDriverResponse.setCommandLog(CommandDriver.logExecution(runtimeCommandForLog, command.getIgnoreStderr(),
 				commandDriverResponse.getRawCommandResponseLines(), testMode));
 		return commandDriverResponse;
 	}

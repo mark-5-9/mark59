@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,26 +41,26 @@ import com.mark59.scripting.selenium.interfaces.DriverFunctionsSelenium;
 import com.mark59.scripting.selenium.interfaces.DriverFunctionsSeleniumBuilder;
 
 /**
- * <p>Invoking the {@link #build(Map)} method will create a Firefox (Geko) driver to be used in Mark59 scripts.
- * <p>Selenium {@link FirefoxOptions} (which in Mark59 have been set by the {@link SeleniumDriverFactory}) 
+ * <p>Invoking the {@link #build(Map)} method will create a Firefox (Gecko) driver to be used in Mark59 scripts.
+ * <p>Selenium {@link FirefoxOptions} (which in Mark59 have been set by the {@link SeleniumDriverFactory})
  * are used by the service builder during driver creation.
- * 
- * @see DriverFunctionsSeleniumBuilder 
- * 
- * 
+ *
+ * @see DriverFunctionsSeleniumBuilder
+ *
+ *
  * @author Michael Cohen
- * Written: Australian Winter 2019  
+ * Written: Australian Winter 2019
  */
 public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSeleniumBuilder<FirefoxOptions> {
 
 	private static final Logger LOG = LogManager.getLogger(DriverFunctionsSeleniumFirefoxBuilder.class);
-	
+
 	private int width  = Mark59Constants.DEFAULT_BROWSER_WIDTH;
 	private int height = Mark59Constants.DEFAULT_BROWSER_HEIGHT;
 
 	private DriverService.Builder<GeckoDriverService, GeckoDriverService.Builder> serviceBuilder;
-	private FirefoxOptions options;	
-	
+	private FirefoxOptions options;
+
 
 	/**
 	 * creates the GeckoDriverService Builder and FirefoxOptions object to be built
@@ -70,14 +70,14 @@ public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSel
 		options = new FirefoxOptions();
 	}
 
-	
+
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setDriverExecutable(Path driverPath) {
 		serviceBuilder.usingDriverExecutable(driverPath.toFile());
 		return this;
 	}
 
-	
+
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setHeadless(boolean isHeadless) {
 		if (isHeadless) {
@@ -86,13 +86,13 @@ public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSel
 		return this;
 	}
 
-		
+
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setPageLoadStrategy(PageLoadStrategy strategy) {
 		options.setPageLoadStrategy(strategy);
 		return this;
 	}
-	
+
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setPageLoadStrategyNone() {
 		return setPageLoadStrategy(PageLoadStrategy.NONE);
@@ -103,7 +103,7 @@ public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSel
 		return setPageLoadStrategy(PageLoadStrategy.NORMAL);
 	}
 
-	
+
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setSize(int width, int height) {
 		this.width = width;
@@ -117,26 +117,26 @@ public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSel
 		options.setProxy(proxy);
 		return this;
 	}
-	
+
 
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setUnhandledPromptBehaviour(UnexpectedAlertBehaviour behaviour) {
 		options.setUnhandledPromptBehaviour(behaviour);
 		return this;
 	}
-		
-	
+
+
 	@Override
-	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setAdditionalOptions(List<String> arguments) {
-		LOG.debug("Note: setAdditionalOptions for Firefox not currenlty supported (options will be ignored)");
+	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setBrowserLaunchArgs(List<String> arguments) {
+		LOG.debug("Note: setBrowserLaunchArgs for Firefox not currently supported (options will be ignored)");
 		return this;
 	}
-	
-	
+
+
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setWriteBrowserLogfile(boolean isWriteBrowserLogFile) {
 		String logsDirectory = Mark59LoggingConfig.getInstance().getLogDirectory().getName();
-		
+
 		if (isWriteBrowserLogFile && StringUtils.isNotBlank(logsDirectory)) {
 			String firefoxBrowserLog =  logsDirectory + File.separator + Thread.currentThread().getName() + "_FirefoxBrowserLogfile.txt";
 			LOG.info("Note: FireFox driver logging directed to " + firefoxBrowserLog);
@@ -146,25 +146,25 @@ public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSel
 		} else {
 			LOG.debug("Note: FireFox driver logging is being suppressed.");
 			System.setProperty(GeckoDriverService.GECKO_DRIVER_LOG_PROPERTY,"/dev/null");
-		}	
+		}
 		return this;
 	}
-	
-	
+
+
 	@Override
 	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setAlternateBrowser(Path browserExecutablePath) {
 		options.setBinary(browserExecutablePath);
 		return this;
 	}
 
-	
+
 	@Override
-	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setVerbosePerformanceLoggingLogging(boolean isVerbose) {
+	public DriverFunctionsSeleniumBuilder<FirefoxOptions> setVerbosePerformanceLogging(boolean isVerbose) {
 		LOG.debug("Note: FireFox driver does not support Performance Logging");
 		return this;
 	}
-	
-	
+
+
 	@Override
 	public DriverFunctionsSelenium<FirefoxDriver> build(Map<String, String> arguments) {
 
@@ -180,8 +180,8 @@ public class DriverFunctionsSeleniumFirefoxBuilder implements DriverFunctionsSel
 			LOG.debug("Firefox driver created. Browser Name+Version : " + caps.getBrowserName() + " " + caps.getBrowserVersion());
 			LOG.debug("  geckodriver version  : " + caps.getCapability("moz:geckodriverVersion"));
 			LOG.debug("  moz profile          : " + caps.getCapability("moz:profile"));
-		}		
-				
+		}
+
 		return new DriverFunctionsSeleniumFirefox(driver);
 	}
 

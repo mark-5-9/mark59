@@ -49,7 +49,7 @@ function buildHomeLink() {
   <h1>Asynchronous Message Analyzer - Matching Criteria</h1>  
   <br>
 
-  <form:form method="post" action="async_message_analyzer_action" modelAttribute="asyncMessageaAnalyzerRequest" >
+  <form:form method="post" action="async_message_analyzer_action" modelAttribute="asyncMessageAnalyzerRequest" >
    <table>
     <tr>
      <td>Application(s)</td>

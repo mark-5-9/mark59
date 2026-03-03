@@ -50,7 +50,6 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("parserName", parserName);
 
-//		 System.out.println(" findCommandResponseParser : " + sql + " : " + parserName);
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
 		
@@ -66,8 +65,6 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 		commandResponseParser.setScript((String)row.get("SCRIPT"));
 		commandResponseParser.setComment((String)row.get("COMMENT"));
 		commandResponseParser.setSampleCommandResponse((String)row.get("SAMPLE_COMMAND_RESPONSE"));
-		commandResponseParser.setParserName((String)row.get("PARSER_NAME"));
-//		System.out.println("ServerCommandLinksDAO..findCommandResponseParser : " + commandResponseParser.toString());		
 		return  commandResponseParser;
 	}
 
@@ -80,6 +77,12 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 	@Override
 	public List<CommandResponseParser> findCommandResponseParsers(String selectionCol, String selectionValue){
 
+		// Whitelist validation to prevent SQL injection
+		List<String> allowedColumns = List.of("PARSER_NAME", "METRIC_TXN_TYPE", "METRIC_NAME_SUFFIX", "SCRIPT", "COMMENT", "SAMPLE_COMMAND_RESPONSE");
+		if (!selectionCol.isEmpty() && !allowedColumns.contains(selectionCol.toUpperCase())) {
+			throw new IllegalArgumentException("Invalid column name: " + selectionCol);
+		}
+
 		String sql = "select PARSER_NAME, METRIC_TXN_TYPE, METRIC_NAME_SUFFIX, SCRIPT, COMMENT, SAMPLE_COMMAND_RESPONSE from COMMANDRESPONSEPARSERS ";
 		
 		if (!selectionValue.isEmpty()  ) {			
@@ -90,7 +93,6 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("selectionValue", selectionValue);
 
-//		System.out.println(" findCommandResponseParsers : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
 		List<CommandResponseParser> commandResponseParsersList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
@@ -102,10 +104,8 @@ public class CommandResponseParsersDAOjdbcTemplateImpl implements CommandRespons
 			commandResponseParser.setMetricNameSuffix((String)row.get("METRIC_NAME_SUFFIX"));
 			commandResponseParser.setScript((String)row.get("SCRIPT"));
 			commandResponseParser.setComment((String)row.get("COMMENT"));
-			commandResponseParser.setSampleCommandResponse((String)row.get("SAMPLE_COMMAND_RESPONSE"));			
-			commandResponseParser.setParserName((String)row.get("PARSER_NAME"));
+			commandResponseParser.setSampleCommandResponse((String)row.get("SAMPLE_COMMAND_RESPONSE"));
 			commandResponseParsersList.add(commandResponseParser);
-//			System.out.println("ServerCommandLinksDAOjdbcTemplateImpl.findCommandResponseParsers  : " + commandResponseParser.toString()  ) ;		
 		}	
 		return commandResponseParsersList;
 	}

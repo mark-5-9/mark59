@@ -59,7 +59,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group ">
+      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group " enabled="true">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">0</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -78,7 +78,7 @@
 systemProperties.setProperty(&quot;mark59.selenium.driver.path.chrome&quot;, &quot;./chromedriver.exe&quot;);
 systemProperties.setProperty(&quot;mark59.log.directory&quot;, &quot;C:/temp/jmeter_test_logs_testplan_override/&quot;);
 systemProperties.setProperty(&quot;mark59.server.profiles.excel.file.path&quot;, &quot;./mark59serverprofiles.xlsx&quot;);
- 
+
 OUT.println (&quot;DataHunter Selenium Test Plan:  Mark59 properties directly set here : &quot;);
 OUT.println (&quot;mark59.selenium.driver.path.chrome     : &quot; + systemProperties.getProperty(&quot;mark59.selenium.driver.path.chrome&quot;));
 OUT.println (&quot;mark59.log.directory                   : &quot; + systemProperties.getProperty(&quot;mark59.screenshot.directory&quot;));
@@ -91,7 +91,7 @@ OUT.println (&quot;------------------------------------------------------------&
           <stringProp name="TestPlan.comments">Windows example of using system properties to override mark59.properties setting  (by default this script should be disabled)</stringProp>
         </JSR223Sampler>
         <hashTree/>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="setOperatingSystemProperty">
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="setOperatingSystemProperty" enabled="true">
           <stringProp name="scriptLanguage">groovy</stringProp>
           <stringProp name="parameters"></stringProp>
           <stringProp name="filename"></stringProp>
@@ -104,16 +104,16 @@ log.info   (&quot;**** Operating system is  : &quot; + OS_NAME_LC );
 
 os = &quot;LINUX&quot;;
 if ( OS_NAME_LC.indexOf(&quot;win&quot;) &gt;= 0 ) {
-	os = &quot;WINDOWS&quot;; 
+	os = &quot;WINDOWS&quot;;
 } else if ( OS_NAME_LC.indexOf(&quot;mac&quot;) &gt;= 0 ) {
-	os = &quot;MAC&quot;; 
-} 
+	os = &quot;MAC&quot;;
+}
 
 // System Properties vs JMeterUtils - please review the mark59 User Guide if using JSR223 for Mark59 scripts
 System.getProperties().setProperty(&quot;LOCALHOST_OS&quot;, &quot;localhost_&quot; + os);
 
 SampleResult.setIgnore();
- 
+
 OUT.println(&quot;OS property has been set to : &quot; + os );
 log.info   (&quot;OS property has been set to : &quot; + os );
 
@@ -127,7 +127,7 @@ log.info   (&quot;OS property has been set to : &quot; + os );
         </JSR223Sampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycle">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycle" enabled="true">
         <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,25)}</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
@@ -144,11 +144,11 @@ log.info   (&quot;OS property has been set to : &quot; + os );
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters">${pacing}</stringProp>
           <boolProp name="resetInterpreter">false</boolProp>
-          <stringProp name="script">// &quot;Iteration Pacing Timer&quot; - a recommended timing option for mark59 
-// Please put your target iteration time (delay + script run time) in seconds in the &quot;Parameters&quot; field above, optionally followed by variance in secs eg:  20 5  
-long currentTimeMillis = System.currentTimeMillis(); 
+          <stringProp name="script">// &quot;Iteration Pacing Timer&quot; - a recommended timing option for mark59
+// Please put your target iteration time (delay + script run time) in seconds in the &quot;Parameters&quot; field above, optionally followed by variance in secs eg:  20 5
+long currentTimeMillis = System.currentTimeMillis();
 
-long interation_pacing_ms  = Long.valueOf(bsh.args[0]) * 1000; 
+long interation_pacing_ms  = Long.valueOf(bsh.args[0]) * 1000;
 
 long interation_variance_ms = 0;
 if (bsh.args.length &gt; 1){
@@ -156,7 +156,7 @@ if (bsh.args.length &gt; 1){
 }
 
 long interation_pacing_this_iter_ms = interation_pacing_ms - interation_variance_ms +  (int)( Math.random() * (interation_variance_ms*2 + 1));
-long delay = 0;  
+long delay = 0;
 
 //System.out.println(&quot; &quot;);
 //System.out.println(&quot;&gt;&gt;  pacer parm - interation_pacing_ms         : &quot; + interation_pacing_ms );
@@ -169,20 +169,20 @@ if (last_delay_ms_str != null){
     last_delay_ms = Long.valueOf(last_delay_ms_str);
 }
 //System.out.println(&quot;               - last_delay_ms                : &quot; + last_delay_ms) ;
-	
+
 String interation_start_time_ms_str = vars.get(&quot;interation_start_time_ms&quot;);
 
 if ( interation_start_time_ms_str != null ){
-//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str + &quot;  -  &quot; + (new Date(Long.valueOf(interation_start_time_ms_str)).toString()) );     
-                                                                                                                               
+//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str + &quot;  -  &quot; + (new Date(Long.valueOf(interation_start_time_ms_str)).toString()) );
+
 	delay = interation_pacing_this_iter_ms + Long.valueOf(interation_start_time_ms_str) + last_delay_ms - System.currentTimeMillis();
 	if (delay &lt; 0){
          log.info(&quot;  script execution time exceeded pacing by  : &quot; + (0-delay) + &quot; ms.&quot;  );
          delay = 0;
 	}
 } else {
-//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str );    
-} 
+//	System.out.println(&quot;               - (Prev) interation_start_time : &quot; + interation_start_time_ms_str );
+}
 
 vars.put(&quot;interation_start_time_ms&quot;, &quot;&quot; + currentTimeMillis );
 vars.put(&quot;last_delay_ms&quot;, &quot;&quot; + delay );
@@ -220,39 +220,9 @@ return 0;</stringProp>
           <boolProp name="UserParameters.per_iteration">false</boolProp>
         </UserParameters>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle">
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycle" enabled="true">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="DATAHUNTER_URL" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
-                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
-                <stringProp name="Argument.value">${dataHunterApplicationId}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
-                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
-                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,25)}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="START_CDP_LISTENERS" elementType="Argument">
-                <stringProp name="Argument.name">START_CDP_LISTENERS</stringProp>
-                <stringProp name="Argument.value">${startCdpListeners}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="USER" elementType="Argument">
-                <stringProp name="Argument.name">USER</stringProp>
-                <stringProp name="Argument.value">${user}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="FORCE_EXCEPTION" elementType="Argument">
-                <stringProp name="Argument.name">FORCE_EXCEPTION</stringProp>
-                <stringProp name="Argument.value">${__P(ForceException,false)}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
               <elementProp name="______________________ driver settings: ________________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ driver settings: ________________________</stringProp>
                 <stringProp name="Argument.value">Refer Mark59 User Guide for details</stringProp>
@@ -283,8 +253,8 @@ return 0;</stringProp>
                 <stringProp name="Argument.value"></stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
-                <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
+              <elementProp name="BROWSER_LAUNCH_ARGS" elementType="Argument">
+                <stringProp name="Argument.name">BROWSER_LAUNCH_ARGS</stringProp>
                 <stringProp name="Argument.value">${additionalOptions}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
@@ -400,7 +370,37 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.4</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.5</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
+                <stringProp name="Argument.value">${dataHunterApplicationId}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
+                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,25)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="START_CDP_LISTENERS" elementType="Argument">
+                <stringProp name="Argument.name">START_CDP_LISTENERS</stringProp>
+                <stringProp name="Argument.value">${startCdpListeners}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="USER" elementType="Argument">
+                <stringProp name="Argument.name">USER</stringProp>
+                <stringProp name="Argument.value">${user}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_EXCEPTION" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_EXCEPTION</stringProp>
+                <stringProp name="Argument.value">${__P(ForceException,false)}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -410,7 +410,7 @@ return 0;</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="DataHunterLifecycleIterator" enabled="true">
         <stringProp name="ThreadGroup.num_threads">${__P(Users,2)}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${__P(RampUp,20)}</stringProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,70)}</stringProp>
@@ -438,29 +438,9 @@ return 0;</stringProp>
           <boolProp name="UserParameters.per_iteration">false</boolProp>
         </UserParameters>
         <hashTree/>
-        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator">
+        <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecycleIterator" enabled="true">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="DATAHUNTER_URL" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
-                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
-                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
-                <stringProp name="Argument.value">${dataHunterApplicationId}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
-                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
-                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,0)}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="USER" elementType="Argument">
-                <stringProp name="Argument.name">USER</stringProp>
-                <stringProp name="Argument.value">${user}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
               <elementProp name="______________________ interation settings: _____________________" elementType="Argument">
                 <stringProp name="Argument.name">______________________ interation settings: _____________________</stringProp>
                 <stringProp name="Argument.value"></stringProp>
@@ -521,8 +501,8 @@ return 0;</stringProp>
                 <stringProp name="Argument.value"> </stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="ADDITIONAL_OPTIONS" elementType="Argument">
-                <stringProp name="Argument.name">ADDITIONAL_OPTIONS</stringProp>
+              <elementProp name="BROWSER_LAUNCH_ARGS" elementType="Argument">
+                <stringProp name="Argument.name">BROWSER_LAUNCH_ARGS</stringProp>
                 <stringProp name="Argument.value">${additionalOptions}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
@@ -638,7 +618,27 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.4</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.5</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_URL" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
+                <stringProp name="Argument.value">${dataHunterUrl}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DATAHUNTER_APPLICATION_ID" elementType="Argument">
+                <stringProp name="Argument.name">DATAHUNTER_APPLICATION_ID</stringProp>
+                <stringProp name="Argument.value">${dataHunterApplicationId}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="FORCE_TXN_FAIL_PERCENT" elementType="Argument">
+                <stringProp name="Argument.name">FORCE_TXN_FAIL_PERCENT</stringProp>
+                <stringProp name="Argument.value">${__P(ForceTxnFailPercent,0)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="USER" elementType="Argument">
+                <stringProp name="Argument.name">USER</stringProp>
+                <stringProp name="Argument.value">${user}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -648,7 +648,7 @@ return 0;</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost-via-web">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_localhost-via-web" enabled="true">
         <stringProp name="ThreadGroup.num_threads">${__P(MonitoringUsers,1)}</stringProp>
         <intProp name="ThreadGroup.ramp_time">0</intProp>
         <stringProp name="ThreadGroup.duration">${__P(Duration,80)}</stringProp>
@@ -765,7 +765,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api Version: 6.4</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api Version: 6.5</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -774,7 +774,7 @@ return 0;</stringProp>
         </JavaSampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_local_via_excel">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ServerMetrics_local_via_excel" enabled="true">
         <stringProp name="TestPlan.comments">Using the HOSTID profile ( &quot;localhost_WINDOWS_HOSTID&quot; ) Useful  to pick up the load generator name for distrubted tests - set MonitoringUsersExcel to 1 to activate</stringProp>
         <stringProp name="ThreadGroup.num_threads">${__P(MonitoringUsersExcel,0)}</stringProp>
         <intProp name="ThreadGroup.ramp_time">0</intProp>
@@ -867,7 +867,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.4</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.5</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -919,55 +919,55 @@ import com.mark59.scripting.selenium.SeleniumAbstractJavaSamplerClient;
 import com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory;
 
 
-// &gt;&gt; --------- COMMENT OUT THE NEXT TWO LINES ---------  
+// &gt;&gt; --------- COMMENT OUT THE NEXT TWO LINES ---------
 // public class DataHunterBasicSampleScriptJSR223Format  {
 // public static void main(String[] args) throws InterruptedException{
-// &lt;&lt;  
-	
-	
+// &lt;&lt;
+
+
 class ThisScript extends SeleniumAbstractJavaSamplerClient {
-	
+
 	@SuppressWarnings(&quot;unused&quot;)
 	final class TestConstants {
-		public static final String COUNT_POLICIES_URL_PATH              = &quot;/count_policies&quot;;	
+		public static final String COUNT_POLICIES_URL_PATH              = &quot;/count_policies&quot;;
 		public static final String ADD_POLICY_URL_PATH                  = &quot;/add_policy&quot;;
 		public static final String SELECT_MULTIPLE_POLICIES_URL_PATH	= &quot;/select_multiple_policies&quot;;
-		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/policies_breakdown&quot;;		
-		public static final String NEXT_POLICY_URL_PATH                 = &quot;/next_policy&quot;;	
-		public static final String UNUSED                               = &quot;UNUSED&quot;;  
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/policies_breakdown&quot;;
+		public static final String NEXT_POLICY_URL_PATH                 = &quot;/next_policy&quot;;
+		public static final String UNUSED                               = &quot;UNUSED&quot;;
 		public static final String EQUALS                               = &quot;EQUALS&quot;;
-		public static final String SELECT_MOST_RECENTLY_ADDED           = &quot;SELECT_MOST_RECENTLY_ADDED&quot;;  
+		public static final String SELECT_MOST_RECENTLY_ADDED           = &quot;SELECT_MOST_RECENTLY_ADDED&quot;;
 	}
-	
-	
+
+
 	@Override
 	protected Map&lt;String, String&gt; additionalTestParameters() {
 		Map&lt;String, String&gt; jmeterAdditionalParameters = new LinkedHashMap&lt;String, String&gt;();
 		jmeterAdditionalParameters.put(&quot;DATAHUNTER_URL&quot;,			&quot;http://localhost:8081/mark59-datahunter&quot;);
 		jmeterAdditionalParameters.put(&quot;DATAHUNTER_APPLICATION_ID&quot;, &quot;DATAHUNTER_PV_TEST_BASIC&quot;);
-		jmeterAdditionalParameters.put(&quot;USER&quot;, 	 &quot;default_user&quot;);		
+		jmeterAdditionalParameters.put(&quot;USER&quot;, 	 &quot;default_user&quot;);
 		jmeterAdditionalParameters.put(&quot;DRIVER&quot;, &quot;CHROME&quot;);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.HEADLESS_MODE, String.valueOf(false));
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PAGE_LOAD_STRATEGY, PageLoadStrategy.NORMAL.toString());
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, &quot;&quot;);
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, &quot;&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_LAUNCH_ARGS, &quot;&quot;);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, 	String.valueOf(false));
 		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, &quot;&quot;);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, &quot;&quot;);
-		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));	 
-		return jmeterAdditionalParameters;			
+		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));
+		return jmeterAdditionalParameters;
 	}
-	
+
 
 	@Override
 	protected void runSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,  WebDriver driver) {
 //		jm.logScreenshotsAtStartOfTransactions(Mark59LogLevels.WRITE);
 //		jm.logScreenshotsAtEndOfTransactions(Mark59LogLevels.WRITE);
-//		jm.logPageSourceAtStartOfTransactions(Mark59LogLevels.WRITE);		
+//		jm.logPageSourceAtStartOfTransactions(Mark59LogLevels.WRITE);
 //		jm.logPageSourceAtEndOfTransactions(Mark59LogLevels.WRITE );
 //		jm.logPerformanceLogAtEndOfTransactions(Mark59LogLevels.WRITE);
-		// you need to use jm.writeBufferedArtifacts to output BUFFERed data (see end of this method)  		
-//		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.BUFFER);		
+		// you need to use jm.writeBufferedArtifacts to output BUFFERed data (see end of this method)
+//		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.BUFFER);
 
 		String thread = Thread.currentThread().getName();
 		String lifecycle = &quot;thread_&quot; + thread;
@@ -982,60 +982,60 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		jm.startTransaction(&quot;DH_lifecycle_0001_loadInitialPage&quot;);
 		driver.get(dataHunterUrl + TestConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
 		driver.findElement(By.id(&quot;lifecycle&quot;)).sendKeys(lifecycle);
-		driver.findElement(By.id(&quot;submit&quot;)).submit();	
+		driver.findElement(By.id(&quot;submit&quot;)).submit();
 		jm.endTransaction(&quot;DH_lifecycle_0001_loadInitialPage&quot;);
-		
+
 		jm.startTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);
 		driver.findElement(By.partialLinkText(&quot;Delete Selected Items&quot;)).click();
 		Alert alert = driver.switchTo().alert();
-		alert.accept();		
+		alert.accept();
 		checkSqlOk(driver.findElement(By.id(&quot;sqlResult&quot;)));
-		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);	
-	
-//		add a policy 		
+		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);
+
+//		add a policy
 		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + &quot;?application=&quot; + application);
 
-		driver.findElement(By.id(&quot;identifier&quot;)).sendKeys(&quot;DH-BASIC-POLICY&quot;); 		
-		driver.findElement(By.id(&quot;lifecycle&quot;)).sendKeys(lifecycle); 		
-		
+		driver.findElement(By.id(&quot;identifier&quot;)).sendKeys(&quot;DH-BASIC-POLICY&quot;);
+		driver.findElement(By.id(&quot;lifecycle&quot;)).sendKeys(lifecycle);
+
 		Select dropdown = new Select(driver.findElement(By.id(&quot;useability&quot;)));
 		dropdown.selectByVisibleText(TestConstants.UNUSED);
 
-		driver.findElement(By.id(&quot;otherdata&quot;)).sendKeys(user); 
+		driver.findElement(By.id(&quot;otherdata&quot;)).sendKeys(user);
 		driver.findElement(By.id(&quot;epochtime&quot;)).sendKeys(Long.toString(System.currentTimeMillis()));
 //		jm.writeScreenshot(&quot;add_policy_DH-BASIC-POLICY&quot;);
-		
+
 		jm.startTransaction(&quot;DH_lifecycle_0200_addPolicy&quot;);
 		driver.findElement(By.id(&quot;submit&quot;)).submit();
 		checkSqlOk(driver.findElement(By.id(&quot;sqlResult&quot;)));
 		jm.endTransaction(&quot;DH_lifecycle_0200_addPolicy&quot;);
-		
-//		set a Data Point		
+
+//		set a Data Point
 		Long rowsAffected = Long.valueOf(driver.findElement(By.id(&quot;rowsAffected&quot;)).getText());
-		LOG.debug( &quot;rowsAffected : &quot; + rowsAffected); 
-		jm.userDataPoint(application + &quot;_PolicyRowsAffected&quot;, rowsAffected);    // (expected to be always 1 for this action)		
+		LOG.debug( &quot;rowsAffected : &quot; + rowsAffected);
+		jm.userDataPoint(application + &quot;_PolicyRowsAffected&quot;, rowsAffected);    // (expected to be always 1 for this action)
 
 		driver.findElement(By.linkText(&quot;Back&quot;)).click();
-		
+
 //		jm.writeBufferedArtifacts();
 	}
 
 	private void checkSqlOk(WebElement sqlResultWebElement) {
 		String sqlResultText = sqlResultWebElement.getText();
 		if (sqlResultText==null || !sqlResultText.contains(&quot;PASS&quot;)) {
-			throw new RuntimeException(&quot;SQL issue (&quot; + sqlResultText + &quot;)&quot;);   
+			throw new RuntimeException(&quot;SQL issue (&quot; + sqlResultText + &quot;)&quot;);
 		}
 	}
 }
 
 
-// &gt;&gt; --------- COMMENT OUT THE NEXT THREE LINES ---------      (capitalization of the SampleResult variable in the next line is deliberate)   
+// &gt;&gt; --------- COMMENT OUT THE NEXT THREE LINES ---------      (capitalization of the SampleResult variable in the next line is deliberate)
 // org.apache.jmeter.samplers.SampleResult SampleResult = new org.apache.jmeter.samplers.SampleResult();
 // SampleResult.sampleStart();
 // Log4jConfigurationHelper.init(Level.INFO) ;
-// &lt;&lt; 
+// &lt;&lt;
 
-org.apache.jmeter.samplers.SampleResult testResults = new ThisScript().runUiTest(KeepBrowserOpen.NEVER, true); 
+org.apache.jmeter.samplers.SampleResult testResults = new ThisScript().runUiTest(KeepBrowserOpen.NEVER, true);
 if (testResults != null) {
 	for (org.apache.jmeter.samplers.SampleResult subResult : testResults.getSubResults()) {
 		SampleResult.addSubResult(subResult, false);
@@ -1044,7 +1044,7 @@ if (testResults != null) {
 SampleResult.setDataType(&quot;PARENT&quot; );
 SampleResult.setEndTime(0);
 
-// &gt;&gt; --------- COMMENT OUT THE END BRACES BELOW --------- 
+// &gt;&gt; --------- COMMENT OUT THE END BRACES BELOW ---------
 // }
 // }</stringProp>
         </JSR223Sampler>
@@ -1090,32 +1090,32 @@ import com.mark59.scripting.selenium.SeleniumAbstractJavaSamplerClient;
 import com.mark59.scripting.selenium.driversimpl.SeleniumDriverFactory;
 
 
-// &gt;&gt; --------- COMMENT OUT THE NEXT TWO LINES ---------  
+// &gt;&gt; --------- COMMENT OUT THE NEXT TWO LINES ---------
 // public class DataHunterLifecyclePvtScriptJSR223Format  {
 // public static void main(String[] args) throws InterruptedException{
-// &lt;&lt;  
-	
-	
+// &lt;&lt;
+
+
 /**
  * Note that in this more advanced example access to the com.mark59.dsl.samples.seleniumDSL.* packages is assumed (from the mark59-scripting-sample-dsl project).
  * &lt;p&gt;Hint: A quick and dirty way to do this is to copy target jar from the mark59-scripting-samples project since it contains the sample DSL
- * packages, into the lib/ext directory of your JMeter instance.  
- *   
+ * packages, into the lib/ext directory of your JMeter instance.
+ *
  * @author Phil Webb
  */
 class ThisScript extends SeleniumAbstractJavaSamplerClient {
-	
+
 	final class TestConstants {
 		public static final String SELECT_MULTIPLE_POLICIES_URL_PATH    = &quot;/select_multiple_policies&quot;;
-		public static final String COUNT_POLICIES_URL_PATH              = &quot;/count_policies&quot;;	
+		public static final String COUNT_POLICIES_URL_PATH              = &quot;/count_policies&quot;;
 		public static final String ADD_POLICY_URL_PATH                  = &quot;/add_policy&quot;;
-		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/policies_breakdown&quot;;		
-		public static final String NEXT_POLICY_URL_PATH                 = &quot;/next_policy&quot;;	
-		public static final String UNUSED                               = &quot;UNUSED&quot;;  
+		public static final String COUNT_POLICIES_BREAKDOWN_URL_PATH    = &quot;/policies_breakdown&quot;;
+		public static final String NEXT_POLICY_URL_PATH                 = &quot;/next_policy&quot;;
+		public static final String UNUSED                               = &quot;UNUSED&quot;;
 		public static final String EQUALS                               = &quot;EQUALS&quot;;
-		public static final String SELECT_MOST_RECENTLY_ADDED           = &quot;SELECT_MOST_RECENTLY_ADDED&quot;;  
+		public static final String SELECT_MOST_RECENTLY_ADDED           = &quot;SELECT_MOST_RECENTLY_ADDED&quot;;
 	}
-	
+
 	final class DataHunterInputPages extends _GenericPage {
 
 		public DataHunterInputPages(WebDriver driver) {
@@ -1153,10 +1153,10 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			return new SubmitBtn(driver, By.id(&quot;submit&quot;));
 		}
 	}
-	
-	
+
+
 	final class DatatHunterActionPages extends  _GenericPage {
-		
+
 		public DatatHunterActionPages(WebDriver driver) {
 			super(driver);
 		}
@@ -1184,7 +1184,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 			return new Link(driver, &quot;Back&quot;);
 		}
 
-		public int getCountForBreakdown(String application, String lifecycle, String useability){  // breakdown result only 
+		public int getCountForBreakdown(String application, String lifecycle, String useability){  // breakdown result only
 			PageTextElement countForBreakdownElement = null;
 			try { countForBreakdownElement =  new PageTextElement(driver, By.id((application + &quot;_&quot; + lifecycle + &quot;_&quot; + useability + &quot;_count&quot;).replace(&quot; &quot;, &quot;_&quot;)));
 			} catch ( NoSuchElementException e) {return 0;	}
@@ -1195,53 +1195,53 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		public Link multipleDeleteLink() {
 			return new Link(driver, &quot;Delete Selected Items&quot;);
 		}
-		
+
 		public HtmlTable printSelectedPoliciesTable() {
 			return new HtmlTable(driver, &quot;printSelectedPoliciesTable&quot;);
 		}
 
 		public String formatResultsMessage(String tag){
 			return  &quot;DataHunter &quot; +  sqlResultText().getText() + &quot; at &quot; + tag + &quot;, SQL statement [&quot; + sql().getText() + &quot;]&quot; +
-					&quot;, rows affected [&quot; +  rowsAffected().getText() + &quot;], details [&quot; + sqlResultText().getText() + &quot;]&quot;;		
+					&quot;, rows affected [&quot; +  rowsAffected().getText() + &quot;], details [&quot; + sqlResultText().getText() + &quot;]&quot;;
 		}
 	}
 
-	
+
 	@Override
 	protected Map&lt;String, String&gt; additionalTestParameters() {
 		Map&lt;String, String&gt; jmeterAdditionalParameters = new LinkedHashMap&lt;String, String&gt;();
 		jmeterAdditionalParameters.put(&quot;DATAHUNTER_URL&quot;,			&quot;http://localhost:8081/mark59-datahunter&quot;);
 		jmeterAdditionalParameters.put(&quot;DATAHUNTER_APPLICATION_ID&quot;, &quot;DATAHUNTER_PV_TEST&quot;);
 		jmeterAdditionalParameters.put(&quot;FORCE_TXN_FAIL_PERCENT&quot;, 	&quot;20&quot;);
-		jmeterAdditionalParameters.put(&quot;USER&quot;, 	 &quot;default_user&quot;);		
+		jmeterAdditionalParameters.put(&quot;USER&quot;, 	 &quot;default_user&quot;);
 
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.DRIVER, &quot;CHROME&quot;);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.HEADLESS_MODE, String.valueOf(false));
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_DIMENSIONS, Mark59Constants.DEFAULT_BROWSER_DIMENSIONS);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PAGE_LOAD_STRATEGY, PageLoadStrategy.NONE.toString());
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.PROXY, &quot;&quot;);
-		jmeterAdditionalParameters.put(SeleniumDriverFactory.ADDITIONAL_OPTIONS, &quot;&quot;);
+		jmeterAdditionalParameters.put(SeleniumDriverFactory.BROWSER_LAUNCH_ARGS, &quot;&quot;);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.WRITE_FFOX_BROWSER_LOGFILE, String.valueOf(false));
-		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, &quot;&quot;);			
+		jmeterAdditionalParameters.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, &quot;&quot;);
 		jmeterAdditionalParameters.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, &quot;&quot;);
 		jmeterAdditionalParameters.put(JmeterFunctionsImpl.LOG_RESULTS_SUMMARY, String.valueOf(true));
-		return jmeterAdditionalParameters;			
+		return jmeterAdditionalParameters;
 	}
-	
+
 
 	@Override
 	protected void runSeleniumTest(JavaSamplerContext context, JmeterFunctionsForSeleniumScripts jm,  WebDriver driver) {
-		
+
 		String thread = Thread.currentThread().getName();
 		String lifecycle = &quot;thread_&quot; + thread;
 		String dataHunterUrl 	= context.getParameter(&quot;DATAHUNTER_URL&quot;);
 		String application 		= context.getParameter(&quot;DATAHUNTER_APPLICATION_ID&quot;);
 		int forceTxnFailPercent = Integer.valueOf(context.getParameter(&quot;FORCE_TXN_FAIL_PERCENT&quot;).trim());
 		String user 			= context.getParameter(&quot;USER&quot;);
-		
+
 		PrintSomeMsgOnceAtStartUp(dataHunterUrl, driver);
 
-		DataHunterInputPages dataHunterInputPages = new DataHunterInputPages(driver); 
+		DataHunterInputPages dataHunterInputPages = new DataHunterInputPages(driver);
 		DatatHunterActionPages resultsPage = new DatatHunterActionPages(driver);
 
 // 		delete any existing policies for this application/thread combination
@@ -1249,34 +1249,34 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		driver.get(dataHunterUrl + TestConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
 		dataHunterInputPages.lifecycle().waitUntilClickable();
 		dataHunterInputPages.lifecycle().type(lifecycle);
-		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );		
-		jm.endTransaction(&quot;DH_lifecycle_0001_loadInitialPage&quot;);	
-		
-		jm.startTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);	
+		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );
+		jm.endTransaction(&quot;DH_lifecycle_0001_loadInitialPage&quot;);
+
+		jm.startTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);
 		resultsPage.multipleDeleteLink().click().waitUntilAlertisPresent().acceptAlert();
 		waitActionPageCheckSqlOk(new DatatHunterActionPages(driver));
-		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);	
-	
-//		add a set of policies 		
+		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);
+
+//		add a set of policies
 		driver.get(dataHunterUrl + TestConstants.ADD_POLICY_URL_PATH + &quot;?application=&quot; + application);
-		
+
 		for (int i = 1; i &lt;= 5; i++) {
 			dataHunterInputPages.identifier().clear().type(&quot;TESTID&quot; + i);
 			dataHunterInputPages.lifecycle().clear().type(lifecycle);
 			dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED) ;
-			dataHunterInputPages.otherdata().clear().type(user);		
+			dataHunterInputPages.otherdata().clear().type(user);
 			dataHunterInputPages.epochtime().clear().type(Long.toString(System.currentTimeMillis()));
 //			jm.writeScreenshot(&quot;add_policy_TESTID&quot; + i);
 
 			jm.startTransaction(&quot;DH_lifecycle_0200_addPolicy&quot;);
-			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay			
-			dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );   
+			SafeSleep.sleep(200);  // Mocking a 200 ms txn delay
+			dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );
 			waitActionPageCheckSqlOk(resultsPage);
 			jm.endTransaction(&quot;DH_lifecycle_0200_addPolicy&quot;);
-			
-			resultsPage.backLink().click().waitUntilClickable( dataHunterInputPages.submit() ).thenSleep();    
-		} 
-	
+
+			resultsPage.backLink().click().waitUntilClickable( dataHunterInputPages.submit() ).thenSleep();
+		}
+
 //		dummy transaction just to test transaction failure behavior
 		jm.startTransaction(&quot;DH_lifecycle_0299_sometimes_I_fail&quot;);
 		int randomNum_1_to_100 = ThreadLocalRandom.current().nextInt(1, 101);
@@ -1285,7 +1285,7 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		} else {
 			jm.endTransaction(&quot;DH_lifecycle_0299_sometimes_I_fail&quot;, Outcome.FAIL);
 		}
-		
+
 		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_URL_PATH + &quot;?application=&quot; + application);
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED).thenSleep();   // ** note 2
 
@@ -1293,75 +1293,75 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );
 		waitActionPageCheckSqlOk(resultsPage);
 		jm.endTransaction(&quot;DH_lifecycle_0300_countUnusedPolicies&quot;);
-		
+
 		Long countPolicies = Long.valueOf( resultsPage.rowsAffected().getText());
-		LOG.debug( &quot;countPolicies : &quot; + countPolicies); 
+		LOG.debug( &quot;countPolicies : &quot; + countPolicies);
 		jm.userDataPoint(application + &quot;_Total_Unused_Policy_Count&quot;, countPolicies);
-		
+
 // 		count breakdown (count for unused DATAHUNTER_PV_TEST policies for this thread )
-		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_BREAKDOWN_URL_PATH + &quot;?application=&quot; + application);		
+		driver.get(dataHunterUrl + TestConstants.COUNT_POLICIES_BREAKDOWN_URL_PATH + &quot;?application=&quot; + application);
 		dataHunterInputPages.applicationStartsWithOrEquals().selectByVisibleText(TestConstants.EQUALS);
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED);
 
-		jm.startTransaction(&quot;DH_lifecycle_0400_countUnusedPoliciesCurrentThread&quot;);		
+		jm.startTransaction(&quot;DH_lifecycle_0400_countUnusedPoliciesCurrentThread&quot;);
 		dataHunterInputPages.submit().submit();
-		waitActionPageCheckSqlOk(resultsPage);		
-		jm.endTransaction(&quot;DH_lifecycle_0400_countUnusedPoliciesCurrentThread&quot;);				
-		
+		waitActionPageCheckSqlOk(resultsPage);
+		jm.endTransaction(&quot;DH_lifecycle_0400_countUnusedPoliciesCurrentThread&quot;);
+
 		// direct access to required row-column table element by computing the id:
-		int countUsedPoliciesCurrentThread = resultsPage.getCountForBreakdown(application, lifecycle, TestConstants.UNUSED); 
-		LOG.debug( &quot;countUsedPoliciesCurrentThread : &quot; + countUsedPoliciesCurrentThread); 
-		jm.userDataPoint(application + &quot;_This_Thread_Unused_Policy_Count&quot;, countUsedPoliciesCurrentThread);	
+		int countUsedPoliciesCurrentThread = resultsPage.getCountForBreakdown(application, lifecycle, TestConstants.UNUSED);
+		LOG.debug( &quot;countUsedPoliciesCurrentThread : &quot; + countUsedPoliciesCurrentThread);
+		jm.userDataPoint(application + &quot;_This_Thread_Unused_Policy_Count&quot;, countUsedPoliciesCurrentThread);
 
 //		use next policy
-		driver.get(dataHunterUrl + TestConstants.NEXT_POLICY_URL_PATH + &quot;?application=&quot; + application + &quot;&amp;pUseOrLookup=use&quot;);		
+		driver.get(dataHunterUrl + TestConstants.NEXT_POLICY_URL_PATH + &quot;?application=&quot; + application + &quot;&amp;pUseOrLookup=use&quot;);
 		dataHunterInputPages.lifecycle().type(lifecycle);
 		dataHunterInputPages.useability().selectByVisibleText(TestConstants.UNUSED);
 		dataHunterInputPages.selectOrder().selectByVisibleText(TestConstants.SELECT_MOST_RECENTLY_ADDED);
-		
-		jm.startTransaction(&quot;DH_lifecycle_0500_useNextPolicy&quot;);		
+
+		jm.startTransaction(&quot;DH_lifecycle_0500_useNextPolicy&quot;);
 		dataHunterInputPages.submit().submit();
-		waitActionPageCheckSqlOk(resultsPage);			
-		jm.endTransaction(&quot;DH_lifecycle_0500_useNextPolicy&quot;);	
-		
+		waitActionPageCheckSqlOk(resultsPage);
+		jm.endTransaction(&quot;DH_lifecycle_0500_useNextPolicy&quot;);
+
 		if (LOG.isDebugEnabled() ) {LOG.debug(&quot;useNextPolicy: &quot; + application + &quot;-&quot; + lifecycle + &quot; : &quot; + resultsPage.identifier() );	}
-		
+
 		//HTML table demo.
 		driver.get(dataHunterUrl + TestConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
 		dataHunterInputPages.submit().waitUntilClickable();
-		
-		jm.startTransaction(&quot;DH_lifecycle_0600_displaySelectedPolicies&quot;);	
+
+		jm.startTransaction(&quot;DH_lifecycle_0600_displaySelectedPolicies&quot;);
 		dataHunterInputPages.submit().submit();
 		waitActionPageCheckSqlOk(resultsPage);
-		// demo how to extract a transaction time from with a running script 
+		// demo how to extract a transaction time from with a running script
 		org.apache.jmeter.samplers.SampleResult sr_0600 = jm.endTransaction(&quot;DH_lifecycle_0600_displaySelectedPolicies&quot;);
 
 		LOG.debug(&quot;Transaction &quot; + sr_0600.getSampleLabel() + &quot; ran at &quot; + sr_0600.getTimeStamp() + &quot; and took &quot; + sr_0600.getTime() + &quot; ms.&quot; );
-		
+
 		long used=0;
 		long unused=0;
 		HtmlTable printSelectedPoliciesTable = resultsPage.printSelectedPoliciesTable();
 		for (HtmlTableRow tableRow : printSelectedPoliciesTable.getHtmlTableRows()) {
 			if (tableRow.getColumnNumberOfExpectedColumns(6, 10).getText().equals(&quot;USED&quot;))   used++;
 			if (tableRow.getColumnNumberOfExpectedColumns(6, 10).getText().equals(&quot;UNUSED&quot;)) unused++;
-		}	
-		jm.userDataPoint(&quot;USED_count_html_demo&quot;,   used );				
-		jm.userDataPoint(&quot;UNUSED_count_html_demo&quot;, unused );	
-		LOG.debug(&quot;HTML demo: USED=&quot; + used + &quot;, UNUSED=&quot; + unused); 
-		
+		}
+		jm.userDataPoint(&quot;USED_count_html_demo&quot;,   used );
+		jm.userDataPoint(&quot;UNUSED_count_html_demo&quot;, unused );
+		LOG.debug(&quot;HTML demo: USED=&quot; + used + &quot;, UNUSED=&quot; + unused);
+
 // 		delete multiple policies (test cleanup - a duplicate of the initial delete policies transactions)
-		jm.startTransaction(&quot;DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl&quot;);		
+		jm.startTransaction(&quot;DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl&quot;);
 		driver.get(dataHunterUrl + TestConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + &quot;?application=&quot; + application);
 		dataHunterInputPages.lifecycle().waitUntilClickable();
 		dataHunterInputPages.lifecycle().type(lifecycle);
-		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );		
-		jm.endTransaction(&quot;DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl&quot;);	
-		
+		dataHunterInputPages.submit().submit().waitUntilClickable( resultsPage.backLink() );
+		jm.endTransaction(&quot;DH_lifecycle_0099_gotoDeleteMultiplePoliciesUrl&quot;);
+
 		jm.startTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);
 		resultsPage.multipleDeleteLink().click().waitUntilAlertisPresent().acceptAlert();
 		waitActionPageCheckSqlOk(new DatatHunterActionPages(driver));
-		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);	
-		
+		jm.endTransaction(&quot;DH_lifecycle_0100_deleteMultiplePolicies&quot;);
+
 //		jm.writeBufferedArtifacts();
 	}
 
@@ -1373,12 +1373,12 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 						resultsPage.formatResultsMessage(resultsPage.getClass().getName()));
 		}
 	}
-	
+
 
 	@SuppressWarnings(&quot;unchecked&quot;)
 	private synchronized void PrintSomeMsgOnceAtStartUp(String dataHunterUrl, WebDriver driver) {
 		Properties sysprops = System.getProperties();
-		if (!&quot;true&quot;.equals(sysprops.get(&quot;printedOnce&quot;)) ) {	
+		if (!&quot;true&quot;.equals(sysprops.get(&quot;printedOnce&quot;)) ) {
 			LOG.info(&quot; Using DataHunter with Url &quot; + dataHunterUrl + &quot;/mark59-datahunter&quot;);
 			Capabilities caps = ((ChromeDriver)driver).getCapabilities();
 			LOG.info(&quot; Browser Name and Version : &quot; + caps.getBrowserName() + &quot; &quot; + caps.getBrowserVersion());
@@ -1391,11 +1391,11 @@ class ThisScript extends SeleniumAbstractJavaSamplerClient {
 }
 
 
-// &gt;&gt; --------- COMMENT OUT THE NEXT THREE LINES ---------     (capitalization of the SampleResult variable in the next line is deliberate) 
+// &gt;&gt; --------- COMMENT OUT THE NEXT THREE LINES ---------     (capitalization of the SampleResult variable in the next line is deliberate)
 // org.apache.jmeter.samplers.SampleResult SampleResult = new org.apache.jmeter.samplers.SampleResult();
 // SampleResult.sampleStart();
 // Log4jConfigurationHelper.init(Level.INFO) ;
-// &lt;&lt; 
+// &lt;&lt;
 
 org.apache.jmeter.samplers.SampleResult testResults = new ThisScript().runUiTest(KeepBrowserOpen.NEVER, true);
 if (testResults != null) {
@@ -1406,7 +1406,7 @@ if (testResults != null) {
 SampleResult.setDataType(&quot;PARENT&quot; );
 SampleResult.setEndTime(0);
 
-// &gt;&gt; --------- COMMENT OUT THE END BRACES BELOW --------- 
+// &gt;&gt; --------- COMMENT OUT THE END BRACES BELOW ---------
 // }
 // }</stringProp>
         </JSR223Sampler>
@@ -1444,6 +1444,16 @@ SampleResult.setEndTime(0);
         <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="DataHunterLifecyclePvtScriptUsingRestApiClient" enabled="true">
           <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments">
             <collectionProp name="Arguments.arguments">
+              <elementProp name="___________________" elementType="Argument">
+                <stringProp name="Argument.name">___________________</stringProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="script build information:" elementType="Argument">
+                <stringProp name="Argument.name">script build information:</stringProp>
+                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.5</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
                 <stringProp name="Argument.name">DATAHUNTER_URL</stringProp>
                 <stringProp name="Argument.value">http://localhost:8081/mark59-datahunter</stringProp>
@@ -1477,16 +1487,6 @@ SampleResult.setEndTime(0);
               <elementProp name="PRINT_RESULTS_SUMMARY" elementType="Argument">
                 <stringProp name="Argument.name">PRINT_RESULTS_SUMMARY</stringProp>
                 <stringProp name="Argument.value">true</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="___________________" elementType="Argument">
-                <stringProp name="Argument.name">___________________</stringProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-              <elementProp name="script build information:" elementType="Argument">
-                <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.4</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>

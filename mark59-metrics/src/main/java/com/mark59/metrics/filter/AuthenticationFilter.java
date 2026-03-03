@@ -1,8 +1,8 @@
 package com.mark59.metrics.filter;
 
 import java.io.IOException;
+import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.Filter;
@@ -15,43 +15,59 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * Authentication filter that validates user session state for all requests
+ * except whitelisted public endpoints (login, API endpoints).
+ */
 @Component
 public class AuthenticationFilter implements Filter {
 
+	private static final String CONTEXT_PATH = "/mark59-metrics";
+	private static final String AUTH_STATE_ATTRIBUTE = "authState";
+	private static final String AUTH_STATE_OK = "authOK";
+
+	private static final Set<String> PUBLIC_ENDPOINTS = Set.of(
+		CONTEXT_PATH,
+		CONTEXT_PATH + "/login",
+		CONTEXT_PATH + "/loginAction",
+		CONTEXT_PATH + "/api/metric"
+	);
+
+	@Override
     public void init(FilterConfig fConfig) throws ServletException {
-    	// System.out.println("AuthenticationFilter init");
+		// Filter initialization
     }
 
+	@Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        // System.out.println("AuthenticationFilter doFilter at  " + httpServletRequest.getRequestURI());
+        String requestURI = httpServletRequest.getRequestURI();
 
-        HttpSession session = httpServletRequest.getSession(false);
-        String authState = "";
-        if (session != null) {
-        	authState = (String)session.getAttribute("authState");
+        // Allow public endpoints without authentication
+        if (PUBLIC_ENDPOINTS.contains(requestURI)) {
+        	chain.doFilter(request, response);
+        	return;
         }
 
-    	if (StringUtils.equals(httpServletRequest.getRequestURI(), "/mark59-metrics")){
-    		chain.doFilter(request, response);
-    	} else if (StringUtils.equals(httpServletRequest.getRequestURI(),  "/mark59-metrics/login")){
-    		chain.doFilter(request, response);
-    	} else if (StringUtils.equals(httpServletRequest.getRequestURI(),  "/mark59-metrics/loginAction")){
-    		chain.doFilter(request, response); 
-    	} else if (StringUtils.equals(httpServletRequest.getRequestURI(),  "/mark59-metrics/api/metric")){
-    		chain.doFilter(request, response); 
-    	} else if (!"authOK".equals(authState)){   
-    		httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/login" );
+        // Check authentication state for protected endpoints
+        HttpSession session = httpServletRequest.getSession(false);
+        String authState = null;
+        if (session != null) {
+        	authState = (String) session.getAttribute(AUTH_STATE_ATTRIBUTE);
+        }
+
+    	if (!AUTH_STATE_OK.equals(authState)) {
+    		httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/login");
     	} else {
-    		// System.out.println("validated session exists, continue on");
     		chain.doFilter(request, response);
     	}
     }
 
-    
+
+	@Override
 	public void destroy() {
-        //close any resources here
+		// Resource cleanup if needed
     }
 }

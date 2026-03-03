@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +28,10 @@ import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
- * Written: Australian Autumn 2020  
+ * Written: Australian Autumn 2020
  */
-public class CommandParserLinksDAOexcelWorkbookImpl implements CommandParserLinksDAO 
-{
-	
+public class CommandParserLinksDAOexcelWorkbookImpl implements CommandParserLinksDAO {
+
 	Sheet commandparserlinksSheet;
 
 	public CommandParserLinksDAOexcelWorkbookImpl(Sheet commandparserlinksSheet) {
@@ -40,7 +39,7 @@ public class CommandParserLinksDAOexcelWorkbookImpl implements CommandParserLink
 	}
 
 	@Override
-	public List<CommandParserLink> findCommandParserLinksForCommand(String commandName){
+	public List<CommandParserLink> findCommandParserLinksForCommand(String commandName) {
 
 		List<CommandParserLink> commandParserLinkList = new ArrayList<>();
 
@@ -49,20 +48,19 @@ public class CommandParserLinksDAOexcelWorkbookImpl implements CommandParserLink
 
 		while (iterator.hasNext()) {
 			Row commandparserlinksRow = iterator.next();
-			// System.out.println("commandparserlinks key =" + ServerMetricsWebUtils.cellValue(commandparserlinksRow.getCell(0)));
-			
-			if (commandName != null && commandName.equalsIgnoreCase(MetricsUtils.cellValue(commandparserlinksRow.getCell(0)))) {				
+
+			if (commandName != null && commandName.equalsIgnoreCase(MetricsUtils.cellValue(commandparserlinksRow.getCell(0)))) {
 				CommandParserLink commandParserLink = new CommandParserLink();
 				commandParserLink.setCommandName(MetricsUtils.cellValue(commandparserlinksRow.getCell(0)));
 				commandParserLink.setParserName	(MetricsUtils.cellValue(commandparserlinksRow.getCell(1)));
 				commandParserLinkList.add(commandParserLink);
 			}
 
-		}	
+		}
 		return commandParserLinkList;
 	}
 
-	
+
 	@Override
 	public CommandParserLink findCommandParserLink(String commandName, String parserName) {
 		return null;
@@ -97,5 +95,5 @@ public class CommandParserLinksDAOexcelWorkbookImpl implements CommandParserLink
 	@Override
 	public void deleteCommandParserLinksForParserName(String parserName) {
 	}
-	
+
 }

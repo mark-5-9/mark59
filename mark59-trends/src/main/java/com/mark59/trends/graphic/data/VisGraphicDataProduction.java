@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,27 +32,27 @@ import com.mark59.trends.data.transaction.dao.TransactionDAO;
 /**
  * Originally written as a servlet using Goggle Graphics.  The underlying graphic software being used has since been changed to Vis.
  * See comments on the {@link #createDataPoints} method for details.
- * 
+ *
  * @author Philip Webb
- * Written: Australian Winter 2019  
+ * Written: Australian Winter 2019
  */
 public class VisGraphicDataProduction  implements VisGraphicDataProductionInterface{
 
   @Autowired
   TransactionDAO transactionDAO;
-  
+
   /**
-   * <p>Returns the data points that are going to to be plotted on the graph as a list of 3D Cartesian coordinates. 
-   * (the returned String has is these the coordinates points comma-limited, with line feed between each point).
-   * 
-   *  <p>This method effectively takes the list of Runs and Transaction Ids that are to be plotted, and combines the two to 
-   *  create the x-y grid, with the z (vertical) axis being the value of the request metric. The x axis is date, 
-   *  y axis is transaction id.  It also passes the axis labels for plotting. 
-   *  
+   * <p>Returns the data points that are going to to be plotted on the graph as a list of 3D Cartesian coordinates.
+   * (the returned String has coordinates points comma-limited, with line feed between each point).
+   *
+   *  <p>This method effectively takes the list of Runs and Transaction Ids that are to be plotted, and combines the two to
+   *  create the x-y grid, with the z (vertical) axis being the value of the request metric. The x axis is date,
+   *  y axis is transaction id.  It also passes the axis labels for plotting.
+   *
    *  <p>The ordering of the points in the list is relevant.  It needs to align with whatever x,y axis names are passed into
    *  the js load tool "visGraphLoad.js" (options xAxisNames, yAxisNames) in order for vis.js to draw the graph correctly.
-   * 
-   * @param application   application 
+   *
+   * @param application   application
    * @param graphMapping  graph (as per graphmapping table)
    * @param runDatesToGraph   (run dates to graph)
    * @param listOfStdTransactionNamesToGraph  standard transactions
@@ -89,16 +89,14 @@ public class VisGraphicDataProduction  implements VisGraphicDataProductionInterf
 		}
 		return graphDataPoints.toString();
 	}
-  
+
 
 	private ArrayList<Object[]> generateDataPointCoordinates(String application, String graph, String runDatesToGraph,
 			List<String> listOfStdTransactionNamesToGraph, List<String> listOfCdpTransactionNamesToGraph,
 			List<String> listOfCdpTaggedTransactionNamesToGraph) {
 
-		ArrayList<String> masterRunsList = new ArrayList<>(
-				UtilsTrends.commaDelimStringToStringList(runDatesToGraph));
-		ArrayList<String> missingRunsList = new ArrayList<>(
-				UtilsTrends.commaDelimStringToStringList(runDatesToGraph));
+		ArrayList<String> masterRunsList = new ArrayList<>(UtilsTrends.commaDelimStringToStringList(runDatesToGraph));
+		ArrayList<String> missingRunsList = new ArrayList<>(UtilsTrends.commaDelimStringToStringList(runDatesToGraph));
 
 		ArrayList<Datapoint> datapoints = new ArrayList<>();
 
@@ -160,7 +158,7 @@ public class VisGraphicDataProduction  implements VisGraphicDataProductionInterf
 				previousRunTime = runTime;
 				dateX = masterRunsList.indexOf(runTime);
 				masterTxnsIndex = 0;
-//		    	System.out.println( "   processing " + runTime + " at index " + dateX  ) ;	
+//		    	System.out.println( "   processing " + runTime + " at index " + dateX  ) ;
 			}
 
 			if (!(masterTxnsIndex >= listOfCdpTaggedTransactionNamesToGraph.size())) {
@@ -178,7 +176,7 @@ public class VisGraphicDataProduction  implements VisGraphicDataProductionInterf
 			} else if (listOfCdpTaggedTransactionNamesToGraph.get(masterTxnsIndex).compareTo(txnId) < 0) {
 
 				/*
-				 * implies a transaction(s) in the master txn list (those txns to be displayed on X axis) was not in this run. 
+				 * implies a transaction(s) in the master txn list (those txns to be displayed on X axis) was not in this run.
 				 * Mark with neg number. See notes in TransactionDAOjdbcTemplateImpl.returnListOfSelectedTransactionIds(..) re ordering.
 				 */
 
@@ -195,8 +193,8 @@ public class VisGraphicDataProduction  implements VisGraphicDataProductionInterf
 				 * implies a transaction that is in this run does not exist in the master list
 				 * (those txns to be displayed on X axis) ... skip over it
 				 */
-				
-//		  		System.out.println("!! skipping " + txnId + " (at master list element " + orderedTxnsToGraphIdList.get(masterTxnsIndex) + ")" ); 					
+
+//		  		System.out.println("!! skipping " + txnId + " (at master list element " + orderedTxnsToGraphIdList.get(masterTxnsIndex) + ")" );
 
 			} else {
 
@@ -240,7 +238,7 @@ public class VisGraphicDataProduction  implements VisGraphicDataProductionInterf
 		for (String missingRunTime : missingRunsList) {
 			int missingRunIndex = masterRunsList.indexOf(missingRunTime);
 			for (masterTxnsIndex = 0; masterTxnsIndex < listOfCdpTaggedTransactionNamesToGraph.size(); masterTxnsIndex++) {
-//				System.out.println( " adding missing run : " + missingRunIndex + ", " + masterTxnsIndex + ", -1" ) ;						
+//				System.out.println( " adding missing run : " + missingRunIndex + ", " + masterTxnsIndex + ", -1" ) ;
 				dataRows.add(new Object[] { missingRunIndex, masterTxnsIndex, -1 });
 			}
 		}

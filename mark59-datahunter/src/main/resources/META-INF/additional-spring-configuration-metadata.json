@@ -1,0 +1,22 @@
+{
+  "properties": [
+    {
+      "name": "spring.h2.console.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable the H2 database console.",
+      "defaultValue": false
+    },
+    {
+      "name": "spring.h2.console.path",
+      "type": "java.lang.String",
+      "description": "Path at which the H2 console is available.",
+      "defaultValue": "/h2-console"
+    },
+    {
+      "name": "spring.h2.console.settings.web-allow-others",
+      "type": "java.lang.Boolean",
+      "description": "Enable remote access to the H2 console.",
+      "defaultValue": false
+    }
+  ]
+}

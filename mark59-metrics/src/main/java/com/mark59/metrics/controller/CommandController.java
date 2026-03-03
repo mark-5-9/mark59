@@ -72,7 +72,7 @@ public class CommandController {
 		commandEditingForm.setCommand(command);
 
 		commandEditingForm.setParamNamesTextboxFormat(""); 
-		commandEditingForm.setParserSelectors(createListOfAllSParserSelectorsWithNothingSelected());
+		commandEditingForm.setParserSelectors(createListOfAllParserSelectorsWithNothingSelected());
 		
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqExecutor", reqExecutor);		
@@ -121,7 +121,7 @@ public class CommandController {
 
 		} else {
 			map.put("commandEditingForm", commandEditingForm);		
-			map.put("reqErr","Oh, a listing for a command named " + existingCommand.getCommandName() + " AlreadyExists");	
+			map.put("reqErr","Oh, a listing for a command named " + existingCommand.getCommandName() + " Already Exists");	
 			model.addAttribute("map", map);	
 			if ("copy".equals(fromAction)) {
 				return "copyCommand";
@@ -191,7 +191,6 @@ public class CommandController {
 		commandEditingForm.setCommand(command);
 		commandEditingForm.setParamNamesTextboxFormat(MetricsUtils.listToTextboxFormat(command.getParamNames()));
 		
-		commandEditingForm.setLastSavedTimestamp("");
 		String spanTag = "<span style='font-size: 10px'>&nbsp;&nbsp;&nbsp;";
 		if (StringUtils.isNotBlank(reqLastSavedTimestamp)){
 			commandEditingForm.setLastSavedTimestamp(" Last saved " + reqLastSavedTimestamp);
@@ -243,12 +242,14 @@ public class CommandController {
 	}
 
 	
-	private List<ParserSelector> createListOfAllSParserSelectorsWithNothingSelected() {
+	private List<ParserSelector> createListOfAllParserSelectorsWithNothingSelected() {
 		return createListOfAllParserSelectors(null);
 	}
 	
 	/**
-	 * @param commandWithParserLinks scripts names associated with a given command
+	 * Creates a list of all available parser selectors, with checkboxes marked for parsers currently linked to the command.
+	 * @param commandWithParserLinks command with its associated parser names, or null if no parsers should be pre-selected
+	 * @return list of all parser selectors with appropriate checked states
 	 */
 	private List<ParserSelector> createListOfAllParserSelectors(CommandWithParserLinks commandWithParserLinks){
 		
@@ -270,8 +271,9 @@ public class CommandController {
 
 	
 	/**
-	 * @param command  Command
-	 * @return list of linked parser names
+	 * Retrieves all parser links for the given command and returns a composite object containing the command and its linked parsers.
+	 * @param command the command to retrieve parser links for
+	 * @return CommandWithParserLinks object containing the command and list of linked parser names
 	 */
 	private CommandWithParserLinks commandAddParserLinks(Command command) {
 		List<CommandParserLink> commandParserLinkList = commandParserLinksDAO.findCommandParserLinks("COMMAND_NAME", command.getCommandName());
@@ -298,12 +300,12 @@ public class CommandController {
 
 	
 	private Map<String, Object> createMapOfDropdowns() {
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<>(); 
 		List<String> listOfCommandExecutors = new ArrayList<>();
 		listOfCommandExecutors.add("");
 		listOfCommandExecutors.addAll(MetricsConstants.CommandExecutorDatatypes.listOfCommandExecutorDatatypes());		
 		map.put("commandExecutors",listOfCommandExecutors);		
-		map.put("ingoreStderrYesNo",populateYesNoDropdown());		
+		map.put("ignoreStderrYesNo",populateYesNoDropdown());		
 		return map;
 	}
 	

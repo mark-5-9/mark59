@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
-import com.mark59.core.utils.SimpleAES;
+import com.mark59.core.utils.SecureAES;
 import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.eventMapping.dao.EventMappingDAO;
 import com.mark59.trends.data.metricSla.dao.MetricSlaDAO;
@@ -51,103 +51,107 @@ import com.mark59.trends.load.run.GatlingRun;
 import com.mark59.trends.load.run.JmeterRun;
 import com.mark59.trends.load.run.LrRun;
 import com.mark59.trends.load.run.PerformanceTest;
-import com.mark59.trends.metricSla.MetricSlaChecker;
-import com.mark59.trends.metricSla.MetricSlaResult;
-import com.mark59.trends.sla.SlaChecker;
-import com.mark59.trends.sla.SlaTransactionResult;
+import com.mark59.trends.slaMetrics.MetricSlaChecker;
+import com.mark59.trends.slaMetrics.MetricSlaResult;
+import com.mark59.trends.slaTransactions.SlaChecker;
+import com.mark59.trends.slaTransactions.SlaTransactionResult;
 
 /**
  * @author Philip Webb
- * Written: Australian Winter 2019  
+ * Written: Australian Winter 2019
  */
 
 @SpringBootApplication
-public class TrendsLoad  implements CommandLineRunner 
+public class TrendsLoad  implements CommandLineRunner
 {
-	
+
     @Autowired
     DataSource dataSource;
-	
+
     @Autowired
-    String currentDatabaseProfile;  
-    
+    String currentDatabaseProfile;
+
 	@Autowired
 	MetricSlaDAO  metricSlaDAO;
-	
-	@Autowired
-	TransactionDAO transactionDAO; 	
-	
-	@Autowired
-	SlaDAO slaDAO; 
 
 	@Autowired
-	RunDAO runDAO; 
+	TransactionDAO transactionDAO;
 
 	@Autowired
-	TestTransactionsDAO testTransactionsDAO; 	
-	
+	SlaDAO slaDAO;
+
 	@Autowired
-	EventMappingDAO eventMappingDAO; 	
-	
+	RunDAO runDAO;
+
+	@Autowired
+	TestTransactionsDAO testTransactionsDAO;
+
+	@Autowired
+	EventMappingDAO eventMappingDAO;
+
 	@Autowired
 	ApplicationContext context;
 
-	private static final String DEFAULT_500_MAX_NUMBER_OF_RUNS = "500"; 
-	
+	private static final String DEFAULT_500_MAX_NUMBER_OF_RUNS = "500";
+	private static final int MAX_APPLICATION_NAME_LENGTH = 32;
+
+	// Note: Variable naming convention for command-line arguments intentionally capitalizes the letter
+	// corresponding to the short parameter option (e.g., argeXcludestart for -x, argsimlogcustoM for -m)
+	// to highlight the mapping between variable names and CLI short options.
 	private static String argApplication;
 	private static String argInput;
 	private static String argDatabasetype;
 	private static String argReference;
 	private static String argTool;
-	private static String argExcludestart;
+	private static String argeXcludestart;        // -x eXcludestart
 	private static String argCaptureperiod;
-	private static String argMaxNumberofruns;
-	private static String argIgnoredErrors;
-	private static String argSimulationLog;
+	private static String argmaxNumberofruns;     // -n maxNumberofruns
+	private static String argignoredErrors;       // -e ignoredErrors
+	private static String argsimulationLog;       // -l simulationLog
 	private static String argKeeprawresults;
-	private static String argSimlogcustoM;
-	private static String argTimeZone;
+	private static String argsimlogcustoM;        // -m simlogcustoM
+	private static String argtimeZone;            // -z timeZone
 
 	private PerformanceTest performanceTest;
 	private List<MetricSlaResult> metricSlaResults = new ArrayList<>();
 	private List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas = new ArrayList<>();
 	private List<String> cdpTaggedMissingTransactions = new ArrayList<>();
-	
+
 	public static void parseArguments(String[] args) {
-		Options options = new Options(); 
+		Options options = new Options();
 		options.addRequiredOption("a", "application",	true, "Application Id, as it will appear in the Trending Graph Application dropdown selections.  It must consist of only alphanumerics,"
 																+ " underscores, dashes and dots (no whitespace and cannot be empty)");
 		options.addRequiredOption("i", "input",			true, "The directory or file containing the performance test results.  Multiple xml/csv/jtl results files allowed for JMeter within a directory,"
-																+ " a single .mdb file is required for Loadrunner");			
-		options.addOption("d", "databasetype",			true, "Load data to a 'h2', 'pg' or 'mysql' database (defaults to 'mysql')");			
+																+ " a single .mdb file is required for Loadrunner");
+		options.addOption("d", "databasetype",			true, "Load data to a 'h2', 'pg' or 'mysql' database (defaults to 'mysql')");
 		options.addOption("r", "reference",		 		true, "A reference.  Usual purpose would be to identify this run (possibly by a link). Eg <a href='http://ciServer/job/myJob/001/HTML_Report'>run 001</a>");
 		options.addOption("t", "tool",      			true, "Performance Tool used to generate the results to be processed { JMETER (default) | GATLING | LOADRUNNER }" );
 		options.addOption("h", "dbserver",				true, "Server hosting the database where results will be held (defaults to localhost). \n"
 																+ "*******************************************\n"
-																+ "** NOTE: all db options applicable to MySQL or Postgres ONLY\n"  
+																+ "** NOTE: all db options applicable to MySQL or Postgres ONLY\n"
 																+ "*******************************************");
-		options.addOption("p", "dbPort",    			true, "Port number for the database where results will be held (defaults to 3306 for MySQL, 5432 for Postgres, 9902 for H2 tcp)" );		
+		options.addOption("p", "dbPort",    			true, "Port number for the database where results will be held (defaults to 3306 for MySQL, 5432 for Postgres, 9902 for H2 tcp)" );
 		options.addOption("s", "dbSchema",				true, "database schema (MySQL terminology) / database name (Postgres terminology) defaults to mark59trendsdb" );
-		options.addOption("u", "dbUsername",   			true, "Username for the database (defaults to admin)" );				
-		options.addOption("w", "dbpassWord",   			true, "Password for the database" );				
-		options.addOption("y", "dbpassencrYpted",		true, "Encrypted Password for the database (value as per the encryption used by mark59-metrics application 'Edit Server Profile' page)");				
-		options.addOption("q", "dbxtraurlparms",		true, "Any special parameters to append to the end of the database URL (include the ?). Eg \"?allowPublicKeyRetrieval=truee&useSSL=false\" "
-																+ "(the quotes are needed to escape the ampersand)");				
-		options.addOption("x", "eXcludestart",     		true, "exclude results at the start of the test for the given number of minutes (defaults to 0)" );			
+		options.addOption("u", "dbUsername",   			true, "Username for the database (defaults to admin)" );
+		options.addOption("w", "dbpassWord",   			true, "Password for the database" );
+		options.addOption("y", "dbpassencrYpted",		true, "Encrypted Password for the database (value as per the encryption used by mark59-metrics application 'Edit Server Profile' page)");
+		options.addOption("q", "dbxtraurlparms",		true, "Any special parameters to append to the end of the database URL (include the ?). Eg \"?allowPublicKeyRetrieval=true&useSSL=false\" "
+																+ "(the quotes are needed to escape the ampersand)");
+		options.addOption("x", "eXcludestart",     		true, "exclude results at the start of the test for the given number of minutes (defaults to 0)" );
 		options.addOption("c", "captureperiod",    		true, "Only capture test results for the given number of minutes, from the excluded start period "
-																+ "(default is all results except those skipped by the excludestart parameter are included)" );			
+																+ "(default is all results except those skipped by the excludestart parameter are included)" );
 		options.addOption("n", "maxNumberofruns",  		true, "Maximum number of runs to be stored for this application id excluding baselines.  The oldest non-baseline run(s) will be removed from the database "
-																+ "when this count is exceeded.  Set to '-1' or '0' to deactive. Defaults to 500" );			
+																+ "when this count is exceeded.  Set to '-1' or '0' to deactive. Defaults to 500" );
 		options.addOption("k", "keeprawresults", 		true, "Keep Raw Test Results. If 'true' will keep each transaction for each run in the database (System metrics data is not captured for Loadrunner). "
 																+ "This can use a large amount of storage and is not recommended as a standard settomg (defaults to false).");
 		options.addOption("e", "ignoredErrors",    		true, "Gatling, JMeter(csv format) only. A list of pipe (|) delimited strings.  When an error msg starts with any of the strings in the list, "
-																+ "it will be treated as a Passed transaction rather than an Error." );	
+																+ "it will be treated as a Passed transaction rather than an Error." );
 		options.addOption("l", "simulationLog",			true, "Gatling only. Simulation log file name - must be in the Input directory (defaults to simulation.log)" );
 		options.addOption("m", "simlogcustoM",			true, "Gatling only. Simulation log comma-separated customized 'REQUEST' field column positions in order : txn name, epoch start, epoch end, tnx OK, error msg. "
 																+ "The text 'REQUEST' is assumed in position 1. EG: for a 3.6.1 layout: '2,3,4,5,6,' (This parameter may assist with un-catered for Gatling versions)" );
 		options.addOption("z", "timeZone",    			true, "Loadrunner only. Required when running an extract from a zone other than where the Analysis Report was generated. Also, internal raw stored time"
 																+ " may not take daylight savings into account.  Two format options 1) offset against GMT. Eg 'GMT+02:00' or 2) IANA Time Zone Database (TZDB) codes."
-																+ " Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. Eg 'Australia/Sydney' ");   	
+																+ " Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones. Eg 'Australia/Sydney' ");
 		HelpFormatter formatter = new HelpFormatter();
 		CommandLine commandLine;
 		CommandLineParser parser = new DefaultParser();
@@ -158,37 +162,36 @@ public class TrendsLoad  implements CommandLineRunner
 			formatter.printHelp("TrendsLoad", options);
 			printSampleUsage();
 			throw new RuntimeException();
-		}		
-		
-		argApplication     	= commandLine.getOptionValue("a");			
-		argInput 			= commandLine.getOptionValue("i");	
-		argDatabasetype 	= commandLine.getOptionValue("d", Mark59Constants.MYSQL);	
-		argReference 		= commandLine.getOptionValue("r", AppConstantsTrends.NO_ARGUMENT_PASSED + " (a reference will be generated)" ); 	  		
+		}
+
+		argApplication     	= commandLine.getOptionValue("a");
+		argInput 			= commandLine.getOptionValue("i");
+		argDatabasetype 	= commandLine.getOptionValue("d", Mark59Constants.MYSQL);
+		argReference 		= commandLine.getOptionValue("r", AppConstantsTrends.NO_ARGUMENT_PASSED + " (a reference will be generated)" );
 		argTool   			= commandLine.getOptionValue("t", AppConstantsTrends.JMETER );
-		argExcludestart  	= commandLine.getOptionValue("x", "0");		
+		argeXcludestart  	= commandLine.getOptionValue("x", "0");
 		argCaptureperiod  	= commandLine.getOptionValue("c", AppConstantsTrends.ALL );
-		argMaxNumberofruns	= commandLine.getOptionValue("n", DEFAULT_500_MAX_NUMBER_OF_RUNS);		
-		argIgnoredErrors	= commandLine.getOptionValue("e", "");				
-		argSimulationLog	= commandLine.getOptionValue("l", "simulation.log");				
-		argSimlogcustoM		= commandLine.getOptionValue("m", "");				
+		argmaxNumberofruns	= commandLine.getOptionValue("n", DEFAULT_500_MAX_NUMBER_OF_RUNS);
+		argignoredErrors	= commandLine.getOptionValue("e", "");
+		argsimulationLog	= commandLine.getOptionValue("l", "simulation.log");
+		argsimlogcustoM		= commandLine.getOptionValue("m", "");
 		argKeeprawresults	= commandLine.getOptionValue("k", String.valueOf(false));
-		argTimeZone  		= commandLine.getOptionValue("z", new GregorianCalendar().getTimeZone().getID() );				
-		
-		
-		if (argApplication.length() > 32 ) {
-			argApplication = argApplication.substring(0, 32);					
+		argtimeZone  		= commandLine.getOptionValue("z", new GregorianCalendar().getTimeZone().getID() );
+
+		if (argApplication.length() > MAX_APPLICATION_NAME_LENGTH ) {
+			argApplication = argApplication.substring(0, MAX_APPLICATION_NAME_LENGTH);
 			System.out.println();
-			System.out.println("** The Application argument will be truncated to 32 characters : " + argApplication );
+			System.out.println("** The Application argument will be truncated to " + MAX_APPLICATION_NAME_LENGTH + " characters : " + argApplication );
 			System.out.println();
 		}
-	
-		if (StringUtils.isEmpty(argApplication) ||  
-			StringUtils.containsWhitespace(argApplication) || 
+
+		if (StringUtils.isEmpty(argApplication) ||
+			StringUtils.containsWhitespace(argApplication) ||
 			!argApplication.matches(AppConstantsTrends.ALLOWED_CHARS_APP_NAME)){
 			throw new RuntimeException("The application id (a) argument must consist of only alphanumerics, underscores (_), dashes (-) and dots (.)."
 					+ " It must not contain any whitespace and must not be empty");
 		}
-		
+
 		if (!Mark59Constants.H2.equalsIgnoreCase(argDatabasetype)
 				&& !Mark59Constants.MYSQL.equalsIgnoreCase(argDatabasetype)
 				&& !Mark59Constants.PG.equalsIgnoreCase(argDatabasetype)
@@ -202,46 +205,46 @@ public class TrendsLoad  implements CommandLineRunner
 		if ( !AppConstantsTrends.JMETER.equalsIgnoreCase(argTool) && !AppConstantsTrends.LOADRUNNER.equalsIgnoreCase(argTool) && !AppConstantsTrends.GATLING.equalsIgnoreCase(argTool) ) {
 			formatter.printHelp( "TrendsLoad", options );
 			printSampleUsage();
-			throw new RuntimeException("The tool (t) argument must be set to JMETER or LOADRUNNER or GATLING ! (or not used, in which case JMETER is assumed)");  
+			throw new RuntimeException("The tool (t) argument must be set to JMETER or LOADRUNNER or GATLING ! (or not used, in which case JMETER is assumed)");
 		}
 		if ( !String.valueOf(false).equalsIgnoreCase(argKeeprawresults) && !String.valueOf(true).equalsIgnoreCase(argKeeprawresults)) {
 			formatter.printHelp( "TrendsLoad", options );
 			printSampleUsage();
-			throw new RuntimeException("The Keeprawresults (k) argument must be set to 'true' or 'false' ! (or not used, in which case 'false' is assumed)");  
+			throw new RuntimeException("The Keeprawresults (k) argument must be set to 'true' or 'false' ! (or not used, in which case 'false' is assumed)");
 		}
-		if (!StringUtils.isNumeric(argExcludestart) ) {
+		if (!StringUtils.isNumeric(argeXcludestart) ) {
 			formatter.printHelp( "TrendsLoad", options );
 			printSampleUsage();
-			throw new RuntimeException("The eXcludestart (x) argument must be numeric");  
+			throw new RuntimeException("The eXcludestart (x) argument must be numeric");
 		}
 		if (!StringUtils.isNumeric(argCaptureperiod) && !argCaptureperiod.equalsIgnoreCase(AppConstantsTrends.ALL) ) {
 			formatter.printHelp( "TrendsLoad", options );
 			printSampleUsage();
-			throw new RuntimeException("The Captureperiod (c) argument must be numeric or '" + AppConstantsTrends.ALL + "'" );  
+			throw new RuntimeException("The Captureperiod (c) argument must be numeric or '" + AppConstantsTrends.ALL + "'" );
 		}
-		if (!StringUtils.isNumeric(argMaxNumberofruns) && !(Integer.parseInt(argMaxNumberofruns)>=-1)){
+		if (!StringUtils.isNumeric(argmaxNumberofruns) || Integer.parseInt(argmaxNumberofruns) < -1){
 			formatter.printHelp( "TrendsLoad", options );
 			printSampleUsage();
-			throw new RuntimeException("The maxNumberofruns (n) argument must a number greater than or equal to '-1'");  
+			throw new RuntimeException("The maxNumberofruns (n) argument must a number greater than or equal to '-1'");
 		}
-		if (StringUtils.isNotBlank(argSimlogcustoM)){
-				List<String> mPos = Mark59Utils.commaDelimStringToStringList(argSimlogcustoM); 
+		if (StringUtils.isNotBlank(argsimlogcustoM)){
+				List<String> mPos = Mark59Utils.commaDelimStringToStringList(argsimlogcustoM);
 				if ((mPos.size() != 5) ||
 					(!StringUtils.isNumeric(mPos.get(0)) || !StringUtils.isNumeric(mPos.get(1)) ||
 					 !StringUtils.isNumeric(mPos.get(2)) || !StringUtils.isNumeric(mPos.get(3)) ||
 					 !StringUtils.isNumeric(mPos.get(4)) )){
 				formatter.printHelp( "TrendsLoad", options );
 				printSampleUsage();
-				throw new RuntimeException("The simlogcustoM (m) argument must blank or 5 comma-delimited integers") ;  
+				throw new RuntimeException("The simlogcustoM (m) argument must blank or 5 comma-delimited integers") ;
 			}
 		}
-		if (! ( argTimeZone.equals("GMT") || !TimeZone.getTimeZone(argTimeZone).getID().equals("GMT"))){
+		if (! ( argtimeZone.equals("GMT") || !TimeZone.getTimeZone(argtimeZone).getID().equals("GMT"))){
 			// https://stackoverflow.com/questions/13092865/timezone-validation-in-java
 			formatter.printHelp( "TrendsLoad", options );
 			printSampleUsage();
-			throw new RuntimeException("The timezone argumment (z) is invalid : " +  argTimeZone );  
+			throw new RuntimeException("The timezone argumment (z) is invalid : " +  argtimeZone );
 		}
-	
+
 		String dbDefaultPort = "";
 		if (Mark59Constants.MYSQL.equalsIgnoreCase(argDatabasetype)){
 			dbDefaultPort = "3306";
@@ -250,96 +253,98 @@ public class TrendsLoad  implements CommandLineRunner
 		} else if (Mark59Constants.H2TCPCLIENT.equalsIgnoreCase(argDatabasetype)){
 			dbDefaultPort = "9092";
 		}
-		
-		String dbserver	 	 	= commandLine.getOptionValue("h", "localhost");
-		String dbPort 	 	 	= commandLine.getOptionValue("p", dbDefaultPort);
-		String dbSchema	 		= commandLine.getOptionValue("s", "mark59trendsdb");
-		String dbUsername 	 	= commandLine.getOptionValue("u", "admin");
-		String dbxtraurlparms	= commandLine.getOptionValue("q", "");
-	
+
+		String argdbserver	     = commandLine.getOptionValue("h", "localhost");
+		String argdbPort	     = commandLine.getOptionValue("p", dbDefaultPort);
+		String argdbSchema	     = commandLine.getOptionValue("s", "mark59trendsdb");
+		String argdbUsername	 = commandLine.getOptionValue("u", "admin");
+		String argdbxtraurlparms = commandLine.getOptionValue("q", "");
+
 		// argDatabasetype used to set via application.properties: spring.profiles.active={spring.profile}
 		System.setProperty("spring.profile", argDatabasetype);
-		
-		System.setProperty("mysql.server",  	  	dbserver);
-		System.setProperty("mysql.port",    	  	dbPort);		
-		System.setProperty("mysql.schema",  	  	dbSchema);		
-		System.setProperty("mysql.username",	  	dbUsername);
-		System.setProperty("mysql.xtra.url.parms",	dbxtraurlparms);
-		
-		System.setProperty("pg.server",   			dbserver);
-		System.setProperty("pg.port",     			dbPort);		
-		System.setProperty("pg.database",      		dbSchema);		
-		System.setProperty("pg.username", 	   		dbUsername);
-		System.setProperty("pg.xtra.url.parms",		dbxtraurlparms);
-		
-		System.setProperty("h2.server",   			dbserver);
-		System.setProperty("h2.port",     			dbPort);
-		
+
+		System.setProperty("mysql.server",  	  	argdbserver);
+		System.setProperty("mysql.port",    	  	argdbPort);
+		System.setProperty("mysql.schema",  	  	argdbSchema);
+		System.setProperty("mysql.username",	  	argdbUsername);
+		System.setProperty("mysql.xtra.url.parms",	argdbxtraurlparms);
+
+		System.setProperty("pg.server",   			argdbserver);
+		System.setProperty("pg.port",     			argdbPort);
+		System.setProperty("pg.database",      		argdbSchema);
+		System.setProperty("pg.username", 	   		argdbUsername);
+		System.setProperty("pg.xtra.url.parms",		argdbxtraurlparms);
+
+		System.setProperty("h2.server",   			argdbserver);
+		System.setProperty("h2.port",     			argdbPort);
+
 		// for H2/H2MEM database settings are hard coded in their property files and cannot be changed,
 		// so this is just for display purposes
 		if (Mark59Constants.H2.equalsIgnoreCase(argDatabasetype)){
-			dbserver   = "localhost (all db settings are hard-coded for h2)";
-			dbPort     = "";
-			dbSchema   = "trends";
-			dbUsername = "sa";
+			argdbserver   = "localhost (all db settings are hard-coded for h2)";
+			argdbPort     = "";
+			argdbSchema   = "trends";
+			argdbUsername = "sa";
 		} else if (Mark59Constants.H2MEM.equalsIgnoreCase(argDatabasetype)){
-			dbserver   = "localhost (all db settings are hard-coded for h2mem)";
-			dbPort     = "";
-			dbSchema   = "trendsmem";
-			dbUsername = "sa";			
-		} 
-		
-		String dbpassWord 	   = commandLine.getOptionValue("w", "admin");
-		String dbpassencrYpted = commandLine.getOptionValue("y");
-		
-		if (StringUtils.isAllBlank(dbpassencrYpted) ) {
-			System.setProperty("mysql.password", dbpassWord);		
-			System.setProperty("pg.password",    dbpassWord);		
-		} else {
-			System.setProperty("mysql.password", SimpleAES.decrypt(dbpassencrYpted));			
-			System.setProperty("pg.password", 	 SimpleAES.decrypt(dbpassencrYpted));			
+			argdbserver   = "localhost (all db settings are hard-coded for h2mem)";
+			argdbPort     = "";
+			argdbSchema   = "trendsmem";
+			argdbUsername = "sa";
 		}
-		
+
+		String argdbpassWord      = commandLine.getOptionValue("w", "admin");
+		String argdbpassencrYpted = commandLine.getOptionValue("y");
+
+		if (StringUtils.isAllBlank(argdbpassencrYpted) ) {
+			System.setProperty("mysql.password", argdbpassWord);
+			System.setProperty("pg.password",    argdbpassWord);
+		} else {
+			System.setProperty("mysql.password", SecureAES.decrypt(argdbpassencrYpted));
+			System.setProperty("pg.password", 	 SecureAES.decrypt(argdbpassencrYpted));
+		}
+
 		System.out.println();
 		System.out.println("TrendsLoad executing using the following arguments " );
-		System.out.println("-------------------------------------------------- " );	
-		System.out.println(" application     (a): " + argApplication );				    
+		System.out.println("-------------------------------------------------- " );
+		System.out.println(" application     (a): " + argApplication );
 		System.out.println(" input           (i): " + argInput );
 		System.out.println(" database        (d): " + argDatabasetype );
 		System.out.println(" reference       (r): " + argReference );
-		System.out.println(" tool            (t): " + argTool );		
-		System.out.println(" dbserver        (h): " + dbserver );		
-		System.out.println(" dbPort          (p): " + dbPort );				
-		System.out.println(" dbSchema        (s): " + dbSchema );				
-		System.out.println(" dbUsername      (u): " + dbUsername );				
-		System.out.println(" dbxtraurlparms  (q): " + dbxtraurlparms );				
-		System.out.println(" eXcludestart    (x): " + argExcludestart + " (mins)" );		
+		System.out.println(" tool            (t): " + argTool );
+		System.out.println(" dbserver        (h): " + argdbserver );
+		System.out.println(" dbPort          (p): " + argdbPort );
+		System.out.println(" dbSchema        (s): " + argdbSchema );
+		System.out.println(" dbUsername      (u): " + argdbUsername );
+		System.out.println(" dbxtraurlparms  (q): " + argdbxtraurlparms );
+		System.out.println(" eXcludestart    (x): " + argeXcludestart + " (mins)" );
 		System.out.println(" captureperiod   (c): " + argCaptureperiod + " (mins)"  );
-		System.out.println(" maxNumberofruns (n): " + argMaxNumberofruns );		
-		System.out.println(" keeprawresults  (k): " + argKeeprawresults );		
-		System.out.println(" ignoredErrors   (e): " + argIgnoredErrors );		
-		System.out.println(" simulationLog   (l): " + argSimulationLog );		
-		System.out.println(" simlogcustoM    (m): " + argSimlogcustoM );		
-		System.out.println(" timeZone        (z): " + argTimeZone );		
-		System.out.println("------------------------------------------------   " );				    
+		System.out.println(" maxNumberofruns (n): " + argmaxNumberofruns );
+		System.out.println(" keeprawresults  (k): " + argKeeprawresults );
+		System.out.println(" ignoredErrors   (e): " + argignoredErrors );
+		System.out.println(" simulationLog   (l): " + argsimulationLog );
+		System.out.println(" simlogcustoM    (m): " + argsimlogcustoM );
+		System.out.println(" timeZone        (z): " + argtimeZone );
+		System.out.println("------------------------------------------------   " );
 		System.out.println();
 	}
 
 	public static void printSampleUsage() {
-		System.out.println();	
+		System.out.println();
 		System.out.println( "Usage Samples");
 		System.out.println( "------------");
-		System.out.println( "   1. JMeter example ");
+		System.out.println( "   1. JMeter examples ");
 		System.out.println( "   Process JMeter xml formatted result in directory C:/jmeter-results/BIGAPP  (file/s ends in .xml)");
 		System.out.println( "   The graph application name will be MY_COMPANY_BIG_APP, with a reference for this run of 'run ref 645'.");
 		System.out.println( "   The mark59trendsdb database is hosted locally on a MySql instance assigned to port 3309 (default user/password of admin/admin) : "  );
 		System.out.println( "   java -jar mark59-trends-load.jar -a MY_COMPANY_BIG_APP -i C:/jmeter-results/BIGAPP -r \"run ref 645\" -p 3309  ");
+		System.out.println( "   Explicly enter the default MySql db authentication and port (3306) to upload a DataHunter run : ");
+		System.out.println( "   java -jar mark59-trends-load.jar -a DataHunter -i C:/Mark59_Runs/Jmeter_Results/DataHunter -r \"run ref 99\" -p 3306 -u admin -w admin");
 		System.out.println( "   2. Gatling example ");
 		System.out.println( "   Process Gatling simulation.log in directory C:/GatlingProjects/myBigApp");
 		System.out.println( "   The graph application name will be MY_COMPANY_BIG_APP, with a reference for this run of 'GatlingIsCool'.");
 		System.out.println( "   The mark59trendsdb database is hosted locally on a Postgres instance using all defaults (but you want to disable sslmode) "  );
-		System.out.println( "   java -jar mark59-trends-load.jar -a MY_COMPANY_BIG_APP -i C:/GatlingProjects/myBigApp -d pg -q \"?sslmode=disable\" -t GATLING  -r \"GatlingIsCool\" ");		
-		System.out.println( "   3. Loadrunner example");		
+		System.out.println( "   java -jar mark59-trends-load.jar -a MY_COMPANY_BIG_APP -i C:/GatlingProjects/myBigApp -d pg -q \"?sslmode=disable\" -t GATLING  -r \"GatlingIsCool\" ");
+		System.out.println( "   3. Loadrunner example");
 		System.out.println( "   Process Loadrunner analysis result at C:/templr/BIGAPP/AnalysisSession (containing file AnalysisSession.mdb).  ");
 		System.out.println( "   The graph application name will be MY_COMPANY_BIG_APP, with a reference for this run of 'run ref 644'.");
 		System.out.println( "   The mark59trendsdb database is hosted locally on a MySql instance assigned to port 3309 (default user/password of admin/admin) : "  );
@@ -348,162 +353,154 @@ public class TrendsLoad  implements CommandLineRunner
 	}
 
 
-	
+
 	/**
-	 * The args are already parsed (as they may contain properties that need to be pre-set for the spring Application Context) 
+	 * The args are already parsed (as they may contain properties that need to be pre-set for the spring Application Context)
 	 */
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
 		System.out.println("Spring configuration complete, " + currentDatabaseProfile + " database in use."  );
-		
+
 		if (Mark59Constants.H2.equalsIgnoreCase(currentDatabaseProfile) || Mark59Constants.H2TCPCLIENT.equalsIgnoreCase(currentDatabaseProfile)){
-			System.out.println();			
+			System.out.println();
 			System.out.println("***************************************************************************************" );
 			System.out.println("*   The use of a H2 database is intended to assist in tutorials and 'quick start'.    *" );
-			System.out.println("*   Please use a MySQL or PostgreSQL database for more formal work.                   *" );			
-			System.out.println("*                                                                                     *" );			
+			System.out.println("*   Please use a MySQL or PostgreSQL database for more formal work.                   *" );
+			System.out.println("*                                                                                     *" );
 			System.out.println("***************************************************************************************" );
-			System.out.println();			
+			System.out.println();
 		} else 	if (Mark59Constants.H2MEM.equalsIgnoreCase(currentDatabaseProfile)) {
-			System.out.println();			
+			System.out.println();
 			System.out.println("***************************************************************************************" );
 			System.out.println("*   The H2 'In Memory' option primarily created for internal testing.                 *" );
 			System.out.println("***************************************************************************************" );
-			System.out.println();			
+			System.out.println();
 		}
-		
+
 		if (String.valueOf(true).equalsIgnoreCase(argKeeprawresults)) {
-			System.out.println();			
+			System.out.println();
 			System.out.println("***************************************************************************************" );
 			System.out.println("*   Setting 'keeprawresults' to 'true' may use a large amount of storage.             *" );
 			System.out.println("*   The data is not used within the Mark59 framework.  The option has been made       *" );
 			System.out.println("*   available for users who may wish to use it externally for data analysis/reporting *" );
 			System.out.println("*   of JMeter results.                                                                *" );
 			System.out.println("***************************************************************************************" );
-			System.out.println();			
+			System.out.println();
 		}
-		
-		loadTestRun(argTool, argApplication, argInput, argReference, argExcludestart, argCaptureperiod, argMaxNumberofruns, 
-				argKeeprawresults, argTimeZone, argIgnoredErrors, argSimulationLog, argSimlogcustoM);
+
+		loadTestRun(argTool, argApplication, argInput, argReference, argeXcludestart, argCaptureperiod, argmaxNumberofruns,
+				argKeeprawresults, argtimeZone, argignoredErrors, argsimulationLog, argsimlogcustoM);
 	}
 
 
     public void loadTestRun(String tool, String application, String input, String runReference, String excludestart, String captureperiod, String maxNumberofruns,
     		String keeprawresults, String timeZone, String ignoredErrors, String simulationLog, String simlogcustoM) {
-		
-		if (AppConstantsTrends.JMETER.equalsIgnoreCase(tool)){		
+
+		if (AppConstantsTrends.JMETER.equalsIgnoreCase(tool)){
 			performanceTest = new JmeterRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults, ignoredErrors );
-		} else if (AppConstantsTrends.GATLING.equalsIgnoreCase(tool)){	
+		} else if (AppConstantsTrends.GATLING.equalsIgnoreCase(tool)){
 			performanceTest = new GatlingRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults, ignoredErrors, simulationLog, simlogcustoM);
-		} else { 
+		} else {
 			performanceTest = new LrRun(context, application, input, runReference, excludestart, captureperiod, keeprawresults, timeZone );
 		}
-		
+
 		cdpTaggedTransactionsWithFailedSlas = new SlaChecker().listCdpTaggedTransactionsWithFailedSlas(application, performanceTest.getTransactionSummariesThisRun(), slaDAO);
 		printTransactionalMetricSlaResults(cdpTaggedTransactionsWithFailedSlas);
-		
-		String runTime = performanceTest.getRunSummary().getRunTime(); 
 
-		cdpTaggedMissingTransactions  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, runTime, slaDAO  ); 
-		printSlasWitMissingTxnsInThisRun(cdpTaggedMissingTransactions);		
-		
+		String runTime = performanceTest.getRunSummary().getRunTime();
+
+		cdpTaggedMissingTransactions  =  new SlaChecker().checkForMissingTransactionsWithDatabaseSLAs(application, runTime, slaDAO  );
+		printSlasWitMissingTxnsInThisRun(cdpTaggedMissingTransactions);
+
 		if (cdpTaggedMissingTransactions.isEmpty()  && cdpTaggedTransactionsWithFailedSlas.isEmpty() ){
 			System.out.println( "TrendsLoad:  No transactional SLA has failed (as recorded on the SLA Reference Database)");
-		} 
-		
+		}
+
 		metricSlaResults = new MetricSlaChecker().listFailedMetricSLAs(application, runTime, null, metricSlaDAO, transactionDAO);
 		printMetricSlaResults(metricSlaResults);
-		
-		if (Integer.parseInt(maxNumberofruns) > 0) { 
+
+		if (Integer.parseInt(maxNumberofruns) > 0) {
 			List<String> runDatesExBaselines = runDAO.findRunDates(application,BaselineOption.EXCLUDE_BASELINES);
 			if (runDatesExBaselines.size() > Integer.parseInt(maxNumberofruns)){
 				removeAgedRuns(application,Integer.parseInt(maxNumberofruns), runDatesExBaselines);
 			}
 		}
 	}
-	
+
 
 	private void removeAgedRuns(String application, int maxNumberofruns, List<String> runDatesExBaselines){
-		System.out.println( "TrendsLoad:  " + (runDatesExBaselines.size()-maxNumberofruns) + " run(s) will be removed from the " 
+		System.out.println( "TrendsLoad:  " + (runDatesExBaselines.size()-maxNumberofruns) + " run(s) will be removed from the "
 			+ application + " application due to the maxNumberofruns policy.  List of run date/times removed : " );
 		System.out.print( "    ");
 		for (int i = maxNumberofruns; i < runDatesExBaselines.size(); i++) {
 			 // delete from the (maxNumberofruns+1)th to the last element of the runs list
 			if ((i-maxNumberofruns)%6 == 0){System.out.print("\n    ");};
-			System.out.print(runDatesExBaselines.get(i) + "  ");        
+			System.out.print(runDatesExBaselines.get(i) + "  ");
 			runDAO.deleteRun(application, runDatesExBaselines.get(i));
 		}
 		System.out.println();
 	}
 
-	
+
 	private void printSlasWitMissingTxnsInThisRun(List<String> cdpTaggedMissingTransactions) {
 		for (String slaWithMissingTxn : cdpTaggedMissingTransactions) {
-    		System.out.println( "TrendsLoad: SLA Failed : Error : an SLA exists for transaction " + slaWithMissingTxn + ", but that transaction does not appear in the run results ! "  );			
+    		System.out.println( "TrendsLoad: SLA Failed : Error : an SLA exists for transaction " + slaWithMissingTxn + ", but that transaction does not appear in the run results ! "  );
 		}
 	}
 
-	
-	private Boolean printTransactionalMetricSlaResults(List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas) {
-		boolean allPassed = true;
+
+	private void printTransactionalMetricSlaResults(List<SlaTransactionResult> cdpTaggedTransactionsWithFailedSlas) {
+
 		for (SlaTransactionResult slaTransactionResult : cdpTaggedTransactionsWithFailedSlas) {
-			if ( !slaTransactionResult.isPassedAllSlas()){
-				allPassed = false;
-			}
 
 			if ( !slaTransactionResult.isPassed90thResponse()){
 	    		System.out.println( "TrendsLoad: SLA Failed Warning  : " + slaTransactionResult.getTxnId() + " has failed it's 90th Percentile Response Time SLA as recorded on the SLA database ! "  );
-	    		System.out.println( "                      response was " + slaTransactionResult.getTxn90thResponse() + " secs, SLA of " +  slaTransactionResult.getSla90thResponse());				
-				
+	    		System.out.println( "                      response was " + slaTransactionResult.getTxn90thResponse() + " secs, SLA of " +  slaTransactionResult.getSla90thResponse());
 			}
 			if ( !slaTransactionResult.isPassed95thResponse()){
 	    		System.out.println( "TrendsLoad: SLA Failed Warning  : " + slaTransactionResult.getTxnId() + " has failed it's 95th Percentile Response Time SLA as recorded on the SLA database ! "  );
-	    		System.out.println( "                      response was " + slaTransactionResult.getTxn95thResponse() + " secs, SLA of " +  slaTransactionResult.getSla95thResponse());				
-				
+	    		System.out.println( "                      response was " + slaTransactionResult.getTxn95thResponse() + " secs, SLA of " +  slaTransactionResult.getSla95thResponse());
 			}
 			if ( !slaTransactionResult.isPassed99thResponse()){
 	    		System.out.println( "TrendsLoad: SLA Failed Warning  : " + slaTransactionResult.getTxnId() + " has failed it's 99th Percentile Response Time SLA as recorded on the SLA database ! "  );
-	    		System.out.println( "                      response was " + slaTransactionResult.getTxn99thResponse() + " secs, SLA of " +  slaTransactionResult.getSla99thResponse());				
-				
+	    		System.out.println( "                      response was " + slaTransactionResult.getTxn99thResponse() + " secs, SLA of " +  slaTransactionResult.getSla99thResponse());
 			}
 			if ( !slaTransactionResult.isPassedFailPercent()){
 	    		System.out.println( "TrendsLoad: SLA Failed : Error : " + slaTransactionResult.getTxnId() + " has failed it's % Error Rate SLA as recorded on the SLA database ! "  );
-	    		System.out.println( "                      % error was " + new DecimalFormat("#.##").format(slaTransactionResult.getTxnFailurePercent()) + 
-	    				" %, SLA of " +  slaTransactionResult.getSlaFailurePercent());				
+	    		System.out.println( "                      % error was " + new DecimalFormat("#.##").format(slaTransactionResult.getTxnFailurePercent()) +
+	    				" %, SLA of " +  slaTransactionResult.getSlaFailurePercent());
 			}
 			if ( !slaTransactionResult.isPassedFailCount()){
 	    		System.out.println( "TrendsLoad: SLA Failed : Error : " + slaTransactionResult.getTxnId() + " has failed it's Fail Count SLA as recorded on the SLA database ! "  );
-	    		System.out.println( "                      count was " + slaTransactionResult.getTxnFailCount() + 
-	    				" Fail Count SLA is " +  slaTransactionResult.getSlaFailCount());				
+	    		System.out.println( "                      count was " + slaTransactionResult.getTxnFailCount() +
+	    				" Fail Count SLA is " +  slaTransactionResult.getSlaFailCount());
 			}
-	
 			if ( !slaTransactionResult.isPassedPassCount()){
 	    		System.out.println( "TrendsLoad: SLA Failed : Error : " + slaTransactionResult.getTxnId() + " has failed it's Pass Count SLA as recorded on the SLA database ! "  );
-	    		System.out.println( "                      count was " + slaTransactionResult.getTxnPassCount() + 
-	    				" Pass Count SLA is " +  slaTransactionResult.getSlaPassCount() + ", with variance of " + slaTransactionResult.getSlaPassCountVariancePercent() + "%") ;				
+	    		System.out.println( "                      count was " + slaTransactionResult.getTxnPassCount() +
+	    				" Pass Count SLA is " +  slaTransactionResult.getSlaPassCount() + ", with variance of " + slaTransactionResult.getSlaPassCountVariancePercent() + "%") ;
 			}
 		}
-		return allPassed;
 	}
 
-	
+
 	private void printMetricSlaResults(List<MetricSlaResult> metricSlaResults) {
 		for (MetricSlaResult metricSlaResult : metricSlaResults) {
-			System.out.println( "TrendsLoad:  " + metricSlaResult.getMessageText()); 
+			System.out.println( "TrendsLoad:  " + metricSlaResult.getMessageText());
 		}
 		if (metricSlaResults.isEmpty()){
 			System.out.println( "TrendsLoad:  No metric SLA has failed (as recorded on the SLA Metrics Reference Database)");
 		}
 	}
 
-	
+
 	/**
 	 * for testing purposes
 	 * @return performanceTest
 	 */
 	public PerformanceTest getPerformanceTest(){
 		return performanceTest;
-	}	
+	}
 	/**
 	 * for testing purposes
 	 * @return metricSlaResults
@@ -525,5 +522,5 @@ public class TrendsLoad  implements CommandLineRunner
 	public List<String> getSlasWithMissingTxns() {
 		return cdpTaggedMissingTransactions;
 	}
-	
+
 }

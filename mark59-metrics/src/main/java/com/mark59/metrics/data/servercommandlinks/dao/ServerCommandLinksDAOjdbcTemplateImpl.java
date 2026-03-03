@@ -53,7 +53,6 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 				.addValue("serverProfileName", serverProfileName)
 				.addValue("commandName", commandName);
 
-//		System.out.println(" findServerCommandLink : " + selectServerSQL + " : " + serverProfileName);
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL, sqlparameters);
 		
@@ -83,6 +82,12 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 	@Override
 	public List<ServerCommandLink> findServerCommandLinks(String selectionCol, String selectionValue){
 
+		// Whitelist validation to prevent SQL injection
+		List<String> allowedColumns = List.of("SERVER_PROFILE_NAME", "COMMAND_NAME");
+		if (!selectionCol.isEmpty() && !allowedColumns.contains(selectionCol.toUpperCase())) {
+			throw new IllegalArgumentException("Invalid column name: " + selectionCol);
+		}
+
 		String sql = "select SERVER_PROFILE_NAME, COMMAND_NAME from SERVERCOMMANDLINKS ";
 		
 		if (!selectionValue.isEmpty()  ) {			
@@ -93,7 +98,6 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("selectionValue", selectionValue);
 
-//		System.out.println(" findServerProfiles : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
 		List<ServerCommandLink> serverCommandLinkList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);

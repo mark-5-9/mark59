@@ -262,4 +262,22 @@ public class UtilsTrends  {
 	}		
 
 	
+
+	/**
+	 * Escapes single quotes in SQL string literals to prevent SQL injection.
+	 * Converts "O'Brien" to "O''Brien" (SQL standard escaping).
+	 *
+	 * @param value the string value to escape
+	 * @return the escaped string safe for use in SQL string literals
+	 */
+	public static String escapeSqlString(String value) {
+		if (value == null) {
+			return "";
+		}
+		// Escape single quotes by doubling them (SQL standard)
+		return value.replace("'", "''");
+	}
+	
+	
+	
 }

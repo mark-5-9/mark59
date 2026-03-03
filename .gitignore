@@ -33,6 +33,7 @@ hs_err_pid*
 *.classpath
 *.factorypath
 *.project
+*.vscode
 jmeter.log
 
 # Mac/local env specific ignores

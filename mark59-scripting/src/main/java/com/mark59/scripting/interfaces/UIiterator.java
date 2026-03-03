@@ -8,18 +8,18 @@ import com.mark59.scripting.playwright.PlaywrightIteratorAbstractJavaSamplerClie
 import com.mark59.scripting.selenium.SeleniumIteratorAbstractJavaSamplerClient;
 
 /**
- * Capture common elements for UI iterator implementations.  
- *  
+ * Capture common elements for UI iterator implementations.
+ *
  * @see #ITERATE_FOR_PERIOD_IN_SECS
  * @see #ITERATE_FOR_NUMBER_OF_TIMES
  * @see #ITERATION_PACING_IN_SECS
- * @see #STOP_THREAD_AFTER_TEST_START_IN_SECS  
- * @see #STOP_THREAD_ON_FAILURE  
+ * @see #STOP_THREAD_AFTER_TEST_START_IN_SECS
+ * @see #STOP_THREAD_ON_FAILURE
  * @see SeleniumIteratorAbstractJavaSamplerClient
  * @see PlaywrightIteratorAbstractJavaSamplerClient
- * 
- * @author Philip Webb    
- * Written: Australian Summer 2023/24  
+ *
+ * @author Philip Webb
+ * Written: Australian Summer 2023/24
  */
 public interface UIiterator  {
 
@@ -30,40 +30,40 @@ public interface UIiterator  {
 	 * @see PlaywrightIteratorAbstractJavaSamplerClient
 	 */
 	public static final String ITERATE_FOR_PERIOD_IN_SECS 			= "ITERATE_FOR_PERIOD_IN_SECS";
-	
+
 	/**
 	 * At the end of each iteration, a check is made to see if the number of iterations the script has performed has reached this value.
 	 * If so, the finalize is executed and the script completed. Must be a non-zero numeric to be active. Current implementations set
-	 * a default value of 1, so it needs to be over-ridden with 0 (or a non-numeric like a space) to deactivate.  
+	 * a default value of 1, so it needs to be over-ridden with 0 (or a non-numeric like a space) to deactivate.
 	 * @see SeleniumIteratorAbstractJavaSamplerClient
 	 * @see PlaywrightIteratorAbstractJavaSamplerClient
 	 */
 	public static final String ITERATE_FOR_NUMBER_OF_TIMES			= "ITERATE_FOR_NUMBER_OF_TIMES";
 
 	/**
-	 * The target length of time of each iteration. A thread delay calculated at the end of the iteration forces the iteration to the iteration pacing time.  
+	 * The target length of time of each iteration. A thread delay calculated at the end of the iteration forces the iteration to the iteration pacing time.
 	 * Must be a non-zero numeric to be active.
 	 * @see SeleniumIteratorAbstractJavaSamplerClient
-	 * @see PlaywrightIteratorAbstractJavaSamplerClient 
-	 */	
-	public static final String ITERATION_PACING_IN_SECS 			= "ITERATION_PACING_IN_SECS";	
-	
+	 * @see PlaywrightIteratorAbstractJavaSamplerClient
+	 */
+	public static final String ITERATION_PACING_IN_SECS 			= "ITERATION_PACING_IN_SECS";
+
 	/**
 	 * At the start of each iteration, a check is made to see if the time in seconds since the JMeter test started exceeds this value.
-	 * If so, the finalize is executed and the and the script completed. The check is also made at script start-up, so when the script (re)starts and this 
+	 * If so, the finalize is executed and the and the script completed. The check is also made at script start-up, so when the script (re)starts and this
 	 * condition has been met the thread will be stopped immediately.  Must be a non-zero numeric to be active.
 	 * @see SeleniumIteratorAbstractJavaSamplerClient
-	 * @see PlaywrightIteratorAbstractJavaSamplerClient 
-	 */	
-	public static final String STOP_THREAD_AFTER_TEST_START_IN_SECS	= "STOP_THREAD_AFTER_TEST_START_IN_SECS";	
-	
+	 * @see PlaywrightIteratorAbstractJavaSamplerClient
+	 */
+	public static final String STOP_THREAD_AFTER_TEST_START_IN_SECS	= "STOP_THREAD_AFTER_TEST_START_IN_SECS";
+
 	/**
 	 * By default the script thread will re-start on failure (timers permitting).  This flag can be set to <b>true</b> to force the thread to stop
 	 * for the rest of the test.
-	 * <p>This is quite an extreme action - perhaps you could consider the making use  
+	 * <p>This is quite an extreme action - perhaps you could consider the making use
 	 * @see SeleniumIteratorAbstractJavaSamplerClient
-	 * @see PlaywrightIteratorAbstractJavaSamplerClient 
-	 */	
+	 * @see PlaywrightIteratorAbstractJavaSamplerClient
+	 */
 	public static final String STOP_THREAD_ON_FAILURE 				= "STOP_THREAD_ON_FAILURE";
 
 
@@ -72,7 +72,7 @@ public interface UIiterator  {
 	 * @param parameterName passed for debug purposes only
 	 * @param parameter the string to be converted
 	 * @param LOG Logger
-	 * @return Long set to 0L if a null or non-number passed   
+	 * @return Long set to 0L if a null or non-number passed
 	 */
 	public default Long convertToLong(String parameterName, String parameter, Logger LOG ) {
 		long convertedLong = 0L;
@@ -85,11 +85,11 @@ public interface UIiterator  {
 		return convertedLong;
 	}
 
-	
+
 	/**
 	 * Convert a String to Integer, with a default of 0
-	 * @param parameter String to convert into Integer 
-	 * @return integer or 0 if null or not numeric 
+	 * @param parameter String to convert into Integer
+	 * @return integer or 0 if null or not numeric
 	 */
 	public default Integer convertToInteger(String parameter) {
 		int convertedInt = 0;
@@ -100,35 +100,38 @@ public interface UIiterator  {
 		}
 		return convertedInt;
 	}
-	
+
 
 	/**
+	 * Checks if any iteration end condition has been met.
+	 * Evaluates various conditions to determine whether the iteration loop should terminate.
+	 *
 	 * @param tgName  thread group
 	 * @param scriptStartTimeMs  start time (derived from current time at script start)
 	 * @param iterateForPeriodMs iteration period
 	 * @param iterateNumberOfTimes target iteration count
 	 * @param alreadyIterated current iteration count
 	 * @param jMeterTestStartMs JMeter test start time (refer JMeter variable TESTSTART.MS)
-	 * @param stopThreadAfterTestStartMs flag for total test time reached 
-	 * @param forceStop if this boolean set to true, return true (end condition met) 
+	 * @param stopThreadAfterTestStartMs flag for total test time reached
+	 * @param forceStop if this boolean set to true, return true (end condition met)
 	 * @param LOG Logger
 	 * @return flag if conditions to stop iterations met
 	 */
-	public default boolean isAnyIterateEndConditionMet(String tgName, Long scriptStartTimeMs, Long iterateForPeriodMs, Integer iterateNumberOfTimes, 
+	public default boolean isAnyIterateEndConditionMet(String tgName, Long scriptStartTimeMs, Long iterateForPeriodMs, Integer iterateNumberOfTimes,
 			Integer alreadyIterated, Long jMeterTestStartMs, Long stopThreadAfterTestStartMs, boolean forceStop, Logger LOG ) {
-		
+
 		if (forceStop){
 			if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + ": tgName = " + tgName + " inter End Cond : \n | force stop set");
 			return true;
-		}		
+		}
 		if ( iterateNumberOfTimes > 0 && alreadyIterated >= iterateNumberOfTimes ){
-			if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + ": tgName = " + tgName + " inter End Cond : " 
+			if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + ": tgName = " + tgName + " inter End Cond : "
 					+ "\n | alreadyIterated = " + alreadyIterated + " >=  iterNumberOfTimes = " + iterateNumberOfTimes );
 			return true;
 		}
 		if ( iterateForPeriodMs > 0 &&  System.currentTimeMillis() > (scriptStartTimeMs+iterateForPeriodMs) ){
-			if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + ": tgName = " + tgName + " inter End Cond -" 
-					+ "\n | System.currentTimeMillis() = " + System.currentTimeMillis() 
+			if (LOG.isDebugEnabled()) LOG.debug(Thread.currentThread().getName() + ": tgName = " + tgName + " inter End Cond -"
+					+ "\n | System.currentTimeMillis() = " + System.currentTimeMillis()
 					+ " > scriptStartTimeMs+iterPeriodMs = "+scriptStartTimeMs+"+"+iterateForPeriodMs+"="+(scriptStartTimeMs+iterateForPeriodMs));
 			return true;
 		}
@@ -142,9 +145,9 @@ public interface UIiterator  {
 
 	/**
 	 * flag if conditions to stop iterations met
-	 * 
+	 *
 	 * @param jMeterTestStartMs  obtained from JMeter variable "TESTSTART.MS"
-	 * @param stopThreadAfterTestStartMs how long to run the thread 
+	 * @param stopThreadAfterTestStartMs how long to run the thread
 	 * @return a boolean (is the condition met?)
 	 */
 	public default boolean isStopThreadAfterTestStartMsConditionMet(Long jMeterTestStartMs, Long stopThreadAfterTestStartMs) {

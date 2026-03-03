@@ -37,7 +37,7 @@ import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.datahunter.api.application.DataHunterConstants;
 import com.mark59.datahunter.api.data.beans.Policies;
-import com.mark59.datahunter.api.model.AsyncMessageaAnalyzerResult;
+import com.mark59.datahunter.api.model.AsyncMessageAnalyzerResult;
 import com.mark59.datahunter.api.model.CountPoliciesBreakdown;
 import com.mark59.datahunter.api.model.DataHunterRestApiResponsePojo;
 import com.mark59.datahunter.api.rest.DataHunterRestApiClient;
@@ -245,14 +245,14 @@ public class DataHunterLifecycleUsingRestApi extends AbstractJavaSamplerClient  
 		response = dhApiClient.asyncMessageAnalyzer(DataHunterConstants.EQUALS,"TESTAPI_ASYNC_TOUSED", null, null, "USED");
 
 		int i=0;
-		List<AsyncMessageaAnalyzerResult>  asyncResults = response.getAsyncMessageaAnalyzerResults();
+		List<AsyncMessageAnalyzerResult>  asyncResults = response.getAsyncMessageAnalyzerResults();
 		System.out.println( "    asyncMessageAnalyzerPrintResults  (" + asyncResults.size() + ") - asyncLifeCycleTestWithUseabilityUpdate" );		
 		System.out.println( "    -------------------------------- ");		
-		for (AsyncMessageaAnalyzerResult asyncResult : asyncResults) {
+		for (AsyncMessageAnalyzerResult asyncResult : asyncResults) {
 			System.out.println("    " +  ++i + "   " + asyncResult);
 		}
 		
-		for (AsyncMessageaAnalyzerResult  pairedAsyncTxn : asyncResults ) {
+		for (AsyncMessageAnalyzerResult  pairedAsyncTxn : asyncResults ) {
 			// example of a typical transaction name you could set (and its response time)
 			System.out.println("    Txn Name :  " + pairedAsyncTxn.getApplication() + "_" + pairedAsyncTxn.getIdentifier()
 							+ "  Respsonse time (Assumed msecs) : " + pairedAsyncTxn.getDifferencetm());

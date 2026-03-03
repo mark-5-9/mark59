@@ -70,7 +70,7 @@
    
      <tr id=ignoreStdErrRow>
       <td>Ignore&nbsp;StdErr?:</td>
-      <td><form:select path="command.ingoreStderr"  items="${map.ingoreStderrYesNo}" value="${map.commandEditingForm.command.ingoreStderr}" /></td>      
+      <td><form:select path="command.ignoreStderr"  items="${map.ignoreStderrYesNo}" value="${map.commandEditingForm.command.ignoreStderr}" /></td>      
      </tr>
      <tr><td><br></td><td></td></tr>
           
@@ -108,7 +108,7 @@
      <tr><td><br></td><td></td></tr>
   
      <tr>
-      <td> </td>
+      <td></td>
       <td><button type="button" onclick="submitSaveCommand('exit')">Save and Exit</button>      
           <button type="button" onclick="submitSaveCommand('continue')">Save and Continue</button>
           ${map.commandEditingForm.lastSavedTimestamp}

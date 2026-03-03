@@ -1,4 +1,4 @@
--- Note that all MAC relasted entries are at the bottom of the file 
+-- Note that all MAC relasted entries are at the bottom of the file
 
 -- DROP TABLE IF EXISTS  SERVERPROFILES;
 -- DROP TABLE IF EXISTS  COMMANDS;
@@ -13,13 +13,13 @@ CREATE TABLE IF NOT EXISTS SERVERPROFILES  (
    ALTERNATE_SERVER_ID  varchar(64)   DEFAULT '',
    USERNAME             varchar(64)   DEFAULT '',
    PASSWORD             varchar(64)   DEFAULT '',
-   PASSWORD_CIPHER      varchar(64)   DEFAULT '',
+   PASSWORD_CIPHER      varchar(512)  DEFAULT '',
    CONNECTION_PORT      varchar(8)    DEFAULT '',
    CONNECTION_TIMEOUT   varchar(8)    DEFAULT '',
    COMMENT              varchar(128)  DEFAULT NULL,
    PARAMETERS           varchar(8196) DEFAULT NULL,
   PRIMARY KEY ( SERVER_PROFILE_NAME )
-); 
+);
 
 
 CREATE TABLE IF NOT EXISTS COMMANDS  (
@@ -28,9 +28,9 @@ CREATE TABLE IF NOT EXISTS COMMANDS  (
    COMMAND        CLOB          NOT NULL,
    IGNORE_STDERR  varchar(1)    DEFAULT NULL,
    COMMENT        varchar(128)  DEFAULT NULL,
-   PARAM_NAMES    varchar(1000) DEFAULT NULL,   
+   PARAM_NAMES    varchar(1000) DEFAULT NULL,
   PRIMARY KEY ( COMMAND_NAME )
-); 
+);
 
 
 CREATE TABLE IF NOT EXISTS SERVERCOMMANDLINKS  (
@@ -48,16 +48,16 @@ CREATE TABLE IF NOT EXISTS COMMANDRESPONSEPARSERS  (
    COMMENT  varchar(1024) NOT NULL,
    SAMPLE_COMMAND_RESPONSE  varchar(8196) NOT NULL,
   PRIMARY KEY ( PARSER_NAME )
-); 
+);
 
 
 CREATE TABLE IF NOT EXISTS COMMANDPARSERLINKS  (
    COMMAND_NAME  varchar(64) NOT NULL,
    PARSER_NAME  varchar(64) NOT NULL,
   PRIMARY KEY ( COMMAND_NAME , PARSER_NAME )
-); 
+);
 
--- populate with initial data  -- 
+-- populate with initial data  --
 
 INSERT IGNORE INTO SERVERPROFILES VALUES ('DemoLINUX-DataHunterSeleniumDeployAndExecute','SSH_LINUX_UNIX','localhost','','','','','22','60000','',NULL);
 INSERT IGNORE INTO SERVERPROFILES VALUES ('DemoLINUX-DataHunterPlaywrightDeployAndExecute','SSH_LINUX_UNIX','localhost','','','','','22','60000','',NULL);
@@ -88,46 +88,46 @@ INSERT IGNORE INTO COMMANDS VALUES ('DataHunterPlaywrightDeployAndExecute','POWE
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterSeleniumDeployAndExecute_LINUX','SSH_LINUX_UNIX','echo This script runs the JMeter Selenium deploy in the background, then opens a terminal for JMeter execution.
 echo starting from $PWD;
 
-{   # try  
+{   # try
 
-    cd ../mark59-scripting-samples && 
-    DH_TEST_SAMPLES_DIR=$(pwd) && 
+    cd ../mark59-scripting-samples &&
+    DH_TEST_SAMPLES_DIR=$(pwd) &&
     echo mark59-scripting-samples base dir is $DH_TEST_SAMPLES_DIR &&
 
     cp ./mark59.properties ~/apache-jmeter/bin/mark59.properties &&
-    cp ./chromedriver ~/apache-jmeter/bin/chromedriver && 
-    cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar && 
-    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar && 
+    cp ./chromedriver ~/apache-jmeter/bin/chromedriver &&
+    cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar &&
+    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar &&
     mkdir -p ~/Mark59_Runs/Jmeter_Results/DataHunter &&
     rm -rf ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
     cp -r ./target/mark59-scripting-samples-dependencies ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
- 
+
     gnome-terminal -- sh -c "~/apache-jmeter/bin/jmeter -n -X -f  -t $DH_TEST_SAMPLES_DIR/test-plans/DataHunterSeleniumTestPlan.jmx -l ~/Mark59_Runs/Jmeter_Results/DataHunter/DataHunterTestResults.csv -JForceTxnFailPercent=0 -JStartCdpListeners=false; exec bash"
 
-} || { # catch 
-    echo Deploy was unsuccessful! 
+} || { # catch
+    echo Deploy was unsuccessful!
 }','Y','refer bin/TestRunLINUX-DataHunter-Selenium-DeployAndExecute.sh','[]');
 
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterPlaywrightDeployAndExecute_LINUX','SSH_LINUX_UNIX','echo This script runs the Playwright JMeter deploy in the background, then opens a terminal for JMeter execution.
 echo starting from $PWD;
 
-{   # try  
+{   # try
 
-    cd ../mark59-scripting-samples && 
-    DH_TEST_SAMPLES_DIR=$(pwd) && 
+    cd ../mark59-scripting-samples &&
+    DH_TEST_SAMPLES_DIR=$(pwd) &&
     echo mark59-scripting-samples base dir is $DH_TEST_SAMPLES_DIR &&
 
     cp ./mark59.properties ~/apache-jmeter/bin/mark59.properties &&
-    cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar && 
-    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar && 
+    cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar &&
+    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar &&
     mkdir -p ~/Mark59_Runs/Jmeter_Results/DataHunter &&
     rm -rf ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
     cp -r ./target/mark59-scripting-samples-dependencies ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
- 
+
     gnome-terminal -- sh -c "~/apache-jmeter/bin/jmeter -n -X -f  -t $DH_TEST_SAMPLES_DIR/test-plans/DataHunterPlaywrightTestPlan.jmx -l ~/Mark59_Runs/Jmeter_Results/DataHunter/DataHunterTestResults.csv -JForceTxnFailPercent=0 -JStartCdpListeners=false; exec bash"
 
-} || { # catch 
-    echo Deploy was unsuccessful! 
+} || { # catch
+    echo Deploy was unsuccessful!
 }','Y','refer bin/TestRunLINUX-DataHunter-Playwright-DeployAndExecute.sh','[]');
 
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterTestGenJmeterReport','POWERSHELL_WINDOWS','cd -Path ${METRICS_BASE_DIR}\..\mark59-results-splitter;
@@ -136,13 +136,13 @@ Start-Process -FilePath ''.\CreateDataHunterJmeterReports.bat''
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterTestGenJmeterReport_LINUX','SSH_LINUX_UNIX','echo This script creates a set of JMeter reports from a DataHunter test run.
 echo starting from $PWD;
 
-{   # try  
+{   # try
 
     cd ../mark59-results-splitter
     gnome-terminal -- sh -c "./CreateDataHunterJmeterReports.sh; exec bash"
 
-} || { # catch 
-    echo attempt to generate JMeter Reports has failed! 
+} || { # catch
+    echo attempt to generate JMeter Reports has failed!
 }
 ','Y','refer bin/TestRunLINUX-DataHunter-Test-GenJmeterReport.sh',NULL);
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterTestTrendsLoad','POWERSHELL_WINDOWS','cd -Path ${METRICS_BASE_DIR}\..\bin;
@@ -151,13 +151,13 @@ Start-Process -FilePath ''.\TestRunWIN-DataHunter-Test-TrendsLoad.bat'' -Argumen
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterTestTrendsLoad_LINUX','SSH_LINUX_UNIX','echo This script runs mark59-trends-load,to load results from a DataHunter test run into the Metrics Trends Graph.
 echo starting from $PWD;
 
-{   # try  
+{   # try
 
     cd ../mark59-trends-load/target &&
     gnome-terminal -- sh -c "java -jar mark59-trends-load.jar -a DataHunter -i ~/Mark59_Runs/Jmeter_Results/DataHunter -d h2; exec bash"
 
-} || { # catch 
-    echo attempt to execute mark59-trends-load has failed! 
+} || { # catch
+    echo attempt to execute mark59-trends-load has failed!
 }
 ','Y','refer bin/TestRunWIN-DataHunter-Test-TrendsLoad.sh',NULL);
 INSERT IGNORE INTO COMMANDS VALUES ('FreePhysicalMemory','WMIC_WINDOWS','OS get FreePhysicalMemory','N','','[]');
@@ -243,7 +243,7 @@ import com.mark59.metrics.data.beans.ServerProfile;
 import com.mark59.metrics.pojos.ParsedMetric;
 import com.mark59.metrics.pojos.ScriptResponse;
 
-ScriptResponse scriptResponse = new ScriptResponse(); 
+ScriptResponse scriptResponse = new ScriptResponse();
 List<ParsedMetric> parsedMetrics = new ArrayList<ParsedMetric>();
 
 String commandLogDebug = "running script " + serverProfile.getServerProfileName() + "<br>" +  serverProfile.getComment();
@@ -258,29 +258,29 @@ scriptResponse.setCommandLog(commandLogDebug);
 /// scriptResponse.setParsedMetrics(parsedMetrics);
 scriptResponse.parsedMetrics=parsedMetrics;
 return scriptResponse;','N','supplied basic groovy script sample','["parm1","parm2","parm3","parm4"]');
-INSERT IGNORE INTO COMMANDS VALUES ('UNIX_Memory_Script','SSH_LINUX_UNIX','vmstat=$(vmstat -v); 
-let total_pages=$(print "$vmstat" | grep ''memory pages'' | awk ''{print $1}''); 
-let pinned_pages=$(print "$vmstat" | grep ''pinned pages'' | awk ''{print $1}''); 
-let pinned_percent=$(( $(print "scale=4; $pinned_pages / $total_pages " | bc) * 100 )); 
-let numperm_pages=$(print "$vmstat" | grep ''file pages'' | awk ''{print $1}''); 
-let numperm_percent=$(print "$vmstat" | grep ''numperm percentage'' | awk ''{print $1}''); 
-pgsp_utils=$(lsps -a | tail +2 | awk ''{print $5}''); 
-let pgsp_num=$(print "$pgsp_utils" | wc -l | tr -d '' ''); 
-let pgsp_util_sum=0; 
-for pgsp_util in $pgsp_utils; do let pgsp_util_sum=$(( $pgsp_util_sum + $pgsp_util )); done; 
-pgsp_aggregate_util=$(( $pgsp_util_sum / $pgsp_num )); 
+INSERT IGNORE INTO COMMANDS VALUES ('UNIX_Memory_Script','SSH_LINUX_UNIX','vmstat=$(vmstat -v);
+let total_pages=$(print "$vmstat" | grep ''memory pages'' | awk ''{print $1}'');
+let pinned_pages=$(print "$vmstat" | grep ''pinned pages'' | awk ''{print $1}'');
+let pinned_percent=$(( $(print "scale=4; $pinned_pages / $total_pages " | bc) * 100 ));
+let numperm_pages=$(print "$vmstat" | grep ''file pages'' | awk ''{print $1}'');
+let numperm_percent=$(print "$vmstat" | grep ''numperm percentage'' | awk ''{print $1}'');
+pgsp_utils=$(lsps -a | tail +2 | awk ''{print $5}'');
+let pgsp_num=$(print "$pgsp_utils" | wc -l | tr -d '' '');
+let pgsp_util_sum=0;
+for pgsp_util in $pgsp_utils; do let pgsp_util_sum=$(( $pgsp_util_sum + $pgsp_util )); done;
+pgsp_aggregate_util=$(( $pgsp_util_sum / $pgsp_num ));
 print "${pinned_percent},${numperm_percent},${pgsp_aggregate_util}"','N','','[]');
-INSERT IGNORE INTO COMMANDS VALUES ('UNIX_VM_Memory','SSH_LINUX_UNIX','vmstat=$(vmstat -v); 
-let total_pages=$(print "$vmstat" | grep ''memory pages'' | awk ''{print $1}''); 
-let pinned_pages=$(print "$vmstat" | grep ''pinned pages'' | awk ''{print $1}''); 
-let pinned_percent=$(( $(print "scale=4; $pinned_pages / $total_pages " | bc) * 100 )); 
-let numperm_pages=$(print "$vmstat" | grep ''file pages'' | awk ''{print $1}''); 
-let numperm_percent=$(print "$vmstat" | grep ''numperm percentage'' | awk ''{print $1}''); 
-pgsp_utils=$(lsps -a | tail +2 | awk ''{print $5}''); 
-let pgsp_num=$(print "$pgsp_utils" | wc -l | tr -d '' ''); 
-let pgsp_util_sum=0; 
-for pgsp_util in $pgsp_utils; do let pgsp_util_sum=$(( $pgsp_util_sum + $pgsp_util )); done; 
-pgsp_aggregate_util=$(( $pgsp_util_sum / $pgsp_num )); 
+INSERT IGNORE INTO COMMANDS VALUES ('UNIX_VM_Memory','SSH_LINUX_UNIX','vmstat=$(vmstat -v);
+let total_pages=$(print "$vmstat" | grep ''memory pages'' | awk ''{print $1}'');
+let pinned_pages=$(print "$vmstat" | grep ''pinned pages'' | awk ''{print $1}'');
+let pinned_percent=$(( $(print "scale=4; $pinned_pages / $total_pages " | bc) * 100 ));
+let numperm_pages=$(print "$vmstat" | grep ''file pages'' | awk ''{print $1}'');
+let numperm_percent=$(print "$vmstat" | grep ''numperm percentage'' | awk ''{print $1}'');
+pgsp_utils=$(lsps -a | tail +2 | awk ''{print $5}'');
+let pgsp_num=$(print "$pgsp_utils" | wc -l | tr -d '' '');
+let pgsp_util_sum=0;
+for pgsp_util in $pgsp_utils; do let pgsp_util_sum=$(( $pgsp_util_sum + $pgsp_util )); done;
+pgsp_aggregate_util=$(( $pgsp_util_sum / $pgsp_num ));
 print "${pinned_percent},${numperm_percent},${pgsp_aggregate_util}"','N','',NULL);
 INSERT IGNORE INTO COMMANDS VALUES ('UNIX_lparstat_5_1','SSH_LINUX_UNIX','lparstat 5 1','N','','[]');
 INSERT IGNORE INTO COMMANDS VALUES ('WinCpuCmd','WMIC_WINDOWS','cpu get loadpercentage','N','','[]');
@@ -292,36 +292,36 @@ INSERT IGNORE INTO COMMANDS VALUES ('WIN_Core','POWERSHELL_WINDOWS','if (''${PRO
 
 } elseif ((![string]::IsNullOrEmpty(''${SECURE_STRING_TXT}'')) -and ([string]::IsNullOrEmpty(''${SECURE_KEY_ARRAY}''))){
 
-    Write-Output \"  cpu using secure string \"; 
+    Write-Output \"  cpu using secure string \";
     <# To get the SECURE_STRING_TXT parameter value to store (no key):
         $secureString = ConvertTo-SecureString ''plain-text-password'' -AsPlainText -Force
-        $secureStringTxt = Convertfrom-SecureString $secureString 
+        $secureStringTxt = Convertfrom-SecureString $secureString
     #>
 
-    $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString; 
+    $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $securePwd);
- 
+
 } elseif ((![string]::IsNullOrEmpty(''${SECURE_STRING_TXT}'')) -and (![string]::IsNullOrEmpty(''${SECURE_KEY_ARRAY}''))){
 
     Write-Output \"get remote server metric using using secure string with key \";
-    <# To get the SECURE_STRING_TXT parameter value to store (using key), 
+    <# To get the SECURE_STRING_TXT parameter value to store (using key),
         $secureString = ConvertTo-SecureString ''plain-text-password'' -AsPlainText -Force
         [Byte[]] $key = ( your-comma-delimited-list-of-key-values-between-0-255 )
         $secureStringTxt = Convertfrom-SecureString $secureString -key $key
     #>
- 
-    [Byte[]] $key = @(${SECURE_KEY_ARRAY}); 
+
+    [Byte[]] $key = @(${SECURE_KEY_ARRAY});
     $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString -Key $key;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $securePwd);
-  
+
 } else {
 
     Write-Output \"get remote server metric using profile username and password \";
-    $password = ConvertTo-SecureString ''${PROFILE_PASSWORD}'' -AsPlainText -Force; 
+    $password = ConvertTo-SecureString ''${PROFILE_PASSWORD}'' -AsPlainText -Force;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $password);
 }
 
-if (''${PROFILE_SERVER}'' -ne ''localhost''){ 
+if (''${PROFILE_SERVER}'' -ne ''localhost''){
     $ComputerCPU = Get-WmiObject -Credential $credential -ComputerName ${PROFILE_SERVER} -Class win32_processor -ErrorAction Stop;
     $ComputerMemory = Get-WmiObject -Credential $credential -ComputerName ${PROFILE_SERVER} -Class win32_operatingsystem -ErrorAction Stop;
 }
@@ -329,7 +329,7 @@ if (''${PROFILE_SERVER}'' -ne ''localhost''){
 $CPUUtil =  [math]::round(($ComputerCPU | Measure-Object -Property LoadPercentage -Average | Select-Object Average).Average);
 $FreePhysicalMemory= [math]::truncate($ComputerMemory.FreePhysicalMemory / 1MB);
 $FreeVirtualMemory = [math]::truncate($ComputerMemory.FreeVirtualMemory / 1MB);
-     
+
 Write-Host " CPU["$CPUUtil"] FreePhysicalMemory["$FreePhysicalMemory"] FreeVirtualMemory["$FreeVirtualMemory"]";
 ','N','you should <# comment #> the debug Write-Output statements out to run in a real test :)','["SECURE_KEY_ARRAY","SECURE_STRING_TXT"]');
 INSERT IGNORE INTO COMMANDS VALUES ('WIN_DiskSpace_C','POWERSHELL_WINDOWS','if (''${PROFILE_SERVER}'' -eq ''localhost''){
@@ -338,22 +338,22 @@ INSERT IGNORE INTO COMMANDS VALUES ('WIN_DiskSpace_C','POWERSHELL_WINDOWS','if (
 
 } elseif ((![string]::IsNullOrEmpty(''${SECURE_STRING_TXT}'')) -and ([string]::IsNullOrEmpty(''${SECURE_KEY_ARRAY}''))){
 
-    $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString; 
+    $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $securePwd);
- 
+
 } elseif ((![string]::IsNullOrEmpty(''${SECURE_STRING_TXT}'')) -and (![string]::IsNullOrEmpty(''${SECURE_KEY_ARRAY}''))){
 
-    [Byte[]] $key = @(${SECURE_KEY_ARRAY}); 
+    [Byte[]] $key = @(${SECURE_KEY_ARRAY});
     $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString -Key $key;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $securePwd);
-  
+
 } else {
 
-    $password = ConvertTo-SecureString ''${PROFILE_PASSWORD}'' -AsPlainText -Force; 
+    $password = ConvertTo-SecureString ''${PROFILE_PASSWORD}'' -AsPlainText -Force;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $password);
 }
 
-if (''${PROFILE_SERVER}'' -ne ''localhost''){ 
+if (''${PROFILE_SERVER}'' -ne ''localhost''){
     $Drive = Get-WMIObject -Credential $credential -ComputerName ${PROFILE_SERVER} Win32_LogicalDisk -Filter \"DeviceID=''C:''\" ;
 }
 
@@ -367,24 +367,24 @@ INSERT IGNORE INTO COMMANDS VALUES ('WIN_PerfRawData','POWERSHELL_WINDOWS','if (
 } elseif ((![string]::IsNullOrEmpty(''${SECURE_STRING_TXT}'')) -and ([string]::IsNullOrEmpty(''${SECURE_KEY_ARRAY}''))){
 
     <# Write-Output \"  cpu using secure string \"; #>
-    $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString; 
+    $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $securePwd);
- 
+
 } elseif ((![string]::IsNullOrEmpty(''${SECURE_STRING_TXT}'')) -and (![string]::IsNullOrEmpty(''${SECURE_KEY_ARRAY}''))){
 
     <# Write-Output \"get remote server metric using using secure string with key \"; #>
-    [Byte[]] $key = @(${SECURE_KEY_ARRAY}); 
+    [Byte[]] $key = @(${SECURE_KEY_ARRAY});
     $securePwd = ''${SECURE_STRING_TXT}'' | ConvertTo-SecureString -Key $key;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $securePwd);
-  
+
 } else {
 
     <# Write-Output \"get remote server metric using profile username and password \"; #>
-    $password = ConvertTo-SecureString ''${PROFILE_PASSWORD}'' -AsPlainText -Force; 
+    $password = ConvertTo-SecureString ''${PROFILE_PASSWORD}'' -AsPlainText -Force;
     $credential = New-Object System.Management.Automation.PSCredential (''${PROFILE_USERNAME}'', $password);
 }
 
-if (''${PROFILE_SERVER}'' -ne ''localhost''){ 
+if (''${PROFILE_SERVER}'' -ne ''localhost''){
     $PerfRawData = Get-WmiObject -Credential $credential -ComputerName ${PROFILE_SERVER} Win32_PerfRawData_PerfOS_System
 }
 
@@ -394,8 +394,8 @@ Write-Host " CPUQlen["$CPUQlen"] Processes["$Processes"] " ;','N','','["SECURE_K
 
 INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('LINUX_Memory_freeG','MEMORY','freeG','import org.apache.commons.lang3.StringUtils;
 // ---
-String targetColumnName= "free";              
-String targetRowName= "Mem:";  
+String targetColumnName= "free";
+String targetRowName= "Mem:";
 // ---
 String extractedMetric = "-3";
 
@@ -416,8 +416,8 @@ Swap:             0           0           0
 ');
 INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('LINUX_Memory_totalG','MEMORY','totalG','import org.apache.commons.lang3.StringUtils;
 // ---
-String targetColumnName= "total";              
-String targetRowName= "Mem:";  
+String targetColumnName= "total";
+String targetRowName= "Mem:";
 // ---
 String extractedMetric = "-3";
 
@@ -438,8 +438,8 @@ Swap:             0           0           0
 ');
 INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('LINUX_Memory_usedG','MEMORY','usedG','import org.apache.commons.lang3.StringUtils;
 // ---
-String targetColumnName= "used";              
-String targetRowName= "Mem:";  
+String targetColumnName= "used";
+String targetRowName= "Mem:";
 // ---
 String extractedMetric = "-3";
 
@@ -464,8 +464,8 @@ INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Memory_FreeVirtualG','MEMORY'
 22510400');
 INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Nix_CPU_Idle','CPU_UTIL','IDLE','import org.apache.commons.lang3.ArrayUtils;
 // ---
-String targetColumnName = "%idle"              
-String targetmetricFormat = "\\d*\\.?\\d+"   // a decimal format  
+String targetColumnName = "%idle"
+String targetmetricFormat = "\\d*\\.?\\d+"   // a decimal format
 // ---
 String extractedMetric = "-1";
 int colNumberOfTargetColumnName = -1;
@@ -484,17 +484,17 @@ for (int i = 0; i < commandResultLine.length && "-1".equals(extractedMetric); i+
     }
 }
 return extractedMetric;
-','This works on data in a simple column format (eg unix lparstat and linux mpstat cpu). It will return the first matching value it finds in the column requested.','System configuration: type=Shared mode=Uncapped smt=4 lcpu=4 mem=47104MB psize=60 ent=0.50 
+','This works on data in a simple column format (eg unix lparstat and linux mpstat cpu). It will return the first matching value it finds in the column requested.','System configuration: type=Shared mode=Uncapped smt=4 lcpu=4 mem=47104MB psize=60 ent=0.50
 
 %user  %sys  %wait  %idle physc %entc  lbusy   app  vcsw phint  %nsp  %utcyc
 ----- ----- ------ ------ ----- ----- ------   --- ----- ----- -----  ------
  11.3  15.0    0.0   73.7  0.22  44.5    6.1 45.26   919     0   101   1.39 ');
 INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Nix_CPU_UTIL','CPU_UTIL','','import org.apache.commons.lang3.ArrayUtils;
 import java.math.RoundingMode;
-// 
+//
 String targetColumnName = "%idle";
 String targetmetricFormat = "\\d*\\.?\\d+"; // a decimal format
-// 
+//
 String notFound = "-1";
 String extractedMetric = notFound;
 int colNumberOfTargetColumnName = -1;
@@ -516,7 +516,7 @@ for (int i = 0; i < commandResultLine.length && notFound.equals(extractedMetric)
 if (notFound.equals(extractedMetric))return notFound;
 String cpuUtil = notFound;
 try {  cpuUtil = new BigDecimal(100).subtract(new BigDecimal(extractedMetric)).setScale(1, RoundingMode.HALF_UP).toPlainString();} catch (Exception e) {}
-return cpuUtil;','This works on data in a simple column format (eg unix lparstat and linux mpstat cpu). It will return the first matching value it finds in the column requested.','System configuration: type=Shared mode=Uncapped smt=4 lcpu=4 mem=47104MB psize=60 ent=0.50 
+return cpuUtil;','This works on data in a simple column format (eg unix lparstat and linux mpstat cpu). It will return the first matching value it finds in the column requested.','System configuration: type=Shared mode=Uncapped smt=4 lcpu=4 mem=47104MB psize=60 ent=0.50
 
 %user  %sys  %wait  %idle physc %entc  lbusy   app  vcsw phint  %nsp  %utcyc
 ----- ----- ------ ------ ----- ----- ------   --- ----- ----- -----  ------
@@ -526,15 +526,15 @@ INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('UNIX_Memory_numperm_percent',
 INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('UNIX_Memory_pgsp_aggregate_util','MEMORY','pgsp_aggregate_util','commandResponse.split(",")[2].trim()','','1,35,4');
 INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('UNIX_Memory_pinned_percent','MEMORY','pinned_percent','commandResponse.split(",")[0].trim()','','1,35,4');
 INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('WicnCpu','CPU_UTIL','','java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+(?:\\.\\d+)?)").matcher(commandResponse);
-Double sum = 0; 
-int count = 0; 
-while (m.find()){ 
-    sum += Double.parseDouble(m.group()); 
+Double sum = 0;
+int count = 0;
+while (m.find()){
+    sum += Double.parseDouble(m.group());
     count++;
-}; 
-if (count==0) 
-    return 0 ; 
-else 
+};
+if (count==0)
+    return 0 ;
+else
     return Math.round(sum/count);','avg a list of (dec) nums in text ','LoadPercentage.with a dot
 1.99
 3
@@ -545,7 +545,7 @@ INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('FreePhysicalDiskSpaceGB_C','D
 import org.apache.commons.lang3.math.NumberUtils;
 String extractedMetric = "-1";
 if (NumberUtils.isParsable(StringUtils.substringBetween(commandResponse, "FreeDiskSpace[", "]"))){
-    extractedMetric = StringUtils.substringBetween(commandResponse, "FreeDiskSpace[", "]");  
+    extractedMetric = StringUtils.substringBetween(commandResponse, "FreeDiskSpace[", "]");
 }
 return extractedMetric; ','..FreeDiskSpace[627].. ','any debug output (without the square brackets bit)
 FreeDiskSpace[627]');
@@ -553,7 +553,7 @@ INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Memory_FreePhysicalG_PS','MEM
 import org.apache.commons.lang3.math.NumberUtils;
 String extractedMetric = "-1";
 if (NumberUtils.isParsable(StringUtils.substringBetween(commandResponse, "FreePhysicalMemory[", "]"))){
-    extractedMetric = StringUtils.substringBetween(commandResponse, "FreePhysicalMemory[", "]");  
+    extractedMetric = StringUtils.substringBetween(commandResponse, "FreePhysicalMemory[", "]");
 }
 return extractedMetric; ','..FreePhysicalMemory[14].. ','get remote server metric using using secure string with key
 CPU[46] FreePhysicalMemory[14] FreeVirtualMemory[18] FreeDiskSpace[32]');
@@ -561,7 +561,7 @@ INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Memory_FreeVirtualG_PS','MEMO
 import org.apache.commons.lang3.math.NumberUtils;
 String extractedMetric = "-1";
 if (NumberUtils.isParsable(StringUtils.substringBetween(commandResponse, "FreeVirtualMemory[", "]"))){
-    extractedMetric = StringUtils.substringBetween(commandResponse, "FreeVirtualMemory[", "]");  
+    extractedMetric = StringUtils.substringBetween(commandResponse, "FreeVirtualMemory[", "]");
 }
 return extractedMetric; ','..FreeVirtualMemory[18]..','get remote server metric using using secure string with key
 CPU[46] FreePhysicalMemory[14] FreeVirtualMemory[18] FreeDiskSpace[32]');
@@ -569,7 +569,7 @@ INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Cpu_Qlen_PS','DATAPOINT','Cpu
 import org.apache.commons.lang3.math.NumberUtils;
 String extractedMetric = "-1";
 if (NumberUtils.isParsable(StringUtils.substringBetween(commandResponse, "CPUQlen[", "]"))){
-    extractedMetric = StringUtils.substringBetween(commandResponse, "CPUQlen[", "]");  
+    extractedMetric = StringUtils.substringBetween(commandResponse, "CPUQlen[", "]");
 }
 return extractedMetric; ','..CPUQlen[1234].. ','some text
  CPUQlen[1234] Processes[367]');
@@ -577,7 +577,7 @@ INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Cpu_Util_PS','CPU_UTIL','','i
 import org.apache.commons.lang3.math.NumberUtils;
 String extractedMetric = "-1";
 if (NumberUtils.isParsable(StringUtils.substringBetween(commandResponse, "CPU[", "]"))){
-    extractedMetric = StringUtils.substringBetween(commandResponse, "CPU[", "]");  
+    extractedMetric = StringUtils.substringBetween(commandResponse, "CPU[", "]");
 }
 return extractedMetric; ','..CPU[14].. ','get remote server metric using using secure string with key
 CPU[46] FreePhysicalMemory[14] FreeVirtualMemory[18] FreeDiskSpace[32]');
@@ -585,7 +585,7 @@ INSERT IGNORE INTO COMMANDRESPONSEPARSERS VALUES ('Processes_PS','DATAPOINT','Pr
 import org.apache.commons.lang3.math.NumberUtils;
 String extractedMetric = "-1";
 if (NumberUtils.isParsable(StringUtils.substringBetween(commandResponse, "Processes[", "]"))){
-    extractedMetric = StringUtils.substringBetween(commandResponse, "Processes[", "]");  
+    extractedMetric = StringUtils.substringBetween(commandResponse, "Processes[", "]");
 }
 return extractedMetric; ','..Processes[367].. ','some text
  CPUQlen[1234] Processes[367]');
@@ -671,7 +671,7 @@ INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('MAC_CPU','UNPARSED_CPU_UTIL');
 INSERT IGNORE INTO COMMANDPARSERLINKS VALUES ('MAC_MEMSIZE','Memory_convert_Gb');
 
 
--- all mac entries (these only exist on H2) 
+-- all mac entries (these only exist on H2)
 
 INSERT IGNORE INTO SERVERPROFILES VALUES ('DemoMAC-DataHunterSeleniumDeployAndExecute','SSH_LINUX_UNIX','localhost','','','','','22','60000','','');
 INSERT IGNORE INTO SERVERPROFILES VALUES ('DemoMAC-DataHunterPlaywrightDeployAndExecute','SSH_LINUX_UNIX','localhost','','','','','22','60000','','');
@@ -683,49 +683,49 @@ INSERT IGNORE INTO SERVERPROFILES VALUES ('localhost_MAC_HOSTID','SSH_LINUX_UNIX
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterSeleniumDeployAndExecute_MAC','SSH_LINUX_UNIX','echo This script runs the JMeter Selenium deploy and execution in the background, and displays output on completion.
 echo starting from $PWD;
 
-{   # try  
+{   # try
 
-    cd ../mark59-scripting-samples && 
-    DH_TEST_SAMPLES_DIR=$(pwd) && 
+    cd ../mark59-scripting-samples &&
+    DH_TEST_SAMPLES_DIR=$(pwd) &&
     echo mark59-scripting-samples base dir is $DH_TEST_SAMPLES_DIR &&
 
     cp ./mark59.properties ~/apache-jmeter/bin/mark59.properties &&
-    cp ./chromedriver ~/apache-jmeter/bin/chromedriver && 
-    cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar && 
-    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar && 
+    cp ./chromedriver ~/apache-jmeter/bin/chromedriver &&
+    cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar &&
+    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar &&
     mkdir -p ~/Mark59_Runs/Jmeter_Results/DataHunter &&
     rm -rf ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
     cp -r ./target/mark59-scripting-samples-dependencies ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
-    cd ~/apache-jmeter/bin && 
-    echo Starting JMeter execution from $PWD && 
+    cd ~/apache-jmeter/bin &&
+    echo Starting JMeter execution from $PWD &&
     ~/apache-jmeter/bin/jmeter -n -X -f -t $DH_TEST_SAMPLES_DIR/test-plans/DataHunterSeleniumTestPlan.jmx -l ~/Mark59_Runs/Jmeter_Results/DataHunter/DataHunterTestResults.csv -JForceTxnFailPercent=0 -JStartCdpListeners=false
 
-} || { # catch 
-    echo Deploy was unsuccessful! 
+} || { # catch
+    echo Deploy was unsuccessful!
 }','Y','refer bin/mac_commands/TestRunMAC-DataHunter-Selenium-DeployAndExecute.command','');
 
 
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterPlaywrightDeployAndExecute_MAC','SSH_LINUX_UNIX','echo This script runs the JMeter Playwright deploy and execution in the background, and displays output on completion.
 echo starting from $PWD;
 
-{   # try  
+{   # try
 
-    cd ../mark59-scripting-samples && 
-    DH_TEST_SAMPLES_DIR=$(pwd) && 
+    cd ../mark59-scripting-samples &&
+    DH_TEST_SAMPLES_DIR=$(pwd) &&
     echo mark59-scripting-samples base dir is $DH_TEST_SAMPLES_DIR &&
 
     cp ./mark59.properties ~/apache-jmeter/bin/mark59.properties &&
-    cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar && 
-    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar && 
+    cp ../mark59-metrics-api/target/mark59-metrics-api.jar  ~/apache-jmeter/lib/ext/mark59-metrics-api.jar &&
+    cp ./target/mark59-scripting-samples.jar  ~/apache-jmeter/lib/ext/mark59-scripting-samples.jar &&
     mkdir -p ~/Mark59_Runs/Jmeter_Results/DataHunter &&
     rm -rf ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
     cp -r ./target/mark59-scripting-samples-dependencies ~/apache-jmeter/lib/ext/mark59-scripting-samples-dependencies &&
-    cd ~/apache-jmeter/bin && 
-    echo Starting JMeter execution from $PWD && 
+    cd ~/apache-jmeter/bin &&
+    echo Starting JMeter execution from $PWD &&
     ~/apache-jmeter/bin/jmeter -n -X -f -t $DH_TEST_SAMPLES_DIR/test-plans/DataHunterPlaywrightTestPlan.jmx -l ~/Mark59_Runs/Jmeter_Results/DataHunter/DataHunterTestResults.csv -JForceTxnFailPercent=0 -JStartCdpListeners=false
 
-} || { # catch 
-    echo Deploy was unsuccessful! 
+} || { # catch
+    echo Deploy was unsuccessful!
 }','Y','refer bin/mac_commands/TestRunMAC-DataHunter-Playwright-DeployAndExecute.command','');
 
 
@@ -733,26 +733,26 @@ echo starting from $PWD;
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterTestGenJmeterReport_MAC','SSH_LINUX_UNIX','echo This script creates a set of JMeter reports from a DataHunter test run.
 echo starting from $PWD;
 
-{   # try  
+{   # try
 
     cd ../mark59-results-splitter
     sh CreateDataHunterJmeterReports.sh
 
-} || { # catch 
-    echo attempt to generate JMeter Reports has failed! 
+} || { # catch
+    echo attempt to generate JMeter Reports has failed!
 }
 ','Y','refer bin/mac_commands/TestRunMAC-DataHunter-Test-GenJmeterReport.command','');
 
 INSERT IGNORE INTO COMMANDS VALUES ('DataHunterTestTrendsLoad_MAC','SSH_LINUX_UNIX','echo This script runs mark59-trends-load,to load results from a DataHunter test run into the Metrics Trend Analysis Graph.
 echo starting from $PWD;
 
-{   # try  
+{   # try
 
     cd ../mark59-trends-load/target &&
     java -jar mark59-trends-load.jar -a DataHunter -i ~/Mark59_Runs/Jmeter_Results/DataHunter -d h2
 
-} || { # catch 
-    echo attempt to execute mark59-trends-load has failed! 
+} || { # catch
+    echo attempt to execute mark59-trends-load has failed!
 }
 ','Y','refer bin/mac_commands/TestRunMAC-DataHunter-Test-TrendsLoad.command','');
 

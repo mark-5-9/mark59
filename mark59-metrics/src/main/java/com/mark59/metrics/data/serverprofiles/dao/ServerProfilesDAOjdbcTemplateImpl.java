@@ -51,7 +51,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("serverProfileName", serverProfileName);
 
-//		System.out.println(" findServerProfile : " + selectServerSQL + " : " + serverProfileName);
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL, sqlparameters);
 		
@@ -71,7 +70,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		server.setConnectionTimeout((String)row.get("CONNECTION_TIMEOUT")); 		
 		server.setComment((String)row.get("COMMENT")); 		
 		server.setParameters(deserializeJsonToMap((String)row.get("PARAMETERS"))); 		
-//		System.out.println("ServerProfilesDAOjdbcTemplateImpl.findServerProfile  : " + serverProfileName.toString()  ) ;		
 		return  server;
 	}
 
@@ -84,6 +82,13 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 	@Override
 	public List<ServerProfile> findServerProfiles(String selectionCol, String selectionValue){
 
+		// Whitelist validation to prevent SQL injection
+		List<String> allowedColumns = List.of("SERVER_PROFILE_NAME", "EXECUTOR", "SERVER", "ALTERNATE_SERVER_ID", 
+				"USERNAME", "PASSWORD", "PASSWORD_CIPHER", "CONNECTION_PORT", "CONNECTION_TIMEOUT", "COMMENT", "PARAMETERS");
+		if (!selectionCol.isEmpty() && !allowedColumns.contains(selectionCol.toUpperCase())) {
+			throw new IllegalArgumentException("Invalid column name: " + selectionCol);
+		}
+
 		String sql = "select SERVER_PROFILE_NAME, EXECUTOR, SERVER, ALTERNATE_SERVER_ID, USERNAME, "
 				+ "PASSWORD, PASSWORD_CIPHER, CONNECTION_PORT, CONNECTION_TIMEOUT, COMMENT, PARAMETERS from SERVERPROFILES ";
 		
@@ -95,7 +100,6 @@ public class ServerProfilesDAOjdbcTemplateImpl implements ServerProfilesDAO
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("selectionValue", selectionValue);
 
-//		System.out.println(" findServerProfiles : " + sql + Mark59Utils.prettyPrintMap(sqlparameters.getValues()));
 		List<ServerProfile> serversList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);

@@ -39,21 +39,24 @@ public enum Outcome {
 	}
 	
 	/**
-	 * @return PASS or FAIL
+	 * return PASS or FAIL
+	 * @return string
 	 */
 	public String getOutcomeText() {
 		return outcomeText;
 	}
 	
 	/**
-	 * @return true for passed, false for failed
+	 * return true for passed, false for failed
+	 * @return boolean
 	 */
 	public boolean isOutcomeSuccess() {
 		return outcomeSuccess;
 	}
 	
 	/**
-	 * @return response code currently 200 (good) or -1 (bad)
+	 * return response code currently 200 (good) or -1 (bad)
+	 * @return string
 	 */
 	public String getOutcomeResponseCode() {
 		return outcomeResponseCode;

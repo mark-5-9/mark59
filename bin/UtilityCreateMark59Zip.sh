@@ -16,7 +16,7 @@
 # DEST_DIR=~/mark59-x.y"
 
 SOURCE_DIR=~/gitrepo/mark59-wip/
-DEST_DIR=~/mark59-6.4/ 
+DEST_DIR=~/mark59-6.5/ 
 
 rm -rf ${DEST_DIR}
 mkdir -p ${DEST_DIR}
@@ -24,7 +24,7 @@ cd ~/gitrepo/mark59-wip/
 
 ## All required projects except the sample projects (where you want source code copied - they are copied by the next rsync command) 
 
-rsync -av -m --exclude '.*' --exclude '*.yml' --exclude '*/src' --exclude '*/webapp' --exclude '*/test' --exclude '*/WEB-INF' --exclude '*/classes' --exclude '*/test-classes' --exclude 'TESTDATA' --exclude '*/maven*' --exclude 'archive-tmp' --exclude '*/m2e-wtp*' --exclude '*/surefire*' --exclude '*/bin'  --exclude '*.log' --exclude '*.png' --exclude '*.gif' --exclude '*.original' --exclude '*.java' --exclude 'dockerfile' --exclude 'UtilityCreateMark59Zip.*' --exclude 'pom.xml'  --exclude 'mark59-datahunter.jar' --exclude 'mark59-metrics.jar' --exclude 'mark59-trends.jar' --exclude 'mark59-scripting-samples' --exclude 'mark59-scripting-sample-dsl' --exclude 'mark59-core' --exclude 'mark59-datahunter-api' --exclude 'mark59-metrics-common' --exclude 'mark59-scripting' "${SOURCE_DIR}" "${DEST_DIR}"
+rsync -av -m --exclude '.*' --exclude '*.yml' --exclude '*/src' --exclude '*/webapp' --exclude '*/test' --exclude '*/WEB-INF' --exclude '*/classes' --exclude '*/test-classes' --exclude 'TESTDATA' --exclude '*/maven*' --exclude 'archive-tmp' --exclude '*/m2e-wtp*' --exclude '*/surefire*' --exclude '*/bin'  --exclude '*.log' --exclude '*.png' --exclude '*.gif' --exclude '*.original' --exclude '*.java' --exclude 'dockerfile' --exclude 'UtilityCreateMark59Zip.*' --exclude 'pom.xml'  --exclude 'mark59-datahunter.jar' --exclude 'mark59-metrics.jar' --exclude 'original-mark59-metrics-api.jar' --exclude 'mark59-trends.jar' --exclude 'mark59-scripting-samples' --exclude 'mark59-scripting-sample-dsl' --exclude 'mark59-core' --exclude 'mark59-datahunter-api' --exclude 'mark59-metrics-common' --exclude 'mark59-scripting' "${SOURCE_DIR}" "${DEST_DIR}"
 
 ## This rsync allows source code and arfefacts to be copied. Used for the sample projects mark59-scripting-samples and mark59-scripting-sample-dsl (source only) projects. 
 

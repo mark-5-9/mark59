@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,22 +31,23 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.mark59.core.utils.Mark59Constants;
+import com.mark59.trends.application.UtilsTrends;
 import com.mark59.trends.data.beans.EventMapping;
 
 /**
  * @author Philip Webb
- * Written: Australian Winter 2019  
+ * Written: Australian Winter 2019
  */
-public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO 
+public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 {
-	
-	@Autowired  
+
+	@Autowired
 	private DataSource dataSource;
 
     @Autowired
-    private String currentDatabaseProfile;	
- 	
-    
+    private String currentDatabaseProfile;
+
+
 	@Override
 	public void insertData(EventMapping eventMapping) {
 		String sql = "INSERT INTO EVENTMAPPING "
@@ -60,37 +61,37 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 				eventMapping.getMatchWhenLike(), eventMapping.getTargetNameLB(), eventMapping.getTargetNameRB(), eventMapping.getIsPercentage(),
 				eventMapping.getIsInvertedPercentage(), eventMapping.getComment());
 	}
-	
-	
+
+
 	@Override
 	public void deleteData(String txnType, String metricSource, String matchWhenLike) {
 
 		String sql = " DELETE FROM EVENTMAPPING where TXN_TYPE = :txnType and METRIC_SOURCE = :metricSource and MATCH_WHEN_LIKE = :matchWhenLike ";
-		
+
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("txnType", txnType)
 				.addValue("metricSource", metricSource)
 				.addValue("matchWhenLike", matchWhenLike);
-		
+
 //		System.out.println("metricSlaDao deleteAllSlasForApplication : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);
 	}
-	
-	
+
+
 	@Override
 	public void updateData(EventMapping eventMapping) {
-		
+
 		String sql = "UPDATE EVENTMAPPING SET TARGET_NAME_LB = :getTargetNameLB, "
 										+ "TARGET_NAME_RB = :getTargetNameRB, "
 										+ "IS_PERCENTAGE = :getIsPercentage, "
 										+ "IS_INVERTED_PERCENTAGE = :getIsInvertedPercentage, "
-										+ "PERFORMANCE_TOOL = :getPerformanceTool, "										
+										+ "PERFORMANCE_TOOL = :getPerformanceTool, "
 										+ "COMMENT = :getComment "
 										+ " where TXN_TYPE = :getTxnType "
 										+ "   and METRIC_SOURCE = :getMetricSource "
 										+ "   and MATCH_WHEN_LIKE= :getMatchWhenLike ";
-		
+
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("getTargetNameLB", 		eventMapping.getTargetNameLB())
 				.addValue("getTargetNameRB", 		eventMapping.getTargetNameRB())
@@ -101,41 +102,41 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 				.addValue("getTxnType",				eventMapping.getTxnType())
 				.addValue("getMetricSource", 		eventMapping.getMetricSource())
 				.addValue("getMatchWhenLike", 		eventMapping.getMatchWhenLike())
-				;		
-		
+				;
+
 //		System.out.println("eventMappingDao updateData : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);
 	}
 
-	
+
 	@Override
 	public EventMapping getEventMapping(String metricSource, String matchWhenLike) {
-		
+
 		String sql = " SELECT * FROM EVENTMAPPING where METRIC_SOURCE = :metricSource and MATCH_WHEN_LIKE = :matchWhenLike ";
-		
+
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("metricSource", metricSource)
 				.addValue("matchWhenLike", matchWhenLike);
-		
+
 //		System.out.println(" getEventMapping : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);	
-		
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
+
 		if (rows.isEmpty()){
 			return null;
 		} else {
 			Map<String, Object> row = rows.get(0);
 			return populateFromResultSet(row);
 		}
-	}		
-	
+	}
+
 
 	@Override
 	public List<EventMapping> findEventMappingsForPerformanceTool(String performanceTool) {
-		return findEventMappings("PERFORMANCE_TOOL", performanceTool);   
+		return findEventMappings("PERFORMANCE_TOOL", performanceTool);
 	}
-	
+
 	@Override
 	public List<EventMapping> findEventMappings(){
 		return  findEventMappings("","");
@@ -147,88 +148,98 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 		String sql = "SELECT TXN_TYPE, METRIC_SOURCE, MATCH_WHEN_LIKE, TARGET_NAME_LB, TARGET_NAME_RB, IS_PERCENTAGE, "
 				+ "IS_INVERTED_PERCENTAGE,PERFORMANCE_TOOL, COMMENT "
 				+ "from EVENTMAPPING ";
-		
-		if (!selectionValue.isEmpty()  ) {			
-			sql += "  where " + selectionCol + " like :selectionValue ";
+
+		if (!selectionValue.isEmpty()  ) {
+			// Validate selectionCol to prevent SQL injection - only allow whitelisted column names
+			String validatedCol = validateColumnName(selectionCol);
+			sql += "  where " + validatedCol + " like :selectionValue ";
 		}
 		sql += " order by METRIC_SOURCE, " + orderingByMatchingProcess();
-		
+
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("selectionValue", selectionValue);
-		
+
 		List<EventMapping> eventMappingList = new ArrayList<>();
 //		System.out.println(" findEventMappings : " + sql + UtilsMetrics.prettyPrintParms(sqlparameters));
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);	
-		
+		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
+
 		for (Map<String, Object> row : rows) {
 			EventMapping eventMapping = populateFromResultSet(row);
 			eventMappingList.add(eventMapping);
 			//System.out.println("values from EventMappingDAOjdbcTemplateImpl.findEventMappings  : " + eventMapping.toString()  ) ;
-		}	
+		}
 		return  eventMappingList;
 	}
-	
-	
+
+
 	@Override
 	public boolean doesLrEventMapEntryMatchThisEventMapping(String mdbEventType, String mdbEventName, EventMapping eventMapping) {
-//		System.out.println("doesLrEventMapEntryMatchThisEventMapping : " + mdbEventType + " : " + mdbEventName + " : " + eventMapping.getMetricSource() + ":" + eventMapping.getMatchWhenLike() ); 	
-	
+//		System.out.println("doesLrEventMapEntryMatchThisEventMapping : " + mdbEventType + " : " + mdbEventName + " : " + eventMapping.getMetricSource() + ":" + eventMapping.getMatchWhenLike() );
+
 		String[] matchWhenLikeSplit = eventMapping.getMetricSource().split("_", 2);
-		
+
 		if (matchWhenLikeSplit.length != 2) {
 			throw new RuntimeException("Unexpected Metric_Source Format on EventMapping Table for a Loadrunner event. \n "
 					+ "Expected underscored separated value (Loadrunner_EventType) but got : " + eventMapping.getMetricSource()
 					+ "\n   ,EventMapping : " + eventMapping.toString()
 					+ "\n   ,for eventType = " + mdbEventType + ", eventName = " + mdbEventName );
 		}
-		
-		String sql; 
-		if (Mark59Constants.PG.equals(currentDatabaseProfile)){ 
-			sql = "SELECT count(*) col where '" + mdbEventType + "'" + " = :matchWhenLikeSplit and '" + mdbEventName + "' like :mdbEventName "; 
+
+		// Escape user inputs to prevent SQL injection before string concatenation
+		String escapedMdbEventType = UtilsTrends.escapeSqlString(mdbEventType);
+		String escapedMdbEventName = UtilsTrends.escapeSqlString(mdbEventName);
+
+		String sql;
+		if (Mark59Constants.PG.equals(currentDatabaseProfile)){
+			sql = "SELECT count(*) col where '" + escapedMdbEventType + "'" + " = :matchWhenLikeSplit and '" + escapedMdbEventName + "' like :mdbEventName ";
 		} else {
-			sql =  "SELECT count(*) col FROM dual where '" + mdbEventType + "'" + " = :matchWhenLikeSplit and '" + mdbEventName + "' like :mdbEventName "; 
+			sql =  "SELECT count(*) col FROM dual where '" + escapedMdbEventType + "'" + " = :matchWhenLikeSplit and '" + escapedMdbEventName + "' like :mdbEventName ";
 		}
 
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("matchWhenLikeSplit", matchWhenLikeSplit[1] )
 				.addValue("mdbEventName", eventMapping.getMatchWhenLike());
-		
+
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		int matchCount = Integer.parseInt(Objects.requireNonNull(jdbcTemplate.queryForObject(sql, sqlparameters, String.class)));
 		// System.out.println("     Event matched using sql: " + sql  + "     RESULT = " +  matchCount  );
-		
+
 		return matchCount > 0;
 	}
 
 
 	@Override
 	public EventMapping findAnEventForTxnIdAndSource(String txnId, String metricSource) {
-			
-		String sql = "SELECT  * FROM EVENTMAPPING" + 
-					"  where '" + txnId + "'" + " like MATCH_WHEN_LIKE " +
-					"    and  METRIC_SOURCE =  '" + metricSource + "' "  + 
+
+		// Escape user inputs to prevent SQL injection before string concatenation
+		String escapedTxnId = UtilsTrends.escapeSqlString(txnId);
+		String escapedMetricSource = UtilsTrends.escapeSqlString(metricSource);
+
+		String sql = "SELECT  * FROM EVENTMAPPING" +
+					"  where '" + escapedTxnId + "'" + " like MATCH_WHEN_LIKE " +
+					"    and  METRIC_SOURCE =  '" + escapedMetricSource + "' "  +
 					"  order by " + orderingByMatchingProcess();
-		
+
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
-		
+
 		if (rows.isEmpty()){
-//			System.out.println("findAnEventForTxnIdByType sql : " + sql  + " : NULL RESULT "  );	
+//			System.out.println("findAnEventForTxnIdByType sql : " + sql  + " : NULL RESULT "  );
 			return null;
 		} else {
 			Map<String, Object> row = rows.get(0);
 			EventMapping eventMapping =  populateFromResultSet(row);
-//			System.out.println("findAnEventForTxnIdByType sql : " + sql  + ",  event mapping : " + eventMapping  );	
-			return eventMapping; 
+//			System.out.println("findAnEventForTxnIdByType sql : " + sql  + ",  event mapping : " + eventMapping  );
+			return eventMapping;
 		}
 	}
-	
+
 	private String orderingByMatchingProcess() {
-		
+
 		return 	" case when position( '%' in MATCH_WHEN_LIKE) = 0 then 0 else 1 end," +   //  do any free wildcard_exists?" + ;
-				" length(replace( MATCH_WHEN_LIKE, '%', '' )) desc, "   +             //  num_of_chars_exclude_wildcards  
-				" length(TARGET_NAME_LB) + length(TARGET_NAME_RB) desc "; 
+				" length(replace( MATCH_WHEN_LIKE, '%', '' )) desc, "   +             //  num_of_chars_exclude_wildcards
+				" length(TARGET_NAME_LB) + length(TARGET_NAME_RB) desc ";
 	}
 
 
@@ -239,16 +250,46 @@ public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 		eventMapping.setMatchWhenLike((String)row.get("MATCH_WHEN_LIKE"));
 		try {
 			eventMapping.setMatchWhenLikeURLencoded(URLEncoder.encode((String)row.get("MATCH_WHEN_LIKE"), "UTF-8") ) ;
-		} catch (UnsupportedEncodingException e) {	
+		} catch (UnsupportedEncodingException e) {
 			System.out.println("EventMapping Dao UnsupportedEncodingException (" + eventMapping.getMatchWhenLike() + ") " + e.getMessage());
-		}	  
+		}
 		eventMapping.setTargetNameLB((String)row.get("TARGET_NAME_LB"));
 		eventMapping.setTargetNameRB((String)row.get("TARGET_NAME_RB"));
 		eventMapping.setIsPercentage((String)row.get("IS_PERCENTAGE"));
 		eventMapping.setIsInvertedPercentage((String)row.get("IS_INVERTED_PERCENTAGE"));
-		eventMapping.setPerformanceTool((String)row.get("PERFORMANCE_TOOL"));		
+		eventMapping.setPerformanceTool((String)row.get("PERFORMANCE_TOOL"));
 		eventMapping.setComment((String)row.get("COMMENT"));
 		return eventMapping;
 	}
-	
+
+
+	/**
+	 * Validates column name against whitelist to prevent SQL injection.
+	 * Only allows known column names from EVENTMAPPING table.
+	 *
+	 * @param columnName the column name to validate
+	 * @return the validated column name
+	 * @throws IllegalArgumentException if column name is not in whitelist
+	 */
+	private String validateColumnName(String columnName) {
+		if (columnName == null || columnName.trim().isEmpty()) {
+			throw new IllegalArgumentException("Column name cannot be null or empty");
+		}
+
+		String upperCol = columnName.trim().toUpperCase();
+
+		// Whitelist of allowed column names from EVENTMAPPING table
+		List<String> allowedColumns = List.of(
+			"TXN_TYPE", "METRIC_SOURCE", "MATCH_WHEN_LIKE", "TARGET_NAME_LB",
+			"TARGET_NAME_RB", "IS_PERCENTAGE", "IS_INVERTED_PERCENTAGE",
+			"PERFORMANCE_TOOL", "COMMENT"
+		);
+
+		if (!allowedColumns.contains(upperCol)) {
+			throw new IllegalArgumentException("Invalid column name: " + columnName + ". Not in whitelist.");
+		}
+
+		return upperCol;
+	}
+
 }

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -61,14 +62,14 @@ public class GraphMappingController {
 	}	
 		
 	
-	@GetMapping("/insertGraphMapping")
+	@PostMapping("/insertGraphMapping")
 	public String insertData(@RequestParam(required=false) String reqErr,  @ModelAttribute GraphMapping graphMapping) {
 		GraphMapping existingGraphMapping = new GraphMapping();
 		if (graphMapping != null)
 			existingGraphMapping = graphMappingDAO.findGraphMapping(graphMapping.getGraph() ); 
 		
 			if (existingGraphMapping == null ){  //not trying to add something already there, so go ahead..
-				graphMappingDAO.inserttGraphMapping(graphMapping);
+				graphMappingDAO.insertGraphMapping(graphMapping);
 				return "redirect:/graphMappingList";
 			} else {
 				return "redirect:/registerGraphMapping?&reqErr=Oh, graph " + Objects.requireNonNull(graphMapping).getGraph()  + " AlreadyExists";
@@ -88,7 +89,7 @@ public class GraphMappingController {
 	}
 
 	
-	@GetMapping("/updateGraphMapping")
+	@PostMapping("/updateGraphMapping")
 	public String updateGraphMapping( @ModelAttribute GraphMapping graphMapping) {
 		graphMappingDAO.updateGraphMapping(graphMapping);
 		return "redirect:/graphMappingList";

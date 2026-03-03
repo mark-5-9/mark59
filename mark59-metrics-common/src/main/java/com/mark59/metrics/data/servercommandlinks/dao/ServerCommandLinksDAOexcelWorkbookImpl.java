@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ package com.mark59.metrics.data.servercommandlinks.dao;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -27,19 +28,17 @@ import com.mark59.metrics.utils.MetricsUtils;
 
 /**
  * @author Philip Webb
- * Written: Australian Autumn 2020  
+ * Written: Australian Autumn 2020
  */
-public class ServerCommandLinksDAOexcelWorkbookImpl implements ServerCommandLinksDAO 
-{
-	
-	
+public class ServerCommandLinksDAOexcelWorkbookImpl implements ServerCommandLinksDAO {
+
 	Sheet servercommandlinksSheet;
 
 	public ServerCommandLinksDAOexcelWorkbookImpl(Sheet servercommandlinksSheet) {
 		this.servercommandlinksSheet = servercommandlinksSheet;
 	}
-	
-	
+
+
 	@Override
 	public List<ServerCommandLink> findServerCommandLinksForServerProfile(String serverProfileName) {
 
@@ -50,9 +49,8 @@ public class ServerCommandLinksDAOexcelWorkbookImpl implements ServerCommandLink
 
 		while (iterator.hasNext()) {
 			Row serverCommandLinkRow = iterator.next();
-			// System.out.println("ServerCommandLinks key =" + ServerMetricsWebUtils.cellValue(serverCommandLinkRow.getCell(0)));
 
-			if (serverProfileName != null && serverProfileName.equalsIgnoreCase(MetricsUtils.cellValue(serverCommandLinkRow.getCell(0)))) {				
+			if (serverProfileName != null && serverProfileName.equalsIgnoreCase(MetricsUtils.cellValue(serverCommandLinkRow.getCell(0)))) {
 				ServerCommandLink serverCommandLink = new ServerCommandLink();
 				serverCommandLink.setServerProfileName(MetricsUtils.cellValue(serverCommandLinkRow.getCell(0)));
 				serverCommandLink.setCommandName      (MetricsUtils.cellValue(serverCommandLinkRow.getCell(1)));
@@ -60,9 +58,9 @@ public class ServerCommandLinksDAOexcelWorkbookImpl implements ServerCommandLink
 			}
 		}
 		return serverCommandLinkList;
-	}	
-	
-	
+	}
+
+
 	@Override
 	public ServerCommandLink findServerCommandLink(String serverProfile, String commandName) {
 		return null;
@@ -97,6 +95,5 @@ public class ServerCommandLinksDAOexcelWorkbookImpl implements ServerCommandLink
 	@Override
 	public void deleteServerCommandLinksForCommandName(String commandName) {
 	}
-	
 
 }

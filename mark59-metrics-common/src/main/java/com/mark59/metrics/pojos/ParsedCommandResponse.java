@@ -3,7 +3,7 @@ package com.mark59.metrics.pojos;
 import java.util.List;
 
 public class ParsedCommandResponse {
-	
+
 	private String commandName;
 	private String commandResponse;
 	private List<ParsedMetric> parsedMetrics;
@@ -11,15 +11,15 @@ public class ParsedCommandResponse {
 
 	public ParsedCommandResponse() {
 	}
-	
+
 	public String getCommandName() {
 		return commandName;
 	}
-	
+
 	public void setCommandName(String commandName) {
 		this.commandName = commandName;
 	}
-	
+
 	public String getCommandResponse() {
 		return commandResponse;
 	}
@@ -44,14 +44,14 @@ public class ParsedCommandResponse {
 		this.commandFailure = commandFailure;
 	}
 
-	
+
 	@Override
-    public String toString() {
-        return   "[commandName" + commandName
-         	   + ", commandResponse="+ commandResponse
-         	   + ", parsedMetrics="+ parsedMetrics  
-         	   + ", commandFailure="+ commandFailure            	   
-        	   + "]";
+	public String toString() {
+		return "[commandName=" + commandName
+				+ ", commandResponse=" + commandResponse
+				+ ", parsedMetrics=" + parsedMetrics
+				+ ", commandFailure=" + commandFailure
+				+ "]";
 	}
 
 }
