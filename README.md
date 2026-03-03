@@ -9,15 +9,15 @@
 <p>Release 6.5<br>
 
   <ul>
-   	<li>Extensive review of source code using AI (via Copilot),focusing on future-proofing source code scans by
+   	<li>Extensive review of source code using AI (via Copilot), focusing on future-proofing source code scans by
    	fixing issues AI rated as critical or serious, includes security problems (weak encryption, sql injection), improving documentation,
    	improving error messaging, adding more JUnit tests, and implementing multiple coding solutions AI considered preferable.</li>
  	<li>Trends UI : (Bug) Fix Event and Graph Mapping Admin pages, had incorrect HTTP Mappings in the previous release</li>
  	<li>Trends UI : (Bug) Transaction names with commas did not work properly. Commas are now replaced with a dash.</li>
  	<li>Playwright Scripting : Several new options have been made available : PLAYWRIGHT_IGNORE_HTTPS_ERRORS,
  	PLAYWRIGHT_GEOLOCATION, PLAYWRIGHT_EXTRA_HTTP_HEADERS, PLAYWRIGHT_HTTP_CREDENTIALS, PLAYWRIGHT_BYPASS_CSP, PLAYWRIGHT_LOCALE,
- 	PLAYWRIGHT_OFFLINE, PLAYWRIGHT_STORAGE_STATE (these are generally the Playwright BrowserContextOPtons that can be 
- 	entered as strings (such as on the JMeter Java Request paramenters panel). See JavaDocs for details.       
+ 	PLAYWRIGHT_OFFLINE, PLAYWRIGHT_STORAGE_STATE (these are generally the Playwright BrowserContextOptions that can be 
+ 	entered as strings (such as on the JMeter Java Request parameters panel). See JavaDocs for details.       
  	</li>
  	<li>Dependencies Updated: poi to 5.5.1, spring-boot to 4.0.3, selenium to 4.40.0 (chrome v144), playwright to 1.57.0</li>
   </ul>
@@ -35,7 +35,7 @@
    <figure>
     <figcaption>Database Change<br><br></figcaption>
 	<ul>
- 	<li>Metrics Database: For existing implementations a script (see DataabseScripts folder in the Mark59 download file) should 
+ 	<li>Metrics Database: For existing implementations a script (see DatabaseScripts folder in the Mark59 download file) should 
  	be executed to increase the length of the PASSWORD_CIPHER field of the SERVERPROFILES table, for MySQL and Postgres DBs.
 	</ul>	
   </figure> 
@@ -47,7 +47,7 @@
 	<p>Migration from SimpleAES to SecureAES</p>
 	<p>Versions of Mark59 prior to this release use a weak encryption class SimpleAES. Encryptions created by this class will NOT work with the new SecureAES. 
 		You can use the SimpleAES class in mark59-core or SimpleAESUtility that ships in the mark59-scripting-samples project if you need to recover the original string for re-encryption.
-		Documentation on usage of the new encryption algorithm is availble in the SecureAES class in mark59-core or SimpleAESUtility that ships in the mark59-scripting-samples project.</p>		
+		Documentation on usage of the new encryption algorithm is available in the SecureAES class in mark59-core or SimpleAESUtility that ships in the mark59-scripting-samples project.</p>		
 	</li>
 	<li>	
 	<p>Encrypted String Usage within Mark59</p>
