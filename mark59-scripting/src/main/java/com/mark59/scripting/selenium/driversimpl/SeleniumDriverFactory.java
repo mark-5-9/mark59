@@ -19,7 +19,7 @@ package com.mark59.scripting.selenium.driversimpl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -38,6 +38,7 @@ import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.PropertiesKeys;
 import com.mark59.core.utils.PropertiesReader;
 import com.mark59.scripting.ScriptingConstants;
+import com.mark59.scripting.ScriptingUtils;
 import com.mark59.scripting.selenium.JmeterFunctionsForSeleniumScripts;
 import com.mark59.scripting.selenium.SeleniumAbstractJavaSamplerClient;
 import com.mark59.scripting.selenium.interfaces.DriverFunctionsSelenium;
@@ -300,14 +301,16 @@ public class SeleniumDriverFactory {
 		}
 
 
-		// Set browser launch arguments
-		String browserArgs = arguments.get(BROWSER_LAUNCH_ARGS);
-		if (StringUtils.isNotBlank(browserArgs)){
-			java.util.List<java.lang.String> argumentsList =  Arrays.asList(StringUtils.split(browserArgs, ","));
-			builder.setBrowserLaunchArgs(argumentsList);
+		// Set browser launch arguments 
+		
+		String browserLaunchArgs = arguments.get(BROWSER_LAUNCH_ARGS);
+		List<String> browserLaunchArgsList = ScriptingUtils.splitBrowserLaunchArgs(browserLaunchArgs);		
+			
+		if (!browserLaunchArgsList.isEmpty()){
+			builder.setBrowserLaunchArgs(browserLaunchArgsList);
 		}
 
-
+		
 		//  Only implemented for Firefox - primary purpose is to redirect geckodriver's copious error logging off the console..
 		if (arguments.containsKey(WRITE_FFOX_BROWSER_LOGFILE))
 			builder.setWriteBrowserLogfile(Boolean.parseBoolean(arguments.get(WRITE_FFOX_BROWSER_LOGFILE)));

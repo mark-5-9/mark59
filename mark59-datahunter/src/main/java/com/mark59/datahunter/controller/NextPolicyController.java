@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,6 @@ package com.mark59.datahunter.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,8 +42,11 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class NextPolicyController {
 
-	@Autowired
-	PoliciesDAO policiesDAO;
+	private final PoliciesDAO policiesDAO;
+
+	public NextPolicyController(PoliciesDAO policiesDAO) {
+		this.policiesDAO = policiesDAO;
+	}
 
 	@GetMapping("/next_policy")
 	public String lookupNextPolicyUrl(@RequestParam(required = false) String application,
@@ -59,24 +61,24 @@ public class NextPolicyController {
 		return "/next_policy";
 	}
 
-	
+
 	@PostMapping("/next_policy_action")
 	public ModelAndView nextPolicyAction(@RequestParam String pUseOrLookup, @ModelAttribute PolicySelectionCriteria policySelectionCriteria,
 			Model model, HttpServletRequest httpServletRequest) {
-		
+
 		DataHunterUtils.expireSession(httpServletRequest);
 		model.addAttribute("UseOrLookup", pUseOrLookup);
-		
+
 		List<Policies> policiesList;
 		SqlWithParms selectSqlWithParms = policiesDAO.constructSelectNextPolicySql(policySelectionCriteria);
-	
+
 		String navUrParms = "application=" + DataHunterUtils.encode(policySelectionCriteria.getApplication())
-			+ "&lifecycle="    + DataHunterUtils.encode(policySelectionCriteria.getLifecycle()) 
+			+ "&lifecycle="    + DataHunterUtils.encode(policySelectionCriteria.getLifecycle())
 			+ "&useability="   + DataHunterUtils.encode(policySelectionCriteria.getUseability())
 			+ "&selectOrder="  + DataHunterUtils.encode(policySelectionCriteria.getSelectOrder())
 			+ "&pUseOrLookup=" + pUseOrLookup;
-	
-		model.addAttribute("navUrParms", navUrParms);			
+
+		model.addAttribute("navUrParms", navUrParms);
 		model.addAttribute("sql", selectSqlWithParms);
 
 		synchronized (this) {
@@ -88,23 +90,23 @@ public class NextPolicyController {
 				model.addAttribute("sqlResultText", "sql exception caught: " + e.getMessage());
 				return new ModelAndView("/next_policy_action", "model", model);
 			}
-	
+
 			int rowsAffected = policiesList.size();
 			model.addAttribute("rowsAffected", rowsAffected);
-	
+
 			if (policiesList.size() == 0) {
-				
+
 				if (selectSqlWithParms.getSqlparameters().hasValue(DataHunterConstants.REUSEABLE_INDEXED_RAND)){
-					// for the special case of a random lookup on 'Reusable Indexed' data, we will do retries 
+					// for the special case of a random lookup on 'Reusable Indexed' data, we will do retries
 					int retries = 0 ;
 					while (rowsAffected==0 && retries<=10){
 						try {
 							selectSqlWithParms = policiesDAO.constructSelectNextPolicySql(policySelectionCriteria);
 							policiesList = policiesDAO.runSelectPolicieSql(selectSqlWithParms);
 							rowsAffected = policiesList.size();
-							if (rowsAffected != 0){ 
+							if (rowsAffected != 0){
 								model.addAttribute("sqlResult", "PASS");
-								model.addAttribute("sqlResultText", "sql execution OK (retries were made).");								
+								model.addAttribute("sqlResultText", "sql execution OK (retries were made).");
 								model.addAttribute("rowsAffected", rowsAffected);
 								model.addAttribute("policies", policiesList.get(0));
 								return new ModelAndView("/next_policy_action", "model", model);
@@ -113,23 +115,23 @@ public class NextPolicyController {
 							model.addAttribute("sqlResult", "FAIL");
 							model.addAttribute("sqlResultText", "sql exception caught: " + e.getMessage());
 							return new ModelAndView("/next_policy_action", "model", model);
-						}						
+						}
 						retries++;
 					}  // end retries loop
-					
+
 					model.addAttribute("sqlResult", "FAIL");
 					model.addAttribute("sqlResultText",
 							"Too many holes it looks like for Application:["+policySelectionCriteria.getApplication()+"]");
-					
-				} else { // empty policy list and not the  random lookup on 'Reusable Indexed' special case 
-				
+
+				} else { // empty policy list and not the  random lookup on 'Reusable Indexed' special case
+
 					model.addAttribute("sqlResult", "FAIL");
 					model.addAttribute("sqlResultText",
 							"No rows matching the selection.  Possibly we have ran out of data for application:["
 									+ policySelectionCriteria.getApplication() + "]");
 				}
 				return new ModelAndView("/next_policy_action", "model", model);
-	
+
 			} else if (policiesList.size() > 1) {
 				model.addAttribute("sqlResult", "FAIL");
 				model.addAttribute("sqlResultText",
@@ -137,13 +139,13 @@ public class NextPolicyController {
 								+ policiesList.size() + " rows selected?");
 				return new ModelAndView("/next_policy_action", "model", model);
 			}
-	
+
 			Policies nextPolicy = policiesList.get(0);
 			model.addAttribute("policies", nextPolicy);
-			
-			navUrParms += "&pNextId=" + DataHunterUtils.encode(nextPolicy.getIdentifier()); 
-			model.addAttribute("navUrParms", navUrParms);	
-	
+
+			navUrParms += "&pNextId=" + DataHunterUtils.encode(nextPolicy.getIdentifier());
+			model.addAttribute("navUrParms", navUrParms);
+
 			if (DataHunterConstants.USE.equalsIgnoreCase(pUseOrLookup)){
 				model = updateNextPolicy(model, selectSqlWithParms, nextPolicy);
 			} else { // assume just a lookup
@@ -154,7 +156,7 @@ public class NextPolicyController {
 		return new ModelAndView("/next_policy_action", "model", model);
 	}
 
-	
+
 	private Model updateNextPolicy(Model model, SqlWithParms selectSqlWithParms, Policies nextPolicy) {
 
 		try {

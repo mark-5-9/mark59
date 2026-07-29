@@ -5,14 +5,14 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-scripting-sample-dsl</artifactId>
-	<version>6.5</version>
+	<version>6.6</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-scripting-sample-dsl</name>
 
 	<properties>
-		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-scripting</artifactId>
-			<version>6.5</version>
+			<version>6.6</version>
 		</dependency>
 
 		<!--if you want to pick up a later version of devtools than provided, you can add the dep here .. -->

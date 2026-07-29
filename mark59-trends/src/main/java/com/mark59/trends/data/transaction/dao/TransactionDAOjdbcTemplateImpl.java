@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -52,12 +51,13 @@ import com.mark59.trends.data.graphMapping.dao.GraphMappingDAO;
 public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 {
 
-	@Autowired
-	private DataSource dataSource;
+	private final DataSource dataSource;
+	private final GraphMappingDAO graphMappingDAO;
 
-	@Autowired
-	GraphMappingDAO graphMappingDAO;
-
+	public TransactionDAOjdbcTemplateImpl(DataSource dataSource, GraphMappingDAO graphMappingDAO) {
+		this.dataSource = dataSource;
+		this.graphMappingDAO = graphMappingDAO;
+	}
 
 	@Override
 	public void insert(Transaction transaction) {
@@ -75,7 +75,7 @@ public class TransactionDAOjdbcTemplateImpl implements TransactionDAO
 					+ "Avoid the use of commas if possible : " + transaction.getTxnId());
 			transaction.setTxnId(transaction.getTxnId().replace(",","-"));
 		}
-		
+
 		jdbcTemplate.update(sql,
 				transaction.getApplication(), transaction.getRunTime(),
 				transaction.getTxnId(), transaction.getTxnType(), transaction.getIsCdpTxn(),

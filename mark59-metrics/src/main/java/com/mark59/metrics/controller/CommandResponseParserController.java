@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,10 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.mark59.core.utils.Mark59Constants;
@@ -34,54 +36,57 @@ import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsers
 
 /**
  * @author Philip Webb
- * Written: Australian Summer 2020  
+ * Written: Australian Summer 2020
  */
 
 @Controller
 public class CommandResponseParserController {
-	
-	@Autowired
-	CommandResponseParsersDAO commandResponseParsersDAO; 
+
+	private final CommandResponseParsersDAO commandResponseParsersDAO;
+
+	public CommandResponseParserController(CommandResponseParsersDAO commandResponseParsersDAO) {
+		this.commandResponseParsersDAO = commandResponseParsersDAO;
+	}
 
 	@GetMapping("/registerCommandResponseParser")
-	public ModelAndView registerCommandResponseParser(@RequestParam(required=false) String reqMetricTxnType, @RequestParam(required=false) String reqErr, 
-			@ModelAttribute CommandResponseParser commandResponseParser) { 
+	public ModelAndView registerCommandResponseParser(@RequestParam(required=false) String reqMetricTxnType, @RequestParam(required=false) String reqErr,
+			@ModelAttribute CommandResponseParser commandResponseParser) {
 		Map<String, Object> map = createMapOfDropdowns();
 		commandResponseParser.setMetricTxnType(reqMetricTxnType);
 		map.put("reqMetricTxnType",reqMetricTxnType);
 		return new ModelAndView("registerCommandResponseParser", "map", map);
 	}
-	
+
 
 	@PostMapping("/insertCommandResponseParser")
-	public ModelAndView insertCommandResponseParser( @RequestParam(required=false) String reqMetricTxnType, @RequestParam(required=false) String reqErr,  
+	public ModelAndView insertCommandResponseParser( @RequestParam(required=false) String reqMetricTxnType, @RequestParam(required=false) String reqErr,
 			@ModelAttribute CommandResponseParser commandResponseParser) {
 
-		Map<String, Object> map = createMapOfDropdowns();			
+		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqMetricTxnType",reqMetricTxnType);
 
 		if (StringUtils.isEmpty(commandResponseParser.getParserName())) {
-			map.put("commandResponseParser", commandResponseParser);		
-			map.put("reqErr", "Parser Name is required");			
+			map.put("commandResponseParser", commandResponseParser);
+			map.put("reqErr", "Parser Name is required");
 			return new ModelAndView("registerCommandResponseParser", "map", map);
 		}
 
 		CommandResponseParser existingCommandResponseParser = commandResponseParsersDAO.findCommandResponseParser(commandResponseParser.getParserName());
-		
+
 		if (existingCommandResponseParser == null ){  //not trying to add something already there, so go ahead..
 
 			commandResponseParsersDAO.insertCommandResponseParser(commandResponseParser);
-			map.put("commandResponseParser", commandResponseParser);	
-			return new ModelAndView("viewCommandResponseParser", "map", map);			
-			
+			map.put("commandResponseParser", commandResponseParser);
+			return new ModelAndView("viewCommandResponseParser", "map", map);
+
 		} else {
-		
-			map.put("commandResponseParser",existingCommandResponseParser);		
-			map.put("reqErr","Oh, a parser named " + existingCommandResponseParser.getParserName() + " Already Exists");			
+
+			map.put("commandResponseParser",existingCommandResponseParser);
+			map.put("reqErr","Oh, a parser named " + existingCommandResponseParser.getParserName() + " Already Exists");
 			return new ModelAndView("registerCommandResponseParser", "map", map);
 		}
 	}
-	
+
 
 	@GetMapping("/commandResponseParserList")
 	public ModelAndView commandResponseParserList(@RequestParam(required=false) String reqMetricTxnType) {
@@ -89,67 +94,67 @@ public class CommandResponseParserController {
 		List<CommandResponseParser> commandResponseParserList;
 
 		if (!StringUtils.isEmpty(reqMetricTxnType)){
-			commandResponseParserList = commandResponseParsersDAO.findCommandResponseParsers("METRIC_TXN_TYPE", reqMetricTxnType);	
+			commandResponseParserList = commandResponseParsersDAO.findCommandResponseParsers("METRIC_TXN_TYPE", reqMetricTxnType);
 		} else {
-			commandResponseParserList = commandResponseParsersDAO.findCommandResponseParsers();	
+			commandResponseParserList = commandResponseParsersDAO.findCommandResponseParsers();
 		}
-		
+
 		List<String>metricTxnTypes = Mark59Constants.JMeterFileDatatypes.listOfMetricJMeterFileDatatypes();
-		metricTxnTypes.add(0, "");	
-		
+		metricTxnTypes.add(0, "");
+
 		Map<String, Object> parmsMap = new HashMap<>();
 		parmsMap.put("commandResponseParserList", commandResponseParserList);
-		parmsMap.put("metricTxnTypes",metricTxnTypes);	
+		parmsMap.put("metricTxnTypes",metricTxnTypes);
 		parmsMap.put("reqMetricTxnType", reqMetricTxnType);
 		return new ModelAndView("commandResponseParserList", "parmsMap", parmsMap);
 	}
 
 	@GetMapping("/viewCommandResponseParser")
 	public String viewCommandResponseParser(@RequestParam String reqParserName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
-		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName); 
+		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName);
 		model.addAttribute("commandResponseParser", commandResponseParser);
-		
+
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqMetricTxnType", reqMetricTxnType);
 		map.put("commandResponseParser", commandResponseParser);
-		model.addAttribute("map", map);	
+		model.addAttribute("map", map);
 		return "viewCommandResponseParser";
 	}
-	
-	
+
+
 	@GetMapping("/copyCommandResponseParser")
 	public String copyCommandResponseParser(@RequestParam String reqParserName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
-		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName); 
+		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName);
 		model.addAttribute("commandResponseParser", commandResponseParser);
-		
+
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqMetricTxnType", reqMetricTxnType);
 		map.put("commandResponseParser", commandResponseParser);
-		model.addAttribute("map", map);	
+		model.addAttribute("map", map);
 		return "copyCommandResponseParser";
 	}
-	
-	
+
+
 	@GetMapping("/editCommandResponseParser")
 	public String editCommandResponseParser(@RequestParam String reqParserName, @RequestParam(required=false) String reqMetricTxnType, Model model) {
-		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName); 
+		CommandResponseParser commandResponseParser = commandResponseParsersDAO.findCommandResponseParser(reqParserName);
 		model.addAttribute("commandResponseParser", commandResponseParser);
-		
+
 		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqMetricTxnType", reqMetricTxnType);
 		map.put("commandResponseParser", commandResponseParser);
-		model.addAttribute("map", map);	
+		model.addAttribute("map", map);
 		return "editCommandResponseParser";
 	}
 
-	
+
 	@PostMapping("/updateCommandResponseParser")
 	public ModelAndView updateCommandResponseParser(@RequestParam(required=false) String reqMetricTxnType, @ModelAttribute CommandResponseParser commandResponseParser) {
 		commandResponseParsersDAO.updateCommandResponseParser(commandResponseParser);
-		Map<String, Object> map = createMapOfDropdowns();			
+		Map<String, Object> map = createMapOfDropdowns();
 		map.put("reqMetricTxnType",reqMetricTxnType);
-		map.put("commandResponseParser", commandResponseParser);	
-		return new ModelAndView("viewCommandResponseParser", "map", map);		
+		map.put("commandResponseParser", commandResponseParser);
+		return new ModelAndView("viewCommandResponseParser", "map", map);
 	}
 
 
@@ -158,7 +163,7 @@ public class CommandResponseParserController {
 		commandResponseParsersDAO.deleteCommandResponseParser(reqParserName);
 		return "redirect:/commandResponseParserList?reqMetricTxnType=" + reqMetricTxnType;
 	}
-	
+
 
 	private Map<String, Object> createMapOfDropdowns() {
 		Map<String, Object> map = new HashMap<>();
@@ -166,6 +171,6 @@ public class CommandResponseParserController {
 		map.put("metricTxnTypes",metricTxnTypes);
 		return map;
 	}
-	
+
 
 }

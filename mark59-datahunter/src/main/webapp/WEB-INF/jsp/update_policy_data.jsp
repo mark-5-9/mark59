@@ -28,7 +28,7 @@
 <style>@font-face { font-family: "Canterbury";  src: url("fonts/Canterbury.ttf"); }</style>
 <script type="text/javascript" src="javascript/sharedFunctions.js"></script>
 </head>
-<body>
+<body onload="enableOrdisableCreateCipherBtn();"> 
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
 <div class="content"> 
@@ -43,9 +43,9 @@
     <tr>
      <td class="tip" colspan=3 >Item Key<br></td>
     </tr>    
-    <tr><td>application </td>	<td>:</td><td id=application>${policies.application}</td></tr>
-    <tr><td>identifier </td>	<td>:</td><td id=identifier>${policies.identifier}</td></tr>
-    <tr><td>lifecycle </td>	<td>:</td><td id=lifecycle>${policies.lifecycle}</td></tr>     
+    <tr><td>application </td><td>:</td><td id=application>${policies.application}</td></tr>
+    <tr><td>identifier </td> <td>:</td><td id=identifier>${policies.identifier}</td></tr>
+    <tr><td>lifecycle </td>	 <td>:</td><td id=lifecycle>${policies.lifecycle}</td></tr>     
 
     <tr>
      <td class="tip" colspan=3 ><br>Item Data<br></td>
@@ -58,7 +58,9 @@
     <tr>
      <td>Otherdata</td>
      <td>:</td>            
-     <td><form:textarea path="otherdata" /></td>
+	 <td style="white-space:nowrap"><form:textarea path="otherdata" onkeyup="enableOrdisableCreateCipherBtn()"/>&nbsp;&nbsp;
+		<button type="button" id="createCipherBtn" onclick="createCipher()" style="vertical-align: top">Create Cipher</button>
+		</td>
     </tr>        
     <tr>
      <td>EpochTime (msecs)</td>

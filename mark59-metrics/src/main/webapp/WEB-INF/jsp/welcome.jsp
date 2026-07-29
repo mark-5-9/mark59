@@ -125,7 +125,7 @@ SECURE_STRING_TXT: the value of $secureStringTxt in the example
 <p>The supplied examples should get you started. There is much more detail available including a fully worked example of
  adding a Profile, a Command and its Parser, in the User Guide.</p>
 
-<p>Version: 6.5 Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>
+<p>Version: 6.6 Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>
 
 </div>
 </body>

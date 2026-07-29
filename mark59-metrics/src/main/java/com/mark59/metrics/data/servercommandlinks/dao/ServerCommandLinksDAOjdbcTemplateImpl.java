@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -32,30 +31,32 @@ import com.mark59.metrics.data.beans.ServerCommandLink;
 
 /**
  * @author Philip Webb
- * Written: Australian Summer 2020  
+ * Written: Australian Summer 2020
  */
-public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinksDAO 
+public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinksDAO
 {
-	
-	@Autowired  
-	private DataSource dataSource;
 
+	private final DataSource dataSource;
+
+	public ServerCommandLinksDAOjdbcTemplateImpl(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
 
 	@Override
 	public ServerCommandLink findServerCommandLink(String commandName, String serverProfileName){
-		
+
 		String selectServerSQL   = "select SERVER_PROFILE_NAME, COMMAND_NAME  from SERVERCOMMANDLINKS"
 				+ " where SERVER_PROFILE_NAME = :serverProfileName "
 				+ "   and COMMAND_NAME = :commandName "
 				+ " order by SERVER_PROFILE_NAME;";
-		
+
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("serverProfileName", serverProfileName)
 				.addValue("commandName", commandName);
 
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectServerSQL, sqlparameters);
-		
+
 		if (rows.size() == 0 ){
 			return null;
 		}
@@ -66,13 +67,13 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 		return  serverCommandLink;
 	}
 
-	
+
 	@Override
 	public List<ServerCommandLink> findServerCommandLinks(){
 		return  findServerCommandLinks("","");
 	}
-	
-	
+
+
 	@Override
 	public List<ServerCommandLink> findServerCommandLinksForServerProfile(String serverProfileName){
 		return  findServerCommandLinks("SERVER_PROFILE_NAME", serverProfileName);
@@ -89,34 +90,34 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 		}
 
 		String sql = "select SERVER_PROFILE_NAME, COMMAND_NAME from SERVERCOMMANDLINKS ";
-		
-		if (!selectionValue.isEmpty()  ) {			
+
+		if (!selectionValue.isEmpty()  ) {
 			sql += "  where " + selectionCol + " like :selectionValue ";
-		} 
+		}
 		sql += " order by SERVER_PROFILE_NAME ";
-		
+
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("selectionValue", selectionValue);
 
 		List<ServerCommandLink> serverCommandLinkList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
-		
+
 		for (Map<String, Object> row : rows) {
 			ServerCommandLink serverCommandLink = new ServerCommandLink();
-			serverCommandLink.setServerProfileName((String)row.get("SERVER_PROFILE_NAME"));	
+			serverCommandLink.setServerProfileName((String)row.get("SERVER_PROFILE_NAME"));
 			serverCommandLink.setCommandName((String)row.get("COMMAND_NAME"));
 			serverCommandLinkList.add(serverCommandLink);
 		}
 		return serverCommandLinkList;
 	}
-	
-	
+
+
 	@Override
 	public void insertServerCommandLink(ServerCommandLink serverCommandLink) {
-		String sql = "INSERT INTO SERVERCOMMANDLINKS ( SERVER_PROFILE_NAME, COMMAND_NAME) " + 
+		String sql = "INSERT INTO SERVERCOMMANDLINKS ( SERVER_PROFILE_NAME, COMMAND_NAME) " +
 				      " VALUES (?,?)";
-		
+
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
@@ -124,13 +125,13 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 				serverCommandLink.getCommandName());
 	}
 
-	
-	
+
+
 	@Override
-	public void updateServerCommandLinksForServerProfileName(String serverProfileName, List<String> commandNames) {  
+	public void updateServerCommandLinksForServerProfileName(String serverProfileName, List<String> commandNames) {
 		deleteServerCommandLinksForServerProfile(serverProfileName);
 		if (commandNames != null) {
-			commandNames.removeAll(Arrays.asList("", null));  // don't update with blanks (like the empty selector option) 
+			commandNames.removeAll(Arrays.asList("", null));  // don't update with blanks (like the empty selector option)
 			for (String commandName : commandNames) {
 				ServerCommandLink serverCommandLink = new ServerCommandLink();
 				serverCommandLink.setServerProfileName(serverProfileName);
@@ -138,22 +139,22 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 				insertServerCommandLink(serverCommandLink);
 			}
 		}
-	}	
+	}
 
-	
+
 	@Override
 	public void deleteServerCommandLinksForCommandName(String commandName) {
-		
+
 		String sql = "delete from SERVERCOMMANDLINKS  where COMMAND_NAME = :commandName ";
 
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
-				.addValue("commandName", commandName);		
+				.addValue("commandName", commandName);
 
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);
 	}
 
-	
+
 	@Override
 	public void deleteServerCommandLink(ServerCommandLink serverCommandLink) {
 
@@ -163,20 +164,20 @@ public class ServerCommandLinksDAOjdbcTemplateImpl implements ServerCommandLinks
 
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("commandName", serverCommandLink.getCommandName())
-				.addValue("serverProfileName", serverCommandLink.getServerProfileName());		
+				.addValue("serverProfileName", serverCommandLink.getServerProfileName());
 
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);
 	}
 
-	
+
 	@Override
 	public void deleteServerCommandLinksForServerProfile(String serverProfileName) {
-		
+
 		String sql = "delete from SERVERCOMMANDLINKS where SERVER_PROFILE_NAME = :serverProfileName";
-		
+
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
-				.addValue("serverProfileName", serverProfileName);		
+				.addValue("serverProfileName", serverProfileName);
 
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);

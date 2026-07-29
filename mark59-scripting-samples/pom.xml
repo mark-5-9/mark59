@@ -1,48 +1,49 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-scripting-samples</artifactId>
-	<version>6.5</version>
+	<version>6.6</version>
 	<packaging>jar</packaging>
-	
+
 	<name>mark59-scripting-samples</name>
 
 	<properties>
-		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+
 	<dependencies>
 
-		<!-- Please see the Mark59 User Guide (Mark59 Selenium Scripting: Tips and Tricks section) on using a version of  
+		<!-- Please see the Mark59 User Guide (Mark59 Selenium Scripting: Tips and Tricks section) on using a version of
 			 selenium or selenium-devtools other than that provided in mark59-scripting
 			 (similar discussion also for Playwright)  -->
 
 		<!-- In this sample project the mark59-scripting entry is not strictly required
-			 as it is already included as a dependency of mark59-scripting-sample-dsl (immediately below). 
+			 as it is already included as a dependency of mark59-scripting-sample-dsl (immediately below).
 			 Included just to highlight the dependency on mark59-selenium-implementation for mark59 scripts -->
-			 
+
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-scripting</artifactId>
-			<version>6.5</version>
+			<version>6.6</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-scripting-sample-dsl</artifactId>
-			<version>6.5</version>
+			<version>6.6</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-datahunter-api</artifactId>
-			<version>6.5</version>
+			<version>6.6</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.jmeter</groupId>
 			<artifactId>ApacheJMeter_java</artifactId>
@@ -54,7 +55,7 @@
 		    <groupId>org.apache.jmeter</groupId>
 		    <artifactId>jorphan</artifactId>
 		    <version>5.6.3</version>
-			<scope>provided</scope>		    
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -62,7 +63,7 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.11.0</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -83,16 +84,16 @@
 			</plugin>
 
 		<!-- Maven Jar Plugin and Dependency Plugins
-		     phase/goals: clean package  
-		     The two plugins work in conjunction to produce an output Jar and a directory of its dependencies. 
+		     phase/goals: clean package
+		     The two plugins work in conjunction to produce an output Jar and a directory of its dependencies.
 		     Both need to be copied to lib/ext of the target JMeter instance. -->
-		
-		<!-- Previous versions of this POM had used the Maven Assembly Plugin to create a single jar as the project outut, but unfortunately it's not a 
+
+		<!-- Previous versions of this POM had used the Maven Assembly Plugin to create a single jar as the project outut, but unfortunately it's not a
 			 general solution, and calls to CDP (DevTools) now fail if you use this approach.
-		     
+
 		     This particular project (mark59-scripting-samples) has a dependency on the mark59-scripting-sample-dsl project, which is not in Central.
 		     So to build this project you can run the mark59 'aggregation' pom, or first install mark59-scripting-sample-dsl (goals: clean package install) -->
-		
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -106,17 +107,17 @@
 					</archive>
 				</configuration>
 			</plugin>
-		
+
 			<!-- When running from the Eclipse IDE if you receive this error attempting a Maven build:
 				 "Artifact has not been packaged yet. When used on reactor artifact, copy should be executed after packaging: see MDEP-187.",
-				 check that in your Maven Run Configuration for the project you have "Resolve Workspace Artifacts" unticked -->		
-					
+				 check that in your Maven Run Configuration for the project you have "Resolve Workspace Artifacts" unticked -->
+
 			<!-- The <?m2e ignore?> tag just prevents an Error being displayed when using Eclipse, due to a long standing m2e bug.
 				 https://stackoverflow.com/questions/30642630/artifact-has-not-been-packaged-yet/68633437#68633437 -->
 
 			<!-- The <excludeScope>provided</excludeScope> tag is required so that dependencies scoped as 'provided' are honored.
 				 That is, those artifacts (and their transitive dependencies) are not included in the output directory. -->
-			     			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -133,11 +134,11 @@
 							<outputDirectory>${project.build.directory}/${project.artifactId}-dependencies</outputDirectory>
 						</configuration>
 					</execution>
-				</executions>				
+				</executions>
 			</plugin>
-			
+
 		</plugins>
 		<finalName>${project.artifactId}</finalName>
 	</build>
-	
+
 </project>

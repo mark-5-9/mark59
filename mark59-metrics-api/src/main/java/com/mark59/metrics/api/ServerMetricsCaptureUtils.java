@@ -1,5 +1,6 @@
 package com.mark59.metrics.api;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -9,17 +10,32 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mark59.core.interfaces.JmeterFunctions;
+import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Constants.JMeterFileDatatypes;
-import com.mark59.metrics.common.MetricsApiConstants;
+import com.mark59.core.utils.PropertiesKeys;
+import com.mark59.core.utils.PropertiesReader;
+import com.mark59.metrics.api.utils.MetricsApiConstants;
 import com.mark59.metrics.drivers.ServerProfileRunner;
 import com.mark59.metrics.pojos.ParsedCommandResponse;
 import com.mark59.metrics.pojos.ParsedMetric;
 import com.mark59.metrics.pojos.WebServerMetricsResponsePojo;
 import com.mark59.metrics.utils.MetricsConstants;
 
-public class ServerMetricsCaptureUtils {
+public class ServerMetricsCaptureUtils   {
+	
+	public static final Logger LOG = LogManager.getLogger(ServerMetricsCaptureUtils.class);
 
-	private static final Logger LOG = LogManager.getLogger(ServerMetricsCaptureUtils.class);
+	static {
+		try {
+			LOG.info("Mark59 version (metrics)   : " + MetricsApiConstants.MARK59_VERSION_METRICS_API);
+			if (Mark59Constants.TRUE.equalsIgnoreCase(PropertiesReader.getInstance().getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES))){
+				System.out.println("Mark59 version (metrics)   : " + MetricsApiConstants.MARK59_VERSION_METRICS_API);				
+			}
+		} catch (IOException e) {
+			System.out.println("ServerMetricsCaptureUtils: Error reading property " + PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES);
+		}
+	}
+
 
 	public static final String FULL = "full";
 	public static final String NO = "no";

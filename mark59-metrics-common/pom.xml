@@ -5,14 +5,14 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-common</artifactId>
-	<version>6.5</version>
+	<version>6.6</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-common</name>
 
 	<properties>
-		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -21,27 +21,27 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.5</version>
+			<version>6.6</version>
 		</dependency>
 
 		<!-- may be ahead of JMeter due to vunerabilty reporting -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.25.3</version>
+			<version>2.25.4</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>2.25.3</version>
+			<version>2.25.4</version>
 		</dependency>
 
  		<!-- implement log4j 'SFLF bindings' for test purposes only  -->
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-slf4j-impl</artifactId>
-		    <version>2.25.3</version>
+		    <version>2.25.4</version>
 		    <scope>test</scope>
 		</dependency>
 
@@ -66,7 +66,7 @@
 	        <artifactId>commons-io</artifactId>
 	        <version>2.21.0</version>
 	    </dependency>
-	    
+
 
 		<!-- added for usage of StringSubstitutorr in command parameterization-->
 		<dependency>
@@ -75,20 +75,17 @@
 		    <version>1.14.0</version>
 		</dependency>
 
-		<!-- Note: Was common to SpringBoot and JMeter
-			- now from v17 to 18 due to dependabot vunerability -->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-lang3</artifactId>
-		    <version>3.18.0</version>
+		    <version>3.19.0</version>
 		</dependency>
 
-		<!-- Note: kept in line with version used by JMeter
-		     (note from SpringBoot 3.1.2, groovy 4.x.x deps are used)-->
+		<!-- Note: kept in line with version used by JMeter -->
 		<dependency>
-		    <groupId>org.codehaus.groovy</groupId>
+		    <groupId>org.apache.groovy</groupId>
 		    <artifactId>groovy-all</artifactId>
-		    <version>3.0.17</version>
+		    <version>5.0.4</version>
 		    <type>pom</type>
 		</dependency>
 
@@ -97,29 +94,29 @@
 		<dependency>
 		    <groupId>org.json</groupId>
 		    <artifactId>json</artifactId>
-		    <version>20250107</version>
+		    <version>20251224</version>
 		</dependency>
 
 		<!-- added to simplify (Groovy) api scripting (eg  New Relic )-->
-		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp-jvm -->
+		<!-- Note: OkHttp 5.x publishes separate JVM/Android artifacts; Maven cannot resolve Gradle module metadata
+		     so 'okhttp' (the metadata artifact) must be replaced with 'okhttp-jvm' for Maven builds -->
 		<dependency>
 		    <groupId>com.squareup.okhttp3</groupId>
-		    <artifactId>okhttp</artifactId>
-		    <version>4.12.0</version>
+		    <artifactId>okhttp-jvm</artifactId>
+		    <version>5.3.2</version>
 		</dependency>
 
-		<!-- Note: common to SpringBoot (version may differ to JMeter)
-	            Updated to 2.18.2 for Spring Boot 4 compatibility -->
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>
-		    <version>2.18.2</version>
+		    <version>2.22.1</version>
 		</dependency>
 
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
-		    <version>2.18.2</version>
+		    <version>2.22.1</version>
 		</dependency>
 
 		<dependency>

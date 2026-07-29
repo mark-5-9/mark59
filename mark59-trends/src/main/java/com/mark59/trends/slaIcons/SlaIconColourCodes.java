@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ package com.mark59.trends.slaIcons;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.data.beans.Transaction;
@@ -36,24 +35,24 @@ import com.mark59.trends.slaTransactions.SlaTransactionResult;
 
 /**
  * @author Philip Webb
- * Written: Australian Spring 2025  
+ * Written: Australian Spring 2025
  */
 public class SlaIconColourCodes implements SlaIconColourCodesInterface {
 
-	@Autowired
-	RunDAO  runDAO; 	
-		
-	@Autowired
-	SlaDAO  slaDAO; 	
-	
-	@Autowired	
-	MetricSlaDAO metricSlaDAO;
-	
-	@Autowired
-	TransactionDAO transactionDAO; 	
+	private final RunDAO runDAO;
+	private final SlaDAO slaDAO;
+	private final MetricSlaDAO metricSlaDAO;
+	private final TransactionDAO transactionDAO;
 
-	
-	public String slaIconColourCodesForRun(String reqApp, String reqRunTime){  
+	public SlaIconColourCodes(RunDAO runDAO, SlaDAO slaDAO, MetricSlaDAO metricSlaDAO, TransactionDAO transactionDAO) {
+		this.runDAO = runDAO;
+		this.slaDAO = slaDAO;
+		this.metricSlaDAO = metricSlaDAO;
+		this.transactionDAO = transactionDAO;
+	}
+
+
+	public String slaIconColourCodesForRun(String reqApp, String reqRunTime){
 		String slaResultColours =  reqApp+","+reqRunTime+",unknown,unknown,unknown";
 		try {
 			if (StringUtils.isAllBlank(reqRunTime)){
@@ -71,18 +70,18 @@ public class SlaIconColourCodes implements SlaIconColourCodesInterface {
 		// System.out.println("<< via slaIconColoursForRun : " + reqApp + " : "+ slaResultColours);
 		return slaResultColours;
 	}
-	
-	
-	private String computeSlaTransactionResultIconColour(String application, String lastRunDateStr) {	
+
+
+	private String computeSlaTransactionResultIconColour(String application, String lastRunDateStr) {
 		String iconColour = "green";
 
 		List<Transaction> transactions = transactionDAO.returnListOfTransactionsToGraph(
-				application, AppConstantsTrends.TXN_90TH_GRAPH,AppConstantsTrends.SHOW_SHOW_CDP,"%", "", false, "", 
+				application, AppConstantsTrends.TXN_90TH_GRAPH,AppConstantsTrends.SHOW_SHOW_CDP,"%", "", false, "",
 				lastRunDateStr, false, null, AppConstantsTrends.ALL);
-		
+
 		List<SlaTransactionResult> slaTransactionResultList = new SlaChecker()
 				.listCdpTaggedTransactionsWithFailedSlas(application, transactions, slaDAO);
-		
+
 		for (SlaTransactionResult slaTransactionResult : slaTransactionResultList) {
 			if ( !slaTransactionResult.isPassedFailPercent()){
 				return "red";
@@ -92,9 +91,9 @@ public class SlaIconColourCodes implements SlaIconColourCodesInterface {
 			}
 			if ( !slaTransactionResult.isPassedAllSlas()){
 				iconColour = "yellow";
-			}			
+			}
 		}
-		
+
 		List<String> cdpTaggedMissingTransactions = new SlaChecker()
 				.checkForMissingTransactionsWithDatabaseSLAs(application, lastRunDateStr, slaDAO);
 		if ( ! cdpTaggedMissingTransactions.isEmpty()){
@@ -102,11 +101,11 @@ public class SlaIconColourCodes implements SlaIconColourCodesInterface {
 		}
 		return iconColour;
 	}
-	
-	
-	private String computeMetricSlasResultIconColour(String application, String lastRunDateStr) {	
+
+
+	private String computeMetricSlasResultIconColour(String application, String lastRunDateStr) {
 		String iconColour = "green";
-	
+
 		List<MetricSlaResult> metricSlaResults = new MetricSlaChecker().listFailedMetricSLAs(application,
 				lastRunDateStr, null, metricSlaDAO, transactionDAO);
 		if ( ! metricSlaResults.isEmpty()){
@@ -114,17 +113,17 @@ public class SlaIconColourCodes implements SlaIconColourCodesInterface {
 		}
         return iconColour;
 	}
-	
-	
+
+
 	private String computeSlaSummaryIconColour(String slaTransactionIcon, String slaMetricsIcon) {
 		String iconColour = "green";
 		if (  "red".equalsIgnoreCase(slaTransactionIcon)  ||  "red".equalsIgnoreCase(slaMetricsIcon) ) {
-			return "red";			
+			return "red";
 		}
-		if (  "yellow".equalsIgnoreCase(slaTransactionIcon)  ||  "yellow".equalsIgnoreCase(slaMetricsIcon) ) {		
-			return "yellow";			
+		if (  "yellow".equalsIgnoreCase(slaTransactionIcon)  ||  "yellow".equalsIgnoreCase(slaMetricsIcon) ) {
+			return "yellow";
 		}
 		return iconColour;
 	}
-	
+
 }

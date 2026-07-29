@@ -16,7 +16,6 @@
 
 package com.mark59.scripting.selenium.interfaces;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +28,8 @@ import com.mark59.core.interfaces.DriverFunctions;
 import com.mark59.scripting.selenium.JmeterFunctionsForSeleniumScripts;
 import com.mark59.scripting.selenium.driversimpl.DriverFunctionsSeleniumChrome;
 import com.mark59.scripting.selenium.driversimpl.DriverFunctionsSeleniumFirefox;
+
+import java.util.Base64;
 
 /**
  * Encapsulates the WebDriver to be used in a Mark59 script. Currently can be a Firefox or Chromium driver.
@@ -84,7 +85,7 @@ public abstract class DriverFunctionsSelenium<O extends WebDriver> implements Dr
 		byte[] screenshot;
 
 		try {
-			screenshot = Base64.decodeBase64(((TakesScreenshot) this.getDriver()).getScreenshotAs(OutputType.BASE64));
+			screenshot = Base64.getDecoder().decode(((TakesScreenshot) this.getDriver()).getScreenshotAs(OutputType.BASE64));
 		} catch (Exception e) {
 			LOG.debug("Screenshot failure ("  + e.getClass().getName() + ")  Message : " + e.getMessage());
 			LOG.warn("Screenshot failure ("  + e.getClass().getName() + ")  Message  Message starts: " + StringUtils.abbreviate(e.getMessage(), 100));

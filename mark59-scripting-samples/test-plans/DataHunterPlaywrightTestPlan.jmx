@@ -435,7 +435,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.5</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.6</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
@@ -758,7 +758,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-scripting Version: 6.5</stringProp>
+                <stringProp name="Argument.value">using mark59-scripting Version: 6.6</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="DATAHUNTER_URL" elementType="Argument">
@@ -905,7 +905,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api Version: 6.5</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api Version: 6.6</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -1007,7 +1007,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="build information:" elementType="Argument">
                 <stringProp name="Argument.name">build information:</stringProp>
-                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.5</stringProp>
+                <stringProp name="Argument.value">mark59-metrics-api (via excel) Version: 6.6</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
@@ -1056,7 +1056,7 @@ return 0;</stringProp>
               </elementProp>
               <elementProp name="script build information:" elementType="Argument">
                 <stringProp name="Argument.name">script build information:</stringProp>
-                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.5</stringProp>
+                <stringProp name="Argument.value">using mark59-datahunter-api Version: 6.6</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
               <elementProp name="DATAHUNTER_URL" elementType="Argument">

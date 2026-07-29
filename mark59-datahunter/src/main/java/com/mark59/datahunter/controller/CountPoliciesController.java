@@ -20,7 +20,6 @@ package com.mark59.datahunter.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,8 +43,11 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class CountPoliciesController {
 
-	@Autowired
-	PoliciesDAO policiesDAO;
+	private final PoliciesDAO policiesDAO;
+
+	public CountPoliciesController(PoliciesDAO policiesDAO) {
+		this.policiesDAO = policiesDAO;
+	}
 
 
 	@GetMapping("/count_policies")

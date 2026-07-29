@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,6 @@ package com.mark59.datahunter.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,23 +42,26 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @Controller
 public class UpdatePoliciesUseStateController {
-	
-	@Autowired
-	PoliciesDAO policiesDAO;	
-		
+
+	private final PoliciesDAO policiesDAO;
+
+	public UpdatePoliciesUseStateController(PoliciesDAO policiesDAO) {
+		this.policiesDAO = policiesDAO;
+	}
+
 
 	@GetMapping("/update_policies_use_state")
-	public String updatePoliciesUseStatetateUrl(@RequestParam(required=false) String application, @ModelAttribute UpdateUseStateAndEpochTime updateUseStateAndEpochTime, Model model  ) { 
+	public String updatePoliciesUseStatetateUrl(@RequestParam(required=false) String application, @ModelAttribute UpdateUseStateAndEpochTime updateUseStateAndEpochTime, Model model  ) {
 //		System.out.println("/update_policies_use_state");
 		List<String> usabilityListFrom = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
 		usabilityListFrom.add(0,"");
 		model.addAttribute("usabilityListFrom",usabilityListFrom);
 		List<String> usabilityListTo = new ArrayList<>(DataHunterConstants.USEABILITY_LIST);
-		model.addAttribute("usabilityListTo",usabilityListTo);		
-		return "/update_policies_use_state";				
+		model.addAttribute("usabilityListTo",usabilityListTo);
+		return "/update_policies_use_state";
 	}
-	
-		
+
+
 	@PostMapping("/update_policies_use_state_action")
 	public ModelAndView updatePoliciesUseStatetateUrlAction(@ModelAttribute UpdateUseStateAndEpochTime updateUseStateAndEpochTime,  Model model, HttpServletRequest httpServletRequest) {
 		DataHunterUtils.expireSession(httpServletRequest);
@@ -67,18 +69,18 @@ public class UpdatePoliciesUseStateController {
 		SqlWithParms sqlWithParms = policiesDAO.constructUpdatePoliciesUseStateSql(updateUseStateAndEpochTime);
 		model.addAttribute("sql", sqlWithParms);
 
-		
+
 		String navUrParms = "application=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getApplication())
-			+ "&identifier=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getIdentifier()) 
-			+ "&lifecycle=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getLifecycle()) 
+			+ "&identifier=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getIdentifier())
+			+ "&lifecycle=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getLifecycle())
 			+ "&useability=" + DataHunterUtils.encode(updateUseStateAndEpochTime.getUseability())
 			+ "&toUseability="  + DataHunterUtils.encode(updateUseStateAndEpochTime.getToUseability())
 			+ "&toEpochTime=";
-		
+
 		if (updateUseStateAndEpochTime.getToEpochTime()!=null) {
 			navUrParms +=  String.valueOf(updateUseStateAndEpochTime.getToEpochTime());
-		} 
-		model.addAttribute("navUrParms", navUrParms);		
+		}
+		model.addAttribute("navUrParms", navUrParms);
 
 		int rowsAffected;
 		try {
@@ -86,22 +88,22 @@ public class UpdatePoliciesUseStateController {
 		} catch (Exception e) {
 			model.addAttribute("sqlResult", "FAIL");
 			model.addAttribute("sqlResultText", "sql exception caught: " + e.getMessage() );
-			return new ModelAndView("/update_policies_use_state_action", "model", model);	
-		}	
-			
+			return new ModelAndView("/update_policies_use_state_action", "model", model);
+		}
+
 		model.addAttribute("rowsAffected", rowsAffected);
-		
+
 		if (rowsAffected == 0 ){
-			model.addAttribute("sqlResult", "PASS");	
+			model.addAttribute("sqlResult", "PASS");
 			model.addAttribute("sqlResultText", "sql execution OK, but no rows matched the selection criteria.  Nothing was updated on the database");
-		} else if (rowsAffected == 1 ){  
-			model.addAttribute("sqlResult", "PASS");	
+		} else if (rowsAffected == 1 ){
+			model.addAttribute("sqlResult", "PASS");
 			model.addAttribute("sqlResultText", "sql execution OK." );
 		} else {
-			model.addAttribute("sqlResult", "PASS");	
+			model.addAttribute("sqlResult", "PASS");
 			model.addAttribute("sqlResultText", "sql execution OK.  Note muliple rows where updated by this query" );
-		}	
+		}
 		return new ModelAndView("/update_policies_use_state_action", "model", model);
 	}
-	
+
 }

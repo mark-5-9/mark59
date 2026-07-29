@@ -29,7 +29,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.Test;
 
-import com.mark59.metrics.common.MetricsApiConstants;
+import com.mark59.metrics.api.utils.MetricsApiConstants;
 import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsersDAO;
 import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsersDAOexcelWorkbookImpl;
 import com.mark59.metrics.data.commandparserlinks.dao.CommandParserLinksDAO;

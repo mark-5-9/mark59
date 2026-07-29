@@ -42,36 +42,36 @@ import junit.framework.TestCase;
 
 	@Autowired
 	ApplicationContext context;
-	
+
 	@Bean
 	DataSource dataSource() {
 		return DataSourceBuilder.create().build()  ;
 	};
-		
+
     @Value("h2mem")
-    String springProfilesActive;	
+    String springProfilesActive;
 	@Bean
-    String currentDatabaseProfile() {return "h2mem";   }   
+    String currentDatabaseProfile() {return "h2mem";   }
 	@Bean
-	ApplicationDAO applicationDAO() {return new ApplicationDAOjdbcTemplateImpl();}
+	ApplicationDAO applicationDAO() {return new ApplicationDAOjdbcTemplateImpl(dataSource());}
 	@Bean
-	RunDAO runDAO() {return new RunDAOjdbcTemplateImpl();}
+	GraphMappingDAO graphMappingDAO() {	return new GraphMappingDAOjdbcTemplateImpl(dataSource());}
 	@Bean
-	TransactionDAO transactionDAO() {return new TransactionDAOjdbcTemplateImpl();}
+	TransactionDAO transactionDAO() {return new TransactionDAOjdbcTemplateImpl(dataSource(), graphMappingDAO());}
 	@Bean
-	SlaDAO slaDAO() {return new SlaDAOjdbcImpl();}
+	RunDAO runDAO() {return new RunDAOjdbcTemplateImpl(dataSource(), applicationDAO(), transactionDAO());}
 	@Bean
-	MetricSlaDAO metricSlaDAO() {return new MetricSlaDAOjdbcImpl();}
+	SlaDAO slaDAO() {return new SlaDAOjdbcImpl(dataSource());}
 	@Bean
-	GraphMappingDAO graphMappingDAO() {	return new GraphMappingDAOjdbcTemplateImpl();}
+	MetricSlaDAO metricSlaDAO() {return new MetricSlaDAOjdbcImpl(dataSource());}
 	@Bean
-	EventMappingDAO eventMappingDAO() {	return new EventMappingDAOjdbcTemplateImpl();}
+	EventMappingDAO eventMappingDAO() {	return new EventMappingDAOjdbcTemplateImpl(dataSource(), currentDatabaseProfile());}
 	@Bean
-	TestTransactionsDAO testTransactionsDAO() {return new TestTransactionsDAOjdbcTemplateImpl();	}
-		
+	TestTransactionsDAO testTransactionsDAO() {return new TestTransactionsDAOjdbcTemplateImpl(dataSource(), currentDatabaseProfile());}
+
 	PerformanceTest performanceTest;
-	EmbeddedDatabase db; 
-	
+	EmbeddedDatabase db;
+
 	public void setUp() {
 		String applicationId = "testApplicationId";
 		String runReferenceArg = "testRunReferenceArg";
@@ -80,9 +80,9 @@ import junit.framework.TestCase;
 		springApplication.setWebApplicationType(WebApplicationType.NONE);
 		springApplication.setBannerMode(Banner.Mode.OFF);
 		context = springApplication.run();
-		performanceTest = new PerformanceTest(context, applicationId, runReferenceArg);	
+		performanceTest = new PerformanceTest(context, applicationId, runReferenceArg);
 	}
-	
+
 	@Test
 	public void testPerformanceTestRunSummaryTest() {
 		Run run = performanceTest.getRunSummary();
@@ -90,7 +90,7 @@ import junit.framework.TestCase;
 		assertTrue("testRunReferenceArg".equals(run.getRunReference()));
 		assertTrue("N".equals(run.getBaselineRun()));
 	}
-	
+
 	@Test
 	public void testPerformanceTestCalculateAndSetRunTimesUsingEpochStartAndEndTest() {
 		DateRangeBean dateRangeBean= new DateRangeBean(1600000000000L, 1610000000000L);
@@ -101,5 +101,5 @@ import junit.framework.TestCase;
 		assertTrue("N".equals(run.getBaselineRun()));
 		assertTrue("166666".equals(run.getDuration()));
 	}
-	
+
 }

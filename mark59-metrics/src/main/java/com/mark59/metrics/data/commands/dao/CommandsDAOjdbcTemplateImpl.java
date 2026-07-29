@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -31,14 +30,17 @@ import com.mark59.metrics.data.beans.Command;
 
 /**
  * @author Philip Webb
- * Written: Australian Summer 2020  
+ * Written: Australian Summer 2020
  */
-public class CommandsDAOjdbcTemplateImpl implements CommandsDAO 
+public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 {
-	
-	@Autowired  
-	private DataSource dataSource;
-		
+
+	private final DataSource dataSource;
+
+	public CommandsDAOjdbcTemplateImpl(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
 
 	@Override
 	public Command findCommand(String commandName){
@@ -52,12 +54,12 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
-		
+
 		if (rows.size() == 0 ){
 			return null;
 		}
 		Map<String, Object> row = rows.get(0);
-		
+
 		Command command = new Command();
 		command.setCommandName((String)row.get("COMMAND_NAME"));
 		command.setExecutor((String)row.get("EXECUTOR"));
@@ -68,16 +70,16 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		return  command;
 	}
 
-	
+
 	@Override
 	public List<Command> findCommands(){
 		return  findCommands("","");
 	}
 
-	
+
 	@Override
 	public List<Command> findCommands(String selectionCol, String selectionValue){
-		
+
 		// Whitelist validation to prevent SQL injection
 		List<String> allowedColumns = List.of("COMMAND_NAME", "EXECUTOR", "COMMAND", "IGNORE_STDERR", "COMMENT", "PARAM_NAMES");
 		if (!selectionCol.isEmpty() && !allowedColumns.contains(selectionCol.toUpperCase())) {
@@ -85,39 +87,39 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 		}
 
 		String sql = "select COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES from COMMANDS ";
-		
-		if (!selectionValue.isEmpty()  ) {			
+
+		if (!selectionValue.isEmpty()  ) {
 			sql += "  where " + selectionCol + " like :selectionValue ";
-		} 
-		sql += " order by COMMAND_NAME ";		
-		
+		}
+		sql += " order by COMMAND_NAME ";
+
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
 				.addValue("selectionValue", selectionValue);
 
 		List<Command> commandList = new ArrayList<>();
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, sqlparameters);
-		
+
 		for (Map<String, Object> row : rows) {
 			Command command = new Command();
 			command.setCommandName((String)row.get("COMMAND_NAME"));
 			command.setExecutor((String)row.get("EXECUTOR"));
 			command.setCommand((String)row.get("COMMAND"));
-			command.setIgnoreStderr((String)row.get("IGNORE_STDERR"));			
+			command.setIgnoreStderr((String)row.get("IGNORE_STDERR"));
 			command.setComment((String)row.get("COMMENT"));
-			command.setParamNames(deserializeJsonToList((String)row.get("PARAM_NAMES")));	
+			command.setParamNames(deserializeJsonToList((String)row.get("PARAM_NAMES")));
 			commandList.add(command);
-		}	
+		}
 		return commandList;
 	}
-	
-	
+
+
 	@Override
 	public void insertCommand(Command command) {
-		
-		String sql = "INSERT INTO COMMANDS ( COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES ) " + 
+
+		String sql = "INSERT INTO COMMANDS ( COMMAND_NAME, EXECUTOR, COMMAND, IGNORE_STDERR, COMMENT, PARAM_NAMES ) " +
 				      " VALUES (?,?,?,?,?,?)";
-		
+
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		jdbcTemplate.update(sql,
@@ -128,16 +130,16 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 				command.getComment(),
 				serializeListToJson(command.getParamNames()));
 	}
-	
-	
+
+
 	@Override
 	public void updateCommand(Command command){
-		
+
 		String sql = "UPDATE COMMANDS set EXECUTOR = ?, COMMAND = ?, IGNORE_STDERR = ?, COMMENT = ?, PARAM_NAMES = ? "
 				+ "where COMMAND_NAME = ? ";
-		
+
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		
+
 		jdbcTemplate.update(sql,
 				command.getExecutor(),
 				command.getCommand(),
@@ -145,28 +147,28 @@ public class CommandsDAOjdbcTemplateImpl implements CommandsDAO
 				command.getComment(),
 				serializeListToJson(command.getParamNames()),
 				command.getCommandName());
-	}	
-	
-	
+	}
+
+
 	@Override
 	public void deleteCommand(String commandName) {
-		
+
 		String sql = "delete from SERVERCOMMANDLINKS where COMMAND_NAME = :commandName ";
 
 		MapSqlParameterSource sqlparameters = new MapSqlParameterSource()
-				.addValue("commandName", commandName);		
+				.addValue("commandName", commandName);
 
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);
-						
+
 		sql = "delete from COMMANDPARSERLINKS where COMMAND_NAME = :commandName ";
 		jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);
-				
+
 		sql = "delete from COMMANDS where COMMAND_NAME = :commandName ";
 		jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 		jdbcTemplate.update(sql, sqlparameters);
 
-	}	
-	
+	}
+
 }

@@ -43,7 +43,7 @@ import com.mark59.core.utils.Log4jConfigurationHelper;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.PropertiesKeys;
 import com.mark59.core.utils.PropertiesReader;
-import com.mark59.metrics.common.MetricsApiConstants;
+import com.mark59.metrics.api.utils.MetricsApiConstants;
 import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsersDAO;
 import com.mark59.metrics.data.commandResponseParsers.dao.CommandResponseParsersDAOexcelWorkbookImpl;
 import com.mark59.metrics.data.commandparserlinks.dao.CommandParserLinksDAO;
@@ -57,7 +57,6 @@ import com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAOexcelWorkbook
 import com.mark59.metrics.drivers.ServerProfileRunner;
 import com.mark59.metrics.pojos.ParsedCommandResponse;
 import com.mark59.metrics.pojos.WebServerMetricsResponsePojo;
-import com.mark59.metrics.utils.MetricsConstants;
 
 /**
  * <p>Intended for use as a Java Sampler in a JMeter test plan to capture metric data.
@@ -104,7 +103,7 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 		staticMap.put(IpUtilities.RESTRICT_TO_ONLY_RUN_ON_IPS_LIST, "");
 		staticMap.put("_", "");
 		staticMap.put("___________________", "");
-		staticMap.put("build information: ", "mark59-metrics-api (via excel) Version: " + MetricsConstants.MARK59_VERSION_METRICS);
+		staticMap.put("build information: ", "mark59-metrics-api (via excel) Version: " + MetricsApiConstants.MARK59_VERSION_METRICS_API);
 
 		defaultArgumentsMap = Collections.unmodifiableMap(staticMap);
 	}
@@ -150,10 +149,12 @@ public class ServerMetricsCaptureViaExcel extends AbstractJavaSamplerClient {
 
 			String reqServerProfileName = context.getParameter(SERVER_PROFILE_NAME);
 
-		String excelFilePath = context.getParameter(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH);
-		if (StringUtils.isAllBlank(excelFilePath)) {
-			excelFilePath = PropertiesReader.getInstance().getProperty(PropertiesKeys.MARK59_PROP_SERVER_PROFILES_EXCEL_FILE_PATH);
-		}			File excelFile = null;
+			String excelFilePath = context.getParameter(OVERRIDE_PROPERTY_MARK59_SERVER_PROFILES_EXCEL_FILE_PATH);
+			if (StringUtils.isAllBlank(excelFilePath)) {
+				excelFilePath = PropertiesReader.getInstance().getProperty(PropertiesKeys.MARK59_PROP_SERVER_PROFILES_EXCEL_FILE_PATH);
+			}
+			
+			File excelFile = null;
 			try {
 				excelFile = new File(excelFilePath);
 			} catch (Exception e) {

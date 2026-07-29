@@ -220,6 +220,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * @param logNamesFormat  from the Mark59 property "mark59.logname.format"
 	 * @param context the JMeter JavaSamplerContext
 	 */
+	@SuppressWarnings("deprecation")
 	private String formLeadingPartOfLogNames(String logNamesFormat, JavaSamplerContext context) {
 		// Validate input parameters
 		if (logNamesFormat == null) {
@@ -256,6 +257,7 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 			}
 
 		}
+		// warning resolved in JMeter 6:  StringUtils.removeEnd -> Strings.CS.removeEnd
 		return StringUtils.removeEnd(leadingPartOfLogNames, "_");
 	}
 
@@ -517,8 +519,8 @@ public class JmeterFunctionsImpl implements JmeterFunctions {
 	 * <pre><code>
 	 * jm.userDatatypeEntry("MyServersCPUUtilizationPercent", 40L, Mark59Constants.JMeterFileDatatypes.CPU_UTIL );
 	 * </code></pre>
-	 * 
-	 * @param dataPointName label for the data point 
+	 *
+	 * @param dataPointName label for the data point
 	 * @param dataPointValue the value of the data point
 	 * @param jMeterFileDatatypes the data type for the JMeter results file
 	 * @return SampleResult

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,32 +29,34 @@ import com.opencsv.CSVParser;
 @Controller
 public class UploadPoliciesFileController {
 
-	
-	@Autowired
-	PoliciesDAO policiesDAO;
-	
-	public static final int MAX_ERRORS_REPORTED = 50; 
-	public static final int NUM_OF_EXPECTED_COLS = 6; 
-	
-	
+	private final PoliciesDAO policiesDAO;
+
+	public UploadPoliciesFileController(PoliciesDAO policiesDAO) {
+		this.policiesDAO = policiesDAO;
+	}
+
+	public static final int MAX_ERRORS_REPORTED = 50;
+	public static final int NUM_OF_EXPECTED_COLS = 6;
+
+
 	@GetMapping("/upload_policies")
 	public ModelAndView uploadPolicies(@ModelAttribute UploadPoliciesFile uploadPoliciesFile, Model model) {
-		createDropdownAttributes(model);		
+		createDropdownAttributes(model);
 		return new ModelAndView("upload_policies");
 	}
 
-	
-	@PostMapping("/upload_policies_action")	
-	public ModelAndView uploadPoliciesAction(@ModelAttribute UploadPoliciesFile uploadPoliciesFile, Model model, 
+
+	@PostMapping("/upload_policies_action")
+	public ModelAndView uploadPoliciesAction(@ModelAttribute UploadPoliciesFile uploadPoliciesFile, Model model,
 			@RequestParam MultipartFile file){
-	
-		String navUrParms = "&typeOfUpload=" + DataHunterUtils.encode(uploadPoliciesFile.getTypeOfUpload());	
-		model.addAttribute("navUrParms", navUrParms);			
-		
+
+		String navUrParms = "&typeOfUpload=" + DataHunterUtils.encode(uploadPoliciesFile.getTypeOfUpload());
+		model.addAttribute("navUrParms", navUrParms);
+
 		int lineCount=1; int rowsInserted=0; int rowsUpdated=0; int rowsBypassed=0; int errorLines=0;
 		List<Policies> policiesList = new ArrayList<Policies>();
 		BufferedReader br = null;
-		
+
 		String errorLinesTxt = "";
 		Policies policy = new Policies();
 		SqlWithParms sqlWithParms = new SqlWithParms();
@@ -64,9 +65,9 @@ public class UploadPoliciesFileController {
 
 		try {
 			br = new BufferedReader(new InputStreamReader(file.getInputStream()));
-			
-			validateHeader(br.readLine());			
-			
+
+			validateHeader(br.readLine());
+
 			while ((line = br.readLine()) != null) {
 				lineCount++;
 
@@ -77,7 +78,7 @@ public class UploadPoliciesFileController {
 						policy = createPolicy(line);
 
 						if (DataHunterConstants.UPDATE_EXISTING_ITEMS.equals(uploadPoliciesFile.getTypeOfUpload())){
-							
+
 							if (policyAlreadyExists(policy)) {
 								sqlWithParms = policiesDAO.constructUpdatePoliciesSql(policy);
 								policiesDAO.runDatabaseUpdateSql(sqlWithParms);
@@ -87,9 +88,9 @@ public class UploadPoliciesFileController {
 								policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 								rowsInserted++;
 							}
-							
-						} else if (DataHunterConstants.LEAVE_EXISTING_ITEMS_UNCHANGED.equals(uploadPoliciesFile.getTypeOfUpload())){ 
-							
+
+						} else if (DataHunterConstants.LEAVE_EXISTING_ITEMS_UNCHANGED.equals(uploadPoliciesFile.getTypeOfUpload())){
+
 							if (policyAlreadyExists(policy)) {
 								rowsBypassed++;
 							} else {
@@ -97,26 +98,26 @@ public class UploadPoliciesFileController {
 								policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 								rowsInserted++;
 							}
-						
+
 						} else if (DataHunterConstants.BULK_LOAD.equals(uploadPoliciesFile.getTypeOfUpload())) {
-							
+
 							policiesList.add(new Policies(policy));
 							rowsInserted++; 						// only get actually inserted every 100:
-							
+
 					    	if ( (rowsInserted % 100) == 0 ){
 					    		policiesDAO.insertMultiple(policiesList);
 					    		policiesList.clear();
 					    	}
-						
+
 						} else {
 							throw new Exception("logic error - invalid action for load : " + uploadPoliciesFile.getTypeOfUpload());
 						}
-						
+
 					} else { // invalid line
 						errorLinesTxt += policyValidationMsg;
 						errorLines++;
 					}
-				} // blank line	
+				} // blank line
 			} //end-while
 
 			if (DataHunterConstants.BULK_LOAD.equals(uploadPoliciesFile.getTypeOfUpload()) && rowsInserted > 0){
@@ -124,7 +125,7 @@ public class UploadPoliciesFileController {
 	    		policiesList.clear();
 			}
 			br.close();
-		
+
 		} catch (Exception e) {
 			//System.err.println(e.getMessage());
 			model.addAttribute("filename", file.getOriginalFilename());
@@ -134,26 +135,26 @@ public class UploadPoliciesFileController {
 					+ "<br><br>" + e.getMessage()
 					+ "<br><br>Error occured processing line " + lineCount + " [" + line + "]";
 			if (DataHunterConstants.BULK_LOAD.equals(uploadPoliciesFile.getTypeOfUpload())){
-				erroredSqlResult = erroredSqlResult 
+				erroredSqlResult = erroredSqlResult
 					+ "<br>For a Bulk Load no items in the file being loaded can already exist on the database (is this the problem?)"
 					+ "<br>Also For a Bulk Load the number of inserts shown may be misleading as they are grouped (100 at a time) ";
 			} else {
-				erroredSqlResult = erroredSqlResult + "<br>" + sqlWithParms.getSql() + "<br>" + sqlWithParms.getSqlparameters(); 			
+				erroredSqlResult = erroredSqlResult + "<br>" + sqlWithParms.getSql() + "<br>" + sqlWithParms.getSqlparameters();
 			}
 			model.addAttribute("sqlResult", erroredSqlResult);
-			model.addAttribute("rowsAffected", "At point of failure: " + (rowsInserted+rowsUpdated) + 
-					" (" + rowsInserted + " inserts, " + rowsUpdated + " updates, " + rowsBypassed + " bypassed)." 
-					+ " Also " + errorLines + " invalid data lines found" );	
+			model.addAttribute("rowsAffected", "At point of failure: " + (rowsInserted+rowsUpdated) +
+					" (" + rowsInserted + " inserts, " + rowsUpdated + " updates, " + rowsBypassed + " bypassed)."
+					+ " Also " + errorLines + " invalid data lines found" );
 			try {br.close();} catch (Exception e1){System.err.println(e1.getMessage());}
 			return new ModelAndView("/upload_policies_action", "model", model);
 		}
-		
+
 		model.addAttribute("filename", file.getOriginalFilename());
 		model.addAttribute("sql", "(multiple)");
 		model.addAttribute("sqlResult", "PASS");
-		model.addAttribute("rowsAffected", (rowsInserted+rowsUpdated) + 
-				" (" + rowsInserted + " inserts, " + rowsUpdated + " updates, " + rowsBypassed + " bypassed)." 
-				+ " Also " + errorLines + " invalid data lines found" );	
+		model.addAttribute("rowsAffected", (rowsInserted+rowsUpdated) +
+				" (" + rowsInserted + " inserts, " + rowsUpdated + " updates, " + rowsBypassed + " bypassed)."
+				+ " Also " + errorLines + " invalid data lines found" );
 
 		if (rowsInserted+rowsUpdated == 0 ){
 			model.addAttribute("sqlResultText", "sql execution OK, but no rows where affected.");
@@ -165,25 +166,25 @@ public class UploadPoliciesFileController {
 		} else {
 			model.addAttribute("errorLinesTxt", errorLinesTxt);
 		}
-				
-		return new ModelAndView("/upload_policies_action", "model", model);		
+
+		return new ModelAndView("/upload_policies_action", "model", model);
 	}
-	
+
 
 	private void validateHeader(String headerLine) {
 		if (headerLine == null) {
-			throw new RuntimeException("File Unselected or Empty!. <br>(A file with a header of format " 
+			throw new RuntimeException("File Unselected or Empty!. <br>(A file with a header of format "
 					+ "'"+DataHunterConstants.CSV_DOWNLOAD_HEADER_TEXT+"' is expected)");
 		}
 		if (!DataHunterConstants.CSV_DOWNLOAD_HEADER_TEXT.equalsIgnoreCase(headerLine.replaceAll("\\s", "")) &&
-				!DataHunterConstants.CSV_DOWNLOAD_HEADER_QUOTES.equalsIgnoreCase(headerLine.replaceAll("\\s", ""))){	
-			throw new RuntimeException("Invalid Header. <br>A file header of format " 
+				!DataHunterConstants.CSV_DOWNLOAD_HEADER_QUOTES.equalsIgnoreCase(headerLine.replaceAll("\\s", ""))){
+			throw new RuntimeException("Invalid Header. <br>A file header of format "
 					+ "'"+DataHunterConstants.CSV_DOWNLOAD_HEADER_TEXT+"' is expected,<br>"
-					+ "but the first line of the file was " + headerLine);			
+					+ "but the first line of the file was " + headerLine);
 		}
 	}
-	
-	
+
+
 	public String validLineOfPolicyData(String line, int errorLines, int lineCount){
 		String[] lineCols = {};
 		try {
@@ -192,11 +193,11 @@ public class UploadPoliciesFileController {
 			return formatLineLoadErrorMsg(e.getMessage(), line, errorLines, lineCount);
 		}
 		if (NUM_OF_EXPECTED_COLS != lineCols.length ) {
-			return formatLineLoadErrorMsg("expected "+NUM_OF_EXPECTED_COLS+" columns, but found "+lineCols.length, 
+			return formatLineLoadErrorMsg("expected "+NUM_OF_EXPECTED_COLS+" columns, but found "+lineCols.length,
 					line, errorLines, lineCount);
 		}
 		if (DataHunterConstants.CSV_DOWNLOAD_BLANK_LINE.equals(line.replaceAll("\\s", ""))) {
-			return formatLineLoadErrorMsg("A line of all blank values is not considered valid", 
+			return formatLineLoadErrorMsg("A line of all blank values is not considered valid",
 					line, errorLines, lineCount);
 		}
 		if (StringUtils.isBlank(lineCols[0])) {
@@ -204,7 +205,7 @@ public class UploadPoliciesFileController {
 					line, errorLines, lineCount);
 		}
 		if (!DataHunterConstants.USEABILITY_LIST.contains(lineCols[3].trim())) {
-			return formatLineLoadErrorMsg("The 'USEABILITY' value must be one of " + DataHunterConstants.USEABILITY_LIST, 
+			return formatLineLoadErrorMsg("The 'USEABILITY' value must be one of " + DataHunterConstants.USEABILITY_LIST,
 					line, errorLines, lineCount);
 		}
 		if (StringUtils.isNotBlank(lineCols[5]) && !StringUtils.isNumeric((lineCols[5].trim()))){
@@ -214,25 +215,25 @@ public class UploadPoliciesFileController {
 		return DataHunterConstants.OK;
 	}
 
-	
+
 	/**
 	 * line format assumed: "APPLICATION","IDENTIFIER","LIFECYCLE","USEABILITY","OTHERDATA","EPOCHTIME"
-	 * @param line (data line from upload file) 
-	 * @return policy 
+	 * @param line (data line from upload file)
+	 * @return policy
 	 * @throws IOException
 	 */
 	public Policies createPolicy(String line) throws IOException {
 		String[] lineCols = new CSVParser().parseLine(line);
 		Policies policy = new Policies();
-		
+
 		// policySelectionCriteria.setIdentifier(line.replace("'", "''"));    // generic database char escaping???????
-		
-		policy.setApplication(lineCols[0].trim());	
+
+		policy.setApplication(lineCols[0].trim());
 		policy.setIdentifier(lineCols[1].trim());
 		policy.setLifecycle(lineCols[2].trim());
 		policy.setUseability(lineCols[3].trim());
 		policy.setOtherdata(lineCols[4]);
-		
+
 		if (StringUtils.isNumeric(lineCols[5].trim())){
 			policy.setEpochtime(Long.valueOf(lineCols[5].trim()));
 		} else {
@@ -240,8 +241,8 @@ public class UploadPoliciesFileController {
 		}
 		return policy;
 	}
-	
-	
+
+
 	private String formatLineLoadErrorMsg(String errorMsg, String line, int errorLines, int lineCount) {
 		String formattedErrorLine = "";
 		if (errorLines == MAX_ERRORS_REPORTED){
@@ -249,9 +250,9 @@ public class UploadPoliciesFileController {
 		}
 		if (errorLines == 0){
 			formattedErrorLine = "<b>Summary of Invalid Data Lines</b><br>";
-		}		
+		}
 		if (errorLines < MAX_ERRORS_REPORTED) {
-			formattedErrorLine += "<br>line " + String.format("%07d", lineCount) + " [" + line + "] " + errorMsg; 
+			formattedErrorLine += "<br>line " + String.format("%07d", lineCount) + " [" + line + "] " + errorMsg;
 		}
 		return formattedErrorLine;
 	}
@@ -260,7 +261,7 @@ public class UploadPoliciesFileController {
 	private boolean policyAlreadyExists(Policies policy) {
 		PolicySelectionCriteria policySelectionCriteria = new PolicySelectionCriteria();
 		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COUNTS);
-		policySelectionCriteria.setSelectOrder(DataHunterConstants.SELECT_UNORDERED);		
+		policySelectionCriteria.setSelectOrder(DataHunterConstants.SELECT_UNORDERED);
 		policySelectionCriteria.setApplication(policy.getApplication());
 		policySelectionCriteria.setIdentifier(policy.getIdentifier());
 		policySelectionCriteria.setLifecycle(policy.getLifecycle());
@@ -272,15 +273,15 @@ public class UploadPoliciesFileController {
 			throw new RuntimeException("<b>FATAL DATABASE ERROR - LOAD ABORTED DURING EXECUTION<B> "
 				+ "<br>" + sqlWithParms.getSql() + "<br>" + sqlWithParms.getSqlparameters()
 				+ "<br> policy data : " + policy + "<br>" + e.getMessage());
-		}	
+		}
 		return ( policyFound > 0 );
 	}
-	    
+
 
 	private void createDropdownAttributes(Model model) {
 		List<String> typeOfUploadList = new ArrayList<>(DataHunterConstants.TYPE_OF_ITEMS_FILE_UPLOAD);
-		model.addAttribute("TypeOfUploads",typeOfUploadList);		
-		
+		model.addAttribute("TypeOfUploads",typeOfUploadList);
+
 	}
 
 }

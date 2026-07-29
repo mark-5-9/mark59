@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -95,6 +94,7 @@ public class ServerProfileRunner {
 	 *
 	 * @return WebServerMetricsResponsePojo response
 	 */
+	@SuppressWarnings("deprecation")
 	public static WebServerMetricsResponsePojo commandsResponse(String reqServerProfileName, String reqTestMode,
 			ServerProfilesDAO serverProfilesDAO, ServerCommandLinksDAO serverCommandLinksDAO, CommandsDAO commandsDAO,
 			CommandParserLinksDAO commandParserLinksDAO, CommandResponseParsersDAO commandResponseParsersDAO,
@@ -174,7 +174,8 @@ public class ServerProfileRunner {
 					parsedCommandResponses.add(parsedCommandResponse);
 
 					if (runningViaWeb) {
-						if (Strings.CS.contains(failureMsg, "Response :") && failureMsg.length() > 2000) {
+						// warning resolved in JMeter 6:  StringUtils.contains -> Strings.CS.contains
+						if (StringUtils.contains(failureMsg, "Response :") && failureMsg.length() > 2000) {
 							// caters for long 'invoked commands', to ensure at least part of the response is output
 							String failnl = failureMsg.replace("<br>", "\n").replace("&nbsp;", " ");
 							String cmdInvoked = StringUtils.abbreviate(StringUtils.substringBefore(failnl, "Response :"), 1000);

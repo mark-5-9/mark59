@@ -16,6 +16,7 @@
 
 package com.mark59.scripting.playwright;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,8 @@ import com.mark59.core.utils.Mark59LogLevels;
 import com.mark59.scripting.AbstractJmeterFunctionsUiCommon;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Tracing;
 import com.microsoft.playwright.Page.ScreenshotOptions;
+import com.microsoft.playwright.Tracing;
 
 /**
  * Playwright flavored extension of the Mark59 class {@link AbstractJmeterFunctionsUiCommon} ( whose primary purpose is to handle transaction
@@ -88,7 +89,11 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 
 	/** log4J class logger */
 	public static final Logger LOG = LogManager.getLogger(JmeterFunctionsForPlaywrightScripts.class);
+	
+	private static final String SCREENSHOT_FAILURE_MSG = "-- ScreenShot Failure --";
 
+	private enum LogMode { BUFFER, WRITE }
+	
 	private Page page;
 
 
@@ -133,7 +138,7 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 	 * @param options Playwright ScreenshotOptions
 	 */
 	public void writePageScreenshot(Page page, String imageName, ScreenshotOptions options) {
-		writeLog(imageName,"jpg", page.screenshot(options));
+		writeLog(imageName,"jpg", pageScreenshot(page, options));
 	}
 
 
@@ -150,7 +155,7 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 	 * @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 */
 	public void bufferScreenshot(Page page, String imageName, ScreenshotOptions options) {
-		bufferLog(imageName,"jpg", page.screenshot(options));
+		bufferLog(imageName,"jpg", pageScreenshot(page,options));
 	}
 
 
@@ -161,14 +166,11 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 	 * <p>All pages associated with the {@link PlaywrightAbstractJavaSamplerClient#browser}, are screenshot, so
 	 * more than one file can potentially be written when invoking this method.
 	 *
-	 * @param imageName last part of the log filename (but excluding extension - which is set as '.jpg')
+	 * @param imageName last part of the log filename but excluding extension (which is set as '.jpg', or '.txt on failure)
 	 */
 	@Override
 	public void writeScreenshot(String imageName) {
-		List<Page> ctxPages = listBrowserCtxPages();
-		for (int i = 0; i < ctxPages.size(); i++) {
-			writeLog(unique(imageName,ctxPages,i), "jpg", ctxPages.get(i).screenshot());
-		}
+		takeScreenshot(imageName, LogMode.WRITE);
 	}
 
 
@@ -178,17 +180,14 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 	 * <p>All pages associated with the {@link PlaywrightAbstractJavaSamplerClient#browser} are screenshot, so
 	 * more than one file can potentially be buffered when invoking this method.
 	 *
-	 * @param imageName last part of the log filename (but excluding extension - which is set as '.jpg')
+	 * @param imageName last part of the log filename but excluding extension (which is set as '.jpg', or '.txt on failure)
 	 *
 	 * @see JmeterFunctionsImpl#writeBufferedArtifacts()
 	 * @see PlaywrightAbstractJavaSamplerClient#UiScriptExecutionAndExceptionsHandling(JavaSamplerContext, Map, String)
 	 */
 	@Override
 	public void bufferScreenshot(String imageName) {
-		List<Page> ctxPages = listBrowserCtxPages();
-		for (int i = 0; i < ctxPages.size(); i++) {
-			bufferLog(unique(imageName,ctxPages,i), "jpg", ctxPages.get(i).screenshot());
-		}
+		takeScreenshot(imageName, LogMode.BUFFER);
 	}
 
 
@@ -268,6 +267,75 @@ public class JmeterFunctionsForPlaywrightScripts extends AbstractJmeterFunctions
 	 */
 	public void stopPlayWrightTrace(String tracePath) {
 		page.context().tracing().stop(new Tracing.StopOptions().setPath(Paths.get(tracePath)));
+	}
+
+
+
+	/**
+	 * @return returns a byte array containing the screenshot for a page,
+	 * or the first 15 lines of Stack Trace if an exception was thrown
+	 */
+	private byte[] pageScreenshot(Page page) {
+		return pageScreenshot(page, null);
+	}
+
+
+	
+
+	/**
+	 * @param imageName last part of the log filename but excluding extension (which is set as '.jpg', or '.txt on failure)
+	 * @param logmode  whether to WRITE or BUFFER the screenshot
+	 */
+	private void takeScreenshot(String imageName, LogMode logmode){
+		byte[] screenshotBytes;
+		String filetype = "jpg";
+		List<Page> ctxPages = listBrowserCtxPages();
+
+		for (int i = 0; i < ctxPages.size(); i++) {
+			screenshotBytes = pageScreenshot(ctxPages.get(i));
+			if (screenshotBytes!=null && (new String(screenshotBytes, StandardCharsets.UTF_8)).startsWith(SCREENSHOT_FAILURE_MSG)){
+				filetype = "txt";
+				imageName=imageName+"_Screenshot_Error";
+			}
+			if (LogMode.WRITE.equals(logmode)) {
+				writeLog(unique(imageName,ctxPages,i), filetype, pageScreenshot(ctxPages.get(i)));
+			} else {
+				bufferLog(unique(imageName,ctxPages,i), filetype, pageScreenshot(ctxPages.get(i)));
+			}
+		}
+	}
+	
+	
+	/**
+	 * @return returns a byte array containing the screenshot for a page,
+	 * or the first 15 lines of Stack Trace if an exception was thrown
+	 */
+	private byte[] pageScreenshot(Page page, ScreenshotOptions options) {
+		byte[] screenshotBytes = "".getBytes();
+		try {
+			screenshotBytes = page.screenshot(options);
+		} catch (Exception e) {
+			screenshotBytes = (SCREENSHOT_FAILURE_MSG+"\n"+e.getMessage()+"\n"+getLimitedStackTrace(e,15))
+					.getBytes();
+		}
+		return screenshotBytes;
+	}
+
+	/**
+	 * Captures a limited number of lines from an exception stack trace.
+	 *
+	 * @param e the exception to capture
+	 * @param maxLines maximum number of stack trace lines to include
+	 * @return a string containing the exception message and limited stack trace
+	 */
+	private String getLimitedStackTrace(Exception e, int maxLines) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(e.toString()).append("\n");
+		StackTraceElement[] trace = e.getStackTrace();
+		for (int i = 0; i < Math.min(maxLines, trace.length); i++) {
+			sb.append("\tat ").append(trace[i]).append("\n");
+		}
+		return sb.toString();
 	}
 
 

@@ -22,7 +22,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -38,9 +37,11 @@ import com.mark59.trends.data.beans.Application;
 public class ApplicationDAOjdbcTemplateImpl implements ApplicationDAO
 {
 
-	@Autowired
-	private DataSource dataSource;
+	private final DataSource dataSource;
 
+	public ApplicationDAOjdbcTemplateImpl(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
 
 	@Override
 	public void insertApplication(Application  application) {

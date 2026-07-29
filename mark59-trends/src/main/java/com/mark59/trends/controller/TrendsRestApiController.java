@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,6 @@
 package com.mark59.trends.controller;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,22 +28,23 @@ import com.mark59.trends.slaIcons.SlaIconColourCodesInterface;
 
 /**
  * @author Philip Webb
- * Written: Australian Winter 2019  
+ * Written: Australian Winter 2019
  */
 
 @RestController
 @RequestMapping("/api")
 public class TrendsRestApiController {
 
+	private final SlaIconColourCodesInterface slaIconColourCodes;
 
-	@Autowired
-	SlaIconColourCodesInterface slaIconColourCodes;	
-	
-	
-	@GetMapping("/slaIconColoursForRun")	
-	public ResponseEntity<Object> slaIconColoursForRun(@RequestParam String reqApp, @RequestParam(required=false) String reqRunTime){  
+	public TrendsRestApiController(SlaIconColourCodesInterface slaIconColourCodes) {
+		this.slaIconColourCodes = slaIconColourCodes;
+	}
+
+	@GetMapping("/slaIconColoursForRun")
+	public ResponseEntity<Object> slaIconColoursForRun(@RequestParam String reqApp, @RequestParam(required=false) String reqRunTime){
 		String slaResultColours = slaIconColourCodes.slaIconColourCodesForRun(reqApp,reqRunTime);
 		return ResponseEntity.ok(slaResultColours);
 	}
-	
+
 }

@@ -20,10 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 import com.mark59.core.utils.Mark59Constants;
 import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.application.UtilsTrends;
@@ -57,23 +63,27 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class TrendingController {
 
-	@Autowired
-	ApplicationDAO applicationDAO;
-	@Autowired
-	RunDAO runDAO;
-	@Autowired
-	TransactionDAO transactionDAO;
-	@Autowired
-	SlaDAO slaDAO;
-	@Autowired
-	MetricSlaDAO metricSlaDAO;
-	@Autowired
-	GraphMappingDAO graphMappingDAO;
-	@Autowired
-	VisGraphicDataProductionInterface visGraphicDataProduction;
-	@Autowired
-	SlaIconColourCodesInterface slaIconColourCodes;
+	private final ApplicationDAO applicationDAO;
+	private final RunDAO runDAO;
+	private final TransactionDAO transactionDAO;
+	private final SlaDAO slaDAO;
+	private final MetricSlaDAO metricSlaDAO;
+	private final GraphMappingDAO graphMappingDAO;
+	private final VisGraphicDataProductionInterface visGraphicDataProduction;
+	private final SlaIconColourCodesInterface slaIconColourCodes;
 
+	public TrendingController(ApplicationDAO applicationDAO, RunDAO runDAO, TransactionDAO transactionDAO,
+			SlaDAO slaDAO, MetricSlaDAO metricSlaDAO, GraphMappingDAO graphMappingDAO,
+			VisGraphicDataProductionInterface visGraphicDataProduction, SlaIconColourCodesInterface slaIconColourCodes) {
+		this.applicationDAO = applicationDAO;
+		this.runDAO = runDAO;
+		this.transactionDAO = transactionDAO;
+		this.slaDAO = slaDAO;
+		this.metricSlaDAO = metricSlaDAO;
+		this.graphMappingDAO = graphMappingDAO;
+		this.visGraphicDataProduction = visGraphicDataProduction;
+		this.slaIconColourCodes = slaIconColourCodes;
+	}
 
 	@GetMapping("/trending")
 	public String loadTrendingPage( @RequestParam(required=false) String reqApp,
@@ -114,7 +124,6 @@ public class TrendingController {
 					throw new RuntimeException("Whoa !!  No Applications found " );
 				}
 			}
-
 			// At this point, applications list is guaranteed to have at least one item
 			reqApp = applications.get(0);
 		}
@@ -322,6 +331,30 @@ public class TrendingController {
 	public void processTrendingForm(@RequestParam(required = false) String reqApp,
 			@ModelAttribute TrendingForm trendingForm, Model model, HttpServletRequest request) {
 		// Method intentionally empty - annotation handles the response
+	}
+
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public String handleIllegalArgumentException(IllegalArgumentException ex, Model model) {
+		model.addAttribute("errorMessage", ex.getMessage());
+
+		TrendingForm trendingForm = new TrendingForm();
+		model.addAttribute(trendingForm);
+
+		List<String> appListSelectorList = new ArrayList<>();
+		appListSelectorList.add("Active");
+		appListSelectorList.add("All");
+		model.addAttribute("appListSelectors", appListSelectorList);
+
+		model.addAttribute("applications", populateApplicationDropdown(AppConstantsTrends.ACTIVE));
+		model.addAttribute("graphs", populateMetricsDropdown());
+		model.addAttribute("showCdpOptions", populateShowCdpOptionsDropdown());
+
+		GraphMapping graphMapping = graphMappingDAO.findGraphMapping(AppConstantsTrends.TXN_90TH_GRAPH);
+		model.addAttribute("barRangeLegendId", graphMapping.getBarRangeLegend());
+		model.addAttribute("txnTypedId", graphMapping.getTxnType());
+
+		return "trending";
 	}
 
 

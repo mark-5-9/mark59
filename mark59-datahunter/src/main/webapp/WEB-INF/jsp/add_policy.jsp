@@ -1,17 +1,17 @@
 <%-- Copyright 2019 Mark59.com
- 
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
- 
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License. 
-  
+  limitations under the License.
+
   Author:  Philip Webb
   Date:    Australian Winter 2019
   --%>
@@ -31,7 +31,7 @@
 
 function buildHomeLink() {
 	document.getElementById('HomeLink').innerHTML="Home Page";
-	homeLinkUrl = "/mark59-datahunter" 
+	homeLinkUrl = "/mark59-datahunter"
 		+ "?application="+ encodeURIComponent(document.getElementById("application").value)
 		+ "&identifier=" + encodeURIComponent(document.getElementById("identifier").value)
 		+ "&lifecycle="	 + encodeURIComponent(document.getElementById("lifecycle").value)
@@ -41,52 +41,55 @@ function buildHomeLink() {
 
 </script>
 </head>
-<body onload="buildHomeLink();"> 
+
+<body onload="enableOrdisableCreateCipherBtn();">
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
-<div class="content"> 
+<div class="content">
 
-  <h1>Add Item</h1>   		 
+  <h1>Add Item</h1>
 
   <form:form method="post" action="add_policy_action" modelAttribute="policies">
    <table >
     <tr>
      <td>Application</td>
-     <td>:</td>      
+     <td>:</td>
      <td><form:input path="application" size="64" height="20" onchange="trimkey(this)" /></td>
     </tr>
     <tr>
      <td>Identifier</td>
-     <td>:</td>      
+     <td>:</td>
      <td><form:input path="identifier" size="64" height="20" onchange="trimkey(this)" /></td>
     </tr>
     <tr>
      <td>Lifecycle</td>
-     <td>:</td>            
+     <td>:</td>
      <td><form:input path="lifecycle" size="64" height="20" onchange="trimkey(this)" /></td>
     </tr>
     <tr>
      <td>Useability</td>
-     <td>:</td>            
+     <td>:</td>
      <td><form:select path="useability" items="${Useabilities}" /></td>
     </tr>
     <tr>
      <td>Otherdata</td>
-     <td>:</td>            
-     <td><form:textarea path="otherdata" /></td>
-    </tr>        
+     <td>:</td>
+	 <td style="white-space:nowrap"><form:textarea path="otherdata" onkeyup="enableOrdisableCreateCipherBtn()"/>&nbsp;&nbsp;
+	 <button type="button" id="createCipherBtn" onclick="createCipher()" style="vertical-align: top">Create Cipher</button>
+	 </td>
+    </tr>
     <tr>
      <td>EpochTime (msecs)</td>
-     <td>:</td>      
-     <td><form:input path="epochtime" maxlength="18" size="13" type="text" pattern="-?\d*" 
+     <td>:</td>
+     <td><form:input path="epochtime" maxlength="18" size="13" type="text" pattern="-?\d*"
      		onchange="trimkey(this)" /></td>
-    </tr>        
+    </tr>
     <tr>
      <td colspan="3"><br><br><input type="submit" value="submit" id="submit" /></td>
     </tr>
    </table>
   </form:form>
- 
+
   <br><a id="HomeLink" href="see_buildHomeLink_JS">Home Page</a>
 </div>
 </body>

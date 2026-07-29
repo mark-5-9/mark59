@@ -34,7 +34,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Defines the Mark59 Logging Directory and log names formatter.
  *
- * These properties (can be set in the mark59.properties file) are relevant to log file names:
+ * These properties (can be set in the mark59.properties file) are used to define log file names:
  * <br>mark59.log.directory - sets the base directory to be used for mark59 logging functions
  * <br>mark59.log.directory.suffix - add a date or date/time suffix to the log directory
  * <br>mark59.logname.format - set of options to set set the format of a log filename

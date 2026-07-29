@@ -1,11 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-scripting</artifactId>
-	<version>6.5</version>
+	<version>6.6</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -13,10 +13,23 @@
 	<url>http://www.mark59.com</url>
 
 	<properties>
-		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>	
+	</properties>
+
+	<repositories>
+	  <repository>
+	    <id>apache-snapshots</id>
+	    <url>https://repository.apache.org/content/repositories/snapshots/</url>
+	    <snapshots>
+	      <enabled>true</enabled>
+	    </snapshots>
+	    <releases>
+	      <enabled>false</enabled>
+	    </releases>
+	  </repository>
+	</repositories>
 
 
 	<dependencies>
@@ -24,7 +37,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.5</version>
+			<version>6.6</version>
 		</dependency>
 
 		<dependency>
@@ -33,24 +46,24 @@
 			<version>5.6.3</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 		    <groupId>org.apache.jmeter</groupId>
 		    <artifactId>jorphan</artifactId>
 		    <version>5.6.3</version>
-			<scope>provided</scope>		    
+			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 		    <groupId>org.seleniumhq.selenium</groupId>
 		    <artifactId>selenium-java</artifactId>
-		    <version>4.40.0</version>
+		    <version>4.45.0</version>
 		</dependency>
 
 		<dependency>
 		    <groupId>com.microsoft.playwright</groupId>
 		    <artifactId>playwright</artifactId>
-		    <version>1.57.0</version>
+		    <version>1.61.0</version>
 		</dependency>
 
 		<dependency>
@@ -72,30 +85,18 @@
 	<developers>
 		<developer>
 			<name>Philip Webb</name>
-			<email>philip.webb@mark59.com</email>
+			<email>mark59ptf@gmail.com</email>
 		</developer>
 	</developers>
 
 	<scm>
-		<connection>scm:git:git://github.com/iagcl/mark59.git</connection>
-		<developerConnection>scm:git:ssh://github.com:iagcl/mark59.git</developerConnection>
-		<url>http://github.com/iagcl/mark59/tree/master</url>
-	</scm>	
-
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>	
+		<connection>scm:git:git://github.com/mark-5-9/mark59.git</connection>
+		<developerConnection>scm:git:ssh://github.com:mark-5-9/mark59.git</developerConnection>
+		<url>https://github.com/mark-5-9/mark59/tree/master</url>
+	</scm>
 
 	<build>
 		<plugins>
-
 			<!--local build goals: clean package install -->
 
 			<plugin>
@@ -103,11 +104,11 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.10.1</version>
 			</plugin>
-				
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.2.1</version>				
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -135,19 +136,19 @@
 			   <activation><activeByDefault>false</activeByDefault></activation>
 			   	<build>
 				<plugins>
-				
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.10.1</version>
+						<version>3.14.1</version>
 					</plugin>
-				
-					<!-- maven central requirements -->	
+
+					<!-- maven central requirements -->
 
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.2.1</version>				
+						<version>3.4.0</version>
 						<executions>
 							<execution>
 								<id>attach-sources</id>
@@ -155,11 +156,14 @@
 							</execution>
 						</executions>
 					</plugin>
-		
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.3.2</version>					
+						<version>3.12.0</version>
+						<configuration>
+							<doclint>all,-missing</doclint>
+						</configuration>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -167,11 +171,17 @@
 							</execution>
 						</executions>
 					</plugin>
-				
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>				
+						<version>3.2.8</version>
+						<configuration>
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+						</configuration>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -180,35 +190,21 @@
 							</execution>
 						</executions>
 					</plugin>
-		
+
 			     	<plugin>
-				       <groupId>org.sonatype.central</groupId>
-				       <artifactId>central-publishing-maven-plugin</artifactId>
-				       <version>0.8.0</version>
-				       <extensions>true</extensions>
-				       <configuration>
-				            <publishingServerId>central</publishingServerId>
-<!--				            <autoPublish>true</autoPublish>-->
-				       </configuration>
+				    	<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>0.10.0</version>
+				    	<extensions>true</extensions>
+						<configuration>
+							<publishingServerId>central</publishingServerId>
+<!--			            <autoPublish>true</autoPublish>-->
+						</configuration>
 				    </plugin>
 
-<!--					<plugin>-->
-<!--						<groupId>org.sonatype.plugins</groupId>-->
-<!--						<artifactId>nexus-staging-maven-plugin</artifactId>-->
-<!--						<version>1.6.8</version>-->
-<!--						<extensions>true</extensions>-->
-<!--						<configuration>-->
-<!--							<serverId>ossrh</serverId>-->
-<!--							<nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
-<!--							<autoReleaseAfterClose>false</autoReleaseAfterClose>-->
-<!--						</configuration>-->
-<!--					</plugin>-->
-		
-
-		
 				</plugins>
 			</build>
-		</profile>	
+		</profile>
 	</profiles>
-	
+
 </project>

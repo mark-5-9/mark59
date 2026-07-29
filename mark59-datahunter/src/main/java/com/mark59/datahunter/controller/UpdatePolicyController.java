@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -43,38 +42,41 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @Controller
 public class UpdatePolicyController {
-	
-	@Autowired
-	PoliciesDAO policiesDAO;	
-		
+
+	private final PoliciesDAO policiesDAO;
+
+	public UpdatePolicyController(PoliciesDAO policiesDAO) {
+		this.policiesDAO = policiesDAO;
+	}
+
 
 	@GetMapping("/update_policy")
 	public ModelAndView updatePolicyUrl(@RequestParam(required=false) String application,
 			@RequestParam(required=false) String identifier,@RequestParam(required=false) String lifecycle,
-			@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model){ 
+			@ModelAttribute PolicySelectionCriteria policySelectionCriteria, Model model){
 		Map<String, Object> map = new HashMap<>();
-		map.put("policySelectionCriteria",policySelectionCriteria);		
+		map.put("policySelectionCriteria",policySelectionCriteria);
 		map.put("application", application);
-		return new ModelAndView("update_policy", "map", map);		
+		return new ModelAndView("update_policy", "map", map);
 	}
 
-	
+
 	@GetMapping("/update_policy_data")
 	public ModelAndView updatePolicyDataGet(@RequestParam(required=false) String application,
-			@RequestParam(required=false) String identifier,@RequestParam(required=false) String lifecycle,			
-			Model model){ 
+			@RequestParam(required=false) String identifier,@RequestParam(required=false) String lifecycle,
+			Model model){
 		PolicySelectionCriteria policySelectionCriteria = new PolicySelectionCriteria();
 		policySelectionCriteria.setApplication(application);
 		policySelectionCriteria.setIdentifier(identifier);
 		policySelectionCriteria.setLifecycle(lifecycle);
-		return updatePolicyData(policySelectionCriteria, model);			
+		return updatePolicyData(policySelectionCriteria, model);
 	}
 
 	@PostMapping("/update_policy_data")
 	public ModelAndView updatePolicyDataPost(@RequestParam(required=false) String application,
-			@RequestParam(required=false) String identifier,@RequestParam(required=false) String lifecycle,			
-			@ModelAttribute	PolicySelectionCriteria policySelectionCriteria, Model model){ 
-		return updatePolicyData(policySelectionCriteria, model);			
+			@RequestParam(required=false) String identifier,@RequestParam(required=false) String lifecycle,
+			@ModelAttribute	PolicySelectionCriteria policySelectionCriteria, Model model){
+		return updatePolicyData(policySelectionCriteria, model);
 	}
 
 	private ModelAndView updatePolicyData(PolicySelectionCriteria policySelectionCriteria, Model model) {
@@ -83,76 +85,76 @@ public class UpdatePolicyController {
 		policySelectionCriteria.setSelectClause(PoliciesDAO.SELECT_POLICY_COLUMNS);
 		SqlWithParms sqlWithParms = policiesDAO.constructSelectPolicySql(policySelectionCriteria);
 		List<Policies> policiesList = new ArrayList<Policies>();
-		
+
 		try {
 			policiesList = policiesDAO.runSelectPolicieSql(sqlWithParms);
 		} catch (Exception e) {
 			model.addAttribute("sqlResult", "FAIL");
 			model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );
-			return new ModelAndView("/update_policy_action", "model", model);	
+			return new ModelAndView("/update_policy_action", "model", model);
 		}
-		
-		Policies policies = new Policies(); 
+
+		Policies policies = new Policies();
 		if (policiesList.size() == 1 ){
 			policies = policiesList.get(0);
 		} else {
 			Map<String, Object> map = new HashMap<>();
-			map.put("policySelectionCriteria", policySelectionCriteria);		
-			map.put("reqErr", "oops, that Item does not exist");			
-			model.addAttribute("map", map);	
+			map.put("policySelectionCriteria", policySelectionCriteria);
+			map.put("reqErr", "oops, that Item does not exist");
+			model.addAttribute("map", map);
 			return new ModelAndView("update_policy", "map", map);
 		}
 
-		model.addAttribute("navUrParms", createNavUrlParms(policies));			
-		model.addAttribute("policies", policies);		
+		model.addAttribute("navUrParms", createNavUrlParms(policies));
+		model.addAttribute("policies", policies);
 		model.addAttribute("Useabilities", usabilityList);
 		return new ModelAndView("/update_policy_data", "model", model);
 	}
-		
-	
+
+
 	@PostMapping("/update_policy_action")
 	public ModelAndView updatePolicyAction(@ModelAttribute Policies policies, Model model, HttpServletRequest httpServletRequest ) {
-		DataHunterUtils.expireSession(httpServletRequest); 
-		
+		DataHunterUtils.expireSession(httpServletRequest);
+
 		if (policies.getEpochtime() == null){
 			policies.setEpochtime(System.currentTimeMillis());
 		}
-		
+
 		SqlWithParms sqlWithParms = policiesDAO.constructUpdatePoliciesSql(policies);
 		model.addAttribute("sql", sqlWithParms);
 		model.addAttribute("policies", policies);
-		model.addAttribute("navUrParms", createNavUrlParms(policies));	
-		
+		model.addAttribute("navUrParms", createNavUrlParms(policies));
+
 		int rowsAffected = 0;
 		try {
 			rowsAffected = policiesDAO.runDatabaseUpdateSql(sqlWithParms);
 		} catch (Exception e) {
 			model.addAttribute("sqlResult", "FAIL");
 			model.addAttribute("sqlResultText", "sql exception caught: "  + e.getMessage() );
-			return new ModelAndView("/update_policy_action", "model", model);	
-		}	
-		
+			return new ModelAndView("/update_policy_action", "model", model);
+		}
+
 		model.addAttribute("rowsAffected", rowsAffected);
-		
+
 		if (rowsAffected == 1 ){
-			model.addAttribute("sqlResult", "PASS");			
+			model.addAttribute("sqlResult", "PASS");
 			model.addAttribute("sqlResultText", "sql execution OK");
 		} else {
-			model.addAttribute("sqlResult", "FAIL");		
+			model.addAttribute("sqlResult", "FAIL");
 			model.addAttribute("sqlResultText", "sql execution : Error.  1 row should of been affected, but sql result indicates " + rowsAffected + " rows affected?" );
 		}
 		return new ModelAndView("/update_policy_action", "model", model);
 	}
-	
-	
+
+
 	private String createNavUrlParms(Policies policies) {
 		String navUrParms = "application=" + DataHunterUtils.encode(policies.getApplication())
-		+ "&identifier=" + DataHunterUtils.encode(policies.getIdentifier()) 
-		+ "&lifecycle="  + DataHunterUtils.encode(policies.getLifecycle())		
-		+ "&useability=" + DataHunterUtils.encode(policies.getUseability())		
-		+ "&otherdata="  + DataHunterUtils.encode(policies.getOtherdata())		
+		+ "&identifier=" + DataHunterUtils.encode(policies.getIdentifier())
+		+ "&lifecycle="  + DataHunterUtils.encode(policies.getLifecycle())
+		+ "&useability=" + DataHunterUtils.encode(policies.getUseability())
+		+ "&otherdata="  + DataHunterUtils.encode(policies.getOtherdata())
 		+ "&epochtime=";
-		
+
 		if (policies.getEpochtime()!=null) {
 			navUrParms +=  String.valueOf(policies.getEpochtime());
 		}

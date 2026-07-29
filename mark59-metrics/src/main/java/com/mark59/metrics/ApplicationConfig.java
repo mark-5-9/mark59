@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,8 @@
  */
 
 package com.mark59.metrics;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -36,9 +38,9 @@ import com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAOjdbcTemplateI
 
 /**
  * Create  Spring bean(s) via program rather than XML configuration<br>
- * 
+ *
  * @author Philip Webb
- * Written: Australian Autumn 2020  
+ * Written: Australian Autumn 2020
  */
 @Configuration
 public class ApplicationConfig {
@@ -59,39 +61,39 @@ public class ApplicationConfig {
     /**
      * This method is equivalent to the following appConfig.xml:
      * <pre><code>
-     * &lt;bean id="ServersDAO" 	
+     * &lt;bean id="ServersDAO"
      *	class="com.mark59.metrics.data.serverprofiles.dao.ServerProfilesDAOjdbcTemplateImpl"&gt;
      * &lt;/bean&gt;
      * </code></pre>
      */
     @Bean
-    ServerProfilesDAO serverProfilesDAO() {
-        return new ServerProfilesDAOjdbcTemplateImpl();
+    ServerProfilesDAO serverProfilesDAO(DataSource dataSource) {
+        return new ServerProfilesDAOjdbcTemplateImpl(dataSource);
     }
 
     @Bean
-    CommandsDAO commandsDAO() {
-    	return new CommandsDAOjdbcTemplateImpl();
-    } 
+    CommandsDAO commandsDAO(DataSource dataSource) {
+    	return new CommandsDAOjdbcTemplateImpl(dataSource);
+    }
 
     @Bean
-    CommandResponseParsersDAO commandResponseParsersDAO() {
-        return new CommandResponseParsersDAOjdbcTemplateImpl();
-    } 
- 
+    CommandResponseParsersDAO commandResponseParsersDAO(DataSource dataSource) {
+        return new CommandResponseParsersDAOjdbcTemplateImpl(dataSource);
+    }
+
    @Bean
-    ServerCommandLinksDAO serverCommandLinksDAO() {
-	    return new ServerCommandLinksDAOjdbcTemplateImpl();
-	}     
+    ServerCommandLinksDAO serverCommandLinksDAO(DataSource dataSource) {
+	    return new ServerCommandLinksDAOjdbcTemplateImpl(dataSource);
+	}
 
     @Bean
-    CommandParserLinksDAO commandParserLinksDAO() {
-	    return new CommandParserLinksDAOjdbcTemplateImpl();
-	}     
-        
+    CommandParserLinksDAO commandParserLinksDAO(DataSource dataSource) {
+	    return new CommandParserLinksDAOjdbcTemplateImpl(dataSource);
+	}
+
     @Bean
-    BaseDAO baseDAO() {
-	    return new BaseDAOjdbcTemplateImpl();
-	}     
-    
+    BaseDAO baseDAO(DataSource dataSource) {
+	    return new BaseDAOjdbcTemplateImpl(dataSource);
+	}
+
 }

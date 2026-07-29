@@ -22,8 +22,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -31,7 +29,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -40,12 +37,10 @@ import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
 import com.mark59.core.utils.SecureAES;
 import com.mark59.trends.application.AppConstantsTrends;
-import com.mark59.trends.data.eventMapping.dao.EventMappingDAO;
 import com.mark59.trends.data.metricSla.dao.MetricSlaDAO;
 import com.mark59.trends.data.run.dao.RunDAO;
 import com.mark59.trends.data.run.dao.RunDAO.BaselineOption;
 import com.mark59.trends.data.sla.dao.SlaDAO;
-import com.mark59.trends.data.testTransactions.dao.TestTransactionsDAO;
 import com.mark59.trends.data.transaction.dao.TransactionDAO;
 import com.mark59.trends.load.run.GatlingRun;
 import com.mark59.trends.load.run.JmeterRun;
@@ -65,32 +60,22 @@ import com.mark59.trends.slaTransactions.SlaTransactionResult;
 public class TrendsLoad  implements CommandLineRunner
 {
 
-    @Autowired
-    DataSource dataSource;
+    private final String currentDatabaseProfile;
+	private final MetricSlaDAO metricSlaDAO;
+	private final TransactionDAO transactionDAO;
+	private final SlaDAO slaDAO;
+	private final RunDAO runDAO;
+	private final ApplicationContext context;
 
-    @Autowired
-    String currentDatabaseProfile;
-
-	@Autowired
-	MetricSlaDAO  metricSlaDAO;
-
-	@Autowired
-	TransactionDAO transactionDAO;
-
-	@Autowired
-	SlaDAO slaDAO;
-
-	@Autowired
-	RunDAO runDAO;
-
-	@Autowired
-	TestTransactionsDAO testTransactionsDAO;
-
-	@Autowired
-	EventMappingDAO eventMappingDAO;
-
-	@Autowired
-	ApplicationContext context;
+	public TrendsLoad(String currentDatabaseProfile, MetricSlaDAO metricSlaDAO,
+			TransactionDAO transactionDAO, SlaDAO slaDAO, RunDAO runDAO, ApplicationContext context) {
+		this.currentDatabaseProfile = currentDatabaseProfile;
+		this.metricSlaDAO = metricSlaDAO;
+		this.transactionDAO = transactionDAO;
+		this.slaDAO = slaDAO;
+		this.runDAO = runDAO;
+		this.context = context;
+	}
 
 	private static final String DEFAULT_500_MAX_NUMBER_OF_RUNS = "500";
 	private static final int MAX_APPLICATION_NAME_LENGTH = 32;

@@ -1,12 +1,11 @@
 package com.mark59.datahunter.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 
 /**
- * The @ControllerAdvice annotation means this class is actioned for every controller, 
+ * The @ControllerAdvice annotation means this class is actioned for every controller,
  * so the @ModelAttribute will be populated for all jsps. Handy here as we need a value
  * to be universally available to the navigation jsp, to decide whether to present
  * the h2 console link or not.
@@ -17,8 +16,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @ControllerAdvice
 public class _ControllerAdviceGlobalVars {
 
-	@Autowired
-	String currentDatabaseProfile;
+	private final String currentDatabaseProfile;
+
+	public _ControllerAdviceGlobalVars(String currentDatabaseProfile) {
+		this.currentDatabaseProfile = currentDatabaseProfile;
+	}
 
 	@ModelAttribute("currentDatabaseProfile")
 	public String populateUser() {

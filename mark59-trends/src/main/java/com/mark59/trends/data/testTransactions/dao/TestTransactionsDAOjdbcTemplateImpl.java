@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.mark59.core.utils.Mark59Constants;
@@ -38,7 +37,6 @@ import com.mark59.trends.data.beans.EventMapping;
 import com.mark59.trends.data.beans.Run;
 import com.mark59.trends.data.beans.TestTransaction;
 import com.mark59.trends.data.beans.Transaction;
-import com.mark59.trends.data.graphMapping.dao.GraphMappingDAO;
 
 /**
  * @author Philip Webb
@@ -47,15 +45,13 @@ import com.mark59.trends.data.graphMapping.dao.GraphMappingDAO;
 public class TestTransactionsDAOjdbcTemplateImpl implements TestTransactionsDAO
 {
 
-	@Autowired
-	private DataSource dataSource;
+	private final DataSource dataSource;
+	private final String currentDatabaseProfile;
 
-	@Autowired
-	private String currentDatabaseProfile;
-
-	@Autowired
-	GraphMappingDAO graphMappingDAO;
-
+	public TestTransactionsDAOjdbcTemplateImpl(DataSource dataSource, String currentDatabaseProfile){
+		this.dataSource = dataSource;
+		this.currentDatabaseProfile = currentDatabaseProfile;
+	}
 
 	/**
 	 * Not in use. insertMultiple should be used (for efficiency).

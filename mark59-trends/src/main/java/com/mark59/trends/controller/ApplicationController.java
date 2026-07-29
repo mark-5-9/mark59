@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,10 +38,7 @@ import com.mark59.trends.application.AppConstantsTrends;
 import com.mark59.trends.application.UtilsTrends;
 import com.mark59.trends.data.application.dao.ApplicationDAO;
 import com.mark59.trends.data.beans.Application;
-import com.mark59.trends.data.metricSla.dao.MetricSlaDAO;
 import com.mark59.trends.data.run.dao.RunDAO;
-import com.mark59.trends.data.sla.dao.SlaDAO;
-import com.mark59.trends.data.transaction.dao.TransactionDAO;
 import com.mark59.trends.form.ApplicationDashboardEntry;
 import com.mark59.trends.form.CopyApplicationForm;
 
@@ -55,21 +51,23 @@ import com.mark59.trends.form.CopyApplicationForm;
 @Controller
 public class ApplicationController {
 
-	@Autowired
-	ApplicationDAO  applicationDAO;
+	private final ApplicationDAO applicationDAO;
+	private final RunDAO runDAO;
+//	private final SlaDAO slaDAO;
+//	private final MetricSlaDAO metricSlaDAO;
+//	private final TransactionDAO transactionDAO;
 
-	@Autowired
-	RunDAO  runDAO;
-
-	@Autowired
-	SlaDAO  slaDAO;
-
-	@Autowired
-	MetricSlaDAO metricSlaDAO;
-
-	@Autowired
-	TransactionDAO transactionDAO;
-
+//	public ApplicationController(ApplicationDAO applicationDAO, RunDAO runDAO, SlaDAO slaDAO,
+//			MetricSlaDAO metricSlaDAO, TransactionDAO transactionDAO) {
+	
+	public ApplicationController(ApplicationDAO applicationDAO, RunDAO runDAO){
+	
+		this.applicationDAO = applicationDAO;
+		this.runDAO = runDAO;
+//		this.slaDAO = slaDAO;
+//		this.metricSlaDAO = metricSlaDAO;
+//		this.transactionDAO = transactionDAO;
+	}
 
 	@GetMapping("/dashboard")
 	public ModelAndView dashboard(@RequestParam(required=false) String reqAppListSelector) {

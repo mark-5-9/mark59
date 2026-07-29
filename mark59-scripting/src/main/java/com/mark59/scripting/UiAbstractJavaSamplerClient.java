@@ -46,7 +46,10 @@ import com.mark59.core.JmeterFunctionsImpl;
 import com.mark59.core.Outcome;
 import com.mark59.core.utils.IpUtilities;
 import com.mark59.core.utils.Log4jConfigurationHelper;
+import com.mark59.core.utils.Mark59Constants;
 import com.mark59.core.utils.Mark59Utils;
+import com.mark59.core.utils.PropertiesKeys;
+import com.mark59.core.utils.PropertiesReader;
 import com.mark59.core.utils.SafeSleep;
 import com.mark59.scripting.interfaces.JmeterFunctionsUi;
 import com.mark59.scripting.playwright.JmeterFunctionsForPlaywrightScripts;
@@ -82,6 +85,16 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	/** log4J class logger */
 	public static final Logger LOG = LogManager.getLogger(UiAbstractJavaSamplerClient.class);
 
+	static {
+		try {
+			LOG.info("Mark59 version (scripting) : " + ScriptingConstants.MARK59_VERSION_SCRIPTING);
+			if (Mark59Constants.TRUE.equalsIgnoreCase(PropertiesReader.getInstance().getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES))){
+				System.out.println("Mark59 version (scripting) : " + ScriptingConstants.MARK59_VERSION_SCRIPTING);			
+			}
+		} catch (IOException e) {
+			System.out.println("UiAbstractJavaSamplerClient: Error reading property " + PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES);
+		}
+	}
 
 	/** Parameter to control writing of buffered logs when an exception occurs.
 	 *  @see PlaywrightAbstractJavaSamplerClient#scriptExceptionHandling
@@ -127,7 +140,7 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 
 	/**
 	 * TreeMap that maintains natural ordering of transaction names.
-	 * Intended for use to output results table when running from a script Main() 
+	 * Intended for use to output results table when running from a script Main()
 	 */
 	protected static Map<String, List<Long>> resultsSummaryTable = new TreeMap<>();
 
@@ -469,7 +482,7 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 		if (jmeterResultsFile != null ) {
 			try (FileOutputStream jmeterResultsFOS = FileUtils.openOutputStream(jmeterResultsFile);
 			     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(jmeterResultsFOS)) {
-				
+
 				csvPrintWriter = new PrintWriter(outputStreamWriter);
 
 				String csvLine = CsvUtil.toCsvString("timeStamp","elapsed","label","responseCode","responseMessage","threadName","dataType","success",
@@ -647,25 +660,25 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 	 * Add test results to this instance's summary table.
 	 */
 	private synchronized static void addResultsToSummaryTable(SampleResult testInstanceSampleResult) {
-		List<Long> summaryTableTxnData; 
-		
+		List<Long> summaryTableTxnData;
+
 		for (SampleResult subResult : testInstanceSampleResult.getSubResults()) {
 
 			String summaryTableTxn = subResult.getSampleLabel();
-			
+
 			if (StringUtils.isNotBlank(subResult.getDataType())){
 				summaryTableTxn = summaryTableTxn + " (" + subResult.getDataType() + ")";
-			}		
-		
+			}
+
 			summaryTableTxnData = resultsSummaryTable.get(summaryTableTxn);
 			if (summaryTableTxnData == null) {
 				summaryTableTxnData = new ArrayList<>(Arrays.asList(0L, 0L, 0L, Long.MAX_VALUE, 0L));
 			}
-			
+
 			if (Outcome.PASS.getOutcomeText().equalsIgnoreCase(subResult.getResponseMessage())){
 				summaryTableTxnData.set(POS_0_NUM_SAMPLES,       summaryTableTxnData.get(POS_0_NUM_SAMPLES)+1 );
 				summaryTableTxnData.set(POS_2_SUM_RESPONSE_TIME, summaryTableTxnData.get(POS_2_SUM_RESPONSE_TIME) + subResult.getTime());
-				
+
 				if (subResult.getTime() < summaryTableTxnData.get(POS_3_RESPONSE_TIME_MIN)){
 					summaryTableTxnData.set(POS_3_RESPONSE_TIME_MIN, subResult.getTime());
 				}
@@ -675,7 +688,7 @@ public abstract class UiAbstractJavaSamplerClient extends AbstractJavaSamplerCli
 			} else {
 				summaryTableTxnData.set(POS_1_NUM_FAIL, summaryTableTxnData.get(POS_1_NUM_FAIL)+1);
 			}
-			
+
 			resultsSummaryTable.put(summaryTableTxn, summaryTableTxnData);
 		}
 	}

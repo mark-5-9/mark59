@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.3</version>		
+		<version>4.0.7</version>		
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-datahunter</artifactId>
 	<packaging>war</packaging>
-	<version>6.5</version>
+	<version>6.6</version>
 	<name>mark59-datahunter</name>
 
 	<properties>
@@ -87,12 +87,9 @@
 
 		<!-- Other project dependencies -->		
 		
-		<!-- Note: Was common to SpringBoot and JMeter
-			- now from default v17 to 18 due to dependabot vunerability -->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-lang3</artifactId>
-		    <version>3.18.0</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
 
 		<dependency>

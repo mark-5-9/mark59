@@ -1,53 +1,75 @@
-
-
 ## Mark59 Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases
 
+<p>Release 6.6<br>
+
+  <ul>
+    <li>Java 17+ is now required for all Mark59 components</li>
+   	<li>UI Scripting : (Bug) Comma separation of BROWSER_LAUNCH_ARGS didn't allow for any Argument option that itself may contain multiple
+   	comma-separated values. Multiple arguments within BROWSER_LAUNCH_ARGS can now be separated by a semi-colon (;), or the characters 
+   	",--" used to indicate the start of the next argument (white space between the comma and dashes allowed).  
+   	This allows commas to be used to separate values in a multi-value argument.</li>
+ 	<li>UI Scripting and Metrics-API : Version numbers are printed for both the mark59-metrics-api and the first Mark59UI script
+ 	(on the classpath).Previously, a generic version number (actually for mark59-core) was printed, meaning there was no indication in 
+ 	the printout if different Mark59 versions of a UI script and the mark59-metrics-api were present.</li>
+ 	<li>UI Scripting : Additional (User defined) Parameters now displayed at top of parameter list on the JMeter Java Request Panel.</li>
+ 	<li>Trends Graph : Now displays a controlled error message when disallowed SQL is attempted, rather that the default error page.</li>	  
+ 	<li>Dependencies Updated: commons-lang3 added to Mark59-core (commons-lang3 has been removed from JMeter)</li> 	
+ 	<li>Dependencies Updated: spring-boot to 4.0.7, selenium to 4.45.0 (chrome v149), playwright to 1.61.0</li>
+  </ul>
+  <figure>
+    <figcaption>Summary of Changes with Potential Incompatibilities</figcaption>
+    <ul>
+ 	<li>SimpleAES has been removed. SecureAES should be new used for encryption.</li>
+    </ul>
+  </figure> 	
+   
+
+<br>
 <p>Release 6.5<br>
 
   <ul>
-   	<li>Extensive review of source code using AI (via Copilot), focusing on future-proofing source code scans by
+   	<li>Extensive review of source code using AI (via Copilot),focusing on future-proofing source code scans by
    	fixing issues AI rated as critical or serious, includes security problems (weak encryption, sql injection), improving documentation,
    	improving error messaging, adding more JUnit tests, and implementing multiple coding solutions AI considered preferable.</li>
  	<li>Trends UI : (Bug) Fix Event and Graph Mapping Admin pages, had incorrect HTTP Mappings in the previous release</li>
  	<li>Trends UI : (Bug) Transaction names with commas did not work properly. Commas are now replaced with a dash.</li>
  	<li>Playwright Scripting : Several new options have been made available : PLAYWRIGHT_IGNORE_HTTPS_ERRORS,
  	PLAYWRIGHT_GEOLOCATION, PLAYWRIGHT_EXTRA_HTTP_HEADERS, PLAYWRIGHT_HTTP_CREDENTIALS, PLAYWRIGHT_BYPASS_CSP, PLAYWRIGHT_LOCALE,
- 	PLAYWRIGHT_OFFLINE, PLAYWRIGHT_STORAGE_STATE (these are generally the Playwright BrowserContextOptions that can be 
- 	entered as strings (such as on the JMeter Java Request parameters panel). See JavaDocs for details.       
+ 	PLAYWRIGHT_OFFLINE, PLAYWRIGHT_STORAGE_STATE (these are generally the Playwright BrowserContextOPtons that can be 
+ 	entered as strings (such as on the JMeter Java Request paramenters panel). See JavaDocs for details.       
  	</li>
  	<li>Dependencies Updated: poi to 5.5.1, spring-boot to 4.0.3, selenium to 4.40.0 (chrome v144), playwright to 1.57.0</li>
   </ul>
-
-   <figure>
-    <figcaption>Summary of Changes with Potential Incompatibilities<br><br></figcaption>
+  <figure>
+    <figcaption>Summary of Changes with Potential Incompatibilities<br></figcaption>
     <ul>
  	<li>Trends UI : SQL inputs into 'Advanced Filters' are now sanitized, so input using various string and keyword combinations
  	will fail. For example, the strings "..test UPDATE set.."'and "..test EXEC sp.." will have the keywords removed and likely fail)</li>
  	<li>UI Scripting: The parameter ADDITIONAL_OPTIONS has been renamed to BROWSER_LAUNCH_ARGS for improved clarity.
  	Please update your JMeter Playwright and Selenium test scripts to use BROWSER_LAUNCH_ARGS instead.</li>
     </ul>
-   </figure>
+  </figure>
  
-   <figure>
-    <figcaption>Database Change<br><br></figcaption>
+  <figure>
+    <figcaption>Database Change<br></figcaption>
 	<ul>
- 	<li>Metrics Database: For existing implementations a script (see DatabaseScripts folder in the Mark59 download file) should 
+ 	<li>Metrics Database: For existing implementations a script (see DataabseScripts folder in the Mark59 download file) should 
  	be executed to increase the length of the PASSWORD_CIPHER field of the SERVERPROFILES table, for MySQL and Postgres DBs.
 	</ul>	
   </figure> 
 
-   <figure>
+  <figure>
     <figcaption>Updating Encryption Ciphers<br></figcaption>
 	<ul>
  	<li>
 	<p>Migration from SimpleAES to SecureAES</p>
 	<p>Versions of Mark59 prior to this release use a weak encryption class SimpleAES. Encryptions created by this class will NOT work with the new SecureAES. 
 		You can use the SimpleAES class in mark59-core or SimpleAESUtility that ships in the mark59-scripting-samples project if you need to recover the original string for re-encryption.
-		Documentation on usage of the new encryption algorithm is available in the SecureAES class in mark59-core or SimpleAESUtility that ships in the mark59-scripting-samples project.</p>		
+		Documentation on usage of the new encryption algorithm is availble in the SecureAES class in mark59-core or SimpleAESUtility that ships in the mark59-scripting-samples project.</p>		
 	</li>
 	<li>	
 	<p>Encrypted String Usage within Mark59</p>
@@ -76,9 +98,8 @@
 	<li>All Web Apps : Explicitly use GetMapping or PostMapping anotation instead of RequestMapping, plus many smaller code and JavaDocs tidy ups</li>
 	<li>Dependencies Updated: spring-boot to 3.5.4, selenium to 4.34.0 (to chrome v138), playwright to 1.53.0</li>
   </ul>
-
   <figure>
-    <figcaption>Summary of Changes with Potential Incompatibilities<br><br></figcaption>
+    <figcaption>Summary of Changes with Potential Incompatibilities<br></figcaption>
 	<ul><li>For UI scripting BROWSER_EXECUTABLE argument is no longer in use. Please use OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE<br><br></li></ul>
   </figure>
 
@@ -137,10 +158,9 @@
 	<li>Dependencies Updated: JMeter to 5.6.3, spring-boot to 3.2.3, selenium to 4.18.1 (to chrome v122)</li>
 	<li>Dependency Added: playwright 1.41.2 (documented as being tested on chome 120/121. In our testing it appears to run well on chrome 122)</li>
    </ul>
-
    <figure>
     <figcaption>Summary of Changes with Potential Incompatibilities For this Release
-    <br><br>note most of these are relatively small changes mostly relating to implementing Playwright.<br></figcaption>
+    <br><br>Most of these are changes are relatively small relating to implementing Playwright.<br></figcaption>
     <ul>
 	<li>When you update pom entries for your mark59 projects, the com.mark59 dependency changes from
 		mark59-selenium-implementation to mark59-scripting, as well as changing the version to 6.0</li>
@@ -253,7 +273,7 @@
   <ul>
 	<li>This release was built and tested using JMeter 5.5.
 	<br>There are incompatibilities with the recently released 5.6 version of JMeter, so please deploy to JMeter 5.5.
-	<br>We plan to work on a JMeter 5.6 compatible version of Mark59 as a priority for our next release.</li>
+	<br>A JMeter 5.6 compatible version of Mark59 planned on next release.</li>
   </ul>
 
   <ul>

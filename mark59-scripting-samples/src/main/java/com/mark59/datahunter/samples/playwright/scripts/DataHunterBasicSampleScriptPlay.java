@@ -76,8 +76,14 @@ public class DataHunterBasicSampleScriptPlay  extends PlaywrightAbstractJavaSamp
 
 		// Some mark59 predefined parameters for playwright.
 		// See DataHunterLifecyclePvtScriptPlay for a full list of available parameters for Playwright in Mark59
+		
 		jmeterAdditionalParameters.put(ScriptingConstants.HEADLESS_MODE, String.valueOf(false));  // default is true
+
 		jmeterAdditionalParameters.put(ScriptingConstants.BROWSER_LAUNCH_ARGS, "");
+//		jmeterAdditionalParameters.put(ScriptingConstants.BROWSER_LAUNCH_ARGS, "--force-dark-mode");
+
+		jmeterAdditionalParameters.put(ScriptingConstants.PLAYWRIGHT_OPEN_DEVTOOLS, String.valueOf(false));		
+		
 		// you can set the location of the browser executable on your machine either here or (better) in mark59.properties
 		jmeterAdditionalParameters.put(ScriptingConstants.OVERRIDE_PROPERTY_MARK59_BROWSER_EXECUTABLE, "");
 
@@ -102,8 +108,6 @@ public class DataHunterBasicSampleScriptPlay  extends PlaywrightAbstractJavaSamp
 		String lifecycle = "thread_" + thread;
 //		System.out.println("Thread " + thread + " is running with LOG level " + LOG.getLevel());
 
-		SafeSleep.sleep(1000);
-
 		String dataHunterUrl 	= context.getParameter("DATAHUNTER_URL");
 		String application 		= context.getParameter("DATAHUNTER_APPLICATION_ID");
 		String user 			= context.getParameter("USER");
@@ -112,7 +116,19 @@ public class DataHunterBasicSampleScriptPlay  extends PlaywrightAbstractJavaSamp
 		jm.bufferLog("kilroybuffer", "txt", "Kilroy was buffered here".getBytes());
 
 		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.WRITE);
+//		jm.logAllLogsAtEndOfTransactions(Mark59LogLevels.BUFFER);
 
+		// A way to to check Chrome launch arguments (for debugging purposes)
+		page.navigate("chrome://version");
+		SafeSleep.sleep(1000);
+		/*
+		 * String commandLine = page.locator("#command_line").innerText();
+		 * System.out.println("=".repeat(120));
+		 * System.out.println("Chrome Command Line Arguments:");
+		 * System.out.println(commandLine.replace("--", "\n--") );
+		 * System.out.println("=".repeat(120));
+		 */
+		
 // 		delete any existing policies for this application/thread combination
 		jm.startTransaction("DH_lifecycle_0001_loadInitialPage");
 		page.navigate(dataHunterUrl + DslConstants.SELECT_MULTIPLE_POLICIES_URL_PATH + "?application=" + application);
@@ -176,7 +192,7 @@ public class DataHunterBasicSampleScriptPlay  extends PlaywrightAbstractJavaSamp
 
 
 	/**
-	 * A main method to assist with script testing outside JMeter.  The samples below demonstrate three ways of running the script: <br><br>
+	 * A main method to assist with script testing outside JMeter.  The samples below demonstrate multiple ways of running the script: <br><br>
 	 * 1.  Run a simple single instance, without extra thread-based parameterization (KeepBrowserOpen enumeration is optionally available).<br>
 	 * 2.  Run multiple instances of the script, without extra thread-based parameterization <br>
 	 * 3.  Run multiple instances of the script, with extra thread-based parameterization, represented as a map with parameter name as key,

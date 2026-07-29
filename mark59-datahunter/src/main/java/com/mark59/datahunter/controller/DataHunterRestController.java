@@ -24,13 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mark59.datahunter.DataHunterSecureAES;
 import com.mark59.datahunter.application.DataHunterConstants;
 import com.mark59.datahunter.application.SqlWithParms;
 import com.mark59.datahunter.data.beans.Policies;
@@ -73,8 +73,11 @@ import com.mark59.datahunter.pojo.ValidReuseIxPojo;
 @RequestMapping("/api")
 public class DataHunterRestController {
 
-	@Autowired
-	PoliciesDAO policiesDAO;
+	private final PoliciesDAO policiesDAO;
+
+	public DataHunterRestController(PoliciesDAO policiesDAO) {
+		this.policiesDAO = policiesDAO;
+	}
 
 	/**
 	 * Lock map for fine-grained synchronization per application/lifecycle/useability combination.
@@ -96,6 +99,19 @@ public class DataHunterRestController {
 		String lockKey = application + "|" + (lifecycle != null ? lifecycle : "") + "|" + useability;
 		return policyLocks.computeIfAbsent(lockKey, k -> new ReentrantLock());
 	}
+
+
+	@GetMapping(path =  "/cipher")
+	public ResponseEntity<Object> cipher(@RequestParam(required=true) String pwd) {
+		//LOG.debug("cipher called pwd : [" + pwd +"]");
+		String encrypted = DataHunterSecureAES.encrypt(pwd);
+		if (encrypted == null ) {
+			encrypted = "Oops. Something went wrong attempting to encrypt this password (" + pwd + ")";
+		}
+		//LOG.debug("     cipher response is : [" + encrypted +"]");
+        return ResponseEntity.ok(encrypted);
+	}
+
 
 	/**
 	 * Add an Item to DataHunter

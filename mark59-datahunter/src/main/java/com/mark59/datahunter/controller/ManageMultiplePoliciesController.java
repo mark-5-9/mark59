@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,12 +60,13 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class ManageMultiplePoliciesController {
 
-	@Autowired
-	PoliciesDAO policiesDAO;
+	private final PoliciesDAO policiesDAO;
+	private final DataSource dataSource;
 
-	@Autowired
-	private DataSource dataSource;
-
+	public ManageMultiplePoliciesController(PoliciesDAO policiesDAO, DataSource dataSource) {
+		this.policiesDAO = policiesDAO;
+		this.dataSource = dataSource;
+	}
 
 	@GetMapping ("/download_selected_policies")
 	public ResponseEntity<StreamingResponseBody> streamSelectedDataAsFile(@ModelAttribute PolicySelectionFilter policySelectionFilter, Model model) {

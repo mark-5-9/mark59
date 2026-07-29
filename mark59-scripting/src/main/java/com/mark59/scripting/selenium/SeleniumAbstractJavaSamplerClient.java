@@ -1,4 +1,4 @@
-/*
+	/*
  *  Copyright 2019 Mark59.com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
@@ -181,7 +182,7 @@ public abstract class SeleniumAbstractJavaSamplerClient extends UiAbstractJavaSa
 		staticMap.put(SeleniumDriverFactory.EMULATE_NETWORK_CONDITIONS, "");
 
 		staticMap.put("___________________"       , "");
-		staticMap.put("script build information: ", "using mark59-scripting Version: " + Mark59Constants.MARK59_VERSION);
+		staticMap.put("script build information: ", "using mark59-scripting Version: " + ScriptingConstants.MARK59_VERSION_SCRIPTING);
 		return staticMap;
 	}
 

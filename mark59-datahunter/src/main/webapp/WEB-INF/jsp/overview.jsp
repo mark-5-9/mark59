@@ -1,17 +1,17 @@
 <%-- Copyright 2019 Mark59.com
- 
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
- 
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License. 
-  
+  limitations under the License.
+
   Author:  Philip Webb
   Date:    Australian Winter 2019
   --%>
@@ -29,67 +29,75 @@
 <body>
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
-<div class="content"> 
+<div class="content">
 
 <h1>DataHunter Overview</h1>
 
-<div><img style="max-width: 100%;" src="images/mark59_banner_thin.png"/></div>   		 
-	 
-<p>The documentation below is an extract from the Mark59 User Guide available at <a href="https://mark59.com">The Mark59 Website</a>, 
-in particular the 'DataHunter Web Application' and 'DataHunterAPI' chapters. This includes details of where to find of extensive
-examples using the DataHunter UI and Rest API.  
+<div><img style="max-width: 100%;" src="images/mark59_banner_thin.png"/></div>
+
+<p>The documentation below is an extract from the Mark59 User Guide available at <a href="https://mark59.com">The Mark59 Website</a>,
+in particular the 'DataHunter Web Application' and 'DataHunterAPI' chapters. This includes details of where to find extensive
+examples of the DataHunter UI and Rest API.
 
 <h3>Data Structure</h3>
 
-<p>The DataHunter data has a key 'Application,Identifier,Lifecycle'.  For general use 'Application,Identifier' is sufficient, Lifecycle'
-may be blank, except when Timing Asynchronous Processes where 'Lifecycle' is required.</p>
+<p>DataHunter data has a key 'Application,Identifier,Lifecycle'.  For general use 'Application,Identifier' is sufficient. 'Lifecycle'
+can be left blank, except when Timing Asynchronous Processes where 'Lifecycle' is required.</p>
 <p>The 'Useability' field should always be set, to one of REUSABLE, UNPAIRED, UNUSED, USED</p>
 
-<p>'Epochtime' can be  user-controlled - a numeric value can be entered or updated for an entry.  When a DataHunter entry is added 
+<p>'Epochtime' can be  user-controlled - a numeric value can be entered or updated for an entry.  When a DataHunter entry is added
 without an epochtime being specified, it is defaulted to the current UTC epoch time in milliseconds.  Note however
 Timing Asynchronous Processes uses epochtime to calculate the time between events.
-<p>The timestamp fields 'created' and 'updated' are not directly available to the user for manipulation in either the UI for Rest API. 
+<p>The timestamp fields 'created' and 'updated' are not directly available to the user for manipulation in either the UI for Rest API.
 
 <h3>Timing Asynchronous Processes</h3>
 
-<p>DataHunter provides a technique to time event(s) which occur asynchronously (betwwen the the first and last event for an identifiable
- data key). More information and a detailed example available in the Mark59 User Guide.  Also see the Rest API description below. 
+<p>DataHunter provides a technique to time event(s) which occur asynchronously (the time between the first and last events for an
+given data key). See the Rest API description below. More information and a detailed example are available in the Mark59 User Guide.
 
-<h3>DataHunter File Uploads/Downloads</h3> 
+<h3>DataHunter File Uploads/Downloads</h3>
 
-<p>You can download 'Selected Items' from using a Download link on the 'Manage Multiple Items'.  All items satisfying the criteria are 
-downloaded in a csv file, the 'limit' is not applied.
-<p>The file downloads with a set column format,  a header is included in the downloaded file:
+<p>You can download 'Selected Items' using a Download link on the 'Manage Multiple Items'.  All items satisfying the selected criteria are
+downloaded in csv format.  The 'limit' is not applied.
+<p>The download file has a set column format, with a column header included:
 <br><pre>APPLICATION,IDENTIFIER,LIFECYCLE,USEABILITY,OTHERDATA,EPOCHTIME</pre>
 These are all the columns editable by the user for a DataHunter record.
-<p>This same file format is used to upload new or existing data into DataHunter as well, using the  'Upload Items File' option. 
+<p>This same file format is used to upload new or existing data into DataHunter as well, using the  'Upload Items File' option.
 Basic validation checks are done during upload, and invalid lines reported in the results page. Includes:
 <ul>
 <li>Valid header (as above) exists (otherwise upload immediately fails)</li>
-<li>Line hs correct (6) column count</li>
+<li>Line has correct (6) column count</li>
 <li>A line of blank values is considered invalid</li>
 <li>A blank 'Application' name is considered invalid</li>
-<li>EPOCHTIME must be blank or numeric (its value is the value is set to System.currentTimeMillis() if a blank is passed in the file)</li> 
+<li>EPOCHTIME must be blank or numeric (its value is set to System.currentTimeMillis() if a blank is passed in the file)</li>
 </ul>
 
-<p>Also, there is an 'Upload File of Identifiers' option to upload a text file containing one 'identifier' entry on each line of the file.  
+<p>Also, there is an 'Upload File of Identifiers' option to upload a text file containing one 'identifier' entry on each line of the file.
 The 'application', 'lifecycle' and 'useability' data being set as options on the page.
-<p>There is no corresponding Rest API for these UI only functions.
+<p>There is no corresponding Rest API for these UI functions.
 
 <h3>Reusable Indexed Items for Randomized Lookups</h3>
 
-<p>For fast randomized lookup of large datasets, for instance all addresses for a state or country, a special datatype referred to in the 
+<p>For fast randomized lookup of large datasets, for instance all addresses for a state or country, a special datatype referred to in the
 documentation as Reusable Indexed should be used.  It is intended for relatively static data, although a process exists to 'reindex' the data
 that takes changes into account. See the example under '/policies_breakdown_reindex below. More information in the Mark59 User Guide. There
-is also a more complete example in the mark59-datahunter-api project (see DataHunterRestApiClientSampleUsage). 
+is also a more complete example in the mark59-datahunter-api project (see DataHunterRestApiClientSampleUsage).
 
+<h3>Data Encryption</h3>
 
-<h3>DataHunter API</h3> 
+<p>The DataHunter UI and a Java Client API call can encrypt the non-key field 'Otherdata' on Add/Update Item. The difference is the DataHunter UI
+will encrypt using the 'Salt' key on the DataHunter application server, the Java Client will use the 'Salt' key on the server it executed on.
+The utility class DataHunterSecureAES available in the mark59-datahunter-api jar should be used for decryption. For example, in JMeter
+ths jar should be placed in the lib/ext folder, and DataHunterSecureAES.decrypt(<i>encryptedData</i>) invoked via Java or Groovy JSR223 
+(Salts may need to be taken into account).
+Further details about the encryption algorithm implementation available in the DataHunterSecureAES javadoc.
 
-<p>The table below is a summary of the available DataHunter API Client methods, the corresponding Rest API Http calls, and related UI function. 
-JavaDocs for the Rest service is available in the mark59-datahunter project, class com.mark59.datahunter.controller.DataHunterRestController.  
+<h3>DataHunter API</h3>
+
+<p>The table below is a summary of the available DataHunter API Client methods, the corresponding Rest API Http calls, and related UI function.
+JavaDocs for the Rest service is available in the mark59-datahunter project, class com.mark59.datahunter.controller.DataHunterRestController.
 JavaDocs for the API Client from the mark59-datahunter-api project, class com.mark59.datahunter.api.rest.DataHunterRestApiClient</p>
-<p>Note the Rest API examaples in the table actually work (updates use an Application 'testrest').
+<p>Note the Rest API examples in the table actually work (updates use an Application 'testrest').
 
 <table  class=metricsTable >
  <tr>
@@ -100,58 +108,58 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	Http Rest call    ( dataHunterUrl/api/...)<br><br>
 	</th>
  </tr>
- 
+
  <tr>
 	<td>/policies_breakdown<br><br><br><b>Items Breakdown</b></td>
 	<td>
-	<p>public DataHunterRestApiResponsePojo policiesBreakdown(String applicationStartsWithOrEquals, String application, String lifecycle, 
+	<p>public DataHunterRestApiResponsePojo policiesBreakdown(String applicationStartsWithOrEquals, String application, String lifecycle,
 	String useability)<br>
-	__________________________________________________________________<br>	
-   
+	__________________________________________________________________<br>
+
 	<p><b>.../api/policiesBreakdown?applicationStartsWithOrEquals={applicationStartsWithOrEquals}&amp;lifecycle={lifecycle}
 	&amp;useability={useability}</b>
-	
+
 	<p>Optional parameters: lifecycle,useability
-	
+
 	<p>Allowed values for applicationStartsWithOrEquals: EQUALS | STARTS_WITH
-	
+
 	<p>Example: breakdown count by key of all entries on the database:
-	
+
 	<p><a href='api/policiesBreakdown?applicationStartsWithOrEquals=STARTS_WITH&application='>
 	            api/policiesBreakdown?applicationStartsWithOrEquals=STARTS_WITH&amp;application=</a>
 	</td>
  </tr>
-    
+
  <tr>
 	<td>/policies_breakdown_reindex<br>
 	<br><br><b>Reindex&nbsp;Reusable&nbsp;Indexed&nbsp;Items</b><br>(an option within Policies&nbsp;Breakdown)</td>
 	<td>
 	<p>public DataHunterRestApiResponsePojo reindexReusableIndexedPolicies(String application, String lifecycle)<br>
-	__________________________________________________________________<br>	
-   
+	__________________________________________________________________<br>
+
 	<p><b>.../api/reindexReusableIndexedPolicies?application={application}&amp;lifecycle={lifecycle}</b>
-	
+
 	<p>Optional parameter: lifecycle (this means items with a blank lifecycle, not all items for the application<br>
-	
+
 	<p>Example: Create a set of Reusable Indexed Items that need to be reindexed (holes and extraneous items exist). Then invoke the reindexing Rest API.
 	<p>Start by removing any example data previously created:
 	<p><a href='api/deleteMultiplePolicies?application=testrestindexed'>
 	            api/deleteMultiplePolicies?application=testrestindexed</a>
-	<p>Create a set of items with 'holes' and extra items:	            	
+	<p>Create a set of items with 'holes' and extra items:
 	<p><a href='api/addPolicy?application=testrestindexed&identifier=0000000001&lifecycle=ix&useability=REUSABLE&otherdata=1 MY STREET TAS 7111'>
-			api/addPolicy?application=testrestindexedt&amp;identifier=0000000001&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=1 MY STREET TAS 7111</a>
+			api/addPolicy?application=testrestindexed&amp;identifier=0000000001&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=1 MY STREET TAS 7111</a>
 	<p><a href='api/addPolicy?application=testrestindexed&identifier=0000000003&lifecycle=ix&useability=REUSABLE&otherdata=3 MY STREET TAS 7111'>
-			api/addPolicy?application=testrestindexedt&amp;identifier=0000000003&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=3 MY STREET TAS 7111</a>
+			api/addPolicy?application=testrestindexed&amp;identifier=0000000003&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=3 MY STREET TAS 7111</a>
 	<p><a href='api/addPolicy?application=testrestindexed&identifier=00000x&lifecycle=ix&useability=REUSABLE&otherdata=x MY STREET TAS 7111'>
-			api/addPolicy?application=testrestindexedt&amp;identifier=00000x&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=x MY STREET TAS 7111</a>
+			api/addPolicy?application=testrestindexed&amp;identifier=00000x&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=x MY STREET TAS 7111</a>
 	<p><a href='api/addPolicy?application=testrestindexed&identifier=00000y&lifecycle=ix&useability=REUSABLE&otherdata=y MY STREET TAS 7111'>
-			api/addPolicy?application=testrestindexedt&amp;identifier=00000y&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=y MY STREET TAS 7111</a>										
+			api/addPolicy?application=testrestindexed&amp;identifier=00000y&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=y MY STREET TAS 7111</a>
 	<p>Now create the 'index' row that marks the data as Reusable Indexed:
 	<p><a href='api/addPolicy?application=testrestindexed&identifier=0000000000_IX&lifecycle=ix&useability=REUSABLE&otherdata=3'>
-		api/addPolicy?application=testrestindexedt&amp;identifier=0000000000_IX&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=3</a>
+		api/addPolicy?application=testrestindexed&amp;identifier=0000000000_IX&amp;lifecycle=ix&amp;useability=REUSABLE&amp;otherdata=3</a>
 	<p>Have a look at the items (via the UI):<a href='select_multiple_policies?application=testrestindexed'>select_multiple_policies?application=testrestindexed</a>
 	<p>Reindex the Items:
-	<p><a href='api/reindexReusableIndexedPolicies?application=testrestindexed&lifecycle=ix'>api/reindexReusableIndexedPolicies?application=testrestindexedE&amp;lifecycle=ix</a>	
+	<p><a href='api/reindexReusableIndexedPolicies?application=testrestindexed&lifecycle=ix'>api/reindexReusableIndexedPolicies?application=testrestindexed&amp;lifecycle=ix</a>
 	<p>Now look at the updated items (via the UI):<a href='select_multiple_policies?application=testrestindexed'>select_multiple_policies?application=testrestindexed</a>
 	</td>
  </tr>
@@ -159,42 +167,42 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
  <tr>
 	<td>/select_multiple_policies<br><br><br><b>Manage&nbsp;Multiple&nbsp;Items</b></td>
 	<td>
-	<br><b>Basic Selection:</b><br><br>   
+	<br><b>Basic Selection:</b><br><br>
 
 	<p>public DataHunterRestApiResponsePojo printSelectedPolicies(String application, String lifecycle, String useability)<br>
-	__________________________________________________________________<br>	
+	__________________________________________________________________<br>
 
 	<p><b>.../api/printSelectedPolicies?application={application}&amp;lifecycle={lifecycle}&amp;useability={useability}</b>
-	
+
 	<p>Optional parameters: lifecycle,useability<br>(default 100 rows max printed)
-	
+
 	<p>Example: print all UNUSED entries for an application:
-	
+
 	<p><a href='api/printSelectedPolicies?application=testrest&useability=UNUSED'>
 	            api/printSelectedPolicies?application=testrest&amp;useability=UNUSED</a>
-	
-	
-	<br><br><br><b>Selection Using Additional Filters::</b><br><br>  	
-	
+
+
+	<br><br><br><b>Selection Using Additional Filters:</b><br><br>
+
 	<p>public DataHunterRestApiResponsePojo printSelectedPolicies(PolicySelectionFilter policySelectionFilter)<br>
-	__________________________________________________________________<br>		
-	
+	__________________________________________________________________<br>
+
 	<p><b>.../api/printSelectedPolicies?
 		application={application}&amp;lifecycle={lifecycle}&amp;useability={useability}<br>
 		&amp;selectOrder={ID_LIFECYCLE|USEABILTY_ID_LIFECYCLE|OTHERDATA|CREATED|UPDATED|EPOCHTIME}<br>
 		&amp;identifierLikeSelected={true|false}&amp;identifierLike={identifierLike}<br>
 		&amp;identifierListSelected={true|false}&amp;identifierList={identifierList}<br>
 		&amp;otherdataSelected={true|false}&amp;otherdata={otherdata}<br>
-		&amp;createdSelected={true|false}&amp;createdFrom={createdFrom}&amp;createdTo={createdTo}<br> 
+		&amp;createdSelected={true|false}&amp;createdFrom={createdFrom}&amp;createdTo={createdTo}<br>
 		&amp;updatedSelected={true|false}&amp;updatedFrom={updatedFrom}&amp;updatedTo={updatedTo}<br>
 		&amp;epochtimeSelected={true|false}&amp;epochtimeFrom={epochtimeFrom}&amp;epochtimeTo={epochtimeTo)<br>
 		&amp;orderDirection={ASCENDING|DESCENDING}&amp;limit={limit}</b>
-	
+
 	<p>Optional parameters: lifecycle,useability, all additional filters<br>Default limit 100, Max limit 1000 rows
-	
-	<p>Example: again printing UNUSED entries for an application, in 'otherdata' order, and with the additional filters except 
+
+	<p>Example: again printing UNUSED entries for an application, in 'otherdata' order, and with the additional filters except
 	'otherdata' being set:
-	<br><i>Hint: If you Add the items in the Add Item example, you will see 2 rows returned when you execute this example.</i>  
+	<br><i>Hint: If you Add the items in the Add Item example, you will see 2 rows returned when you execute this example.</i>
 
 	<p><a href='api/printSelectedPolicies?application=testrest&useability=UNUSED&selectOrder=OTHERDATA
 	&identifierLikeSelected=true&identifierLike=%25id%25
@@ -206,7 +214,7 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	&orderDirection=DESCENDING&limit=250'>
 			api/printSelectedPolicies?application=testrest&amp;useability=UNUSED&amp;selectOrder=OTHERDATA&amp;
 			identifierLikeSelected=true&amp;identifierLike=%25id%25&amp;
-			identifierListSelected=true&amp;identifierList=id1,id2&amp;	
+			identifierListSelected=true&amp;identifierList=id1,id2&amp;
 			otherdataSelected=false&amp;otherdata=&amp;
 			createdSelected=true&amp;createdFrom=2023-01-01+15%3A59%3A59.469937&amp;createdTo=2099-12-31+23%3A59%3A59.999999&amp;
 			updatedSelected=true&amp;updatedFrom=2023-01-01+15%3A59%3A59.469937&amp;updatedTo=2099-12-31+23%3A59%3A59.999999&amp;
@@ -214,51 +222,50 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 			&amp;orderDirection=DESCENDING&amp;limit=250</a>
 	</td>
  </tr>
- 
+
  <tr>
 	<td>/delete_multiple_selected_policies<br>
 	<br><br><b>Delete&nbsp;Selected&nbsp;Items</b><br>(an option within Manage&nbsp;Multiple&nbsp;Items)
 	</td>
 	<td>
-	<br><b>Basic Selection:</b><br><br>   
+	<br><b>Basic Selection:</b><br><br>
 
 	<p>public DataHunterRestApiResponsePojo deleteMultiplePolicies(String application, String lifecycle, String useability)<br>
-	__________________________________________________________________<br>	
+	__________________________________________________________________<br>
 
  	<p><b>.../api/deleteMultiplePolicies?application={application}&amp;lifecycle={lifecycle}&amp;useability={useability}</b>
-	
+
 	<p>Optional parameters: lifecycle,useability<br>
-	
+
 	<p>Example: delete all entries for an application:
-	
+
 	<p><a href='api/deleteMultiplePolicies?application=testrest'>
 	            api/deleteMultiplePolicies?application=testrest</a>
- 
+
 	<p>Example: delete all USED entries for an application:
-	
+
 	<p><a href='api/deleteMultiplePolicies?application=testrest&useability=USED'>
 	            api/deleteMultiplePolicies?application=testrest&amp;useability=USED</a>
- 
- 	<br><br><br><b>Selection Using Additional Filters::</b><br><br> 
- 	 	
-	<p>public deleteMultiplePolicies printSelectedPolicies(PolicySelectionFilter policySelectionFilter)<br>
-	__________________________________________________________________<br>		
- 
-	<p><b>.../api/deleteMultiplePolicies?
-		application={application}&amp;lifecycle={lifecycle}&amp;useability={useability}<br>
+
+ 	<br><br><br><b>Selection Using Additional Filters:</b><br><br>
+
+	<p>public DataHunterRestApiResponsePojo deleteMultiplePolicies(PolicySelectionFilter policySelectionFilter)<br>
+	__________________________________________________________________<br>
+
+	<p><b>.../api/deleteMultiplePolicies?application={application}&amp;lifecycle={lifecycle}&amp;useability={useability}<br>
 		&amp;otherdataSelected={true|false}&amp;otherdata={otherdata}<br>
-		&amp;createdSelected={true|false}&amp;createdFrom={createdFrom}&amp;createdTo={createdTo}<br> 
+		&amp;createdSelected={true|false}&amp;createdFrom={createdFrom}&amp;createdTo={createdTo}<br>
 		&amp;updatedSelected={true|false}&amp;updatedFrom={updatedFrom}&amp;updatedTo={updatedTo}<br>
 		&amp;epochtimeSelected={true|false}&amp;epochtimeFrom={epochtimeFrom}&amp;epochtimeTo={epochtimeTo)</b>
 
 	<p>Note that the filters work as per printSelectedPolicies, with selectOrder, orderDirection and limit ignored.
 	<br>So <b>ALL ROWS matching the selection are deleted.</b>
- 
+
  	<p>Optional parameters: lifecycle, useability, all additional filters
-	
+
 	<p>Example: Delete UNUSED entries for an application, with the additional filters except 'otherdata' being set
-	<br><i>Hint: If you Add the items in the Add Item example, you will see that rows are deleted when you execute this example</i>  
- 
+	<br><i>Hint: If you Add the items in the Add Item example, you will see that rows are deleted when you execute this example</i>
+
  	<p><a href='api/deleteMultiplePolicies?application=testrest&useability=UNUSED&
  		otherdataSelected=false&otherdata=&
  		createdSelected=true&createdFrom=2023-01-01+15%3A59%3A59.469937&createdTo=2099-12-31+23%3A59%3A59.999999&
@@ -271,59 +278,60 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	 		epochtimeSelected=true&amp;epochtimeFrom=66&amp;epochtimeTo=4102444799999</a>
 	</td>
  </tr>
- 
+
  <tr>
-	<td>/add_policy<br><br><br><b>Add&nbsp;Item</b></td>	
+	<td>/add_policy<br><br><br><b>Add&nbsp;Item</b></td>
 	<td>
-	<p>public DataHunterRestApiResponsePojo addPolicy(Policies policies)<br>
-	__________________________________________________________________<br>	
-   
-	<p><b>...api/addPolicy?application={application}&amp;identifier={identifier&amp;lifecycle={lifecycle}&amp;useability={useability}
+	<p>public DataHunterRestApiResponsePojo addPolicy(Policies policies, boolean encryptOtherdata)<br>
+	<p>Optional parameter: encryptOtherdata
+	__________________________________________________________________<br>
+
+	<p><b>...api/addPolicy?application={application}&amp;identifier={identifier}&amp;lifecycle={lifecycle}&amp;useability={useability}
 	&amp;otherdata={otherdata}&amp;epochtime={epochtime}</b>
-	
-	<p>Optional parameters: otherdata, epochtime
+
+	<p>Optional parameters: otherdata, epochtime  (encryptOtherdata is not available)
 	<p>Examples:
-	
+
 	<p><a href='api/addPolicy?application=testrest&identifier=id1&lifecycle=somelc&useability=UNUSED&otherdata=other&epochtime=12345'>
 				api/addPolicy?application=testrest&amp;identifier=id1&amp;lifecycle=somelc&amp;useability=UNUSED&amp;otherdata=other&amp;
 				epochtime=12345</a>
-	
+
 	<p><a href='api/addPolicy?application=testrest&identifier=id2&lifecycle=somelc&useability=UNUSED&otherdata='>
 				api/addPolicy?application=testrest&amp;identifier=id2&amp;lifecycle=somelc&amp;useability=UNUSED&amp;otherdata=</a>
 
 	</td>
  </tr>
- 
+
  <tr>
 	<td>/count_policies<br><br><br><b>Count&nbsp;Items</b></td>
 	<td>
 	<p>public DataHunterRestApiResponsePojo countPolicies(String application, String lifecycle, String useability)<br>
-	__________________________________________________________________<br>	
-   
+	__________________________________________________________________<br>
+
 	<p><b>.../api/countPolicies?application={application}&amp;lifecycle={lifecycle}&amp;useability={useability}</b>
-	
+
 	<p>Optional parameters: lifecycle,useability
-	
+
 	<p>Example: count all entries for an application
-	
+
 	<p><a href='api/countPolicies?application=testrest'>
 				api/countPolicies?application=testrest</a>
 	</td>
  </tr>
- 
+
  <tr>
 	<td>/print_policy<br><br><br><b>Display&nbsp;Item</b></td>
 	<td>
 	<p>DataHunterRestApiResponsePojo printPolicy(String application, String identifier, String lifecycle)<br>and<br>
 	DataHunterRestApiResponsePojo printPolicy(String application, String identifier) **<br>
 	&nbsp;&nbsp;&nbsp;** means a blank lifecycle, NOT any lifecycle)<br>
-	__________________________________________________________________<br>	
-   
+	__________________________________________________________________<br>
+
 	<p><b>.../api/printPolicy?application={application}&amp;identifier={identifier}&amp;lifecycle={lifecycle}</b>
-	
+
 	<p>Optional parameters: lifecycle (means a blank lifecycle)
 	<p>Example:
-	
+
 	<p><a href='api/printPolicy?application=testrest&identifier=id2&lifecycle=somelc'>
 				api/printPolicy?application=testrest&amp;identifier=id2&amp;lifecycle=somelc</a>
 	</td>
@@ -333,17 +341,17 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	<td>/delete_policy<br><br><br><b>Delete&nbsp;Item</b></td>
 	<td>
 	<p>public DataHunterRestApiResponsePojo deletePolicy(String application, String identifier, String lifecycle)<br>
-	__________________________________________________________________<br>	
+	__________________________________________________________________<br>
 
 	<p><b>.../api/deletePolicy?application={application}&amp;identifier={identifier}&amp;lifecycle={lifecycle}</b>
-	
+
 	<p>Optional parameters: none
-	
+
 	<p>Example: add, then delete an item with a blank lifecycle
-	
+
 	<p><a href='api/addPolicy?application=testrest&identifier=id6&lifecycle=&useability=UNUSED&otherdata=blanklc'>
 				api/addPolicy?application=testrest&amp;identifier=id6&amp;lifecycle=&amp;useability=UNUSED&amp;otherdata=blanklc</a>
-	
+
 	<p><a href='api/deletePolicy?application=testrest&identifier=id6&lifecycle='>
 				api/deletePolicy?application=testrest&amp;identifier=id6&amp;lifecycle=</a>
 	</td>
@@ -353,16 +361,16 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	<td>/next_policy?pUseOrLookup=use<br><br><br><b>Use&nbsp;Next&nbsp;Item</b></td>
 	<td>
 	<p>public DataHunterRestApiResponsePojo useNextPolicy(String application, String lifecycle,String useability, String selectOrder)<br>
-	__________________________________________________________________<br>	
+	__________________________________________________________________<br>
 
 	<p><b>.../api/useNextPolicy?application={application}&amp;lifecycle={lifecycle}&amp;useability={useability}&amp;selectOrder={selectOrder}</b>
-	
+
 	<p>Optional parameters: lifecycle
-	
+
 	<p>selectOrder values: SELECT_MOST_RECENTLY_ADDED | SELECT_OLDEST_ENTRY | SELECT_RANDOM_ENTRY
-	
-	<p>Example: return oldest UNUSED entry for an application for any lifecycle<br> 
-		&nbsp;&nbsp;&nbsp;(its Useability will be set to USED by the call) 
+
+	<p>Example: return oldest UNUSED entry for an application for any lifecycle<br>
+		&nbsp;&nbsp;&nbsp;(its Useability will be set to USED by the call)
 
 	<p><a href='api/useNextPolicy?application=testrest&useability=UNUSED&selectOrder=SELECT_OLDEST_ENTRY'>
 				api/useNextPolicy?application=testrest&amp;useability=UNUSED&amp;selectOrder=SELECT_OLDEST_ENTRY</a>
@@ -373,14 +381,14 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	<td>/next_policy?pUseOrLookup=lookup<br><br><br><b>Lookup&nbsp;Next&nbsp;Item</b></td>
 	<td>
 	<p>public DataHunterRestApiResponsePojo lookupNextPolicy(String application, String lifecycle,String useability, String selectOrder)<br>
-	__________________________________________________________________<br>	
+	__________________________________________________________________<br>
 
 	<p><b>.../api/lookupNextPolicy?application={application}&amp;lifecycle={lifecycle}&amp;useability={useability}&amp;selectOrder={selectOrder}</b>
-	
+
 	<p>Optional parameters: lifecycle
-	
+
 	<p>selectOrder values: SELECT_MOST_RECENTLY_ADDED | SELECT_OLDEST_ENTRY |SELECT_RANDOM_ENTRY
-	
+
 	<p>Note: Exactly the same as useNextPolicy, except the Useability of the selected item is not updated
 	</td>
  </tr>
@@ -388,19 +396,21 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
  <tr>
 	<td>/update_policy<br><br><br><b>Update&nbsp;Item</b></td>
 	<td>
-	<p>public DataHunterRestApiResponsePojo updatePolicy(Policies policies)<br>
-	__________________________________________________________________<br>	
+	<p>public DataHunterRestApiResponsePojo updatePolicy(Policies policies, boolean encryptOtherdata)<br>
+	<p>Optional parameter: encryptOtherdata
+
+	__________________________________________________________________<br>
 
 	<p><b>.../api/updatePolicy?application={application}&amp;identifier={identifier}&amp;lifecycle={lifecycle}&amp;useability={useability}
 		&amp;otherdata={otherdata}&amp;epochtime={epochtime}</b>
 
-	<p>Optional parameters: otherdata, epochtime
+	<p>Optional parameters: otherdata, epochtime  (encryptOtherdata is not available)
 
-	<p>Notes :<br> 
+	<p>Notes :<br>
 	'otherdata' is set empty if blank (nothing) passed<br>
 	'epochtime' a long value, or if blank or non-numeric will to set to System.currentTimeMillis()<br>
-	
-	<p>Example: Updating the 'id1' policy from the 'Add Item' example with new useability, otherdata and epochtime values 
+
+	<p>Example: Updating the 'id1' policy from the 'Add Item' example with new useability, otherdata and epochtime values
 
 	<p><a href='api/updatePolicy?application=testrest&identifier=id1&lifecycle=somelc&useability=UNUSED&otherdata=updated&epochtime=12346'>
 				api/updatePolicy?application=testrest&amp;identifier=id1&amp;lifecycle=somelc&amp;useability=UNUSED&amp;
@@ -411,19 +421,19 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
  <tr>
 	<td>/update_policies_use_state<br><br><br><b>Update&nbsp;Use&nbsp;States</b></td>
 	<td>
-	<p>public DataHunterRestApiResponsePojo updatePoliciesUseState(String application, String identifier, String lifecycle, String useability, 
+	<p>public DataHunterRestApiResponsePojo updatePoliciesUseState(String application, String identifier, String lifecycle, String useability,
 		String toUseability, String toEpochTime)<br>
-	__________________________________________________________________<br>	
+	__________________________________________________________________<br>
 
-	<p><b>.../api/updatePoliciesUseState?application={application}&amp;identifier={&identifier}&amp;lifecycle={&lifecycle}&amp;
+	<p><b>.../api/updatePoliciesUseState?application={application}&amp;identifier={identifier}&amp;lifecycle={lifecycle}&amp;
 		useability={useability}&amp;toUseability={toUseability}&amp;toEpochTime=${toEpochTime}</b>
 
 	<p>Optional parameters: identifier, lifecycle, useability, toEpochTime
 
-	<p>Notes :<br> 
+	<p>Notes :<br>
 	'epochtime' is only updated if a numeric value is passed. Eg contains the System.currentTimeMillis() or another integer<br>
-	
-	<p>Example: set all USED entries for an application to UNUSED 
+
+	<p>Example: set all USED entries for an application to UNUSED
 
 	<p><a href='api/updatePoliciesUseState?application=testrest&useability=USED&toUseability=UNUSED'>
 				api/updatePoliciesUseState?application=testrest&amp;useability=USED&amp;toUseability=UNUSED</a>
@@ -433,37 +443,37 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
  <tr>
 	<td>/async_message_analyzer<br><br><br><b>Async&nbsp;Msg&nbsp;Analyzer</b></td>
 	<td>
-	<p>public DataHunterRestApiResponsePojo asyncMessageAnalyzer(String applicationStartsWithOrEquals, String application, String identifier, 
-	String useability, String toUseability<br>
-	__________________________________________________________________<br>	
+	<p>public DataHunterRestApiResponsePojo asyncMessageAnalyzer(String applicationStartsWithOrEquals, String application, String identifier,
+	String useability, String toUseability)<br>
+	__________________________________________________________________<br>
 
 	<p><b>.../api/asyncMessageAnalyzer?applicationStartsWithOrEquals={applicationStartsWithOrEquals}&amp;application={application}&amp;
 		identifier={identifier}&amp;useability={useability}&amp;toUseability={toUseability}</b>
 
 	<p>Optional parameters: identifier, useability, toUseability
-	
-	<p>Notes :<br> 
+
+	<p>Notes :<br>
 	If 'useability' is not selected, only rows with the same useability will be paired<br>
-	If 'toUseability' is not selected, no update occurs<br>	
-	The calculated difference is based on epochtime<br>	
+	If 'toUseability' is not selected, no update occurs<br>
+	The calculated difference is based on epochtime<br>
 
 	<p>Values for applicationStartsWithOrEquals: EQUALS | STARTS_WITH
-	
-	<p>Example: perform a similar match as in the Timing Asynchronous Processes example from the Mark59 User Guide, but also update 
+
+	<p>Example: perform a similar match as in the Timing Asynchronous Processes example from the Mark59 User Guide, but also update
 	the matched rows to USED.  First add 4 rows (2 pairs), then execute the Async Msg Analyzer.
-	
+
 	<p><a href='api/addPolicy?application=testrest&identifier=EventA-id1&lifecycle=begin&useability=UNPAIRED&epochtime=222'>
-				api/addPolicy?application=testrest&amp;identifier=EventA-id1&amp;lifecycle=begin&amp;useability=UNPAIRED&amp;epochtime=222</a> 
-	
+				api/addPolicy?application=testrest&amp;identifier=EventA-id1&amp;lifecycle=begin&amp;useability=UNPAIRED&amp;epochtime=222</a>
+
 	<p><a href='api/addPolicy?application=testrest&identifier=EventA-id1&lifecycle=end&useability=UNPAIRED&epochtime=333'>
-				api/addPolicy?application=testrest&amp;identifier=EventA-id1&amp;lifecycle=end&amp;useability=UNPAIRED&amp;epochtime=333</a> 
+				api/addPolicy?application=testrest&amp;identifier=EventA-id1&amp;lifecycle=end&amp;useability=UNPAIRED&amp;epochtime=333</a>
 
 	<p><a href='api/addPolicy?application=testrest&identifier=EventA-id2&lifecycle=go&useability=UNPAIRED&epochtime=44'>
 				api/addPolicy?application=testrest&amp;identifier=EventA-id2&amp;lifecycle=go&amp;useability=UNPAIRED&amp;epochtime=44</a>
-				 
+
 	<p><a href='api/addPolicy?application=testrest&identifier=EventA-id2&lifecycle=stop&useability=UNPAIRED&epochtime=66'>
-				api/addPolicy?application=testrest&amp;identifier=EventA-id2&amp;lifecycle=stop&amp;useability=UNPAIRED&amp;epochtime=66</a>				
-				
+				api/addPolicy?application=testrest&amp;identifier=EventA-id2&amp;lifecycle=stop&amp;useability=UNPAIRED&amp;epochtime=66</a>
+
 	<p><a href='api/asyncMessageAnalyzer?applicationStartsWithOrEquals=EQUALS&application=testrest&useability=UNPAIRED&toUseability=USED'>
 				api/asyncMessageAnalyzer?applicationStartsWithOrEquals=EQUALS&amp;application=testrest&amp;
 				useability=UNPAIRED&amp;toUseability=USED</a>
@@ -472,7 +482,7 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 </table>
 
 <br>
-<p>Version: 6.5  Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>  
+<p>Version: 6.6  Please see our User Guide at <a href="https://mark59.com" target="_blank">mark59.com</a></p>
 </div>
 </body>
 </html>

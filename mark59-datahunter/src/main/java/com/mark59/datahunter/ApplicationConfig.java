@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,8 @@
  */
 
 package com.mark59.datahunter;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -41,13 +43,13 @@ public class ApplicationConfig {
     /**
      * This method is equivalent to the following appConfig.xml:
      * <pre><code>
-     * &lt;bean id="PoliciesDAO" 	
+     * &lt;bean id="PoliciesDAO"
      *	class="com.mark59.datahunter.data.policies.dao.PoliciesDAOjdbcTemplateImpl"&gt;
      * &lt;/bean&gt;
      * </code></pre>
      */
     @Bean
-    PoliciesDAO policiesDAO() {
-        return new PoliciesDAOjdbcTemplateImpl();
+    PoliciesDAO policiesDAO(DataSource dataSource) {
+        return new PoliciesDAOjdbcTemplateImpl(dataSource, currentDatabaseProfile());
     }
 }

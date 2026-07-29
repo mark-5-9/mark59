@@ -15,6 +15,41 @@
 
 */
 
+	function createCipher() {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				populatePasswordCipher(this.responseText)
+			}
+		};
+		xhttp.open("GET", encodeURI("api/cipher?pwd="	+ document.getElementById('otherdata').value), true);
+		xhttp.send();
+	}
+	
+	function populatePasswordCipher(pwdCipher) {
+		var passwordCipherId = document.getElementById('otherdata');
+		passwordCipherId.value = pwdCipher;
+		//document.getElementById('otherdata').value = '';
+		document.getElementById("createCipherBtn").disabled = true;
+	}
+	
+	function enableOrdisableCreateCipherBtn() {
+		if (document.getElementById('otherdata') !== null){
+			if (isEmpty(document.getElementById('otherdata').value)) {
+				document.getElementById("createCipherBtn").disabled = true;
+			} else {
+				document.getElementById("createCipherBtn").disabled = false;
+			}
+		}
+	}
+
+
+
+	function isEmpty(str) {
+		return str === null || str === ""
+	}
+
+	
 	function trimkey(key) {
 		key.value = key.value.trim();
 	}

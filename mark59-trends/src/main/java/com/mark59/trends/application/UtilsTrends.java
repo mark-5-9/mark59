@@ -1,12 +1,12 @@
 /*
  *  Copyright 2019 Mark59.com
- *  
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,23 +36,23 @@ import com.mark59.trends.data.beans.Transaction;
 
 /**
  * @author Philip Webb
- * Written: Australian Winter 2019  
+ * Written: Australian Winter 2019
  */
 public class UtilsTrends  {
 
 	private static final String HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>";
 	private static Pattern pattern = Pattern.compile(HTML_PATTERN);
-	
+
 
 	public static String stringListToCommaDelimString(List<String> listOfStrings) {
 		StringBuilder commaDelimitedsb = new StringBuilder();
 		boolean firstTimeThruNoComma = true;
 		for (String str : listOfStrings) {
-			if (!firstTimeThruNoComma ){ 
+			if (!firstTimeThruNoComma ){
 				commaDelimitedsb.append(",");
 			}
 			firstTimeThruNoComma = false;
-			commaDelimitedsb.append(str); 
+			commaDelimitedsb.append(str);
 		}
 		return commaDelimitedsb.toString();
 	}
@@ -62,13 +62,13 @@ public class UtilsTrends  {
 		List<String> listOfStrings = new ArrayList<>();
 		if (StringUtils.isNotBlank(commaDelimitedString)){
 			listOfStrings =  Arrays.asList(StringUtils.stripAll(StringUtils.split(commaDelimitedString, ",")));
-		} 
+		}
 		return listOfStrings;
 	}
-	
-	
+
+
 	public static String[] commaDelimStringToSortedStringArray(String commaDelimitedString, Comparator<Object> comparator) {
-		// when an empty string is passed to the split, it creates a empty first element ... not what we want .. 
+		// when an empty string is passed to the split, it creates a empty first element ... not what we want ..
 		if (StringUtils.isNotBlank(commaDelimitedString)){
 			String[] strings = StringUtils.stripAll(StringUtils.split(commaDelimitedString, ","));
 			Arrays.sort(strings, comparator);
@@ -77,13 +77,13 @@ public class UtilsTrends  {
 			return ArrayUtils.EMPTY_STRING_ARRAY;
 		}
 	}
-	
+
 
 
 	public static String deriveEventTxnIdUsingEventMappingBoundaryRules(String sourceTxnId,	EventMapping eventMapping) {
 		String txnId;
 		if ( StringUtils.isBlank(eventMapping.getTargetNameLB()) && StringUtils.isBlank(eventMapping.getTargetNameRB()) ){
-			txnId =  sourceTxnId;		
+			txnId =  sourceTxnId;
 		} else	if ( StringUtils.isBlank(eventMapping.getTargetNameLB())){
 			txnId =  StringUtils.substringBefore(sourceTxnId, eventMapping.getTargetNameRB());
 		} else if ( StringUtils.isBlank(eventMapping.getTargetNameRB())){
@@ -94,22 +94,22 @@ public class UtilsTrends  {
 		}
 //		System.out.println("deriveEventTxnNameUsingEventMappingBoundaryRules : using eventName  " + eventName + ", got txnName=" + txnName + "." );
 		return txnId;
-	}	
+	}
 
 	// https://stackoverflow.com/questions/10664434/escaping-special-characters-in-java-regular-expressions
-	
+
 	public static String escapeSpecialRegexChars(String str) {
 	    return Pattern.compile("[{}()\\[\\].+*?^$\\\\|]").matcher(str).replaceAll("\\\\$0");
-	}	
-	
-	
+	}
+
+
 	public static String defaultIfNull(String value, String defaultValue ) {
 		if (value == null) {
 			return defaultValue;
 		} else {
 			return value;
 		}
-	}	
+	}
 
 	public static String defaultIfBlank(String value, String defaultValue ) {
 		if (StringUtils.isBlank(value)) {
@@ -117,33 +117,33 @@ public class UtilsTrends  {
 		} else {
 			return value;
 		}
-	}	
-	
-	
+	}
+
+
 
 	public static String decodeBase64urlParam(String base64urlEncodedString) {
 //		System.out.println("at UtilsMetrics.decodeBase64urlParam :" + base64urlEncodedString );
 		byte[] decodedByte;
-	
+
 		try {
 			decodedByte = Base64.getDecoder().decode(base64urlEncodedString);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException("An attempt to decode a base64 (and uri encoded) parameter has failed for : " + base64urlEncodedString )	;	
+			throw new RuntimeException("An attempt to decode a base64 (and uri encoded) parameter has failed for : " + base64urlEncodedString )	;
 		}
 		String urlEncodedString = new String(decodedByte);
-		
+
 		String decodedString;
 		try {
 			decodedString = java.net.URLDecoder.decode(urlEncodedString, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			throw new RuntimeException("An attempt to decode a uri encoded parameter has failed for : " + urlEncodedString  )	;	
+			throw new RuntimeException("An attempt to decode a uri encoded parameter has failed for : " + urlEncodedString  )	;
 		}
 		return decodedString;
 	}
-  
-	
+
+
 	public static String encodeBase64urlParam(String plainString) {
 //		System.out.println("at UtilsMetrics.encodeBase64urlParam :" + plainString );
 		String URLencodedString;
@@ -151,7 +151,7 @@ public class UtilsTrends  {
 			URLencodedString = java.net.URLEncoder.encode(plainString, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			throw new RuntimeException("An attempt to decode a uri encoded parameter has failed for : " + plainString  )	;	
+			throw new RuntimeException("An attempt to decode a uri encoded parameter has failed for : " + plainString  )	;
 		}
 
 		byte[] base64urlEncodeByte;
@@ -159,27 +159,27 @@ public class UtilsTrends  {
 			base64urlEncodeByte = Base64.getEncoder().encode(URLencodedString.getBytes());
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException("An attempt to encode base64 (and uri encoded) parameter has failed for : " + plainString )	;	
+			throw new RuntimeException("An attempt to encode base64 (and uri encoded) parameter has failed for : " + plainString )	;
 		}
 
 		return new String(base64urlEncodeByte);
 	}
 
-	 
+
 	/**
 	 * 'tag' selected transactions, as they will be named on the trend analysis graphs.  That, is a A CDP transaction
 	 * will be suffixed with a CDP tag.  This method does not invoke a database call.
-	 * 
+	 *
 	 * <p>Assumes the transactions have already been selected for graphing
 	 *  (EG using  TransactionDAO.returnListOfTransactionsToGraph)
-	 * 
+	 *
 	 * <p>Note: The supplied database installs (DDL) will put the lists is in UTF-8 order (h2 default, MySQL utf8mb4_0900_bin collation)
 	 * This should be pretty close to the ordering used by Java, but to avoid any  potential for issues for odd non-standard chars or
-	 * a different collation being chosen on a database, and to cater for the tagged CDP entry on transactions 
+	 * a different collation being chosen on a database, and to cater for the tagged CDP entry on transactions
 	 * the returned list is re-ordered in the natural order of Java sorting using the tagged transactions names.
-	 * 
+	 *
 	 * <p>This is Important as this list is supplied to the graph datapoints creation routine where a string compareTo is done.  The datapoints
-	 * would be out of sequence and the graph could fail if the compareTo did not work properly because the list was out of natural Java order.  
+	 * would be out of sequence and the graph could fail if the compareTo did not work properly because the list was out of natural Java order.
 	 */
 	public static List<Transaction> returnOrderedListOfTransactionsToGraphTagged(List<Transaction> listOfTransactionsToGraph){
 
@@ -187,21 +187,21 @@ public class UtilsTrends  {
 		for (Transaction transaction : listOfTransactionsToGraph) {
 			Transaction graphedTransaction = new Transaction(transaction);
 			if ("Y".equalsIgnoreCase(transaction.getIsCdpTxn())){
-				graphedTransaction.setTxnId(transaction.getTxnId() + AppConstantsTrends.CDP_TAG);  
-				// txnIdURLencoded may be needed to be set in future 
+				graphedTransaction.setTxnId(transaction.getTxnId() + AppConstantsTrends.CDP_TAG);
+				// txnIdURLencoded may be needed to be set in future
 			}
 			listOfTransactionsToGraphTagged.add(graphedTransaction);
-		} 
+		}
 
-		// sort the transaction list using the transaction names to be graphed 
+		// sort the transaction list using the transaction names to be graphed
 		listOfTransactionsToGraphTagged.sort(Comparator.comparing(Transaction::getTxnId));
 		return listOfTransactionsToGraphTagged;
 	}
 
 
 	/**
-	 * Extract transaction names from a list of transactions. 
-	 * 
+	 * Extract transaction names from a list of transactions.
+	 *
 	 * @param transactions transactions list
 	 * @return listOfTxnIdsd (in natural order)
 	 */
@@ -213,12 +213,12 @@ public class UtilsTrends  {
 		}
 		return listOfTxnIds;
 	}
-	
+
 
 
 	/**
-	 * Filter a list of Transactions by CDP, returning a list of txnids 
-	 * 
+	 * Filter a list of Transactions by CDP, returning a list of txnids
+	 *
 	 * @param transactions  transactions list
 	 * @param isCdpTxnFilter CDP filter
 	 * @return listOfTxnIds
@@ -233,35 +233,35 @@ public class UtilsTrends  {
 		}
 		return listOfTxnIds;
 	}
-	
+
 
 	public static String removeCdpTags(String cdpTaggedTransactionString) {
 		if (StringUtils.isNotBlank(cdpTaggedTransactionString)) {
-			cdpTaggedTransactionString = cdpTaggedTransactionString.replace(AppConstantsTrends.CDP_TAG, ""); 
+			cdpTaggedTransactionString = cdpTaggedTransactionString.replace(AppConstantsTrends.CDP_TAG, "");
 		}
 		return cdpTaggedTransactionString;
 	}
 
 	/**
-	 * @param sqlparameters  the parameters used in a NamedParameterJdbcTemplate 
+	 * @param sqlparameters  the parameters used in a NamedParameterJdbcTemplate
 	 * @return formatted string representation of the parameter map
 	 */
 	public static String prettyPrintParms(MapSqlParameterSource sqlparameters) {
-	    return Mark59Utils.prettyPrintMap(sqlparameters.getValues());	
+	    return Mark59Utils.prettyPrintMap(sqlparameters.getValues());
 	}
-	
+
 
 	/**
 	 * https://stackoverflow.com/questions/32065069/is-there-any-method-to-identify-whether-a-string-contains-html-tags-in-java
-	 * @param pStr  String being tested for embedded html tag(s) 
-	 * @return true if string contains html tag, else false 
+	 * @param pStr  String being tested for embedded html tag(s)
+	 * @return true if string contains html tag, else false
 	 */
 	public static boolean stringContainsHtmlTags(String pStr) {
 	    Matcher matcher = pattern.matcher(pStr);
 	    return matcher.find();
-	}		
+	}
 
-	
+
 
 	/**
 	 * Escapes single quotes in SQL string literals to prevent SQL injection.
@@ -277,7 +277,7 @@ public class UtilsTrends  {
 		// Escape single quotes by doubling them (SQL standard)
 		return value.replace("'", "''");
 	}
-	
-	
-	
+
+
+
 }

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import com.mark59.datahunter.api.application.DataHunterConstants;
+import com.mark59.datahunter.api.application.DataHunterSecureAES;
 import com.mark59.datahunter.api.data.beans.Policies;
 import com.mark59.datahunter.api.model.AsyncMessageAnalyzerResult;
 import com.mark59.datahunter.api.model.CountPoliciesBreakdown;
@@ -214,6 +215,76 @@ public class DataHunterRestApiClientSampleUsage {
 	}
 	
 	
+	/**
+	 * //clears testxapiencrypt..  rows
+	 * @param dhApiClient DataHunterRestApiClient
+	 */
+	public void encryptedPolicyChecks(DataHunterRestApiClient dhApiClient){
+		System.out.println("	>> encryptedPolicyChecks");
+		clearDatabase(dhApiClient, "testapiencrypt"); 
+		
+		DataHunterRestApiResponsePojo response = dhApiClient.addPolicy(new Policies("testapiencrypt","  id1  ", "", "USED", null, null), "junk");			
+		validateEquals(response,true,1);
+		validateEquals(dhApiClient.printPolicy("testapiencrypt", "id1"),true,1);
+		assertsOnPolicy(new Policies("testapiencrypt","id1", "", "USED", "", null), response.getPolicies().get(0));
+
+		response = dhApiClient.addPolicy(new Policies("testapiencrypt","id1a", "", "USED", "leaveme", null), "false");			
+		validateEquals(response,true,1);
+		validateEquals(dhApiClient.printPolicy("testapiencrypt", "id1a"),true,1);
+		assertsOnPolicy(new Policies("testapiencrypt","id1a", "", "USED", "leaveme", null), response.getPolicies().get(0));
+		
+		response = dhApiClient.addPolicy(new Policies("testapiencrypt","id1b", "", "USED", "encryptme", null), "true");			
+		validateEquals(response,true,1);
+		validateEquals(dhApiClient.printPolicy("testapiencrypt", "id1b"),true,1);
+		Policies encPol = response.getPolicies().get(0);
+		encPol.setOtherdata(DataHunterSecureAES.decrypt(encPol.getOtherdata()));
+		assertsOnPolicy(encPol, response.getPolicies().get(0));
+		assertsOnPolicy(new Policies("testapiencrypt","id1b", "", "USED", "encryptme", null), response.getPolicies().get(0));
+		
+		response = dhApiClient.addPolicy(new Policies("testapiencrypt","id1c", "", "USED", "encryptme1c", null), true);			
+		validateEquals(response,true,1);
+		validateEquals(dhApiClient.printPolicy("testapiencrypt", "id1c"),true,1);
+		encPol = response.getPolicies().get(0);
+		encPol.setOtherdata(DataHunterSecureAES.decrypt(encPol.getOtherdata()));
+		assertsOnPolicy(encPol, response.getPolicies().get(0));	
+		assertsOnPolicy(new Policies("testapiencrypt","id1c", "", "USED", "encryptme1c", null), response.getPolicies().get(0));		
+		
+		Policies id1 = dhApiClient.printPolicy("testapiencrypt","id1", "").getPolicies().get(0) ;
+		response = dhApiClient.updatePolicy(id1, "badflagnochange");
+		validateEquals(response,true,1);
+		response = dhApiClient.printPolicy("testapiencrypt","id1", "");	
+		assertsOnPolicy(new Policies("testapiencrypt","id1", "", "USED", "", null), response.getPolicies().get(0));
+		
+		id1 = dhApiClient.printPolicy("testapiencrypt","id1", "").getPolicies().get(0) ;
+		response = dhApiClient.updatePolicy(id1, "false");
+		assertsOnPolicy(id1, response.getPolicies().get(0));	
+		assertsOnPolicy(new Policies("testapiencrypt","id1", "", "USED", "", null), response.getPolicies().get(0));	
+		
+		response = dhApiClient.updatePolicy(id1, false);
+		assertsOnPolicy(new Policies("testapiencrypt","id1", "", "USED", "", null), response.getPolicies().get(0));	
+		
+		response = dhApiClient.updatePolicy(new Policies("testapiencrypt","id1", "", "REUSABLE", "DontEncryptMe", null), false);
+		assertsOnPolicy(new Policies("testapiencrypt","id1", "", "REUSABLE", "DontEncryptMe", null), response.getPolicies().get(0));			
+
+		response = dhApiClient.updatePolicy(new Policies("testapiencrypt","id1", "", "REUSABLE", "NowEncryptMe", null), true);
+		validateEquals(response,true,1);
+		response = dhApiClient.printPolicy("testapiencrypt","id1", "");	
+		encPol = response.getPolicies().get(0);
+		encPol.setOtherdata(DataHunterSecureAES.decrypt(encPol.getOtherdata()));		
+		assertsOnPolicy(encPol, response.getPolicies().get(0));
+		assertsOnPolicy(new Policies("testapiencrypt","id1", "", "REUSABLE", "NowEncryptMe", null), response.getPolicies().get(0));			
+
+		response = dhApiClient.updatePolicy(new Policies("testapiencrypt","id1", "", "UNUSED", "StillEncryptMe", null), "True");
+		validateEquals(response,true,1);
+		response = dhApiClient.printPolicy("testapiencrypt","id1", "");	
+		encPol = response.getPolicies().get(0);
+		encPol.setOtherdata(DataHunterSecureAES.decrypt(encPol.getOtherdata()));		
+		assertsOnPolicy(encPol, response.getPolicies().get(0));
+		assertsOnPolicy(new Policies("testapiencrypt","id1", "", "UNUSED", "StillEncryptMe", null), response.getPolicies().get(0));			
+		System.out.println("	<< encryptedPolicyChecks");
+	}
+
+
 	/**
 	 * @param dhApiClient DataHunterRestApiClient
 	 */
@@ -521,14 +592,14 @@ public class DataHunterRestApiClientSampleUsage {
 		
 		DataHunterRestApiResponsePojo response = dhApiClient.policiesBreakdown(DataHunterConstants.STARTS_WITH, "", null, null);		
 		assertEquals(8, response.getCountPoliciesBreakdown().size()); 
-		assertEquals("[application=otherapp, startsWith=null, identifier=null, lifecycle=, useability=UNUSED, selectOrder=null], rowCount=1]", 					 response.getCountPoliciesBreakdown().get(0).toString());
-		assertEquals("[application=test api, startsWith=null, identifier=null, lifecycle=, useability=UNUSED, selectOrder=null], rowCount=1]", 					 response.getCountPoliciesBreakdown().get(1).toString());
-		assertEquals("[application=testaB_pi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1]", 		 response.getCountPoliciesBreakdown().get(2).toString());
-		assertEquals("[application=testaC%pi:&? @=+, startsWith=null, identifier=null, lifecycle=lc with$char-s, useability=USED, selectOrder=null], rowCount=2]",response.getCountPoliciesBreakdown().get(3).toString());
-		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=, useability=USED, selectOrder=null], rowCount=2]", 					 response.getCountPoliciesBreakdown().get(4).toString());
-		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=duplicatedid, useability=REUSABLE, selectOrder=null], rowCount=1]", 	 response.getCountPoliciesBreakdown().get(5).toString());
-		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=UNUSED, selectOrder=null], rowCount=1]", 		 response.getCountPoliciesBreakdown().get(6).toString());
-		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1]", 			 response.getCountPoliciesBreakdown().get(7).toString());
+		assertEquals("[application=otherapp, startsWith=null, identifier=null, lifecycle=, useability=UNUSED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 				 response.getCountPoliciesBreakdown().get(0).toString());
+		assertEquals("[application=test api, startsWith=null, identifier=null, lifecycle=, useability=UNUSED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 				 response.getCountPoliciesBreakdown().get(1).toString());
+		assertEquals("[application=testaB_pi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 		 response.getCountPoliciesBreakdown().get(2).toString());
+		assertEquals("[application=testaC%pi:&? @=+, startsWith=null, identifier=null, lifecycle=lc with$char-s, useability=USED, selectOrder=null], rowCount=2, isReusableIndexed=N, holeCount=0]",response.getCountPoliciesBreakdown().get(3).toString());
+		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=, useability=USED, selectOrder=null], rowCount=2, isReusableIndexed=N, holeCount=0]", 					 response.getCountPoliciesBreakdown().get(4).toString());
+		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=duplicatedid, useability=REUSABLE, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 	 response.getCountPoliciesBreakdown().get(5).toString());
+		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=UNUSED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 		 response.getCountPoliciesBreakdown().get(6).toString());
+		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 		 response.getCountPoliciesBreakdown().get(7).toString());
 
 		assertEquals(7, dhApiClient.policiesBreakdown(DataHunterConstants.STARTS_WITH, "test", null, null).getCountPoliciesBreakdown().size()); 
 		assertEquals(4, dhApiClient.policiesBreakdown(DataHunterConstants.STARTS_WITH, " testapi", null, null).getCountPoliciesBreakdown().size()); 
@@ -536,19 +607,19 @@ public class DataHunterRestApiClientSampleUsage {
 
 		response = dhApiClient.policiesBreakdown(DataHunterConstants.STARTS_WITH, "test", "lc with$char-s", null);		
 		assertEquals(1, response.getCountPoliciesBreakdown().size()); 
-		assertEquals("[application=testaC%pi:&? @=+, startsWith=null, identifier=null, lifecycle=lc with$char-s, useability=USED, selectOrder=null], rowCount=2]",response.getCountPoliciesBreakdown().get(0).toString());
+		assertEquals("[application=testaC%pi:&? @=+, startsWith=null, identifier=null, lifecycle=lc with$char-s, useability=USED, selectOrder=null], rowCount=2, isReusableIndexed=N, holeCount=0]",response.getCountPoliciesBreakdown().get(0).toString());
 
 		response = dhApiClient.policiesBreakdown(DataHunterConstants.STARTS_WITH, "", null, "USED");		
 		assertEquals(4, response.getCountPoliciesBreakdown().size()); 
-		assertEquals("[application=testaB_pi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1]", 		 response.getCountPoliciesBreakdown().get(0).toString());
-		assertEquals("[application=testaC%pi:&? @=+, startsWith=null, identifier=null, lifecycle=lc with$char-s, useability=USED, selectOrder=null], rowCount=2]",response.getCountPoliciesBreakdown().get(1).toString());
-		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=, useability=USED, selectOrder=null], rowCount=2]", 					 response.getCountPoliciesBreakdown().get(2).toString());
-		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1]", 			 response.getCountPoliciesBreakdown().get(3).toString());
+		assertEquals("[application=testaB_pi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 		 response.getCountPoliciesBreakdown().get(0).toString());
+		assertEquals("[application=testaC%pi:&? @=+, startsWith=null, identifier=null, lifecycle=lc with$char-s, useability=USED, selectOrder=null], rowCount=2, isReusableIndexed=N, holeCount=0]",response.getCountPoliciesBreakdown().get(1).toString());
+		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=, useability=USED, selectOrder=null], rowCount=2, isReusableIndexed=N, holeCount=0]", 					 response.getCountPoliciesBreakdown().get(2).toString());
+		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 		 response.getCountPoliciesBreakdown().get(3).toString());
 		
 		response = dhApiClient.policiesBreakdown(DataHunterConstants.STARTS_WITH, "testa", "nonblanklc", "USED");		
 		assertEquals(2, response.getCountPoliciesBreakdown().size()); 
-		assertEquals("[application=testaB_pi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1]", 		 response.getCountPoliciesBreakdown().get(0).toString());
-		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1]", 			 response.getCountPoliciesBreakdown().get(1).toString());
+		assertEquals("[application=testaB_pi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 		 response.getCountPoliciesBreakdown().get(0).toString());
+		assertEquals("[application=testapi, startsWith=null, identifier=null, lifecycle=nonblanklc, useability=USED, selectOrder=null], rowCount=1, isReusableIndexed=N, holeCount=0]", 		 response.getCountPoliciesBreakdown().get(1).toString());
 		
 		//clean up
 		assertEquals(Integer.valueOf(1), dhApiClient.deleteMultiplePolicies("otherapp", null, null).getRowsAffected());
@@ -881,6 +952,12 @@ public class DataHunterRestApiClientSampleUsage {
 	}
 
 	
+	private void validateEquals(DataHunterRestApiResponsePojo response, boolean success, Integer rowsAffected) {
+		assertEquals(String.valueOf(success), response.getSuccess() ); 
+		assertEquals(rowsAffected, response.getRowsAffected());
+	}
+	
+	
 	/**
 	 * Runs each of the sample use cases against a local dataHunter instance
 	 * tests build/clear application id  testapi- 
@@ -891,6 +968,7 @@ public class DataHunterRestApiClientSampleUsage {
 		DataHunterRestApiClient dhApiClient = new DataHunterRestApiClient("http://localhost:8081/mark59-datahunter"  );
 		DataHunterRestApiClientSampleUsage sample = new DataHunterRestApiClientSampleUsage();
 		sample.basicPolicyAddPrintUpdateDeleteChecks(dhApiClient); 
+		sample.encryptedPolicyChecks(dhApiClient);
 		sample.workingWithMultiplePolicies(dhApiClient);
 		sample.policyCountsAndBreakdowns(dhApiClient);
 		sample.workingWithUseStateChanges(dhApiClient);

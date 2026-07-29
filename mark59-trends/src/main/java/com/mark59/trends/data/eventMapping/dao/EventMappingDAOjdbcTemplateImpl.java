@@ -25,7 +25,6 @@ import java.util.Objects;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -41,12 +40,13 @@ import com.mark59.trends.data.beans.EventMapping;
 public class EventMappingDAOjdbcTemplateImpl implements EventMappingDAO
 {
 
-	@Autowired
-	private DataSource dataSource;
+	private final DataSource dataSource;
+	private final String currentDatabaseProfile;
 
-    @Autowired
-    private String currentDatabaseProfile;
-
+	public EventMappingDAOjdbcTemplateImpl(DataSource dataSource, String currentDatabaseProfile) {
+		this.dataSource = dataSource;
+		this.currentDatabaseProfile = currentDatabaseProfile;
+	}
 
 	@Override
 	public void insertData(EventMapping eventMapping) {

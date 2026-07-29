@@ -14,9 +14,9 @@
 	
 		 build goals: clean package   ('install' to place all artifacts into local repository)  
 	     
-	     Note if using package and later plan to build projects individually you may need to run multiple 
-	     install goals as some projects are dependent on others (eg mark59-datahunter-samples is dependent on 
-	     mark59-dsl-samples, which is dependent on mark59-scripting, which is dependent on mark59-core) -->	
+	     Note if you plan to build projects individually you may need to run multiple builds as some projects 
+	     are dependent on others (eg mark59-sripting-samples is dependent on mark59-scripting-sample-dsl, 
+	     mark59-datahunter-api and mark59-scripting, which is dependent on mark59-core) -->	
 	     
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

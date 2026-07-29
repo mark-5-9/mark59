@@ -27,6 +27,9 @@ import com.mark59.metrics.drivers.ServerProfileRunner;
  */
 public class MetricsApiConstants {
 
+	/**  Mark59 Version for Metrics  */
+	public static final String MARK59_VERSION_METRICS_API = "6.6";
+	
 	/**
 	 * Intention is that this string is used as a JMeter Parameter in a Java Request
 	 * of one of the classes controlling metrics capture in a JMeter test, to determine 
@@ -49,5 +52,5 @@ public class MetricsApiConstants {
 	public static final String PRINT_ERROR_MESSAGES	= "PRINT_ERROR_MESSAGES";
 	
 	public static final boolean RUNNING_VIA_EXCEL = false;
-
+	
 }

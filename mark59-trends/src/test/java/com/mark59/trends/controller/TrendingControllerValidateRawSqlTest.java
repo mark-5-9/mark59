@@ -19,7 +19,7 @@ class TrendingControllerValidateRawSqlTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		controller = new TrendingController();
+		controller = new TrendingController(null, null, null, null, null, null, null, null);
 		// Access the private method using reflection
 		validateRawSqlMethod = TrendingController.class.getDeclaredMethod("validateRawSql", String.class);
 		validateRawSqlMethod.setAccessible(true);

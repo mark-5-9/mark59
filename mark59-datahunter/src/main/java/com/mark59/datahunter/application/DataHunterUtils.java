@@ -160,7 +160,7 @@ public final class DataHunterUtils  {
 	 */
 	public static Set<String> commaDelimStringToStringSet(String commaDelimitedString) {
 		List<String> listOfStrings = new ArrayList<>();
-		if ( StringUtils.isNotBlank(commaDelimitedString)){
+		if (StringUtils.isNotBlank(commaDelimitedString)){
 			listOfStrings =  Arrays.asList(StringUtils.stripAll(StringUtils.split(commaDelimitedString, ",")));
 		}
 		return new HashSet<>(listOfStrings);
@@ -185,4 +185,5 @@ public final class DataHunterUtils  {
 		return null == str ? "" : str;
 	}
 
+	
 }

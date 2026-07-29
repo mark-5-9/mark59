@@ -19,7 +19,7 @@ class TrendingControllerSanitizeSqlLikePatternTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		controller = new TrendingController();
+		controller = new TrendingController(null, null, null, null, null, null, null, null);
 		// Access the private method using reflection
 		sanitizeSqlLikePatternMethod = TrendingController.class.getDeclaredMethod(
 			"sanitizeSqlLikePattern", String.class, String.class);

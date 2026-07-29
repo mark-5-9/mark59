@@ -21,8 +21,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.mark59.trends.application.UtilsTrends;
 import com.mark59.trends.data.beans.Datapoint;
 import com.mark59.trends.data.beans.GraphMapping;
@@ -38,8 +36,11 @@ import com.mark59.trends.data.transaction.dao.TransactionDAO;
  */
 public class VisGraphicDataProduction  implements VisGraphicDataProductionInterface{
 
-  @Autowired
-  TransactionDAO transactionDAO;
+  private final TransactionDAO transactionDAO;
+
+  public VisGraphicDataProduction(TransactionDAO transactionDAO) {
+    this.transactionDAO = transactionDAO;
+  }
 
   /**
    * <p>Returns the data points that are going to to be plotted on the graph as a list of 3D Cartesian coordinates.

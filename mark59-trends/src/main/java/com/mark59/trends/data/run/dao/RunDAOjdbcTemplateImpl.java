@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -43,15 +42,15 @@ import com.mark59.trends.data.transaction.dao.TransactionDAO;
  */
 public class RunDAOjdbcTemplateImpl implements RunDAO
 {
-	@Autowired
-	private DataSource dataSource;
+	private final DataSource dataSource;
+	private final ApplicationDAO applicationDAO;
+	private final TransactionDAO transactionDAO;
 
-	@Autowired
-	ApplicationDAO applicationDAO;
-
-	@Autowired
-	TransactionDAO transactionDAO;
-
+	public RunDAOjdbcTemplateImpl(DataSource dataSource, ApplicationDAO applicationDAO, TransactionDAO transactionDAO) {
+		this.dataSource = dataSource;
+		this.applicationDAO = applicationDAO;
+		this.transactionDAO = transactionDAO;
+	}
 
 	@Override
 	public void insertRun(Run run) {

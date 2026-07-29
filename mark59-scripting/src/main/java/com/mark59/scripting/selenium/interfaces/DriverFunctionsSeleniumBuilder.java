@@ -183,20 +183,31 @@ public interface DriverFunctionsSeleniumBuilder<O extends MutableCapabilities>	{
 
 
 	/**
-	 * <p>Sets browser launch arguments (primarily Chromium command-line switches) from JMeter parameters.
-	 * Intended for use with Chrome Driver.</p>
+	 * <p>"BROWSER_LAUNCH_ARGS" allows the setting of browser launch arguments, primarily Chromium command-line switches.
+	 * Intended for use with Selenium (Chrome Driver) and Playwright.</p>
 	 *
-	 * <p>The input string needs to be a comma delimited list for multiple arguments.
-	 * For example, to set a proxy pac url and activate the disable extensions option, the "BROWSER_LAUNCH_ARGS" parameter
-	 * for the SeleniumAbstractJavaSamplerClient based test script can be entered as :
+	 * <p>The behaviour of this parameter can vary between Selenium and Playwright, although in both frameworks
+	 * it primarily allows the setting of the Chromium command-line switches (see URL references below).
+	 *
+	 * <p>The input string needs to be a semicolon delimited list for multiple arguments.
+	 * For example, to set a proxy pac url and activate the disable extensions option, the "BROWSER_LAUNCH_ARGS"
+	 * parameter for the SeleniumAbstractJavaSamplerClient based test script can be entered as :
 	 * <br><br> <b> --proxy-pac-url=http://myawesomecompany.corp/proxy.pac,--disable-extensions</b> </p>
 	 *
-	 * <p>A proxy override can also be set using the explicit PROXY parameter provided by Selenium,
-	 * it's just shown here as an example.</p>
+	 * <p>A proxy override can be also set using explicit PROXY parameters provided by Selenium and
+	 * Playwright (different formats), it's just shown here as an example.<br>
 	 *
-	 * <p>Another example: to run Chrome in incognito mode and have DevTools open with the browser, you can set the "BROWSER_LAUNCH_ARGS"
-	 *  parameter as :
-	 * <br><br> <b>--incognito,--auto-open-devtools-for-tabs</b> </p>
+	 * <p>Another example: to run Chrome in incognito mode and have DevTools open with the browser, you can set the
+	 *  "BROWSER_LAUNCH_ARGS" parameter as :
+	 * <br><br> <b>--incognito;--auto-open-devtools-for-tabs</b> </p>
+	 *
+	 * <p>Note: Arguments that themselves contain comma-separated values (eg --disable-features=feat1,feat2,feat3)
+	 * are supported since the semicolon delimiter is used to separate arguments. For example to open DevTools and 
+	 * set list of disabled features, set the BROWSER_LAUNCH_ARGS" parameter as :
+	 * <br><br><b>--auto-open-devtools-for-tabs;--disable-features=LocalNetworkAccessChecks,ImprovedCookieControls</b></p>
+	 * 
+	 * <p>Incidentally, "--incognito" is an example of a switch that works differently between Selenium and Playwright
+	 * (it's unnecessary in Playwright as the BrowserContext already provides that isolation).
 	 *
 	 * <p>At the time of writing the best sources for the list of available options are:<br>
 	 *  <ul>

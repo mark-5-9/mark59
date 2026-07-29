@@ -372,7 +372,8 @@ public class DataHunterLifecyclePvtScript  extends SeleniumAbstractJavaSamplerCl
 	private void startCdpListeners(JmeterFunctionsForSeleniumScripts jm, WebDriver driver) {
 		DevToolsDSL devToolsDsl = new DevToolsDSL();
 		devToolsDsl.createDevToolsSession(driver);
-
+		
+    	// for JMeter 6:  StringUtils.contains -> Strings.CS.contains
 		devToolsDsl.addListenerRequestWillBeSent(jm
 				, req -> req.getDocumentURL().contains("_action") || StringUtils.contains(jm.getMostRecentTransactionStarted(), "loadInitialPage"));
 

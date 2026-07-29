@@ -19,7 +19,6 @@ package com.mark59.metrics.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,8 +42,11 @@ public class HomeController {
 
 	private static final int SESSION_TIMEOUT_SECONDS = 30 * 60; // 30 minutes
 
-	@Autowired
-	PropertiesConfiguration springBootConfiguration;
+	private final PropertiesConfiguration springBootConfiguration;
+
+	public HomeController(PropertiesConfiguration springBootConfiguration) {
+		this.springBootConfiguration = springBootConfiguration;
+	}
 
 
 	@GetMapping("/login")

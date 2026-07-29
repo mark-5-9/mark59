@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mark59.datahunter.api.application.DataHunterConstants;
+import com.mark59.datahunter.api.application.DataHunterSecureAES;
 import com.mark59.datahunter.api.application.DataHunterUtils;
 import com.mark59.datahunter.api.data.beans.Policies;
 import com.mark59.datahunter.api.model.DataHunterRestApiResponsePojo;
@@ -63,10 +64,49 @@ public class DataHunterRestApiClient {
 	 * @param policies :
 	 * 	  <br>&nbsp;  The Item key is application|identifier|lifecycle, and must be unique
 	 * 	  <br>&nbsp;  useability : One of {@link DataHunterConstants#USEABILITY_LIST}
-	 *    <br>&nbsp;  epochtime : for epochtime the system current time is used a numeric value is not passed
+	 *    <br>&nbsp;  epochtime : the current system time is used if a numeric value is not passed
 	 * @return DataHunterRestApiResponsePojo
 	 */
 	public DataHunterRestApiResponsePojo addPolicy(Policies policies) {
+		return addPolicy(policies, false);
+	}
+	
+	/**
+	 * Add an Item to DataHunter (flagging whether to encrypt the passed 'otherdata' value).
+	 *
+	 * @param policies :
+	 * 	  <br>&nbsp;  The Item key is application|identifier|lifecycle, and must be unique
+	 * 	  <br>&nbsp;  useability : One of {@link DataHunterConstants#USEABILITY_LIST}
+	 *    <br>&nbsp;  epochtime : the current system time is used if a numeric value is not passed
+	 * @param encryptOtherdataStr : Flag to indicate if the passed value of 'otherdata' should be encrypted.
+	 *    <br>&nbsp; 'true' if the string argument is not null and is equal, ignoring case, to the string "true".
+     * Otherwise, 'false' value is set, including for a null argument. 
+     *    <br>&nbsp; Note: Encryption occurs on the server making this api call (eg the machine running the JMeter test).
+     * This has implications in environments with unique SecureAES encryption keys set on servers.                
+	 * @return DataHunterRestApiResponsePojo
+	 */
+	public DataHunterRestApiResponsePojo addPolicy(Policies policies, String encryptOtherdataStr){
+		return addPolicy(policies, Boolean.valueOf(encryptOtherdataStr));
+	}
+
+	/**
+	 * Add an Item to DataHunter (flagging whether to encrypt the passed 'otherdata' value).
+	 *
+	 * @param policies :
+	 * 	  <br>&nbsp;  The Item key is application|identifier|lifecycle, and must be unique
+	 * 	  <br>&nbsp;  useability : One of {@link DataHunterConstants#USEABILITY_LIST}
+	 *    <br>&nbsp;  epochtime : the current system time is used if a numeric value is not passed
+	 * @param encryptOtherdata : Flag to indicate if the passed value of 'otherdata' should be encrypted.
+     *    <br>&nbsp; Note: Encryption occurs on the server making this api call (eg the machine running the JMeter test).
+     * This has implications in environments with unique SecureAES encryption keys set on servers.  
+	 * @return DataHunterRestApiResponsePojo
+	 */
+	public DataHunterRestApiResponsePojo addPolicy(Policies policies, boolean encryptOtherdata){
+		
+		if (encryptOtherdata) {
+			policies.setOtherdata(DataHunterSecureAES.encrypt(policies.getOtherdata()));
+		}
+		
 		String webServiceUrl = new UrlBuilder("/api/addPolicy")
 				.addParam("application", policies.getApplication())
 				.addParam("identifier", policies.getIdentifier())
@@ -344,7 +384,7 @@ public class DataHunterRestApiClient {
 		return invokeDataHunterRestApi(webServiceUrl);
 	}
 
-
+	
 	/**
 	 * Update an existing Item
 	 *
@@ -355,7 +395,48 @@ public class DataHunterRestApiClient {
 	 * 		<br>&nbsp;  <i>epochtime</i> : a long value, or if blank or non-numeric will to set to System.currentTimeMillis().
 	 * @return DataHunterRestApiResponsePojo
 	 */
-	public DataHunterRestApiResponsePojo updatePolicy(Policies policies) {
+	public DataHunterRestApiResponsePojo updatePolicy(Policies policies){
+		return updatePolicy(policies, false);
+	}	
+	
+	/**
+	 * Update an existing Item
+	 *
+	 * @param policies an existing to be  updated:
+	 * 		<br>&nbsp;  The Item key is <i>application|identifier|lifecycle</i>.  No action if the item does not exist
+	 * 		<br>&nbsp;  <i>useability</i> : One of {@link DataHunterConstants#USEABILITY_LIST}
+	 * 		<br>&nbsp;  <i>otherdata</i> : otherdata (set empty if null passed)
+	 * 		<br>&nbsp;  <i>epochtime</i> : a long value, or if blank or non-numeric will to set to System.currentTimeMillis().
+	 * @param encryptOtherdataStr : Flag to indicate if the passed value of 'otherdata' should be encrypted.
+	 *    <br>&nbsp; 'true' if the string argument is not null and is equal, ignoring case, to the string "true".
+     * Otherwise, 'false' value is set, including for a null argument. 
+     *    <br>&nbsp; Note: Encryption occurs on the server making this api call (eg the machine running the JMeter test).
+     * This has implications in environments with unique SecureAES encryption keys set on servers.                
+	 * @return DataHunterRestApiResponsePojo
+	 */
+	public DataHunterRestApiResponsePojo updatePolicy(Policies policies, String encryptOtherdataStr){
+		return updatePolicy(policies, Boolean.valueOf(encryptOtherdataStr));
+	}
+	
+	/**
+	 * Update an existing Item
+	 *
+	 * @param policies an existing to be  updated:
+	 * 		<br>&nbsp;  The Item key is <i>application|identifier|lifecycle</i>.  No action if the item does not exist
+	 * 		<br>&nbsp;  <i>useability</i> : One of {@link DataHunterConstants#USEABILITY_LIST}
+	 * 		<br>&nbsp;  <i>otherdata</i> : otherdata (set empty if null passed)
+	 * 		<br>&nbsp;  <i>epochtime</i> : a long value, or if blank or non-numeric will to set to System.currentTimeMillis().
+	 * @param encryptOtherdata : Flag to indicate if the passed value of 'otherdata' should be encrypted.
+     *    <br>&nbsp; Note: Encryption occurs on the server making this api call (eg the machine running the JMeter test).
+     * This has implications in environments with unique SecureAES encryption keys set on servers.  
+	 * @return DataHunterRestApiResponsePojo
+	 */
+	public DataHunterRestApiResponsePojo updatePolicy(Policies policies, boolean encryptOtherdata) {
+		
+		if (encryptOtherdata) {
+			policies.setOtherdata(DataHunterSecureAES.encrypt(policies.getOtherdata()));
+		}
+		
 		String webServiceUrl = new UrlBuilder("/api/updatePolicy")
 				.addParam("application", policies.getApplication())
 				.addParam("identifier", policies.getIdentifier())

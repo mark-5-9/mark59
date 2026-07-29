@@ -31,7 +31,7 @@ import com.mark59.core.utils.Mark59Constants;
  */
 public class AppConstantsTrends {
 	
-	public static final String MARK59_VERSION_TRENDS = "6.5";	
+	public static final String MARK59_VERSION_TRENDS = "6.6";	
 	
 	public static final String ALLOWED_CHARS_APP_NAME = "^[\\w-.]*$";   // alpha(international), underline, dash, dot
 	

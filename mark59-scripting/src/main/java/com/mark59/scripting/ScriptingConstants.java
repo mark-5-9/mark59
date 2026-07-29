@@ -39,11 +39,14 @@ public class ScriptingConstants {
 		throw new AssertionError("ScriptingConstants is a utility class and should not be instantiated");
 	}
 
+	/** this Mark59 Version for Scripting */
+	public static final String MARK59_VERSION_SCRIPTING  = "6.6";
+
+	
 	/**
 	 * "HEADLESS_MODE" (default is 'true')
 	 */
 	public static final String HEADLESS_MODE = "HEADLESS_MODE";
-
 
 	/**
 	 * "PLAYWRIGHT_ENV_VAR_PWDEBUG" - A value of "1" enables Playwright tests to run in debug mode from the
@@ -80,26 +83,36 @@ public class ScriptingConstants {
 
 
 	/**
-	 * <p>"BROWSER_LAUNCH_ARGS" allows the setting of browser launch arguments, primarily Chromium command-line switches.
+	 * <p>"BROWSER_LAUNCH_ARGS" allows the setting of browser launch arguments (Chromium command-line switches).
 	 * Intended for use with Selenium and Playwright.</p>
 	 *
-	 * <p>The behaviour of this parameter can vary between Selenium and Playwright, although in both frameworks
-	 * it primarily allows the setting of the Chromium command-line switches (see URL references below).
+	 * <p>Note the behaviour of this parameter can vary between Selenium and Playwright. "--incognito" is an example 
+	 * of this (it's unnecessary in Playwright as the BrowserContext already provides that isolation).
 	 *
-	 * <p>The input string needs to be a comma delimited list for multiple arguments.
-	 * For example, to set a proxy pac url and activate the disable extensions option, the "BROWSER_LAUNCH_ARGS"
-	 * parameter for the SeleniumAbstractJavaSamplerClient based test script can be entered as :
-	 * <br><br> <b> --proxy-pac-url=http://myawesomecompany.corp/proxy.pac,--disable-extensions</b> </p>
-	 *
-	 * <p>A proxy override can be also set using explicit PROXY parameters provided by Selenium and
-	 * Playwright (different formats), it's just shown here as an example.<br>
-	 *
-	 * <p>Another example: to run Chrome in incognito mode and have DevTools open with the browser, you can set the
-	 *  "BROWSER_LAUNCH_ARGS" parameter as :
-	 * <br><br> <b>--incognito,--auto-open-devtools-for-tabs</b> </p>
-	 *
-	 * <p>By the way, "--incognito" is an example of a switch that works differently between Selenium and Playwright
-	 * (it's unnecessary in Playwright as the BrowserContext already provides that isolation).
+	 * <p>Also, some arguments can be set via other options. For example :
+	 * <br><code>"-proxy-pac-url=http://myawesomecompany.corp/proxy.pac"</code><br>
+	 * can be set using explicit PROXY parameters provided by Selenium and Playwright (different formats).
+	 * 
+	 * <p>Arguments can be delimited by either:<br>
+	 *  semicolons (;)<br>- OR -<br>
+	 *  commas (,) followed by optional whitespace and double dashes (--). The dashes remain part of the launch argument. 
+	 * <p>This allows commas to be used to separate values in a multi-value argument
+	 * <p>For example<br> 
+	 * <code>"--arg1=A; --arg2=B,C;--arg3, --arg4,--arg5=D,E,F,--arg6,--arg7"</code><br>
+	 * will create this list of (useless) launch args:<br> 
+	 * <code>
+	 * --arg1=A<br>
+	 * --arg2=B,C<br>
+	 * --arg3<br>
+	 * --arg4<br>
+	 * --arg5=D,E,F<br>
+	 * --arg6<br>
+	 * --arg7"</code>
+	 * 
+	 * <p>Another example. This one will work in a chromium browser, opening devtools and putting the browser in 'dark mode': 
+	 * <br><code>
+	 * "--auto-open-devtools-for-tabs,--force-dark-mode,--disable-features=LocalNetworkAccessChecks,ImprovedCookieControls"
+	 * </code><br>
 	 *
 	 * <p>At the time of writing the best sources for the list of available options are:<br>
 	 *  <ul>
@@ -132,7 +145,6 @@ public class ScriptingConstants {
 
 	/**
 	 * "PLAYWRIGHT_DEVTOOLS" - "true" / "false"
-	 *  @see BrowserType.LaunchOptions#setDevtools(boolean)
 	 */
 	public static final String PLAYWRIGHT_OPEN_DEVTOOLS = "PLAYWRIGHT_OPEN_DEVTOOLS";
 

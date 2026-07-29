@@ -57,29 +57,39 @@ public class Mark59Utils {
 	 * <p>returned as Jmeter Arguments
 	 *
 	 * @param baseMap  Map of base key values
-	 * @param overrideEntriesMap  additional or override key values
+	 * @param extraEntriesMap  additional or override key values
 	 * @return jmeterArguments
 	 */
-	public static Arguments mergeMapWithAnOverrideMap(Map<String,String> baseMap, Map<String, String> overrideEntriesMap) {
+	public static Arguments mergeMapWithAnOverrideMap(Map<String,String> baseMap, Map<String, String> extraEntriesMap) {
 		Arguments jmeterArguments = new Arguments();
 		Map<String,String> baseMapMergedWithOverrideMap = new LinkedHashMap<>();
+		
+		/* Let's start by putting in all the script/class defined parameters ('additional test parameters') that do not
+		 * not exist in the 'base' map (pre-defined parameters), into the merged map - which will to contain all parameters.
+		 * The parameters will appear on the JMeter GUI for a Java Request in the order they are placed in the merged map.      
+		 */
 
-		// use the override map to change entries for existing base map values in the merge
+		for (Map.Entry<String, String> extraEntry : extraEntriesMap.entrySet()) {
+			if ( ! baseMap.containsKey(extraEntry.getKey())){
+				baseMapMergedWithOverrideMap.put(extraEntry.getKey(), extraEntriesMap.get(extraEntry.getKey()));
+			}
+		}		
+
+		/* Now go thru the 'base' map (the pre-defined parameters), changing the value of the entry when the entry also has
+		 * a value on the script/class defined parameters ('additional test parameters'). Each entry is added to the (end of
+		 * the) merged map
+		 */
+
 		for (Map.Entry<String, String> baseEntry : baseMap.entrySet()) {
-			if (overrideEntriesMap.containsKey(baseEntry.getKey())){
-				baseMapMergedWithOverrideMap.put(baseEntry.getKey(), overrideEntriesMap.get(baseEntry.getKey()));
+			if (extraEntriesMap.containsKey(baseEntry.getKey())){
+				baseMapMergedWithOverrideMap.put(baseEntry.getKey(), extraEntriesMap.get(baseEntry.getKey()));
 			} else {
 				baseMapMergedWithOverrideMap.put(baseEntry.getKey(), baseMap.get(baseEntry.getKey()));
 			}
-		}
-
-		// add entries to the merge for keys in the override map, but were not in the base map
-		for (Map.Entry<String, String> overrideEntry : overrideEntriesMap.entrySet()) {
-			if ( ! baseMap.containsKey(overrideEntry.getKey())){
-				baseMapMergedWithOverrideMap.put(overrideEntry.getKey(), overrideEntriesMap.get(overrideEntry.getKey()));
-			}
-		}
-
+		}	
+	
+		/* Finally, convert the (insertion-order sorted) map into a list of jmeterArguments */		
+		
 		for (Map.Entry<String, String> parameter : baseMapMergedWithOverrideMap.entrySet()) {
 			jmeterArguments.addArgument(parameter.getKey(), parameter.getValue());
 		}
@@ -125,7 +135,6 @@ public class Mark59Utils {
 	    }
 	    return prettyOut+= "\n    ------------------------------- \n";
 	}
-
 
 
 	/**
@@ -239,8 +248,8 @@ public class Mark59Utils {
 		}
 		return listOfStrings;
 	}
-
-
+ 
+    
 	/**
 	 * LINUX is returned as the default, other options are WINDOWS and MAC
 	 * @return string

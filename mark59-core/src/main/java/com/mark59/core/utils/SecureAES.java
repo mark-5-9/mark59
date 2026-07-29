@@ -102,9 +102,14 @@ import org.apache.logging.log4j.Logger;
  * 
  * <p><b>Migration from SimpleAES</b></p>
  * Versions of Mark59 prior to 6.5 used a weak encryption class SimpleAES. Encryptions created by 
- * this class will NOT work with SecureAES. Use can use the SimpleAES class in mark59-core or 
- * SimpleAESUtility that ships in the mark59-scripting-samples project if you need to recover the original string
- * for re-encryption.<br><br> 
+ * this class will NOT work with SecureAES.  Please review the mark59 'xtras' github repo for 
+ * details:<br>https://github.com/mark-5-9/mark59-xtras<br><br> 
+ *  * 
+ * <p><b>SecureAES algorithm in the Mark59 datahunter projects</b></p>
+ * From Mark59 version 6.6, the SecureAES algorithm has been copied into mark59-datahunter and mark59-datahunter-api 
+ * (to allow encrypted passwords to be stored).  While the versions of this class in the datahunter projects do not 
+ * need to be kept in line with this class, when any change made in this class, the SecureAES based classes in 
+ * the datahunter projects should at lease be reviewed.<br><br>  * 
  * 
  * @author Philip Webb
  * Written: Australian Spring 2025

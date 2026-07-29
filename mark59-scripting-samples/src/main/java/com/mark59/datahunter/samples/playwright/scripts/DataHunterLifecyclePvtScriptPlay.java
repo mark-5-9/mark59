@@ -326,6 +326,7 @@ public class DataHunterLifecyclePvtScriptPlay  extends PlaywrightAbstractJavaSam
         // page.onRequest(req -> { System.out.println( "ON_REQ Url: "+req.url()+", Type: "+req.resourceType()+", Method: "+req.method());});
 
         page.onRequestFinished(res -> {
+        	// for JMeter 6:  StringUtils.contains -> Strings.CS.contains
 			if ((res.url().contains("_action") || StringUtils.contains(jm.getMostRecentTransactionStarted(), "loadInitialPage"))
 					&& "Document".equalsIgnoreCase(res.resourceType())
 					&& jm.getMostRecentTransactionStarted() != null){

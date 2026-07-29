@@ -5,14 +5,14 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-api</artifactId>
-	<version>6.5</version>
+	<version>6.6</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-api</name>
 
 	<properties>
-		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.5</version>
+			<version>6.6</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>*</groupId>
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-metrics-common</artifactId>
-			<version>6.5</version>
+			<version>6.6</version>
 			<exclusions>
 				<exclusion>
 				    <groupId>*</groupId>
@@ -78,20 +78,26 @@
 
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
-		    <artifactId>log4j-api</artifactId>
-		    <version>2.25.3</version>
+		    <artifactId>log4j-core</artifactId>
+		    <version>2.25.4</version>
 		</dependency>
 
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
-		    <artifactId>log4j-core</artifactId>
-		    <version>2.25.3</version>
+		    <artifactId>log4j-api</artifactId>
+		    <version>2.25.4</version>
 		</dependency>
 
 		<dependency>
 		    <groupId>commons-io</groupId>
 		    <artifactId>commons-io</artifactId>
 		    <version>2.21.0</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-text</artifactId>
+		    <version>1.14.0</version>
 		</dependency>
 
 		<dependency>

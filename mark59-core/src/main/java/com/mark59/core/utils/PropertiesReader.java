@@ -100,7 +100,7 @@ public class PropertiesReader {
 		});
 
 		LOG.info("");
-		LOG.info("Mark59 (Version: " +  Mark59Constants.MARK59_VERSION +") property settings : ");
+		LOG.info("Mark59 property settings : ");
 		setMark59property(PropertiesKeys.MARK59_PROP_SCREENSHOT_DIRECTORY, NOT_EXECUTABLE, DEPRECATED);
 		setMark59property(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY);
 		setMark59property(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX);
@@ -113,11 +113,13 @@ public class PropertiesReader {
 		LOG.info("    ----------------------- ");
 
 		if (Mark59Constants.TRUE.equalsIgnoreCase(getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES))){
-			System.out.println("Using Mark59 Version: " +  Mark59Constants.MARK59_VERSION);
+			System.out.println("Mark59 key logging properties:");
 			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOG_DIRECTORY
 					+ " : "	+ getProperty(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY));
 			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX
 					+ " : "	+ getProperty(PropertiesKeys.MARK59_PROP_LOG_DIRECTORY_SUFFIX));
+			System.out.println("     " + PropertiesKeys.MARK59_PROP_LOGNAME_FORMAT
+					+ " : "	+ getProperty(PropertiesKeys.MARK59_PROP_LOGNAME_FORMAT));
 			System.out.println("     " + PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES
 					+ " : "	+ getProperty(PropertiesKeys.MARK59_PRINT_STARTUP_CONSOLE_MESSAGES));
 			System.out.println();
