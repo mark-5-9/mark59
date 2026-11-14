@@ -5,7 +5,7 @@
 
 	<groupId>com.mark59</groupId>
 	<artifactId>mark59-metrics-common</artifactId>
-	<version>6.6</version>
+	<version>6.6.6</version>
 	<packaging>jar</packaging>
 
 	<name>mark59-metrics-common</name>
@@ -21,27 +21,27 @@
 		<dependency>
 			<groupId>com.mark59</groupId>
 			<artifactId>mark59-core</artifactId>
-			<version>6.6</version>
+			<version>6.6.6</version>
 		</dependency>
 
 		<!-- may be ahead of JMeter due to vunerabilty reporting -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.25.4</version>
+			<version>2.26.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>2.25.4</version>
+			<version>2.26.1</version>
 		</dependency>
 
  		<!-- implement log4j 'SFLF bindings' for test purposes only  -->
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-slf4j-impl</artifactId>
-		    <version>2.25.4</version>
+		    <version>2.26.1</version>
 		    <scope>test</scope>
 		</dependency>
 
@@ -78,7 +78,7 @@
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-lang3</artifactId>
-		    <version>3.19.0</version>
+		    <version>3.21.0</version>
 		</dependency>
 
 		<!-- Note: kept in line with version used by JMeter -->
@@ -94,7 +94,7 @@
 		<dependency>
 		    <groupId>org.json</groupId>
 		    <artifactId>json</artifactId>
-		    <version>20251224</version>
+		    <version>20260814</version>
 		</dependency>
 
 		<!-- added to simplify (Groovy) api scripting (eg  New Relic )-->
@@ -110,13 +110,13 @@
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>
-		    <version>2.22.1</version>
+		    <version>2.22.4</version>
 		</dependency>
 
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
-		    <version>2.22.1</version>
+		    <version>2.22.4</version>
 		</dependency>
 
 		<dependency>

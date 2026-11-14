@@ -266,7 +266,7 @@ html, body {
      
       <table>
          <tr> 
-           <td width="15%"><b>Version: 6.6</b> </td> <td width="85%"></td> 	
+           <td width="15%"><b>Version: 6.6.6</b> </td> <td width="85%"></td> 	
          </tr> 
 
          <tr> 

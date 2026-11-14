@@ -40,7 +40,7 @@ public class ScriptingConstants {
 	}
 
 	/** this Mark59 Version for Scripting */
-	public static final String MARK59_VERSION_SCRIPTING  = "6.6";
+	public static final String MARK59_VERSION_SCRIPTING  = "6.6.6";
 
 	
 	/**

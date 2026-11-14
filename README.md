@@ -1,8 +1,17 @@
+
 ## Mark59 Guides, Downloads and More ..
 
 <p>Available at the https://www.mark59.com website
 
 ## Releases
+
+<p>Release 6.6.6<br>
+
+  <ul>
+	<li>Mark59 Pom Dependency Updates: spring-boot to 4.1.2, selenium to 4.52.0 (to chrome v156), playwright to 1.64.0,
+	log4j to 2.26.1, jackson to 2.22.4, org.json to 20260814, commons-lang3 to 3.21.0</li>
+  </ul>
+
 
 <p>Release 6.6<br>
 
@@ -39,7 +48,7 @@
  	<li>Trends UI : (Bug) Transaction names with commas did not work properly. Commas are now replaced with a dash.</li>
  	<li>Playwright Scripting : Several new options have been made available : PLAYWRIGHT_IGNORE_HTTPS_ERRORS,
  	PLAYWRIGHT_GEOLOCATION, PLAYWRIGHT_EXTRA_HTTP_HEADERS, PLAYWRIGHT_HTTP_CREDENTIALS, PLAYWRIGHT_BYPASS_CSP, PLAYWRIGHT_LOCALE,
- 	PLAYWRIGHT_OFFLINE, PLAYWRIGHT_STORAGE_STATE (these are generally the Playwright BrowserContextOPtons that can be 
+ 	PLAYWRIGHT_OFFLINE, PLAYWRIGHT_STORAGE_STATE (these are generally the Playwright BrowserContextOptions that can be 
  	entered as strings (such as on the JMeter Java Request paramenters panel). See JavaDocs for details.       
  	</li>
  	<li>Dependencies Updated: poi to 5.5.1, spring-boot to 4.0.3, selenium to 4.40.0 (chrome v144), playwright to 1.57.0</li>
