@@ -85,12 +85,12 @@ is also a more complete example in the mark59-datahunter-api project (see DataHu
 
 <h3>Data Encryption</h3>
 
-<p>The DataHunter UI and a Java Client API call can encrypt the non-key field 'Otherdata' on Add/Update Item. The difference is the DataHunter UI
-will encrypt using the 'Salt' key on the DataHunter application server, the Java Client will use the 'Salt' key on the server it executed on.
-The utility class DataHunterSecureAES available in the mark59-datahunter-api jar should be used for decryption. For example, in JMeter
-ths jar should be placed in the lib/ext folder, and DataHunterSecureAES.decrypt(<i>encryptedData</i>) invoked via Java or Groovy JSR223 
-(Salts may need to be taken into account).
-Further details about the encryption algorithm implementation available in the DataHunterSecureAES javadoc.
+<p>DataHunter (UI or Rest call) and the Java DataHunter API Client can encrypt the non-key field 'Otherdata' on Add/Update Item. The difference
+is DataHunter will encrypt using the 'Salt' key on the DataHunter application server, the Java Client will use the 'Salt' key on the server
+it executed on. The utility class DataHunterSecureAES available in DataHunter and the mark59-datahunter-api jar should be used for decryption.
+For example, in JMeter, this jar should be placed in the lib/ext folder, and DataHunterSecureAES.decrypt(<i>encryptedData</i>) invoked via 
+Java or Groovy JSR223 (Salts may need to be taken into account).
+<p>Further details about the encryption algorithm implementation available in the DataHunterSecureAES javadoc.
 
 <h3>DataHunter API</h3>
 
@@ -283,13 +283,13 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	<td>/add_policy<br><br><br><b>Add&nbsp;Item</b></td>
 	<td>
 	<p>public DataHunterRestApiResponsePojo addPolicy(Policies policies, boolean encryptOtherdata)<br>
-	<p>Optional parameter: encryptOtherdata
+	<p>Optional parameter: encryptOtherdata<br>
 	__________________________________________________________________<br>
 
 	<p><b>...api/addPolicy?application={application}&amp;identifier={identifier}&amp;lifecycle={lifecycle}&amp;useability={useability}
 	&amp;otherdata={otherdata}&amp;epochtime={epochtime}</b>
 
-	<p>Optional parameters: otherdata, epochtime  (encryptOtherdata is not available)
+	<p>Optional parameters: otherdata, epochtime  (encryptOtherdata is not available - but see example below )
 	<p>Examples:
 
 	<p><a href='api/addPolicy?application=testrest&identifier=id1&lifecycle=somelc&useability=UNUSED&otherdata=other&epochtime=12345'>
@@ -298,6 +298,11 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 
 	<p><a href='api/addPolicy?application=testrest&identifier=id2&lifecycle=somelc&useability=UNUSED&otherdata='>
 				api/addPolicy?application=testrest&amp;identifier=id2&amp;lifecycle=somelc&amp;useability=UNUSED&amp;otherdata=</a>
+				
+	<p>You can obtain an encrypted value using this call:
+		 			
+	<p><a href='api/cipher?pwd=encryptme'>
+				api/cipher?pwd=encryptme</a>
 
 	</td>
  </tr>
@@ -397,14 +402,13 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	<td>/update_policy<br><br><br><b>Update&nbsp;Item</b></td>
 	<td>
 	<p>public DataHunterRestApiResponsePojo updatePolicy(Policies policies, boolean encryptOtherdata)<br>
-	<p>Optional parameter: encryptOtherdata
-
+	<p>Optional parameter: encryptOtherdata<br>
 	__________________________________________________________________<br>
 
 	<p><b>.../api/updatePolicy?application={application}&amp;identifier={identifier}&amp;lifecycle={lifecycle}&amp;useability={useability}
 		&amp;otherdata={otherdata}&amp;epochtime={epochtime}</b>
 
-	<p>Optional parameters: otherdata, epochtime  (encryptOtherdata is not available)
+	<p>Optional parameters: otherdata, epochtime  (encryptOtherdata is not available - but see example below )		
 
 	<p>Notes :<br>
 	'otherdata' is set empty if blank (nothing) passed<br>
@@ -415,6 +419,12 @@ JavaDocs for the API Client from the mark59-datahunter-api project, class com.ma
 	<p><a href='api/updatePolicy?application=testrest&identifier=id1&lifecycle=somelc&useability=UNUSED&otherdata=updated&epochtime=12346'>
 				api/updatePolicy?application=testrest&amp;identifier=id1&amp;lifecycle=somelc&amp;useability=UNUSED&amp;
 				otherdata=updated&amp;epochtime=12346</a>
+				
+	<p>You can obtain an encrypted value using this call:
+		 			
+	<p><a href='api/cipher?pwd=encryptme'>
+				api/cipher?pwd=encryptme</a>
+				
 	</td>
  </tr>
 

@@ -22,7 +22,7 @@
 				populatePasswordCipher(this.responseText)
 			}
 		};
-		xhttp.open("GET", encodeURI("api/cipher?pwd="	+ document.getElementById('otherdata').value), true);
+		xhttp.open("GET", "api/cipher?pwd=" + encodeURIComponent(document.getElementById('otherdata').value), true);
 		xhttp.send();
 	}
 	

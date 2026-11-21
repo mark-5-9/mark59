@@ -42,7 +42,7 @@ function buildHomeLink() {
 </script>
 </head>
 
-<body onload="enableOrdisableCreateCipherBtn();">
+<body onload="enableOrdisableCreateCipherBtn(); buildHomeLink();">
 <%-- Include navigation element --%>
 <jsp:include page="include/navigation.jsp" />
 <div class="content">

@@ -10,6 +10,7 @@
   <ul>
 	<li>Mark59 Pom Dependency Updates: spring-boot to 4.1.2, selenium to 4.52.0 (to chrome v156), playwright to 1.64.0,
 	log4j to 2.26.1, jackson to 2.22.4, org.json to 20260814, commons-lang3 to 3.21.0</li>
+	<li>DataHunter : (Bug) Some special character values did not encrypt correctly using UI</li>
   </ul>
 
 
